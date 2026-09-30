@@ -1,0 +1,14 @@
+# Store pre-calcolati: elettricita_hourly.parquet supera i 100 MB consentiti
+# da GitHub, quindi tutti i parquet passano da Git LFS.
+*.parquet filter=lfs diff=lfs merge=lfs -text
+
+# Sorgenti binari del modello Vensim.
+*.vpmx filter=lfs diff=lfs merge=lfs -text
+*.vdfx filter=lfs diff=lfs merge=lfs -text
+
+# Il .mdl e un sorgente di testo, ma con terminazioni di riga che Vensim
+# gestisce da se: niente normalizzazione.
+*.mdl -text
+*.pdf binary
+*.pkl binary
+*.xlsx binary

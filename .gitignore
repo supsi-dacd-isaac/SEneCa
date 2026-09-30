@@ -1,0 +1,27 @@
+# Ambiente virtuale locale
+.venv/
+
+# Bytecode Python
+__pycache__/
+*.py[cod]
+
+# Output di simulazione Vensim (centinaia di MB ciascuno, rigenerabili).
+# I sei .vdfx di input servono a pysd_export_vdf.py e sono tracciati sotto.
+*.vdfx
+!Vensim/PVinput.vdfx
+!Vensim/HPinput.vdfx
+!Vensim/EVinput.vdfx
+!Vensim/Input2011.vdfx
+!Vensim/InputRenovation.vdfx
+!Vensim/Input Hour Factors.vdfx
+
+# Directory di lavoro create dai runner Vensim
+precomputed/**/_runs/
+
+# Backup automatici della pipeline di ritraduzione
+Vensim/_backup_retranslate_*/
+*.py.pre_hotpath
+
+# Log della ritraduzione / validazione
+_retranslate_*.log
+_coherence_*.log
