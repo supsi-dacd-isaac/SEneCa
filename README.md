@@ -58,8 +58,8 @@ $env:PYTHONPATH = $PWD
 Le quattro pagine di risultati (`PV e Batterie`, `Riscaldamento e Risanamento`,
 `Veicoli`, `Elettricita'`) servono all'istante combinazioni gia' simulate: si
 scelgono le leve di policy con gli slider e il confronto con lo scenario Base e'
-immediato. `Esplora SURE PySD` lancia invece una simulazione live su tutte le
-leve disponibili, al costo di alcuni minuti per run.
+immediato. `Simulazione in tempo reale` lancia invece una simulazione live su
+tutte le leve disponibili, al costo di alcuni minuti per run.
 
 ## Rigenerare gli store pre-calcolati
 

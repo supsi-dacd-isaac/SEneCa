@@ -1,7 +1,7 @@
 """Entrypoint Streamlit del modello SURE.
 
-Router multipagina con st.navigation: Introduzione (Home, System Dynamics) e
-Risultati (4 scenari + Esplora SURE PySD).
+Router: Introduzione, Risultati, Analisi esplorativa (policy mix e
+simulazione live).
 """
 from __future__ import annotations
 
@@ -25,7 +25,16 @@ pages = {
         ),
         st.Page("pages/3_Veicoli.py", title="Veicoli"),
         st.Page("pages/4_Elettricità.py", title="Elettricità"),
-        st.Page("pages/9_Esplora_SURE_PySD.py", title="Esplora SURE PySD"),
+    ],
+    "Analisi esplorativa": [
+        st.Page(
+            "pages/5_Analisi_Esplorativa.py",
+            title="Policy mix e incertezza",
+        ),
+        st.Page(
+            "pages/9_Esplora_SURE_PySD.py",
+            title="Simulazione in tempo reale",
+        ),
     ],
 }
 

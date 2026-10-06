@@ -24,6 +24,7 @@ from pv_batteries_config import (  # noqa: E402
     BASE_SCENARIO, BINARY_INPUTS, BINARY_LABELS, FINAL_YEAR,
     GMD_SPEC, INPUT_GRID, INPUT_META, INPUT_ORDER,
 )
+import explore_results_charts as _erc  # noqa: E402
 import gmd as _gmd  # noqa: E402
 import section_ui as _section_ui  # noqa: E402
 import echarts_charts as _echarts_charts  # noqa: E402
@@ -32,6 +33,7 @@ importlib.reload(_gmd)
 importlib.reload(_section_ui)
 importlib.reload(_echarts_charts)
 importlib.reload(_section_store)
+importlib.reload(_erc)
 from explore_results_charts import (  # noqa: E402
     _LEGACY_PV_CAPACITY_BASES,
     match_cols,
@@ -159,6 +161,7 @@ def render_summary_metrics(
             with st.container(border=True):
                 st.metric(
                     label, display, delta=_pct_delta_vs_base(value, value_base),
+                    help=GMD_DISPLAY_CAPTION if "Equità" in label else None,
                 )
 
     render_kpi_radar(
@@ -194,11 +197,6 @@ if not store:
         "`pv_batteries/precompute_pv_batteries.py` per popolare lo store."
     )
     st.stop()
-
-n_combos = 1
-for opts in INPUT_GRID.values():
-    n_combos *= len(opts)
-st.caption(f"{len(store)}/{n_combos} combinazioni disponibili nello store.")
 
 with st.sidebar:
     st.header("Scenario selezionato")
@@ -252,7 +250,7 @@ if compare_base:
         compare_gmd_key = base_key
 
 
-# Alcuni scenari estremi (max incentivi PV + FiT + Energy Community) non
+# Alcuni scenari estremi (max incentivi PV + FiT + comunità energetica) non
 # convergono nel modello Vensim e la simulazione si ferma prima del 2050.
 sim_incomplete = bool(df.loc[FINAL_YEAR].isna().all())
 if sim_incomplete:
@@ -294,7 +292,7 @@ via via che le situazioni divergono.
 
 **Come leggere il numero.** Il GMD grezzo è in CHF e poco interpretabile da solo, quindi
 viene riscalato su una scala da 0 a 1 usando il valore minimo e massimo osservati
-**sull'intero store dei 324 scenari precalcolati**: 1 identifica lo scenario più equo
+**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo
 fra quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di
 scenari, non una misura assoluta di equità: un valore di 0.5 significa "a metà strada
 fra lo scenario migliore e quello peggiore", e i valori cambierebbero se si cambiasse
@@ -303,7 +301,6 @@ la griglia degli scenari.
 
 # --- Indicatori principali (2050) -------------------------------------
 st.subheader(f"Indicatori principali ({FINAL_YEAR})")
-st.caption(GMD_DISPLAY_CAPTION)
 with st.expander("Cosa misurano questi indicatori"):
     st.markdown(KPI_EXPLANATION)
 gmd_bounds = gmd_bounds_for_spec(gmd_store, GMD_SPEC)

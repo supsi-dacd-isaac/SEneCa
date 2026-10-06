@@ -30,7 +30,6 @@ importlib.reload(_section_ui)
 from gmd import gmd_bounds_for_spec  # noqa: E402
 from section_store import base_combo_key, combo_key, load_gmd_store, load_traj_store  # noqa: E402
 from section_ui import (  # noqa: E402
-    GMD_DISPLAY_CAPTION,
     render_configured_summary_metrics,
     render_section,
     sim_incomplete,
@@ -77,11 +76,6 @@ if not store:
         "`pv_batteries/precompute_risanamento.py` per popolare lo store."
     )
     st.stop()
-
-n_combos = 1
-for v in cfg.INPUT_GRID.values():
-    n_combos *= len(v)
-st.caption(f"{len(store)}/{n_combos} combinazioni disponibili nello store.")
 
 with st.sidebar:
     st.header("Scenario selezionato")
@@ -139,7 +133,6 @@ if sim_incomplete(df, cfg.FINAL_YEAR):
     )
 
 st.subheader(f"Indicatori principali ({cfg.FINAL_YEAR})")
-st.caption(GMD_DISPLAY_CAPTION)
 with st.expander("Cosa misurano questi indicatori"):
     st.markdown(cfg.KPI_EXPLANATION)
 gmd_bounds = gmd_bounds_for_spec(gmd_store, cfg.GMD_SPEC)

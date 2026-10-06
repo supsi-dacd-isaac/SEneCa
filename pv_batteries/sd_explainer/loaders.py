@@ -6,6 +6,7 @@ import streamlit as st
 
 from sd_explainer.paths import (
     EV_INPUT_CSV,
+    HOUR_FACTORS_CSV,
     MAP_HTML,
     PLOTS_DATA,
     PV_INPUT_CSV,
@@ -53,6 +54,54 @@ def sector_pie_at_year(df: pd.DataFrame, year: int) -> tuple[list[str], list[flo
 @st.cache_data(show_spinner=False)
 def load_production_csv() -> pd.DataFrame:
     return load_sector_csv("Historical electricity production.csv")
+
+
+def _hour_factors_row(raw: pd.DataFrame, name: str, cols: list) -> pd.Series:
+    loc = raw.loc[name]
+    if isinstance(loc, pd.DataFrame):
+        loc = loc.iloc[0]
+    return pd.to_numeric(loc[cols], errors="coerce").fillna(0.0)
+
+
+@st.cache_data(show_spinner=False)
+def load_historical_hydro_production(
+) -> tuple[list[str], dict[str, list[float]]]:
+    """Produzione elettrica storica 2011-2024 dalle serie di input del modello.
+
+    Idroelettrico = bacini (inflow HS + apporto naturale ai bacini PHS, GWh).
+    Acqua fluente e pompaggio sono le produzioni annue RR e PHS. Altro somma
+    rifiuti, eolico e fotovoltaico.
+    """
+    raw = pd.read_csv(HOUR_FACTORS_CSV, index_col=0)
+    cols = [
+        c for c in raw.columns
+        if str(c).strip().isdigit() and 2011 <= int(c) <= 2024
+    ]
+    hs = (
+        _hour_factors_row(raw, "Annual HS inflow for Ticino", cols)
+        + _hour_factors_row(raw, "Annual HS inflow NOT for Ticino", cols)
+    )
+    phsn = (
+        _hour_factors_row(raw, "Annual PHSn inflow for Ticino", cols)
+        + _hour_factors_row(raw, "Annual PHSn inflow NOT for Ticino", cols)
+    )
+    ror = (
+        _hour_factors_row(raw, "RR annual production for Ticino", cols)
+        + _hour_factors_row(raw, "RR annual production NOT for Ticino", cols)
+    )
+    phs = _hour_factors_row(raw, "PHS annual production", cols)
+    other = (
+        _hour_factors_row(raw, "Waste annual production", cols)
+        + _hour_factors_row(raw, "Wind annual production", cols)
+        + _hour_factors_row(raw, "PV annual production", cols)
+    )
+    years = [str(int(c)) for c in cols]
+    return years, {
+        "Idroelettrico": [float(v) for v in (hs + phsn) / 1000.0],
+        "Acqua fluente": [float(v) for v in ror],
+        "Idroelettrico con pompaggio": [float(v) for v in phs],
+        "Altro": [float(v) for v in other],
+    }
 
 
 def production_line_series(

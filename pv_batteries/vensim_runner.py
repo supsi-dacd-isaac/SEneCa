@@ -95,6 +95,14 @@ class VensimModel:
         ]
         d.vensim_get_varattrib.restype = ctypes.c_int
 
+        # Valore corrente (a fine run = FINAL TIME). Puo' mancare in alcune DLL.
+        self._has_get_val = hasattr(d, "vensim_get_val")
+        if self._has_get_val:
+            d.vensim_get_val.argtypes = [
+                ctypes.c_char_p, ctypes.POINTER(ctypes.c_float),
+            ]
+            d.vensim_get_val.restype = ctypes.c_int
+
     # -- comandi ---------------------------------------------------------
     def cmd(self, command: str) -> None:
         rc = self.dll.vensim_command(_enc(command))
@@ -142,6 +150,32 @@ class VensimModel:
             raise RuntimeError(
                 f"Nessun dato per '{varname}' nel run '{run_name}' (n={n}).")
         return list(tval[:n]), list(vval[:n])
+
+    def get_year(self, run_name: str, varname: str, year: float,
+                 maxn: int = 5000) -> float:
+        """Valore di 'varname' all'anno indicato, senza materializzare la serie."""
+        vval, tval = self._buffers(maxn)
+        n = self.dll.vensim_get_data(
+            _enc(run_name), _enc(varname), b"Time", vval, tval, maxn)
+        if n <= 0:
+            raise RuntimeError(
+                f"Nessun dato per '{varname}' nel run '{run_name}' (n={n}).")
+        target = float(year)
+        for i in range(n):
+            if abs(tval[i] - target) < 1e-6:
+                return float(vval[i])
+        return float("nan")
+
+    def get_val(self, varname: str) -> float:
+        """Valore corrente di 'varname' (dopo RUN e' l'ultimo TIME)."""
+        if not getattr(self, "_has_get_val", False):
+            raise RuntimeError("vensim_get_val non e' esportato da questa DLL.")
+        val = ctypes.c_float()
+        rc = self.dll.vensim_get_val(_enc(varname), ctypes.byref(val))
+        if rc != 1:
+            raise RuntimeError(
+                f"vensim_get_val fallito per '{varname}' (rc={rc}).")
+        return float(val.value)
 
     def subscript_combos(self, base_var: str, buflen: int = 8_000_000):
         """Combinazioni di subscript di 'base_var' (senza parentesi).

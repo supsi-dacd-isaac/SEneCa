@@ -62,7 +62,7 @@ INPUT_META = {
     "Battery Rebate": {"label": "Rimborso batterie", "unit": "-"},
     "PV rebate federal": {"label": "PV rebate federale", "unit": "-"},
     "PV reg scenario": {"label": "Obbligo PV nuovi edifici", "unit": "-"},
-    "Energy Community scenario": {"label": "Energy Community (RCP)", "unit": "-"},
+    "Energy Community scenario": {"label": "Comunità energetica (RCP)", "unit": "-"},
 }
 
 # =============================================================
@@ -191,36 +191,43 @@ OUTPUT_GROUPS: list[dict] = [
         ],
     },
     {
-        # Sezione unica: prima riga con due sotto-blocchi affiancati a meta'
-        # pagina (senza titoli propri), poi i due supplementi a tutta larghezza.
+        # Due righe da due colonne: prezzo | rinforzo, poi i due supplementi.
         "title": "Prezzo elettricità e costi",
-        "columns": [
-            {
-                # Un solo grafico alla volta, scelto da menu a tendina: le
-                # componenti hanno ordini di grandezza diversi e affiancarle
-                # le rende illeggibili.
-                "key": "componenti-prezzo",
-                "explain": "prezzo",
-                "selector": "Componente del prezzo",
-                "charts": [
-                    "Electricity price",
-                    "Energy price",
-                    "TSO charge",
-                    "DSO charge",
-                ],
-            },
-            {
-                "key": "rinforzo-rete",
-                "explain": "rinforzo",
-                "charts": [
-                    "Annual grid upgrading cost District",
-                ],
-            },
-        ],
-        "explain": "levy",
-        "charts": [
-            "Levy Evolution",
-            "Cantonal Levy Evolution",
+        "column_rows": [
+            [
+                {
+                    # Un solo grafico alla volta, scelto da menu a tendina: le
+                    # componenti hanno ordini di grandezza diversi e affiancarle
+                    # le rende illeggibili.
+                    "key": "componenti-prezzo",
+                    "explain": "prezzo",
+                    "selector": "Componente del prezzo",
+                    "charts": [
+                        "Electricity price",
+                        "Energy price",
+                        "DSO charge",
+                    ],
+                },
+                {
+                    "key": "rinforzo-rete",
+                    "explain": "rinforzo",
+                    "charts": [
+                        "Annual grid upgrading cost District",
+                    ],
+                },
+            ],
+            [
+                {
+                    "key": "supplemento-federale",
+                    "explain": "levy_federal",
+                    "charts": ["Levy Evolution"],
+                },
+                {
+                    "key": "supplemento-cantonale",
+                    "explain": "levy_cantonal",
+                    "charts": ["Cantonal Levy Evolution"],
+                },
+            ],
         ],
     },
 ]

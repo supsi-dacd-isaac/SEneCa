@@ -255,4 +255,17 @@ riferiscono a ore diverse dell'anno.
 
 OUTPUT_BASES = [o["base"] for o in OUTPUTS]
 
+# Nomi Vensim dei supplier → etichette di legenda (pagina Elettricità e Esplora).
+SUPPLIER_LABELS: dict[str, str] = {
+    "Coal": "Carbone",
+    "Hydro": "Idroelettrico",
+    "Nuclear": "Nucleare",
+    "PHS": "Idroelettrico con pompaggio",
+    "RoR": "Acqua fluente",
+    "Solar": "Solare",
+    "Waste": "Rifiuti",
+    "Wind": "Eolico",
+    "Import": "Importazioni",
+}
+
 

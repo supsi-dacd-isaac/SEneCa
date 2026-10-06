@@ -44,11 +44,6 @@ if not store:
     )
     st.stop()
 
-n_combos = 1
-for v in cfg.INPUT_GRID.values():
-    n_combos *= len(v)
-st.caption(f"{len(store)}/{n_combos} combinazioni disponibili nello store.")
-
 with st.sidebar:
     st.header("Scenario selezionato")
     values = []

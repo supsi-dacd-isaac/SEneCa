@@ -102,14 +102,6 @@ SUMMARY_METRICS = [
         "value": "year",
         "radar": False,
     },
-    {
-        "label": "Immatricolazioni EV",
-        "base": "Adoption Vehicles",
-        "elem": "BEV",
-        "unit": "veicoli/anno",
-        "decimals": 0,
-        "value": "year",
-    },
 ]
 
 KPI_EXPLANATION = f"""
@@ -126,9 +118,6 @@ ogni valore è il confronto con lo scenario Base.
   totale. Il parco complessivo è un'ipotesi esogena del modello e non reagisce agli
   incentivi, quindi questa quota si muove esattamente come il totale EV: è una lettura
   più comoda, non un'informazione in più, ed è il motivo per cui non compare nel radar.
-- **Immatricolazioni EV** — BEV immatricolati nel solo {FINAL_YEAR}. È un flusso e non
-  uno stock, quindi anticipa le variazioni del parco circolante: l'effetto di una
-  politica si vede prima qui e solo più tardi sul totale dei veicoli.
 
 Questa sezione non ha un indice di equità: gli effetti distributivi della transizione
 sono misurati nelle pagine *PV e Batterie* e *Riscaldamento e Risanamento*.

@@ -52,11 +52,11 @@ render_sd_intro()
 
 st.divider()
 
-st.markdown("### Il percorso in quattro passi")
+st.markdown("### Lo sviluppo del modello in quattro passi")
 st.markdown(
-    "Dalla **definizione del problema** con gli stakeholder (MLP) ai modelli "
-    "qualitativi (CLD), ai dati storici e alla **calibrazione**. Il percorso prepara "
-    "alla lettura delle sezioni **Risultati**."
+    "Dalla definizione del problema con gli stakeholder ai modelli "
+    "qualitativi, ai dati storici e alla calibrazione. Il percorso prepara "
+    "alla lettura delle sezioni Risultati."
 )
 
 st.session_state.setdefault(STEP_KEY, STEP_LABELS[0])

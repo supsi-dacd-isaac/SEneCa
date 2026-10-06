@@ -303,6 +303,108 @@ def build_radar_options(
     }
 
 
+def build_boxplot_options(
+    categories: list[str],
+    boxes: list[list[float]],
+    *,
+    unit: str = "",
+    y_min: float | None = 0.0,
+    y_max: float | None = 1.0,
+    outliers: list[list[float]] | None = None,
+) -> dict:
+    """Boxplot per categoria: ogni box è [min, Q1, mediana, Q3, max]."""
+    series: list[dict] = [{
+        "name": "Distribuzione",
+        "type": "boxplot",
+        "data": boxes,
+    }]
+    if outliers:
+        series.append({
+            "name": "Outlier",
+            "type": "scatter",
+            "data": outliers,
+            "symbolSize": 6,
+        })
+    y_axis: dict = {"type": "value", "name": unit, "scale": False}
+    if y_min is not None:
+        y_axis["min"] = y_min
+    if y_max is not None:
+        y_axis["max"] = y_max
+    return {
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {},
+                "dataView": {"readOnly": True},
+                "restore": {},
+            }
+        },
+        "tooltip": {"trigger": "item"},
+        "legend": {"show": bool(outliers), "bottom": 0},
+        "xAxis": {
+            "type": "category",
+            "data": categories,
+            "axisLabel": {"interval": 0, "rotate": 28},
+        },
+        "yAxis": y_axis,
+        "grid": {"bottom": "26%", "left": "10%", "right": "4%", "top": "8%"},
+        "series": series,
+    }
+
+
+def build_multi_radar_options(
+    labels: list[str],
+    series: dict[str, list[float | None]],
+    *,
+    axis_max: float = 1.0,
+    series_order: list[str] | None = None,
+) -> dict:
+    """Radar multi-serie con assi su una scala comune (es. KPI 0–1)."""
+    if series_order:
+        names = [name for name in series_order if name in series]
+        names.extend(name for name in series if name not in names)
+    else:
+        names = list(series.keys())
+
+    return {
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {},
+                "dataView": {"readOnly": True},
+                "restore": {},
+            }
+        },
+        "tooltip": {"trigger": "item"},
+        "legend": {
+            "bottom": 0,
+            "type": "scroll" if len(names) > 5 else "plain",
+            "data": names,
+        },
+        "radar": {
+            "indicator": [
+                {"name": label, "min": 0, "max": axis_max} for label in labels
+            ],
+            "radius": "58%",
+            "center": ["50%", "46%"],
+            "axisName": {"fontSize": 11},
+            "splitArea": {"areaStyle": {"opacity": 0.05}},
+        },
+        "series": [{
+            "type": "radar",
+            "data": [
+                {
+                    "value": [
+                        None if v is None or pd.isna(v) else round(float(v), 3)
+                        for v in series[name]
+                    ],
+                    "name": name,
+                    "areaStyle": {"opacity": 0.12},
+                }
+                for name in names
+            ],
+        }],
+    }
+
+
 def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2
 ) -> None:

@@ -27,7 +27,11 @@ importlib.reload(cfg)  # evita config stale se Streamlit tiene sys.modules
 import sure_paths as paths  # noqa: E402
 import sure_pysd as sp  # noqa: E402
 importlib.reload(sp)
+import elettricita_config as elec_cfg  # noqa: E402
 import explore_results_charts as erc  # noqa: E402
+import section_ui_hourly as _sui_h  # noqa: E402
+importlib.reload(elec_cfg)
+importlib.reload(_sui_h)
 importlib.reload(erc)
 from explore_results_charts import (  # noqa: E402
     df_has_results_columns,
@@ -312,7 +316,7 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 # =============================================================
 # MAIN
 # =============================================================
-st.title("Esplora SURE (backend PySD)")
+st.title("Simulazione in tempo reale")
 st.caption(
     f"Simulazione live con {len(sp.OUTPUTS)} output Risultati "
     "(PV / Risanamento / Veicoli / Elettricità); tipicamente alcuni minuti "

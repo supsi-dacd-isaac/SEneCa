@@ -26,6 +26,14 @@ from section_ui import (
 
 ELEC_SECTION_KEY = "elec_section"
 
+
+def _label_supplier_frame(df: pd.DataFrame, cfg) -> pd.DataFrame:
+    """Rinomina le colonne-supplier con le etichette italiane della config."""
+    labels = getattr(cfg, "SUPPLIER_LABELS", None)
+    if df.empty or not labels:
+        return df
+    return df.rename(columns=lambda c: labels.get(str(c), str(c)))
+
 VIEW_ANNUAL = "Totale annuo"
 VIEW_MONTHLY = "Profilo mensile"
 VIEW_HOURLY = "Profilo orario"
@@ -151,8 +159,11 @@ def render_annual_supplier_line(
     df: pd.DataFrame, meta: dict, cfg,
     *, df_base: pd.DataFrame | None = None,
 ) -> None:
-    annual = aggregate_annual_supplier(
-        df, meta["base"], meta.get("exclude_suppliers"),
+    annual = _label_supplier_frame(
+        aggregate_annual_supplier(
+            df, meta["base"], meta.get("exclude_suppliers"),
+        ),
+        cfg,
     )
     title = meta.get("title", f"{meta['base']} | totale annuo per supplier")
     if annual.empty:
@@ -173,8 +184,11 @@ def render_annual_supplier_line(
         }
         compare = None
         if df_base is not None:
-            annual_base = aggregate_annual_supplier(
-                df_base, meta["base"], meta.get("exclude_suppliers"),
+            annual_base = _label_supplier_frame(
+                aggregate_annual_supplier(
+                    df_base, meta["base"], meta.get("exclude_suppliers"),
+                ),
+                cfg,
             )
             compare = _compare_from_pivot(annual_base, list(series.keys()))
         options = build_line_options(
@@ -204,9 +218,12 @@ def render_monthly_supplier_bars(
 
     for col, year in zip(cols, cfg.DISPLAY_YEARS, strict=True):
         with col:
-            monthly = aggregate_monthly_supplier(
-                df, meta["base"], year, meta.get("exclude_suppliers"),
-                months=cfg.ALL_MONTHS,
+            monthly = _label_supplier_frame(
+                aggregate_monthly_supplier(
+                    df, meta["base"], year, meta.get("exclude_suppliers"),
+                    months=cfg.ALL_MONTHS,
+                ),
+                cfg,
             )
             title = f"{prefix} | {year}"
             render_stacked_bar(
@@ -230,9 +247,12 @@ def render_hourly_section(
         cols = st.columns(len(cfg.DISPLAY_YEARS))
         for col, year in zip(cols, cfg.DISPLAY_YEARS, strict=True):
             with col:
-                snap = hourly_snapshot(
-                    df, meta["base"], month, year, meta["has_supplier"],
-                    meta.get("exclude_suppliers"),
+                snap = _label_supplier_frame(
+                    hourly_snapshot(
+                        df, meta["base"], month, year, meta["has_supplier"],
+                        meta.get("exclude_suppliers"),
+                    ),
+                    cfg,
                 )
                 title = f"{prefix} | {month} | {year}"
                 chart_key = f"{meta['base']}_hourly_{month}_{year}"

@@ -14,13 +14,6 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCUMENTATION = ROOT / "SEneCa_documentation.pdf"
 SURE_URL = "https://sweet-sure.ch/"
 
-KEY_FIGURES = [
-    ("Orizzonte di simulazione", "2011–2050"),
-    ("Distretti ticinesi", "8"),
-    ("Archetipi edilizi", "2'640"),
-    ("Scenari pre-calcolati", "~2'440"),
-]
-
 CAN_ANSWER = [
     "Come possono evolvere nel lungo periodo la diffusione di **fotovoltaico, "
     "pompe di calore, risanamenti, batterie e veicoli elettrici** sotto "
@@ -83,19 +76,7 @@ def _documentation_bytes(path: str) -> bytes:
     return Path(path).read_bytes()
 
 
-st.title("Modello SURE — Caso studio Canton Ticino")
-st.markdown(
-    "Uno strumento di **analisi di scenari** per la transizione energetica del "
-    "Canton Ticino fino al 2050, sviluppato da SUPSI nel WP13 del progetto "
-    "**SWEET SURE**."
-)
-
-cols = st.columns(len(KEY_FIGURES))
-for col, (label, value) in zip(cols, KEY_FIGURES):
-    with col.container(border=True):
-        st.metric(label, value)
-
-st.divider()
+st.title("Modello SEneCa — Caso studio Canton Ticino")
 
 st.subheader("Contesto del progetto SURE")
 st.markdown(
@@ -110,7 +91,7 @@ Energy for Switzerland**, di cui il caso ticinese è la declinazione cantonale.
 
 col_ch, col_ti = st.columns(2)
 with col_ch.container(border=True):
-    st.markdown("#### :material/public: SURE, livello nazionale")
+    st.markdown("#### :earth_africa: SURE, livello nazionale")
     st.markdown(
         """
 Consorzio del programma federale **SWEET** (Call 1-2020), dieci partner di
@@ -126,7 +107,7 @@ agli shock e quali strategie reggano in una pluralità di futuri plausibili.
 """
     )
 with col_ti.container(border=True):
-    st.markdown("#### :material/map: Il caso Ticino, WP13")
+    st.markdown("#### :round_pushpin: Il caso Ticino, WP13")
     st.markdown(
         """
 Nella struttura federale svizzera gli obiettivi climatici sono definiti a
@@ -136,13 +117,15 @@ accettazione politica e sociale del territorio.
 
 Il WP13, condotto da **SUPSI**, costruisce lo strumento che collega i due
 livelli. Il modello nasce da un percorso **partecipativo** con gli stakeholder
-cantonali — amministrazione, aziende elettriche, associazioni, politica — che
+cantonali (amministrazione, aziende elettriche, associazioni, politica) che
 ne hanno definito il problema, le variabili rilevanti e gli indicatori. Non è
 quindi una semplice regionalizzazione di dati nazionali.
 """
     )
 
 st.divider()
+
+st.subheader("Il modello SEneCa - Sistema Energetico Cantonale")
 
 st.info(
     """
@@ -157,7 +140,9 @@ tra scenari.
     icon=":material/lightbulb:",
 )
 
-st.subheader("Domande alle quali il modello può e non può contribuire")
+st.markdown(
+    """Domande alle quali il modello può e non può contribuire:"""
+)
 
 col_can, col_cannot = st.columns(2)
 with col_can.container(border=True):
@@ -167,19 +152,12 @@ with col_cannot.container(border=True):
     st.markdown(":red-badge[:material/block: Non è destinato a]")
     st.markdown("\n".join(f"- {item}" for item in CANNOT_ANSWER))
 
-st.caption(
-    "I valori simulati per il 2030, 2040 o 2050 vanno letti in chiave "
-    "comparativa rispetto allo scenario di riferimento: sono il risultato delle "
-    "assunzioni dello scenario considerato, non la configurazione che il sistema "
-    "raggiungerà necessariamente."
-)
-
 st.divider()
 
 st.subheader("Perché una web application")
 st.markdown(
     """
-Il modello SURE-Ticino è sviluppato in **Vensim**: usarlo direttamente richiede
+Il modello SEneCa è sviluppato in **Vensim**: usarlo direttamente richiede
 di conoscerne la struttura interna e di disporre del relativo ambiente
 software. Questa applicazione è lo **strato di accesso e comunicazione** che
 apre le capacità di analisi del modello anche a utenti non specializzati:

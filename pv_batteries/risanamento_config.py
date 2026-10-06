@@ -77,8 +77,8 @@ OUTPUTS = [
          {"label": "Olio", "bases": ["Annual consumption Oil"]},
          {"label": "Gas", "bases": ["Annual consumption Gas"]},
          {"label": "Legna", "bases": ["Annual consumption Wood"]},
-         {"label": "Elettricita' EH", "bases": ["Annual consumption Electricity EH"]},
-         {"label": "Elettricita' HP", "bases": ["Annual consumption Electricity HP"]},
+         {"label": "Elettricità resistenza", "bases": ["Annual consumption Electricity EH"]},
+         {"label": "Elettricità PC", "bases": ["Annual consumption Electricity HP"]},
          {"label": "Calore ambiente", "bases": ["Annual consumption Ambient Heat"]},
          {"label": "Solare", "bases": ["Annual consumption Solar"]},
          {"label": "Rete termica", "bases": ["Annual consumption DH"]},
@@ -117,8 +117,7 @@ INCENTIVES_EXPLANATION = """
 ### 💰 Quali incentivi vengono pagati
 
 - 🧱 **Risanamento** — l'incentivo è versato sui metri quadrati che passano a una classe
-  di efficienza superiore, con importi crescenti a seconda del livello raggiunto
-  (standard di base, CECE, Minergie). Lo slider *Incentivo risanamento* fissa il valore
+  di efficienza superiore, con importi crescenti a seconda del livello raggiunto. Lo slider *Incentivo risanamento* fissa il valore
   specifico in CHF/m².
 - 🔥 **Riscaldamento** — l'incentivo copre una frazione del costo di ogni impianto
   sostituito: pompe di calore, caldaie a pellet o legna e collettori solari. Caldaie a
@@ -133,7 +132,7 @@ INCENTIVES_EXPLANATION = """
   della spesa in incentivi registrata nel 2024 e **calano linearmente fino ad azzerarsi
   nel 2050**.
 - I *fondi cantonali necessari* sono semplicemente quello che resta scoperto, cioè
-  `incentivi totali − fondi federali` (mai negativo). Per questo la curva tende a
+  `incentivi totali − fondi federali`. Per questo la curva tende a
   salire anche a parità di incentivi: il sostegno federale si ritira.
 
 ### 🌍 Assunzioni sulla tassa CO2

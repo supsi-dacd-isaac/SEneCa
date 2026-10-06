@@ -153,8 +153,12 @@ def render_configured_summary_metrics(
     gmd_base_row = gmd_store.get(base_key, {}) if base_key else {}
 
     entries: list[tuple[str, float | None, float | None]] = []
+    last_gmd = max(
+        (i for i, spec in enumerate(metrics) if spec.get("gmd")),
+        default=None,
+    )
     cols = st.columns(len(metrics))
-    for col, spec in zip(cols, metrics, strict=True):
+    for i, (col, spec) in enumerate(zip(cols, metrics, strict=True)):
         value_num = _metric_numeric_value(
             spec, df, year=year, gmd_row=gmd_row, gmd_bounds=gmd_bounds,
         )
@@ -177,6 +181,7 @@ def render_configured_summary_metrics(
                     spec["label"],
                     display,
                     delta=pct_delta_vs_base(value_num, value_base),
+                    help=GMD_DISPLAY_CAPTION if i == last_gmd else None,
                 )
 
     if radar:

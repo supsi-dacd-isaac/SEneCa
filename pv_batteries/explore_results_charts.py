@@ -158,22 +158,27 @@ def render_chart(
         st.info(f"Tipo grafico non supportato: {kind!r}.")
 
 
-LEVY_EXPLANATION = """
-I due supplementi non sono parametri esogeni: il modello li **ricalcola** in modo
-che il gettito copra esattamente gli incentivi erogati. Entrambi seguono la stessa
-formula, `supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`,
-con fondi e domanda mediati sui 5 anni precedenti per smorzare le oscillazioni.
+LEVY_SHARED = """
+Il supplemento non è un parametro esogeno: il modello lo **ricalcola** in modo
+che il gettito copra esattamente gli incentivi erogati, con la formula
+`supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.
+Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.
+"""
 
-**Supplemento federale** (rete elettrica / Pronovo) finanzia:
+LEVY_FEDERAL = """
+Finanzia:
 
 - la **rimunerazione unica** per i grandi impianti PV (RUG, oltre 100 kW);
 - la **rimunerazione unica** per i piccoli impianti PV (RUP, sotto 100 kW);
 - i contratti della **vecchia RIC** ancora in essere;
 - gli **altri costi Pronovo**, fissi a 59.4 Mio CHF all'anno.
 
-La domanda al denominatore è quella **svizzera**, che si assume proporzionale a quella ticinese.
+La domanda al denominatore è quella **svizzera**, che si assume proporzionale a
+quella ticinese.
+"""
 
-**Supplemento cantonale** finanzia invece:
+LEVY_CANTONAL = """
+Finanzia:
 
 - la quota ticinese della **RIC cantonale**;
 - il **contributo unico cantonale** sugli impianti PV, residenziali e non;
@@ -181,32 +186,30 @@ La domanda al denominatore è quella **svizzera**, che si assume proporzionale a
   moltiplicata per la tariffa FiT scelta nello scenario;
 - l'**incentivo sulle batterie**, residenziali e non residenziali.
 
-Da questa somma vengono sottratti gli oneri per la centrale a carbone di Lünen. La domanda al denominatore è quella **ticinese che transita in
-rete**, cioè il consumo totale meno l'autoconsumo fotovoltaico.
+Da questa somma vengono sottratti gli oneri per la centrale a carbone di Lünen.
+La domanda al denominatore è quella **ticinese che transita in rete**, cioè il
+consumo totale meno l'autoconsumo fotovoltaico.
 
 Da qui un effetto di retroazione importante: più fotovoltaico significa più
 autoconsumo, quindi **meno kWh su cui ripartire gli incentivi** e un supplemento
 unitario più alto, anche a parità di incentivi erogati.
-
 """
 
 PRICE_EXPLANATION = """
-Il prezzo pagato dal consumatore finale è la somma di sei voci. Dal menu qui sotto
-puoi vedere l'andamento di ciascuna.
+Il prezzo pagato dal consumatore finale è la somma di più voci. Dal menu qui sotto
+puoi vedere l'andamento del prezzo finale, dell'energia e della rete locale.
 
 - ⚡ **Energia** — il costo di acquisto vero e proprio. Varia da distretto a distretto
   perché dipende dal portafoglio di approvvigionamento dell'azienda distributrice.
   Fino al 2026 sono i valori storici osservati; dal 2027 il modello li riscala sul
   prezzo medio di mercato che calcola nella simulazione oraria.
-- 🔌 **Rete di trasporto (TSO)** — l'alta tensione gestita da Swissgrid. È una
-  costante, circa 0.016 CHF/kWh, uguale per tutti i distretti.
 - 🏘️ **Rete di distribuzione (DSO)** — la rete locale. Fino al 2026 vale la tariffa
   storica; dal 2027 il modello la ricalcola come *(spese di base del distributore +
   costi di rinforzo rete) / kWh transitati in rete nel distretto*. I cinque distretti
   serviti dallo stesso distributore (Locarno, Vallemaggia, Leventina, Blenio e
   Riviera) condividono quindi la stessa tariffa.
 - 🇨🇭 **Supplemento federale** e 🏛️ **supplemento cantonale** — finanziano gli
-  incentivi; il dettaglio è nel riquadro più in basso.
+  incentivi; il dettaglio è nei riquadri dei due supplementi.
 - 🧾 **Tasse cantonali e comunali** — voce fissa a 0.018 CHF/kWh.
 """
 
@@ -222,14 +225,21 @@ separatamente:
 Il valore mostrato è una media mobile su 5 anni, perché i potenziamenti di rete si
 pianificano su più esercizi e non seguono le oscillazioni di un singolo anno.
 
-⚠️ Questi costi non restano isolati: dal 2027 confluiscono nella componente DSO del
+⚠️ Questi costi confluiscono nella componente DSO del
 prezzo. Un distretto che elettrifica in fretta vede quindi **aumentare la propria
-tariffa di rete**, ed è il motivo per cui le curve del prezzo finale divergono fra
+tariffa di rete**, ed è uno dei motivi per cui le curve del prezzo finale divergono fra
 distretti.
 """
 
 EXPLANATIONS = {
-    "levy": ("Come vengono calcolati i supplementi", LEVY_EXPLANATION),
+    "levy_federal": (
+        "Come viene calcolato il supplemento federale",
+        LEVY_SHARED + LEVY_FEDERAL,
+    ),
+    "levy_cantonal": (
+        "Come viene calcolato il supplemento cantonale",
+        LEVY_SHARED + LEVY_CANTONAL,
+    ),
     "prezzo": ("Da cosa è composto il prezzo", PRICE_EXPLANATION),
     "rinforzo": ("Che cosa sono questi costi", GRID_COST_EXPLANATION),
 }
@@ -289,7 +299,10 @@ def _render_group_body(df, group: dict, index: dict, df_base, *, nested: bool) -
 
     if selector := group.get("selector"):
         titles = [chart_title(m) for m in charts]
-        chosen = st.selectbox(selector, titles, key=f"pv_sel_{name}")
+        sel_key = f"pv_sel_{name}"
+        if st.session_state.get(sel_key) not in titles:
+            st.session_state.pop(sel_key, None)
+        chosen = st.selectbox(selector, titles, key=sel_key)
         charts = [m for m in charts if chart_title(m) == chosen]
 
     if nested:
@@ -311,8 +324,8 @@ def render_pv_topic_sections(
 ) -> None:
     """Stessi gruppi OUTPUT_GROUPS della pagina PV e Batterie.
 
-    Un gruppo puo' avere un blocco `columns` (sotto-sezioni affiancate, con
-    titolo proprio opzionale) e/o un blocco `charts` a tutta larghezza.
+    Un gruppo puo' avere `columns` (una riga di sotto-sezioni), `column_rows`
+    (piu' righe di sotto-sezioni) e/o `charts` a tutta larghezza.
 
     Con `section_selector` si mostra un gruppo alla volta, scelto da un
     selettore con i tasti avanti/indietro.
@@ -329,8 +342,10 @@ def render_pv_topic_sections(
         if title := group.get("title"):
             st.subheader(title)
 
-        subgroups = group.get("columns")
-        if subgroups:
+        column_rows = group.get("column_rows") or (
+            [group["columns"]] if group.get("columns") else []
+        )
+        for subgroups in column_rows:
             for col, sub in zip(st.columns(len(subgroups)), subgroups):
                 with col:
                     if sub_title := sub.get("title"):

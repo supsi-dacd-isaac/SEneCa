@@ -56,11 +56,6 @@ if not keys and not cfg.CONSOLIDATED_HOURLY.exists():
     )
     st.stop()
 
-n_combos = 1
-for v in cfg.INPUT_GRID.values():
-    n_combos *= len(v)
-st.caption(f"{len(keys)}/{n_combos} combinazioni disponibili nello store.")
-
 with st.expander("Offerta, dispacciamento, consumo ed esportazione: cosa significano"):
     st.markdown(cfg.CONCEPTS_EXPLANATION)
 

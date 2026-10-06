@@ -16,6 +16,7 @@ from sd_explainer.loaders import (
     load_calibration_csv,
     load_calibration_extra,
     load_map_html,
+    load_historical_hydro_production,
     load_production_csv,
     load_pv_buildings_input,
     load_sector_csv,
@@ -286,7 +287,7 @@ def _render_policy_priorities() -> None:
         Questa lista spiega buona parte di come il modello si è sviluppato. Le voci in
         cima — accumuli domestici, teleriscaldamento, prezzi di mercato, obblighi di
         efficienza, incentivi al fotovoltaico, comunità energetiche e ricarica
-        pubblica — sono diventate **leve manipolabili** nelle sezioni *Risultati*,
+        pubblica — sono diventate leve manipolabili,
         mentre i temi giudicati marginali sono rimasti fuori o sono entrati come
         semplici assunzioni di scenario. Anche la profondità di rappresentazione
         segue la stessa logica: dove gli stakeholder chiedevano di poter confrontare
@@ -365,7 +366,7 @@ def render_step_qualitative_model() -> None:
         ### Modello qualitativo
 
         Una volta definito il sistema, il passo successivo consiste nella costruzione di
-        **mappe concettuali** con i **Causal Loop Diagram (CLD)**, tipici della
+        **mappe concettuali** con i **Causal Loop Diagram (CLD)**, tipici del metodo
         **System Dynamics**. Il CLD non contiene numeri: serve a rendere esplicito
         *quali* variabili si influenzano a vicenda e *in che direzione*.
         """
@@ -399,7 +400,13 @@ def render_step_qualitative_model() -> None:
             IMAGE_CLD,
             "Causal Loop Diagram dei principali feedback del modello SURE-Ticino: "
             "sedici loop collegano adozione tecnologica, domanda dalla rete, prezzo "
-            "dell'elettricità, costi di rete e strumenti di policy.",
+            "dell'elettricità, costi di rete e strumenti di policy. Il CLD è una rappresentazione " 
+            "qualitativa della struttura causale: non mostra parametri, formule, ritardi né la " 
+            "disaggregazione per archetipo. Il comportamento simulato nasce dall'implementazione " 
+            "quantitativa congiunta di queste relazioni, non dalla presenza grafica di un singolo loop. "
+            "mostra parametri, formule, ritardi né la disaggregazione per archetipo. Il "
+            "comportamento simulato nasce dall'implementazione quantitativa congiunta di "
+            "queste relazioni, non dalla presenza grafica di un singolo loop.",
         )
 
     st.markdown("#### Le quattro famiglie di feedback")
@@ -500,14 +507,6 @@ def render_step_qualitative_model() -> None:
             """
         )
 
-    st.caption(
-        "Il CLD è una rappresentazione **qualitativa** della struttura causale: non "
-        "mostra parametri, formule, ritardi né la disaggregazione per archetipo. Il "
-        "comportamento simulato nasce dall'implementazione quantitativa congiunta di "
-        "queste relazioni, non dalla presenza grafica di un singolo loop."
-    )
-
-
 def render_step_quantitative_model() -> None:
     st.markdown(
         """
@@ -535,18 +534,21 @@ def render_step_quantitative_model() -> None:
         st.subheader("Produzione storica")
         st.markdown(
             """
-            Produzione annua di energia elettrica in Ticino. A sinistra idroelettrico vs
-            altre fonti; a destra il dettaglio delle fonti non idroelettriche, con crescita
-            del solare negli ultimi anni.
+            Produzione annua di energia elettrica in Ticino, 2011–2024. A sinistra le
+            fonti idroelettriche (bacini, acqua fluente, pompaggio) e le altre fonti;
+            a destra il dettaglio delle fonti non idroelettriche, con crescita del
+            solare negli ultimi anni.
             """
         )
+        years1, series1 = load_historical_hydro_production()
         prod_df = load_production_csv()
-        years1, series1 = production_line_series(
-            prod_df, ["Idroelettrico", "Altro"],
-        )
         years2, series2 = production_line_series(
             prod_df, ["Fotovoltaico", "Acqua fluente", "Cogenerazione", "Eolico"],
         )
+        series2 = {
+            ("Rifiuti" if name == "Cogenerazione" else name): values
+            for name, values in series2.items()
+        }
         c1, c2 = st.columns(2)
         with c1:
             _render_echarts_line(
@@ -565,30 +567,27 @@ def render_step_quantitative_model() -> None:
         st.markdown(
             "La diffusione del fotovoltaico è ricostruita **impianto per impianto** e "
             "poi aggregata secondo le dimensioni che il modello usa per distinguere "
-            "gli archetipi. Cambia la vista per vedere la stessa crescita letta per "
-            "territorio o per tipologia edilizia."
+            "gli archetipi: a sinistra per **distretto**, a destra per **tipo di edificio**."
         )
-        dimension = st.segmented_control(
-            "Disaggregazione",
-            ["Distretto", "Tipo di edificio"],
-            default="Distretto",
-            key="sd_pv_dimension",
-        )
-        dimension = dimension or "Distretto"
-        years_pv, series_pv = load_pv_buildings_input(dimension)
-        _render_echarts_line(
-            years_pv, series_pv,
-            unit="edifici con PV",
-            chart_key=f"sd_pv_buildings_{dimension}",
-            title=f"Edifici con fotovoltaico per {dimension.lower()} (cumulati)",
-            height=460,
-        )
-        st.caption(
-            "Somma cumulata delle installazioni annue osservate, 2011-2024 "
-            "(`Vensim/PVinput.csv`, gli stessi dati che alimentano il modello). "
-            "Le tipologie disponibili sono SFH, DFH e MFH: il non residenziale è "
-            "trattato separatamente, per classe di potenza dell'impianto."
-        )
+        years_dist, series_dist = load_pv_buildings_input("Distretto")
+        years_type, series_type = load_pv_buildings_input("Tipo di edificio")
+        c_pv1, c_pv2 = st.columns(2)
+        with c_pv1:
+            _render_echarts_line(
+                years_dist, series_dist,
+                unit="edifici con PV",
+                chart_key="sd_pv_buildings_distretto",
+                title="Edifici con fotovoltaico per distretto (cumulati)",
+                height=460,
+            )
+        with c_pv2:
+            _render_echarts_line(
+                years_type, series_type,
+                unit="edifici con PV",
+                chart_key="sd_pv_buildings_tipo",
+                title="Edifici con fotovoltaico per tipo di edificio (cumulati)",
+                height=460,
+            )
 
     else:
         st.subheader("Consumi storici per settore")
@@ -652,49 +651,6 @@ def render_step_quantitative_model() -> None:
             st.warning(f"Mappa HTML non trovata: `{MAP_HTML}`")
         else:
             st.components.v1.html(map_html, height=600, scrolling=True)
-
-        st.markdown(
-            """
-            Sono stati raccolti dati storici sull'adozione delle tecnologie di
-            riscaldamento, con focus su pompe di calore nel residenziale.
-            """
-        )
-
-        ht_df = load_sector_csv("Annual adoption HT.csv")
-        years_ht, series_ht = sector_csv_to_stacked(ht_df)
-        hp_df = load_sector_csv("Annual adoption HP.csv")
-
-        c1, c2 = st.columns(2)
-        with c1:
-            _render_echarts_line(
-                years_ht, series_ht, unit="installazioni/anno",
-                chart_key="sd_ht_adoption",
-                title="Installazioni annue di nuovi sistemi di riscaldamento",
-                y_max=3000,
-            )
-        with c2:
-            option = st.selectbox(
-                "Pompe di calore per",
-                ["Tipo di edificio", "Distretto"],
-                key="sd_hp_split",
-            )
-            if option == "Tipo di edificio":
-                cols = BUILDING_TYPES
-                title = "Installazioni annue pompe di calore per tipo"
-            else:
-                cols = DISTRICTS
-                title = "Installazioni annue pompe di calore per distretto"
-            year_col = "Year" if "Year" in hp_df.columns else "year"
-            years_hp = [str(int(y)) for y in hp_df[year_col].tolist()]
-            hp_series = {
-                col: [float(v) for v in hp_df[col].tolist()]
-                for col in cols if col in hp_df.columns
-            }
-            _render_echarts_line(
-                years_hp, hp_series, unit="installazioni/anno",
-                chart_key=f"sd_hp_{option}",
-                title=title,
-            )
 
 
 CALIBRATION_CHARTS = (
@@ -773,8 +729,8 @@ def render_step_calibration() -> None:
     st.markdown("#### Quanto bene il modello ricostruisce il passato")
     st.markdown(
         "Le barre confrontano, anno per anno, le adozioni **osservate** con quelle "
-        "**simulate**. Sopra ogni grafico, il totale cumulato sul periodo di "
-        "calibrazione e lo scarto del simulato rispetto al dato storico."
+        "**simulate**. Sopra, il totale cumulato **osservato** sul periodo di "
+        "calibrazione."
     )
 
     data = {tech: _calibration_series(tech) for tech, _, _ in CALIBRATION_CHARTS}
@@ -783,15 +739,7 @@ def render_step_calibration() -> None:
     for col, (tech, _, _) in zip(metric_cols, CALIBRATION_CHARTS):
         _, series = data[tech]
         observed = sum(v for v in series["Dati storici"] if v is not None)
-        simulated = sum(v for v in series["Simulate"] if v is not None)
-        gap = (simulated - observed) / observed * 100 if observed else 0.0
-        col.metric(
-            tech,
-            f"{simulated:,.0f}".replace(",", "'"),
-            delta=f"{gap:+.1f}% vs storico",
-            delta_color="off",
-            help=f"Totale 2011-2024: {observed:,.0f} osservati".replace(",", "'"),
-        )
+        col.metric(tech, f"{observed:,.0f}".replace(",", "'"))
 
     rows = [CALIBRATION_CHARTS[:2], CALIBRATION_CHARTS[2:]]
     for row in rows:
@@ -804,8 +752,3 @@ def render_step_calibration() -> None:
                     chart_key=chart_key,
                     title=title,
                 )
-
-    st.caption(
-        "Accumulatori e veicoli elettrici sono i totali cantonali; il modello li "
-        "calibra sul dettaglio per distretto e tipologia edilizia."
-    )
