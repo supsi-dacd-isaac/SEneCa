@@ -31,6 +31,7 @@ from echarts_charts import (  # noqa: E402
     build_stacked_bar_options,
     render_echarts,
 )
+from ui_colors import SUPSI_BLUE, SUPSI_SOFT_GRAY  # noqa: E402
 
 WEIGHT_PREFIX = "expl_w_"
 TOP_N = 5
@@ -157,6 +158,11 @@ def _composition_chart(top: pd.DataFrame) -> None:
         categories, series, unit="%",
         series_order=["Valore alto / presente", "Valore basso / assente"],
     )
+    for item in options["series"]:
+        item["itemStyle"]["color"] = (
+            SUPSI_BLUE if item["name"] == "Valore alto / presente"
+            else SUPSI_SOFT_GRAY
+        )
     options["xAxis"] = {"type": "value", "max": 100, "name": "% dei 5 migliori"}
     options["yAxis"] = {
         "type": "category",

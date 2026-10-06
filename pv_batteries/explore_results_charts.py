@@ -23,6 +23,7 @@ from section_ui import (
     render_section_nav,
     render_section_picker,
 )
+from ui_colors import SUPSI_BLUE
 
 _LEGACY_PV_CAPACITY_BASES = {
     '"Capacity PV < 30 kW total"',
@@ -131,7 +132,7 @@ def render_bar_fallback(df: pd.DataFrame, meta: dict) -> None:
     bar = pd.DataFrame({title: row.values}, index=labels)
     st.markdown(f"**{title}** ({meta['unit']}) - {year}")
     st.caption(meta.get("desc", ""))
-    st.bar_chart(bar, sort=False)
+    st.bar_chart(bar, color=SUPSI_BLUE, sort=False)
 
 
 def render_chart(

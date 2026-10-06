@@ -31,6 +31,7 @@ from sd_explainer.paths import (
     IMAGE_WORKSHOP,
     MAP_HTML,
 )
+from ui_colors import SUPSI_BLUE, SUPSI_SOFT_GRAY
 
 DISTRICTS = [
     "Bellinzona", "Blenio", "Leventina", "Locarno",
@@ -152,10 +153,10 @@ def render_sd_intro() -> None:
             Un **feedback loop** è una catena causale in cui una variazione iniziale
             produce effetti che tornano a influenzare la variabile di partenza.
 
-            - :green-badge[R · Reinforcing] amplifica la variazione. Ad esempio, il **peer effect**
+            - :violet-badge[R · Reinforcing] amplifica la variazione. Ad esempio, il **peer effect**
               del fotovoltaico: più impianti visibili sui tetti aumentano
               familiarità e accettazione, quindi le adozioni successive.
-            - :orange-badge[B · Balancing] la contrasta e stabilizza. Ad esempio, la **saturazione**
+            - :blue-badge[B · Balancing] la contrasta e stabilizza. Ad esempio, la **saturazione**
               del potenziale: ogni installazione riduce il numero di edifici
               con tetto idoneo ancora disponibili.
 
@@ -263,13 +264,13 @@ def _render_policy_priorities() -> None:
             {
                 "name": "Priorità Alta",
                 "type": "bar",
-                "itemStyle": {"color": "#ED7D31"},
+                "itemStyle": {"color": SUPSI_BLUE},
                 "data": [int(v) for v in prio["Priorità Alta"].tolist()],
             },
             {
                 "name": "Priorità Bassa",
                 "type": "bar",
-                "itemStyle": {"color": "#00B050"},
+                "itemStyle": {"color": SUPSI_SOFT_GRAY},
                 "data": [int(v) for v in prio["Priorità Bassa"].tolist()],
             },
         ],
@@ -387,9 +388,9 @@ def render_step_qualitative_model() -> None:
         st.markdown("**:material/loop: Come si legge un loop**")
         st.markdown(
             """
-            - :green-badge[**R** · Reinforcing] il giro di frecce **amplifica** la
+            - :violet-badge[**R** · Reinforcing] il giro di frecce **amplifica** la
               variazione di partenza: la spinge sempre più lontano
-            - :orange-badge[**B** · Balancing] il giro la **contrasta**: riporta il
+            - :blue-badge[**B** · Balancing] il giro la **contrasta**: riporta il
               sistema verso un equilibrio
             """
         )
@@ -420,15 +421,15 @@ def render_step_qualitative_model() -> None:
         st.markdown("**:material/groups: Diffusione sociale e limiti fisici**")
         st.markdown(
             """
-            :green-badge[R1] :green-badge[R2] :green-badge[R10] **Peer effect.** Più
+            :violet-badge[R1] :violet-badge[R2] :violet-badge[R10] **Peer effect.** Più
             impianti PV, pompe di calore e veicoli elettrici in circolazione, più la
             tecnologia diventa visibile e familiare, più cresce chi la considera.
 
-            :orange-badge[B1] :orange-badge[B2] **Saturazione.** Ogni installazione
+            :blue-badge[B1] :blue-badge[B2] **Saturazione.** Ogni installazione
             riduce il bacino di chi può ancora adottare: tetti idonei che si esauriscono,
             edifici già convertiti.
 
-            :orange-badge[B4] **Comunità energetiche.** Chi accede all'elettricità della
+            :blue-badge[B4] **Comunità energetiche.** Chi accede all'elettricità della
             comunità senza impianto proprio ha meno motivi per installarlo dopo.
 
             Insieme producono le tipiche **curve a S**: partenza lenta, accelerazione,
@@ -439,16 +440,16 @@ def render_step_qualitative_model() -> None:
         st.markdown("**:material/bolt: Prezzo dell'elettricità**")
         st.markdown(
             """
-            :green-badge[R3] **Utility death spiral.** L'autoconsumo riduce i kWh
+            :violet-badge[R3] **Utility death spiral.** L'autoconsumo riduce i kWh
             acquistati dalla rete, ma i costi fissi di distribuzione restano: si
             ripartiscono su meno energia, il prezzo unitario sale e rende l'autoconsumo
             ancora più prezioso.
 
-            :green-badge[R4] :green-badge[R11] **Elettrificazione.** Pompe di calore e
+            :violet-badge[R4] :violet-badge[R11] **Elettrificazione.** Pompe di calore e
             veicoli elettrici fanno l'opposto: più domanda su cui spalmare i costi fissi,
             prezzo unitario più basso, tecnologia più conveniente.
 
-            :green-badge[R9] **Risanamento.** Meno fabbisogno significa meno domanda e
+            :violet-badge[R9] **Risanamento.** Meno fabbisogno significa meno domanda e
             quindi prezzi unitari più alti, che aumentano il risparmio ottenibile
             isolando l'involucro.
             """
@@ -459,11 +460,11 @@ def render_step_qualitative_model() -> None:
         st.markdown("**:material/electrical_services: Costi di adeguamento della rete**")
         st.markdown(
             """
-            :green-badge[R5] **PV.** Più impianti richiedono più rinforzi di rete, i
+            :violet-badge[R5] **PV.** Più impianti richiedono più rinforzi di rete, i
             costi finiscono nel prezzo, e un prezzo alto rende l'autoconsumo più
             redditizio: il loop si rinforza.
 
-            :orange-badge[B3] :orange-badge[B5] **Pompe di calore e veicoli elettrici.**
+            :blue-badge[B3] :blue-badge[B5] **Pompe di calore e veicoli elettrici.**
             Stessi rinforzi, stesso aumento di prezzo, ma effetto opposto: qui
             l'elettricità è un **costo operativo**, quindi le adozioni rallentano.
             """
@@ -472,12 +473,12 @@ def render_step_qualitative_model() -> None:
         st.markdown("**:material/account_balance: Politiche e loro finanziamento**")
         st.markdown(
             """
-            :green-badge[R7] :green-badge[R8] **Supplementi di rete.** Più installazioni
+            :violet-badge[R7] :violet-badge[R8] **Supplementi di rete.** Più installazioni
             PV incentivate, più fondi servono, più sale il supplemento federale e
             cantonale sull'elettricità: il prezzo cresce e l'autoconsumo diventa ancora
             più attraente.
 
-            :green-badge[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore
+            :violet-badge[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore
             aumenta i consumi autoconsumabili e rende il PV più redditizio; il PV abbassa
             il costo percepito dell'elettricità per la pompa di calore.
             """
@@ -489,8 +490,8 @@ def render_step_qualitative_model() -> None:
     ):
         st.markdown(
             """
-            È l'asimmetria tra :green-badge[R5] da un lato e :orange-badge[B3]
-            :orange-badge[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per
+            È l'asimmetria tra :violet-badge[R5] da un lato e :blue-badge[B3]
+            :blue-badge[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per
             ciascuna tecnologia.
 
             Per il **fotovoltaico** l'elettricità di rete è ciò che si evita di

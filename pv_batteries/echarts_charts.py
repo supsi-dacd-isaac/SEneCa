@@ -9,6 +9,10 @@ import pandas as pd
 import streamlit as st
 
 from section_ui import chart_title, clean_base, elem_label, match_cols
+from ui_colors import (
+    BASE_GRAY, CHART_TEXT, DATA_COLORS, SUPSI_BLUE, SUPSI_PURPLE,
+    data_color, line_color,
+)
 
 _ECHARTS_CDN = "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
 
@@ -34,7 +38,7 @@ def _to_float_list(values) -> list[float | None]:
     return [None if pd.isna(v) else float(v) for v in values]
 
 
-_BASE_LINE_STYLE = {"type": "dashed", "opacity": 0.75}
+_BASE_LINE_STYLE = {"type": "dashed", "opacity": 0.75, "width": 2}
 _BASE_ITEM_STYLE = {"opacity": 0.75}
 
 # Voci che stanno su una riga di legenda in un grafico a mezza pagina, con
@@ -61,11 +65,14 @@ def build_line_options(
         legend = list(series.keys())
 
     echarts_series: list[dict] = []
-    for label in legend:
+    for index, label in enumerate(legend):
+        color = line_color(index, label)
         item: dict = {
             "name": label,
             "type": "line",
             "smooth": True,
+            "lineStyle": {"color": color, "width": 2.5},
+            "itemStyle": {"color": color},
             "data": series[label],
         }
         if area:
@@ -76,8 +83,8 @@ def build_line_options(
                 "name": f"{label} (Base)",
                 "type": "line",
                 "smooth": True,
-                "lineStyle": _BASE_LINE_STYLE,
-                "itemStyle": _BASE_ITEM_STYLE,
+                "lineStyle": {**_BASE_LINE_STYLE, "color": color},
+                "itemStyle": {**_BASE_ITEM_STYLE, "color": color},
                 "data": compare[label],
             })
 
@@ -183,9 +190,10 @@ def build_stacked_bar_options(
             "type": "bar",
             "stack": "total",
             "emphasis": {"focus": "series"},
+            "itemStyle": {"color": data_color(index, label)},
             "data": series[label],
         }
-        for label in legend
+        for index, label in enumerate(legend)
     ]
 
     legend_opts: dict = {"bottom": "2%", "data": legend}
@@ -290,13 +298,15 @@ def build_radar_options(
                 {
                     "value": pcts,
                     "name": series_label,
+                    "lineStyle": {"color": SUPSI_BLUE, "width": 2.5},
+                    "itemStyle": {"color": SUPSI_BLUE},
                     "areaStyle": {"opacity": 0.25},
                 },
                 {
                     "value": [100.0] * len(labels),
                     "name": base_label,
-                    "lineStyle": _BASE_LINE_STYLE,
-                    "itemStyle": _BASE_ITEM_STYLE,
+                    "lineStyle": {**_BASE_LINE_STYLE, "color": BASE_GRAY},
+                    "itemStyle": {**_BASE_ITEM_STYLE, "color": BASE_GRAY},
                 },
             ],
         }],
@@ -316,12 +326,14 @@ def build_boxplot_options(
     series: list[dict] = [{
         "name": "Distribuzione",
         "type": "boxplot",
+        "itemStyle": {"color": "#DDE5FF", "borderColor": SUPSI_BLUE},
         "data": boxes,
     }]
     if outliers:
         series.append({
             "name": "Outlier",
             "type": "scatter",
+            "itemStyle": {"color": SUPSI_PURPLE},
             "data": outliers,
             "symbolSize": 6,
         })
@@ -397,9 +409,11 @@ def build_multi_radar_options(
                         for v in series[name]
                     ],
                     "name": name,
+                    "lineStyle": {"color": line_color(index, name), "width": 2},
+                    "itemStyle": {"color": line_color(index, name)},
                     "areaStyle": {"opacity": 0.12},
                 }
-                for name in names
+                for index, name in enumerate(names)
             ],
         }],
     }
@@ -409,6 +423,9 @@ def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2
 ) -> None:
     """Renderizza ECharts in iframe (affidabile con Streamlit)."""
+    options.setdefault("color", list(DATA_COLORS))
+    options.setdefault("backgroundColor", "#FFFFFF")
+    options.setdefault("textStyle", {"color": CHART_TEXT})
     dom_id = _safe_dom_id(chart_key)
     options_json = json.dumps(options)
     html = f"""<!DOCTYPE html>
@@ -417,7 +434,7 @@ def render_echarts(
   <meta charset="utf-8">
   <script src="{_ECHARTS_CDN}"></script>
   <style>
-    html, body {{ margin: 0; padding: 0; overflow: hidden; }}
+    html, body {{ margin: 0; padding: 0; overflow: hidden; background: #FFFFFF; }}
     #{dom_id} {{ width: 100%; height: {height}px; }}
   </style>
 </head>
@@ -621,41 +638,47 @@ def build_district_combo_options(
         right_yaxis["max"] = 100
 
     echarts_series: list[dict] = []
-    for label in bar_legend:
+    for index, label in enumerate(bar_legend):
         echarts_series.append({
             "name": label,
             "type": "bar",
             "yAxisIndex": 0,
+            "itemStyle": {"color": data_color(index, label)},
             "data": bar_series[label],
         })
-    for label in bar_legend:
+    for index, label in enumerate(bar_legend):
         if compare_bar and label in compare_bar:
+            color = line_color(index, label)
             echarts_series.append({
                 "name": f"{label} (Base)",
                 "type": "line",
                 "yAxisIndex": 0,
                 "smooth": True,
-                "lineStyle": _BASE_LINE_STYLE,
-                "itemStyle": _BASE_ITEM_STYLE,
+                "lineStyle": {**_BASE_LINE_STYLE, "color": color},
+                "itemStyle": {**_BASE_ITEM_STYLE, "color": color},
                 "data": compare_bar[label],
             })
-    for label in share_legend:
+    for index, label in enumerate(share_legend):
+        color = line_color(index + len(bar_legend), label)
         echarts_series.append({
             "name": label,
             "type": "line",
             "yAxisIndex": 1,
             "smooth": True,
+            "lineStyle": {"color": color, "width": 2.5},
+            "itemStyle": {"color": color},
             "data": share_series[label],
         })
-    for label in share_legend:
+    for index, label in enumerate(share_legend):
         if compare_share and label in compare_share:
+            color = line_color(index + len(bar_legend), label)
             echarts_series.append({
                 "name": f"{label} (Base)",
                 "type": "line",
                 "yAxisIndex": 1,
                 "smooth": True,
-                "lineStyle": _BASE_LINE_STYLE,
-                "itemStyle": _BASE_ITEM_STYLE,
+                "lineStyle": {**_BASE_LINE_STYLE, "color": color},
+                "itemStyle": {**_BASE_ITEM_STYLE, "color": color},
                 "data": compare_share[label],
             })
 
@@ -702,10 +725,14 @@ def build_category_bar_options(
         yaxis["axisLabel"] = {"formatter": "{value}%"}
 
     echarts_series: list[dict] = [
-        {"name": series_label, "type": "bar", "data": values},
+        {"name": series_label, "type": "bar", "itemStyle": {"color": SUPSI_BLUE},
+         "data": values},
     ]
     if compare_values is not None:
-        echarts_series.append({"name": "Base", "type": "bar", "data": compare_values})
+        echarts_series.append({
+            "name": "Base", "type": "bar", "itemStyle": {"color": BASE_GRAY},
+            "data": compare_values,
+        })
 
     return {
         "toolbox": {
@@ -797,8 +824,9 @@ def build_grouped_bar_options(
     legend = [label for label in series_order if label in series]
     legend.extend(label for label in series if label not in legend)
     echarts_series = [
-        {"name": label, "type": "bar", "data": series[label]}
-        for label in legend
+        {"name": label, "type": "bar", "itemStyle": {"color": data_color(index, label)},
+         "data": series[label]}
+        for index, label in enumerate(legend)
     ]
     return {
         "toolbox": {

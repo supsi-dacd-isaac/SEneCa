@@ -1,0 +1,14 @@
+[theme]
+base = "light"
+primaryColor = "#6929C4"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F5F8"
+textColor = "#1F2937"
+linkColor = "#0D4CF6"
+blueColor = "#0D4CF6"
+violetColor = "#6929C4"
+# Variante scura del verde SUPSI: i delta restano leggibili su fondo bianco.
+greenColor = "#287A35"
+redColor = "#B42318"
+grayColor = "#667085"
+borderColor = "#D9DEE8"
