@@ -1,6 +1,9 @@
 """Rendering tab per la pagina Approccio System Dynamics."""
 from __future__ import annotations
 
+import re
+from html import escape
+
 import streamlit as st
 
 from echarts_charts import (
@@ -31,13 +34,43 @@ from sd_explainer.paths import (
     IMAGE_WORKSHOP,
     MAP_HTML,
 )
-from ui_colors import SUPSI_BLUE, SUPSI_SOFT_GRAY
+from ui_colors import SUPSI_BLUE, SUPSI_PURPLE, SUPSI_SOFT_GRAY
 
 DISTRICTS = [
     "Bellinzona", "Blenio", "Leventina", "Locarno",
     "Lugano", "Mendrisio", "Riviera", "Vallemaggia",
 ]
 BUILDING_TYPES = ["SFH", "DFH", "MFH"]
+
+_LOOP_BADGE = re.compile(r":loop-([rb])\[([^\]]+)\]")
+
+
+def _render_loop_markdown(content: str) -> None:
+    """Badge R/B con tinte SUPSI distinte, senza giudizio positivo/negativo."""
+
+    def replace(match: re.Match[str]) -> str:
+        kind = match.group(1)
+        label = escape(match.group(2).replace("**", ""))
+        return f'<span class="sure-loop-badge sure-loop-badge-{kind}">{label}</span>'
+
+    st.markdown(_LOOP_BADGE.sub(replace, content), unsafe_allow_html=True)
+
+
+def _render_loop_badge_style() -> None:
+    st.html(
+        f"""<style>
+        .sure-loop-badge {{
+            display: inline-block;
+            padding: 0.08em 0.42em;
+            border-radius: 0.35rem;
+            font-weight: 600;
+            line-height: 1.45;
+            white-space: nowrap;
+        }}
+        .sure-loop-badge-r {{ color: {SUPSI_PURPLE}; background: #EFE3FA; }}
+        .sure-loop-badge-b {{ color: #006F63; background: #C9F2E9; }}
+        </style>"""
+    )
 
 
 def _render_echarts_line(
@@ -112,6 +145,7 @@ def _show_image(path, caption: str) -> None:
 
 
 def render_sd_intro() -> None:
+    _render_loop_badge_style()
     st.markdown(
         """
         **System Dynamics (SD)** è una metodologia di simulazione concepita per
@@ -148,15 +182,15 @@ def render_sd_intro() -> None:
         )
     with col_loops.container(border=True):
         st.markdown(":repeat: I feedback loop")
-        st.markdown(
+        _render_loop_markdown(
             """
             Un **feedback loop** è una catena causale in cui una variazione iniziale
             produce effetti che tornano a influenzare la variabile di partenza.
 
-            - :violet-badge[R · Reinforcing] amplifica la variazione. Ad esempio, il **peer effect**
+            - :loop-r[R · Reinforcing] amplifica la variazione. Ad esempio, il **peer effect**
               del fotovoltaico: più impianti visibili sui tetti aumentano
               familiarità e accettazione, quindi le adozioni successive.
-            - :blue-badge[B · Balancing] la contrasta e stabilizza. Ad esempio, la **saturazione**
+            - :loop-b[B · Balancing] la contrasta e stabilizza. Ad esempio, la **saturazione**
               del potenziale: ogni installazione riduce il numero di edifici
               con tetto idoneo ancora disponibili.
 
@@ -386,11 +420,11 @@ def render_step_qualitative_model() -> None:
         )
     with col_loops.container(border=True):
         st.markdown("**:material/loop: Come si legge un loop**")
-        st.markdown(
+        _render_loop_markdown(
             """
-            - :violet-badge[**R** · Reinforcing] il giro di frecce **amplifica** la
+            - :loop-r[**R** · Reinforcing] il giro di frecce **amplifica** la
               variazione di partenza: la spinge sempre più lontano
-            - :blue-badge[**B** · Balancing] il giro la **contrasta**: riporta il
+            - :loop-b[**B** · Balancing] il giro la **contrasta**: riporta il
               sistema verso un equilibrio
             """
         )
@@ -419,17 +453,17 @@ def render_step_qualitative_model() -> None:
     col_1, col_2 = st.columns(2)
     with col_1.container(border=True):
         st.markdown("**:material/groups: Diffusione sociale e limiti fisici**")
-        st.markdown(
+        _render_loop_markdown(
             """
-            :violet-badge[R1] :violet-badge[R2] :violet-badge[R10] **Peer effect.** Più
+            :loop-r[R1] :loop-r[R2] :loop-r[R10] **Peer effect.** Più
             impianti PV, pompe di calore e veicoli elettrici in circolazione, più la
             tecnologia diventa visibile e familiare, più cresce chi la considera.
 
-            :blue-badge[B1] :blue-badge[B2] **Saturazione.** Ogni installazione
+            :loop-b[B1] :loop-b[B2] **Saturazione.** Ogni installazione
             riduce il bacino di chi può ancora adottare: tetti idonei che si esauriscono,
             edifici già convertiti.
 
-            :blue-badge[B4] **Comunità energetiche.** Chi accede all'elettricità della
+            :loop-b[B4] **Comunità energetiche.** Chi accede all'elettricità della
             comunità senza impianto proprio ha meno motivi per installarlo dopo.
 
             Insieme producono le tipiche **curve a S**: partenza lenta, accelerazione,
@@ -438,18 +472,18 @@ def render_step_qualitative_model() -> None:
         )
     with col_2.container(border=True):
         st.markdown("**:material/bolt: Prezzo dell'elettricità**")
-        st.markdown(
+        _render_loop_markdown(
             """
-            :violet-badge[R3] **Utility death spiral.** L'autoconsumo riduce i kWh
+            :loop-r[R3] **Utility death spiral.** L'autoconsumo riduce i kWh
             acquistati dalla rete, ma i costi fissi di distribuzione restano: si
             ripartiscono su meno energia, il prezzo unitario sale e rende l'autoconsumo
             ancora più prezioso.
 
-            :violet-badge[R4] :violet-badge[R11] **Elettrificazione.** Pompe di calore e
+            :loop-r[R4] :loop-r[R11] **Elettrificazione.** Pompe di calore e
             veicoli elettrici fanno l'opposto: più domanda su cui spalmare i costi fissi,
             prezzo unitario più basso, tecnologia più conveniente.
 
-            :violet-badge[R9] **Risanamento.** Meno fabbisogno significa meno domanda e
+            :loop-r[R9] **Risanamento.** Meno fabbisogno significa meno domanda e
             quindi prezzi unitari più alti, che aumentano il risparmio ottenibile
             isolando l'involucro.
             """
@@ -458,27 +492,27 @@ def render_step_qualitative_model() -> None:
     col_3, col_4 = st.columns(2)
     with col_3.container(border=True):
         st.markdown("**:material/electrical_services: Costi di adeguamento della rete**")
-        st.markdown(
+        _render_loop_markdown(
             """
-            :violet-badge[R5] **PV.** Più impianti richiedono più rinforzi di rete, i
+            :loop-r[R5] **PV.** Più impianti richiedono più rinforzi di rete, i
             costi finiscono nel prezzo, e un prezzo alto rende l'autoconsumo più
             redditizio: il loop si rinforza.
 
-            :blue-badge[B3] :blue-badge[B5] **Pompe di calore e veicoli elettrici.**
+            :loop-b[B3] :loop-b[B5] **Pompe di calore e veicoli elettrici.**
             Stessi rinforzi, stesso aumento di prezzo, ma effetto opposto: qui
             l'elettricità è un **costo operativo**, quindi le adozioni rallentano.
             """
         )
     with col_4.container(border=True):
         st.markdown("**:material/account_balance: Politiche e loro finanziamento**")
-        st.markdown(
+        _render_loop_markdown(
             """
-            :violet-badge[R7] :violet-badge[R8] **Supplementi di rete.** Più installazioni
+            :loop-r[R7] :loop-r[R8] **Supplementi di rete.** Più installazioni
             PV incentivate, più fondi servono, più sale il supplemento federale e
             cantonale sull'elettricità: il prezzo cresce e l'autoconsumo diventa ancora
             più attraente.
 
-            :violet-badge[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore
+            :loop-r[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore
             aumenta i consumi autoconsumabili e rende il PV più redditizio; il PV abbassa
             il costo percepito dell'elettricità per la pompa di calore.
             """
@@ -488,10 +522,10 @@ def render_step_qualitative_model() -> None:
         "Perché lo stesso aumento di prezzo accelera il PV ma frena pompe di calore "
         "e veicoli elettrici?"
     ):
-        st.markdown(
+        _render_loop_markdown(
             """
-            È l'asimmetria tra :violet-badge[R5] da un lato e :blue-badge[B3]
-            :blue-badge[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per
+            È l'asimmetria tra :loop-r[R5] da un lato e :loop-b[B3]
+            :loop-b[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per
             ciascuna tecnologia.
 
             Per il **fotovoltaico** l'elettricità di rete è ciò che si evita di
