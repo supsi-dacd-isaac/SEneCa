@@ -18,7 +18,7 @@ from section_store_hourly import (
 )
 from section_ui import (
     fmt_metric_value,
-    pct_delta_vs_base,
+    metric_delta_vs_base,
     render_kpi_radar,
     render_section_nav,
     render_section_picker,
@@ -78,6 +78,9 @@ def render_hourly_summary_metrics(
         value_base = hourly_metric_value(spec, df_base, year=year)
         if spec.get("radar", True):
             entries.append((spec["label"], value, value_base))
+        delta, delta_color = metric_delta_vs_base(
+            value, value_base, spec.get("delta_color", "normal"),
+        )
         with col:
             with st.container(border=True):
                 st.metric(
@@ -85,7 +88,8 @@ def render_hourly_summary_metrics(
                     fmt_metric_value(
                         value, spec.get("unit"), decimals=spec.get("decimals", 0),
                     ),
-                    delta=pct_delta_vs_base(value, value_base),
+                    delta=delta,
+                    delta_color=delta_color,
                 )
 
     if radar:

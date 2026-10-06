@@ -167,6 +167,7 @@ SUMMARY_METRICS = [
         "variable": "Hourly available supply by Supplier",
         "unit": "GWh",
         "decimals": 1,
+        "delta_color": "normal",
     },
     {
         "label": "Offerta solare",
@@ -174,18 +175,21 @@ SUMMARY_METRICS = [
         "supplier": "Solar",
         "unit": "GWh",
         "decimals": 1,
+        "delta_color": "normal",
     },
     {
         "label": "Elettricità consumata",
         "variable": "Electricity consumed",
         "unit": "GWh",
         "decimals": 1,
+        "delta_color": "off",
     },
     {
         "label": "Elettricità esportata",
         "variable": "Hourly exported electricity",
         "unit": "GWh",
         "decimals": 1,
+        "delta_color": "off",
     },
     {
         "label": "Importazioni",
@@ -193,6 +197,7 @@ SUMMARY_METRICS = [
         "supplier": "Import",
         "unit": "GWh",
         "decimals": 2,
+        "delta_color": "inverse",
     },
 ]
 
@@ -267,5 +272,4 @@ SUPPLIER_LABELS: dict[str, str] = {
     "Wind": "Eolico",
     "Import": "Importazioni",
 }
-
 

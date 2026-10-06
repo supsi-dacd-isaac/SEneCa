@@ -164,10 +164,12 @@ SUMMARY_METRICS = [
         "unit": "MtonCO2",
         "decimals": 0,
         "value": "year",
+        "delta_color": "inverse",
     },
     {
         "label": "Equità tassa CO2",
         "gmd": "gmd_tax",
+        "delta_color": "normal",
     },
     {
         "label": "Fondi cantonali cumulati",
@@ -175,6 +177,7 @@ SUMMARY_METRICS = [
         "unit": "Mio CHF",
         "decimals": 0,
         "value": "sum",
+        "delta_color": "inverse",
     },
 ]
 

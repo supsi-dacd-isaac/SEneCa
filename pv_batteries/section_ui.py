@@ -48,16 +48,26 @@ def fmt_metric_value(
     return f"{value:.{decimals}f} {unit}"
 
 
-def pct_delta_vs_base(cur: float | None, base: float | None) -> str | None:
+def metric_delta_vs_base(
+    cur: float | None, base: float | None, delta_color: str = "normal",
+) -> tuple[str | None, str]:
+    """Formatta il delta e lascia neutre le variazioni mostrate come zero."""
     if cur is None or base is None:
-        return None
+        return None, delta_color
     if base == 0:
         if cur == 0:
-            return "0% vs Base"
-        return None
+            return "0% vs Base", "off"
+        return None, delta_color
     pct = (cur - base) / base * 100.0
-    sign = "+" if pct >= 0 else ""
-    return f"{sign}{pct:.1f}% vs Base"
+    pct_display = f"{pct:.1f}"
+    if float(pct_display) == 0:
+        return "0.0% vs Base", "off"
+    sign = "+" if pct > 0 else ""
+    return f"{sign}{pct_display}% vs Base", delta_color
+
+
+def pct_delta_vs_base(cur: float | None, base: float | None) -> str | None:
+    return metric_delta_vs_base(cur, base)[0]
 
 
 def _series_from_base(
@@ -124,7 +134,8 @@ def render_kpi_radar(
     st.caption(
         "Ogni asse è normalizzato sul valore dello scenario Base (100%): il "
         "poligono tratteggiato è il Base, quello pieno lo scenario selezionato. "
-        "Attenzione al verso: per emissioni e costi un valore più alto è peggiore."
+        "Attenzione al verso: per emissioni, costi e importazioni un valore "
+        "più alto è peggiore."
     )
     options = build_radar_options(
         [label for label, _, _ in usable],
@@ -175,12 +186,16 @@ def render_configured_summary_metrics(
 
         if spec.get("radar", True):
             entries.append((spec["label"], value_num, value_base))
+        delta, delta_color = metric_delta_vs_base(
+            value_num, value_base, spec.get("delta_color", "normal"),
+        )
         with col:
             with st.container(border=True):
                 st.metric(
                     spec["label"],
                     display,
-                    delta=pct_delta_vs_base(value_num, value_base),
+                    delta=delta,
+                    delta_color=delta_color,
                     help=GMD_DISPLAY_CAPTION if i == last_gmd else None,
                 )
 
@@ -258,11 +273,18 @@ def render_gmd_metrics(
         vmin, vmax = bounds[measure]
         scaled = scale_gmd_equity(row.get(measure), vmin, vmax)
         delta = None
+        delta_color = "normal"
         if base_row:
             scaled_base = scale_gmd_equity(base_row.get(measure), vmin, vmax)
             if scaled is not None and scaled_base is not None:
-                delta = f"{scaled - scaled_base:+.3f} vs Base"
-        col.metric(label, fmt_scaled_gmd(scaled), delta=delta)
+                change = scaled - scaled_base
+                if float(f"{change:.3f}") == 0:
+                    delta, delta_color = "0.000 vs Base", "off"
+                else:
+                    delta = f"{change:+.3f} vs Base"
+        col.metric(
+            label, fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
+        )
 
 
 def render_line(df: pd.DataFrame, meta: dict, *, df_base: pd.DataFrame | None = None):

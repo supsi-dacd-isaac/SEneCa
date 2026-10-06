@@ -43,6 +43,7 @@ from gmd import gmd_bounds_for_spec, scale_gmd_equity  # noqa: E402
 from section_ui import (  # noqa: E402
     GMD_DISPLAY_CAPTION,
     fmt_scaled_gmd,
+    metric_delta_vs_base,
     render_kpi_radar,
 )
 from section_store import (  # noqa: E402
@@ -100,18 +101,6 @@ def _fmt_metric(value: float | None, unit: str, *, decimals: int = 0) -> str:
     return f"{value:.{decimals}f} {unit}"
 
 
-def _pct_delta_vs_base(cur: float | None, base: float | None) -> str | None:
-    if cur is None or base is None:
-        return None
-    if base == 0:
-        if cur == 0:
-            return "0% vs Base"
-        return None
-    pct = (cur - base) / base * 100.0
-    sign = "+" if pct >= 0 else ""
-    return f"{sign}{pct:.1f}% vs Base"
-
-
 def render_summary_metrics(
     df: pd.DataFrame,
     gmd_store: dict[str, dict],
@@ -149,23 +138,30 @@ def render_summary_metrics(
     )
 
     items = (
-        ("Potenza PV totale", _fmt_metric(pv, "MW"), pv, pv_base),
-        ("Capacità batterie totale", _fmt_metric(bat, "MWh"), bat, bat_base),
-        ("Costo medio annuale", _fmt_metric(cost, "CHF"), cost, cost_base),
-        ("Equità levy (GMD)", fmt_scaled_gmd(gmd_levy), gmd_levy, gmd_levy_base),
-        ("Equità costo (GMD)", fmt_scaled_gmd(gmd_cost), gmd_cost, gmd_cost_base),
+        ("Potenza PV totale", _fmt_metric(pv, "MW"), pv, pv_base, "normal"),
+        ("Capacità batterie totale", _fmt_metric(bat, "MWh"), bat,
+         bat_base, "normal"),
+        ("Costo medio annuale", _fmt_metric(cost, "CHF"), cost,
+         cost_base, "inverse"),
+        ("Equità levy (GMD)", fmt_scaled_gmd(gmd_levy), gmd_levy,
+         gmd_levy_base, "normal"),
+        ("Equità costo (GMD)", fmt_scaled_gmd(gmd_cost), gmd_cost,
+         gmd_cost_base, "normal"),
     )
     cols = st.columns(len(items))
-    for col, (label, display, value, value_base) in zip(cols, items, strict=True):
+    for col, (label, display, value, value_base, color) in zip(
+        cols, items, strict=True,
+    ):
+        delta, delta_color = metric_delta_vs_base(value, value_base, color)
         with col:
             with st.container(border=True):
                 st.metric(
-                    label, display, delta=_pct_delta_vs_base(value, value_base),
+                    label, display, delta=delta, delta_color=delta_color,
                     help=GMD_DISPLAY_CAPTION if "Equità" in label else None,
                 )
 
     render_kpi_radar(
-        [(label, value, value_base) for label, _, value, value_base in items],
+        [(label, value, value_base) for label, _, value, value_base, _ in items],
         chart_key=f"kpi_radar_{key}",
     )
 

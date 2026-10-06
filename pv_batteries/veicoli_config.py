@@ -81,6 +81,7 @@ SUMMARY_METRICS = [
         "unit": "MtonCO2",
         "decimals": 0,
         "value": "year",
+        "delta_color": "inverse",
     },
     {
         "label": "Totale EV",
@@ -89,6 +90,7 @@ SUMMARY_METRICS = [
         "unit": "veicoli",
         "decimals": 0,
         "value": "year",
+        "delta_color": "normal",
     },
     {
         # Fuori dal radar: il parco totale e' esogeno, quindi la quota varia
@@ -101,6 +103,7 @@ SUMMARY_METRICS = [
         "decimals": 1,
         "value": "year",
         "radar": False,
+        "delta_color": "normal",
     },
 ]
 
