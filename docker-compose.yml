@@ -1,0 +1,34 @@
+services:
+  streamlit-app:
+    build:
+      context: .
+      args:
+        # Accept either case from the host environment or the project .env.
+        HTTP_PROXY: ${HTTP_PROXY:-${http_proxy:-}}
+        HTTPS_PROXY: ${HTTPS_PROXY:-${https_proxy:-}}
+        NO_PROXY: ${NO_PROXY:-${no_proxy:-}}
+        http_proxy: ${http_proxy:-${HTTP_PROXY:-}}
+        https_proxy: ${https_proxy:-${HTTPS_PROXY:-}}
+        no_proxy: ${no_proxy:-${NO_PROXY:-}}
+    ports:
+      # Solo localhost: l'app non ha autenticazione.
+      - "127.0.0.1:8501:8501"
+    environment:
+      HTTP_PROXY: ${HTTP_PROXY:-${http_proxy:-}}
+      HTTPS_PROXY: ${HTTPS_PROXY:-${https_proxy:-}}
+      NO_PROXY: ${NO_PROXY:-${no_proxy:-}}
+      http_proxy: ${http_proxy:-${HTTP_PROXY:-}}
+      https_proxy: ${https_proxy:-${HTTPS_PROXY:-}}
+      no_proxy: ${no_proxy:-${NO_PROXY:-}}
+      # Letta da pv_batteries/sd_explainer/loaders.py (poi, in fallback, da /app/.env).
+      CARTO_API_KEY: ${CARTO_API_KEY:-}
+      # Vuota: sure_paths.py sceglie la traduzione PySD più recente.
+      SURE_VARIANT: ${SURE_VARIANT:-}
+      PYTHONPATH: /app
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    container_name: seneca-streamlit-app
