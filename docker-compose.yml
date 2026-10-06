@@ -11,8 +11,7 @@ services:
         https_proxy: ${https_proxy:-${HTTPS_PROXY:-}}
         no_proxy: ${no_proxy:-${NO_PROXY:-}}
     ports:
-      # Solo localhost: l'app non ha autenticazione.
-      - "127.0.0.1:8501:8501"
+      - "8501:8501"
     environment:
       HTTP_PROXY: ${HTTP_PROXY:-${http_proxy:-}}
       HTTPS_PROXY: ${HTTPS_PROXY:-${https_proxy:-}}
