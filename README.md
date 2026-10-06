@@ -43,6 +43,15 @@ $env:PYTHONPATH = $PWD
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
+### Mappa CARTO
+
+La mappa nella pagina "Approccio System Dynamics" usa una chiave CARTO
+Basemaps. Copia `.env.example` in `.env` nella cartella del progetto e inserisci
+la tua `CARTO_API_KEY`, oppure imposta la stessa variabile nell'ambiente prima
+di avviare Streamlit. `.env` è escluso da Git. La chiave viene aggiunta alle
+richieste delle tile effettuate dal browser, quindi resta visibile a chi usa la
+pagina: limita il suo utilizzo nel pannello CARTO.
+
 ## Struttura
 
 | Percorso | Contenuto |

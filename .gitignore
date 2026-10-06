@@ -1,6 +1,11 @@
 # Ambiente virtuale locale
 .venv/
 
+# Credenziali locali (non versionare le chiavi API)
+.env
+.env.*
+!.env.example
+
 # Bytecode Python
 __pycache__/
 *.py[cod]

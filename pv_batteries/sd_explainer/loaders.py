@@ -1,8 +1,12 @@
 """Caricamento dati statici per la pagina System Dynamics."""
 from __future__ import annotations
 
+import os
+from urllib.parse import quote
+
 import pandas as pd
 import streamlit as st
+from dotenv import dotenv_values
 
 from sd_explainer.paths import (
     EV_INPUT_CSV,
@@ -10,7 +14,12 @@ from sd_explainer.paths import (
     MAP_HTML,
     PLOTS_DATA,
     PV_INPUT_CSV,
+    ROOT,
     SIM_ADOPTIONS_CSV,
+)
+
+CARTO_TILE_URL = (
+    "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
 )
 
 
@@ -143,11 +152,31 @@ def load_workshop_priorities() -> pd.DataFrame:
 
 
 @st.cache_data(show_spinner=False)
-def load_map_html() -> str | None:
-    """Mappa degli archetipi (HTML da 4 MB): letta una volta per sessione."""
+def _load_map_template() -> str | None:
+    """Legge una sola volta l'HTML statico, senza includere credenziali nella cache."""
     if not MAP_HTML.exists():
         return None
     return MAP_HTML.read_text(encoding="utf-8")
+
+
+def load_map_html() -> str | None:
+    """Aggiunge la chiave CARTO all'URL delle tile prima di mostrare la mappa."""
+    html = _load_map_template()
+    if html is None:
+        return None
+
+    api_key = (
+        os.environ.get("CARTO_API_KEY")
+        or dotenv_values(ROOT / ".env").get("CARTO_API_KEY")
+        or ""
+    ).strip()
+    if not api_key:
+        return html
+    return html.replace(
+        CARTO_TILE_URL,
+        f"{CARTO_TILE_URL}?key={quote(api_key, safe='')}",
+        1,
+    )
 
 
 _EXTRA_CALIBRATION = {
