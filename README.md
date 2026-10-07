@@ -10,6 +10,14 @@ Il modello e' sviluppato in Vensim e tradotto in Python con
 [PySD](https://pysd.readthedocs.io/), cosi' che la webapp possa sia servire
 scenari pre-calcolati sia lanciare simulazioni live.
 
+## Riconoscimenti
+
+Il modello SEneCa e questa applicazione sono stati sviluppati da SUPSI
+nell'ambito del [caso di studio del Canton Ticino](https://sweet-sure.ch/case-studies/)
+del progetto [SWEET SURE – Sustainable and Resilient Energy for Switzerland](https://sweet-sure.ch/).
+SURE è coordinato dal Paul Scherrer Institut e sostenuto dall'Ufficio federale
+dell'energia (UFE) attraverso il programma SWEET.
+
 ## Licenza
 
 Questo repository è distribuito con licenza MIT; vedi [LICENSE](LICENSE).
