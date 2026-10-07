@@ -10,6 +10,10 @@ Il modello e' sviluppato in Vensim e tradotto in Python con
 [PySD](https://pysd.readthedocs.io/), cosi' che la webapp possa sia servire
 scenari pre-calcolati sia lanciare simulazioni live.
 
+## Licenza
+
+Questo repository è distribuito con licenza MIT; vedi [LICENSE](LICENSE).
+
 ## Requisiti
 
 - Python 3.11 o superiore
