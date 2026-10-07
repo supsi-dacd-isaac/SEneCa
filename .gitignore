@@ -1,5 +1,7 @@
 # Ambiente virtuale locale
 .venv/
+dist/
+.data-release-installed.json
 
 # Credenziali locali (non versionare le chiavi API)
 .env
@@ -10,15 +12,10 @@
 __pycache__/
 *.py[cod]
 
-# Output di simulazione Vensim (centinaia di MB ciascuno, rigenerabili).
-# I sei .vdfx di input servono a pysd_export_vdf.py e sono tracciati sotto.
+# Snapshot binari: pubblicati come asset delle release dati, non in Git.
+*.parquet
+*.vpmx
 *.vdfx
-!Vensim/PVinput.vdfx
-!Vensim/HPinput.vdfx
-!Vensim/EVinput.vdfx
-!Vensim/Input2011.vdfx
-!Vensim/InputRenovation.vdfx
-!Vensim/Input Hour Factors.vdfx
 
 # Directory di lavoro create dai runner Vensim
 precomputed/**/_runs/

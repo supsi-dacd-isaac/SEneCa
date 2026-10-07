@@ -1,5 +1,7 @@
 # Use Python 3.13 slim image as base
 FROM python:3.13-slim
+ARG CODE_VERSION=dev
+ARG DATA_RELEASE_TAG=unknown
 # Set working directory
 WORKDIR /app
 # Compose passes the predefined proxy build-args (HTTP_PROXY, http_proxy, ...).
@@ -16,6 +18,12 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code (.env is excluded by .dockerignore)
 COPY . .
+# Fail the build if the pinned dataset was not installed and verified first.
+RUN python scripts/data_release.py verify
+LABEL org.opencontainers.image.source="https://github.com/supsi-dacd-isaac/SEneCa" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="${CODE_VERSION}" \
+      ch.supsi.seneca.data-release="${DATA_RELEASE_TAG}"
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV STREAMLIT_SERVER_PORT=8501

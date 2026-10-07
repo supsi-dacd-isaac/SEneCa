@@ -1,5 +1,6 @@
 services:
   streamlit-app:
+    # Dev locale: eseguire prima python scripts/data_release.py fetch.
     build:
       context: .
       args:

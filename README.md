@@ -17,18 +17,19 @@ Questo repository è distribuito con licenza MIT; vedi [LICENSE](LICENSE).
 ## Requisiti
 
 - Python 3.11 o superiore
-- [Git LFS](https://git-lfs.com/): gli store pre-calcolati e i sorgenti Vensim
-  sono tracciati con LFS, senza di esso il clone scarica solo i puntatori
+- I dati binari sono distribuiti nella [release dati pinata](data-release.json),
+  non nel checkout Git corrente; Git LFS non serve per i nuovi cloni
 - Vensim DSS con `vendll64.dll` — necessario **solo** per rigenerare gli store
   pre-calcolati o ritradurre il modello, non per usare la webapp
 
 ## Installazione
 
 ```bash
-git lfs install
 git clone https://github.com/supsi-dacd-isaac/SEneCa.git
 cd SEneCa
 
+python scripts/data_release.py fetch
+python scripts/data_release.py verify
 python -m venv .venv
 .venv\Scripts\activate        # su Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
@@ -47,6 +48,33 @@ $env:PYTHONPATH = $PWD
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
+Se il download dei dati fallisce o un checksum non corrisponde, l'avvio va
+interrotto: non utilizzare vecchi file LFS come alternativa. Per versioni e
+aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
+
+## Docker
+
+Per lo sviluppo locale, dopo `python scripts/data_release.py fetch`, il Compose
+principale costruisce l'immagine dal codice corrente:
+
+```bash
+docker compose up --build -d
+```
+
+Per la produzione, il Compose dedicato usa l'immagine pubblica su GHCR e non
+richiede i dati nel checkout locale. Il tag predefinito è `latest`:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
+esegue questi comandi quando decide di distribuire la versione. Per fissare
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.1.0` (o un altro
+tag pubblicato) prima dei comandi. `SENECA_PORT` cambia la porta host, che di
+default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
+
 ### Mappa CARTO
 
 La mappa nella pagina "Approccio System Dynamics" usa una chiave CARTO
@@ -62,8 +90,8 @@ pagina: limita il suo utilizzo nel pannello CARTO.
 | --- | --- |
 | `app.py`, `pages/` | Router multipagina e le sette pagine Streamlit |
 | `pv_batteries/` | Renderer, configurazioni di sezione e script di pre-calcolo |
-| `precomputed/` | Store degli scenari pre-calcolati, in formato parquet |
-| `Vensim/` | Modello `SURE.mdl`/`.vpmx`, traduzione PySD e dati di input |
+| `precomputed/` | Store Parquet installati dalla release dati pinata |
+| `Vensim/` | Modello `.mdl`, traduzione PySD e input binari dalla release dati |
 | `content/system_dynamics/` | Testi, immagini e dati della pagina divulgativa |
 
 ## Le pagine

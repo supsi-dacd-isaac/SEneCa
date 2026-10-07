@@ -1,0 +1,23 @@
+services:
+  streamlit-app:
+    image: ghcr.io/supsi-dacd-isaac/seneca:${SENECA_IMAGE_TAG:-latest}
+    pull_policy: always
+    ports:
+      - "${SENECA_PORT:-8501}:8501"
+    environment:
+      HTTP_PROXY: ${HTTP_PROXY:-${http_proxy:-}}
+      HTTPS_PROXY: ${HTTPS_PROXY:-${https_proxy:-}}
+      NO_PROXY: ${NO_PROXY:-${no_proxy:-}}
+      http_proxy: ${http_proxy:-${HTTP_PROXY:-}}
+      https_proxy: ${https_proxy:-${HTTPS_PROXY:-}}
+      no_proxy: ${no_proxy:-${NO_PROXY:-}}
+      CARTO_API_KEY: ${CARTO_API_KEY:-}
+      SURE_VARIANT: ${SURE_VARIANT:-}
+      PYTHONPATH: /app
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    container_name: seneca-streamlit-prod
