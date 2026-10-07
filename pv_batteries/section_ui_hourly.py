@@ -23,6 +23,7 @@ from section_ui import (
     render_section_nav,
     render_section_picker,
 )
+from ui_colors import data_color, line_color
 
 ELEC_SECTION_KEY = "elec_section"
 
@@ -156,7 +157,10 @@ def render_stacked_bar(
         render_echarts(options, chart_key=chart_key, height=380)
         return
 
-    st.bar_chart(pivot, sort=False)
+    st.bar_chart(
+        pivot, color=[data_color(i, str(col)) for i, col in enumerate(pivot.columns)],
+        sort=False,
+    )
 
 
 def render_annual_supplier_line(
@@ -209,7 +213,9 @@ def render_annual_supplier_line(
         )
         return
 
-    st.line_chart(annual)
+    st.line_chart(
+        annual, color=[line_color(i, str(col)) for i, col in enumerate(annual.columns)],
+    )
 
 
 def render_monthly_supplier_bars(
