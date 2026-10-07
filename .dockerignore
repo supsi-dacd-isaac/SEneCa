@@ -41,6 +41,7 @@ venv.bak/
 # OS
 .DS_Store
 .DS_Store?
+.agents/
 ._*
 .Spotlight-V100
 .Trashes
