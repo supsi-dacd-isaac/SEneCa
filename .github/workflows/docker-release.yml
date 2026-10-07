@@ -74,8 +74,16 @@ jobs:
             'from pathlib import Path; import pyarrow.parquet as pq; files=list(Path("precomputed").rglob("*.parquet")); assert len(files)==9; assert all(pq.ParquetFile(f).metadata.num_rows > 0 for f in files)'
           docker run -d --name seneca-smoke -p 127.0.0.1:18501:8501 seneca:smoke
           trap 'docker rm -f seneca-smoke >/dev/null 2>&1 || true' EXIT
-          curl --fail --silent --show-error --retry 30 --retry-connrefused \
-            --retry-delay 2 http://127.0.0.1:18501/_stcore/health
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then
+              exit 0
+            fi
+            echo "Waiting for Streamlit health ($attempt/30)"
+            sleep 2
+          done
+          docker logs seneca-smoke
+          echo "Streamlit health check failed" >&2
+          exit 1
 
       - name: Log in to GitHub Container Registry
         if: github.event_name == 'release'
