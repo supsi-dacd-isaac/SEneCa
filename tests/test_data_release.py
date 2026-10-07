@@ -5,9 +5,11 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import ssl
 import tarfile
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
@@ -86,6 +88,21 @@ class DataReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "inattesi"):
             data_release.install_archive(archive, self.root / "installed", pin)
         self.assertFalse((self.root / "outside").exists())
+
+    def test_verified_curl_fallback_for_missing_python_ca_bundle(self) -> None:
+        pin, _ = self.package()
+        problem = urllib.error.URLError(ssl.SSLCertVerificationError("missing CA"))
+        with (
+            patch("urllib.request.urlopen", side_effect=problem),
+            patch("shutil.which", return_value="/usr/bin/curl"),
+            patch("subprocess.run") as run,
+        ):
+            data_release.download_asset(pin, self.root / "download.tar.gz")
+        command = run.call_args.args[0]
+        self.assertEqual(command[0], "curl")
+        self.assertIn("--fail", command)
+        self.assertNotIn("--insecure", command)
+        self.assertNotIn("-k", command)
 
 
 if __name__ == "__main__":

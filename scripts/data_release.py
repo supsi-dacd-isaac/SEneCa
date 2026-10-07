@@ -15,8 +15,11 @@ import json
 import os
 import re
 import shutil
+import ssl
+import subprocess
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -226,8 +229,19 @@ def verify_installed(destination: Path, pin: dict) -> None:
 def download_asset(pin: dict, output: Path) -> None:
     url = f"https://github.com/{pin['repository']}/releases/download/{pin['tag']}/{pin['asset']}"
     request = urllib.request.Request(url, headers={"User-Agent": "SEneCa-data-release/1"})
-    with urllib.request.urlopen(request, timeout=60) as response, output.open("wb") as stream:
-        shutil.copyfileobj(response, stream, length=1024 * 1024)
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response, output.open("wb") as stream:
+            shutil.copyfileobj(response, stream, length=1024 * 1024)
+    except urllib.error.URLError as exc:
+        # Some macOS Python installations have no CA bundle; curl uses the OS
+        # trust store. Never disable certificate verification.
+        if not isinstance(exc.reason, ssl.SSLCertVerificationError) or not shutil.which("curl"):
+            raise
+        subprocess.run(
+            ["curl", "--fail", "--location", "--silent", "--show-error", "--retry", "3",
+             "--output", str(output), url],
+            check=True,
+        )
 
 
 def main() -> None:
@@ -267,7 +281,7 @@ def main() -> None:
             pin = load_pin(args.pin)
             verify_installed(args.destination, pin)
             print(f"Dati {pin['tag']} verificati")
-    except (OSError, ValueError, tarfile.TarError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, tarfile.TarError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
         parser.exit(1, f"Errore dati SEneCa: {exc}\n")
 
 
