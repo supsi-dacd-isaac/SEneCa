@@ -67,7 +67,6 @@ def render_hourly_summary_metrics(
     df: pd.DataFrame,
     *,
     year: int,
-    key: str,
     df_base: pd.DataFrame | None = None,
     radar: bool = True,
 ) -> None:
@@ -94,7 +93,7 @@ def render_hourly_summary_metrics(
                 )
 
     if radar:
-        render_kpi_radar(entries, chart_key=f"kpi_radar_hourly_{key}")
+        render_kpi_radar(entries, chart_key="kpi_radar_elettricita")
 
 
 def _chart_label_prefix(meta: dict) -> str:

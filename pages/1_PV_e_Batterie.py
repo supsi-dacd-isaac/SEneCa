@@ -162,7 +162,7 @@ def render_summary_metrics(
 
     render_kpi_radar(
         [(label, value, value_base) for label, _, value, value_base, _ in items],
-        chart_key=f"kpi_radar_{key}",
+        chart_key="kpi_radar_pv",
     )
 
 

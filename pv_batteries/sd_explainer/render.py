@@ -653,7 +653,7 @@ def render_step_quantitative_model() -> None:
             pie_cats, pie_vals = sector_pie_at_year(df_energy, year1)
             _render_echarts_pie(
                 pie_cats, pie_vals, unit="GWh",
-                chart_key=f"sd_energy_pie_{year1}",
+                chart_key="sd_energy_pie",
                 title=f"Ripartizione {year1}",
             )
 
@@ -669,7 +669,7 @@ def render_step_quantitative_model() -> None:
             pie_cats, pie_vals = sector_pie_at_year(df_elec, year2)
             _render_echarts_pie(
                 pie_cats, pie_vals, unit="GWh",
-                chart_key=f"sd_elec_pie_{year2}",
+                chart_key="sd_elec_pie",
                 title=f"Ripartizione {year2}",
             )
 

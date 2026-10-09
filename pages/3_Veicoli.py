@@ -99,6 +99,7 @@ render_configured_summary_metrics(
     gmd_bounds={},
     df_base=metrics_df_base,
     base_key=metrics_base_key,
+    radar_chart_key="kpi_radar_veicoli",
 )
 
 st.divider()

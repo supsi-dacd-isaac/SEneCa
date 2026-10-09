@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import math
 import re
+from copy import deepcopy
 
 import pandas as pd
 import streamlit as st
@@ -423,18 +424,72 @@ def build_multi_radar_options(
     }
 
 
+def _transition_compatible(previous: dict, current: dict) -> bool:
+    """Animate values only when both plots describe the same series and axes."""
+    old_series = previous.get("series", [])
+    new_series = current.get("series", [])
+    if len(old_series) != len(new_series):
+        return False
+    for old, new in zip(old_series, new_series, strict=True):
+        if (old.get("id", old.get("name")), old.get("type")) != (
+            new.get("id", new.get("name")), new.get("type")
+        ):
+            return False
+        if old.get("type") == "pie":
+            if [item.get("name") for item in old.get("data", [])] != [
+                item.get("name") for item in new.get("data", [])
+            ]:
+                return False
+        if old.get("type") == "radar":
+            if [item.get("name") for item in old.get("data", [])] != [
+                item.get("name") for item in new.get("data", [])
+            ]:
+                return False
+
+    for axis_name in ("xAxis", "yAxis"):
+        old_axes = previous.get(axis_name, [])
+        new_axes = current.get(axis_name, [])
+        old_axes = old_axes if isinstance(old_axes, list) else [old_axes]
+        new_axes = new_axes if isinstance(new_axes, list) else [new_axes]
+        if len(old_axes) != len(new_axes):
+            return False
+        for old, new in zip(old_axes, new_axes, strict=True):
+            if old.get("type") != new.get("type"):
+                return False
+            if old.get("type") == "category" and old.get("data") != new.get("data"):
+                return False
+
+    old_radar = previous.get("radar", {})
+    new_radar = current.get("radar", {})
+    if [item.get("name") for item in old_radar.get("indicator", [])] != [
+        item.get("name") for item in new_radar.get("indicator", [])
+    ]:
+        return False
+    return True
+
+
 def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2,
-    previous_options: dict | None = None, animate_initial: bool = True,
 ) -> None:
-    """Renderizza ECharts in iframe (affidabile con Streamlit)."""
+    """Render ECharts, transitioning from the chart's last visible values."""
+    options = deepcopy(options)
     options.setdefault("color", list(DATA_COLORS))
     options.setdefault("backgroundColor", "#FFFFFF")
     options.setdefault("textStyle", {"color": CHART_TEXT})
-    dom_id = _safe_dom_id(chart_key)
+    options.setdefault("animationDuration", 0)
+    options.setdefault("animationDurationUpdate", 450)
+    options.setdefault("animationEasingUpdate", "cubicOut")
+    state_key = f"_echarts_previous_{chart_key}"
+    previous = st.session_state.get(state_key)
     options_json = json.dumps(options)
+    previous_options = (
+        previous if json.dumps(previous) != options_json
+        and _transition_compatible(previous, options)
+        else None
+    ) if previous is not None else None
+    st.session_state[state_key] = options
+    dom_id = _safe_dom_id(chart_key)
     previous_options_json = json.dumps(previous_options)
-    animate_initial_json = json.dumps(animate_initial)
     html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -452,7 +507,6 @@ def render_echarts(
     const chart = echarts.init(el);
     const options = {options_json};
     const previousOptions = {previous_options_json};
-    const animateInitial = {animate_initial_json};
     const tooltipDecimals = {tooltip_decimals};
     options.tooltip = Object.assign({{ trigger: "axis" }}, options.tooltip || {{}}, {{
       valueFormatter: function(value) {{
@@ -464,8 +518,8 @@ def render_echarts(
       }},
     }});
     if (previousOptions) {{
-      // This iframe is new after a Streamlit rerun: restore the last visible
-      // mix first, then let ECharts animate the update instead of the entrance.
+      // A Streamlit rerun creates a new iframe. Restore the last visible
+      // values first, then animate only the update.
       previousOptions.animation = false;
       chart.setOption(previousOptions);
       requestAnimationFrame(() => requestAnimationFrame(() => {{
@@ -473,7 +527,7 @@ def render_echarts(
         chart.setOption(options);
       }}));
     }} else {{
-      if (!animateInitial) options.animation = false;
+      options.animation = false;
       chart.setOption(options);
     }}
     window.addEventListener("resize", function() {{ chart.resize(); }});

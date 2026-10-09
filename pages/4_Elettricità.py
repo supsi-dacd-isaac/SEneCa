@@ -128,7 +128,6 @@ render_hourly_summary_metrics(
     cfg.SUMMARY_METRICS,
     df,
     year=cfg.FINAL_YEAR,
-    key=key,
     df_base=metrics_df_base,
 )
 

@@ -65,7 +65,7 @@ OUTPUTS = [
      "start_year": 2026, "legend": "bottom"},
     {"base": "EV by district", "kind": "bar", "year": 2050, "unit": "veicoli",
      "title": "BEV per distretto",
-     "district_order": DISTRICT_ORDER},
+     "district_order": DISTRICT_ORDER, "echarts": True},
 ]
 
 # Griglia grafici: ogni riga = coppia affiancata (base Vensim)

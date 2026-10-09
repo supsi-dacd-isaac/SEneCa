@@ -158,6 +158,7 @@ def render_configured_summary_metrics(
     df_base: pd.DataFrame | None = None,
     base_key: str | None = None,
     radar: bool = True,
+    radar_chart_key: str = "kpi_radar",
 ) -> None:
     """Metriche KPI da config con delta vs scenario Base."""
     gmd_row = gmd_store.get(key, {})
@@ -200,7 +201,7 @@ def render_configured_summary_metrics(
                 )
 
     if radar:
-        render_kpi_radar(entries, chart_key=f"kpi_radar_{key}")
+        render_kpi_radar(entries, chart_key=radar_chart_key)
 
 
 def render_section_picker(labels: list[str], *, key: str) -> str:
