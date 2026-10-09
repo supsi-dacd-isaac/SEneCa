@@ -324,19 +324,23 @@ def build_boxplot_options(
 ) -> dict:
     """Boxplot per categoria: ogni box è [min, Q1, mediana, Q3, max]."""
     series: list[dict] = [{
+        "id": "policy-mix-boxplot",
         "name": "Distribuzione",
         "type": "boxplot",
         "itemStyle": {"color": "#DDE5FF", "borderColor": SUPSI_BLUE},
-        "data": boxes,
+        "data": [
+            {"name": category, "value": box}
+            for category, box in zip(categories, boxes, strict=True)
+        ],
+    }, {
+        "id": "policy-mix-outliers",
+        "name": "Outlier",
+        "type": "scatter",
+        "itemStyle": {"color": SUPSI_PURPLE},
+        "data": outliers or [],
+        "symbolSize": 6,
+        "animationDurationUpdate": 0,
     }]
-    if outliers:
-        series.append({
-            "name": "Outlier",
-            "type": "scatter",
-            "itemStyle": {"color": SUPSI_PURPLE},
-            "data": outliers,
-            "symbolSize": 6,
-        })
     y_axis: dict = {"type": "value", "name": unit, "scale": False}
     if y_min is not None:
         y_axis["min"] = y_min
@@ -420,7 +424,8 @@ def build_multi_radar_options(
 
 
 def render_echarts(
-    options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2
+    options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2,
+    previous_options: dict | None = None, animate_initial: bool = True,
 ) -> None:
     """Renderizza ECharts in iframe (affidabile con Streamlit)."""
     options.setdefault("color", list(DATA_COLORS))
@@ -428,6 +433,8 @@ def render_echarts(
     options.setdefault("textStyle", {"color": CHART_TEXT})
     dom_id = _safe_dom_id(chart_key)
     options_json = json.dumps(options)
+    previous_options_json = json.dumps(previous_options)
+    animate_initial_json = json.dumps(animate_initial)
     html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -444,6 +451,8 @@ def render_echarts(
     const el = document.getElementById({json.dumps(dom_id)});
     const chart = echarts.init(el);
     const options = {options_json};
+    const previousOptions = {previous_options_json};
+    const animateInitial = {animate_initial_json};
     const tooltipDecimals = {tooltip_decimals};
     options.tooltip = Object.assign({{ trigger: "axis" }}, options.tooltip || {{}}, {{
       valueFormatter: function(value) {{
@@ -454,7 +463,19 @@ def render_echarts(
         return Number.isFinite(n) ? n.toFixed(tooltipDecimals) : String(value);
       }},
     }});
-    chart.setOption(options);
+    if (previousOptions) {{
+      // This iframe is new after a Streamlit rerun: restore the last visible
+      // mix first, then let ECharts animate the update instead of the entrance.
+      previousOptions.animation = false;
+      chart.setOption(previousOptions);
+      requestAnimationFrame(() => requestAnimationFrame(() => {{
+        options.animation = true;
+        chart.setOption(options);
+      }}));
+    }} else {{
+      if (!animateInitial) options.animation = false;
+      chart.setOption(options);
+    }}
     window.addEventListener("resize", function() {{ chart.resize(); }});
   </script>
 </body>

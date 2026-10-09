@@ -39,6 +39,8 @@ SUBPAGE_INSPECT = "Esplora un policy mix"
 SUBPAGE_RANK = "Migliori policy mix"
 SUBPAGES = [SUBPAGE_INSPECT, SUBPAGE_RANK]
 SUBPAGE_KEY = "expl_subpage"
+INSPECT_LAST_PID_KEY = "expl_inspect_last_pid"
+INSPECT_LAST_OPTIONS_KEY = "expl_inspect_last_options"
 
 
 @st.cache_data(show_spinner="Caricamento delle 6400 simulazioni...")
@@ -264,10 +266,24 @@ def _render_inspect_mix(scaled: pd.DataFrame) -> None:
             categories, boxes, unit="scalato (1 = migliore)",
             y_min=0.0, y_max=1.0, outliers=outliers,
         )
+        options["animationDuration"] = 0
+        options["animationDurationUpdate"] = 450
+        options["animationEasingUpdate"] = "cubicOut"
+        previous_options = None
+        if st.session_state.get(INSPECT_LAST_PID_KEY) != pid:
+            previous_options = st.session_state.get(INSPECT_LAST_OPTIONS_KEY)
         st.caption(
             f"{len(subset)} scenari di incertezza per il mix selezionato."
         )
-        render_echarts(options, chart_key=f"expl_box_{pid}", height=520)
+        render_echarts(
+            options,
+            chart_key="expl_policy_boxplot",
+            height=520,
+            previous_options=previous_options,
+            animate_initial=False,
+        )
+        st.session_state[INSPECT_LAST_PID_KEY] = pid
+        st.session_state[INSPECT_LAST_OPTIONS_KEY] = options
 
 
 def _render_best_mixes(scaled: pd.DataFrame) -> None:
