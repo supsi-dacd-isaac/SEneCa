@@ -91,17 +91,62 @@ BASE_SCENARIO: dict[str, float] = {
 
 INPUT_META = {
 
-    "FiT": {"label": "FiT", "unit": "CHF/kWh"},
+    "FiT": {
+        "label": "Rimunerazione elettricità",
+        "unit": "Rp/kWh",
+        "scale": 100,
+        "help": (
+            "Rimunerazione per l'elettricità non autoconsumata e immessa in rete, "
+            "in aggiunta all'attuale rimunerazione FER."
+        ),
+    },
 
-    "PV rebate federal": {"label": "PV rebate federale", "unit": "-"},
+    "PV rebate federal": {
+        "label": "Rimborso PV federale",
+        "unit": "-",
+        "help": "Frazione del costo di investimento rimborsata.",
+    },
 
-    "Provvedimento 1.2": {"label": "Provv. 1.2 PECC (hydro dam)", "unit": "-"},
+    "Provvedimento 1.2": {
+        "label": "Provv. 1.2 PECC (hydro dam)",
+        "unit": "-",
+        "help": (
+            "Rinnovo e ottimizzazione degli impianti idroelettrici ad accumulo "
+            "esistenti. Se attivo, aumenta la produzione annuale di 214 GWh "
+            "rispetto alla traiettoria di riferimento."
+        ),
+    },
 
-    "Provvedimento 1.3": {"label": "Provv. 1.3 PECC (PHS)", "unit": "-"},
+    "Provvedimento 1.3": {
+        "label": "Provv. 1.3 PECC (PHS)",
+        "unit": "-",
+        "help": (
+            "Nuovi impianti di pompaggio-turbinaggio. Se attivo, la produzione "
+            "aggiuntiva è di 637 GWh, a fronte di un consumo di 430 GWh "
+            "assorbito nelle ore di disponibilità in eccesso e restituito "
+            "tramite turbinaggio."
+        ),
+    },
 
-    "Provvedimento 1.4": {"label": "Provv. 1.4 PECC (RoR)", "unit": "-"},
+    "Provvedimento 1.4": {
+        "label": "Provv. 1.4 PECC (RoR)",
+        "unit": "-",
+        "help": (
+            "Nuovi impianti mini-idroelettrici, rappresentati come impianti "
+            "ad acqua fluente. Se attivo, aggiunge 80 GWh di produzione da "
+            "piccoli impianti privi di accumulo stagionale rilevante."
+        ),
+    },
 
-    "Provvedimento 1.7": {"label": "Provv. 1.7 PECC (hydro dam)", "unit": "-"},
+    "Provvedimento 1.7": {
+        "label": "Provv. 1.7 PECC (hydro dam)",
+        "unit": "-",
+        "help": (
+            "Aumento della capacità di accumulazione invernale dei bacini "
+            "esistenti. Se attivo, consente di trasferire circa 89 GWh dalla "
+            "stagione estiva a quella invernale."
+        ),
+    },
 
 }
 
@@ -243,8 +288,8 @@ sotto ogni valore è il confronto con lo scenario Base.
   nell'anno, **escluse le importazioni**. Cresce con il fotovoltaico e con i
   provvedimenti PECC sull'idroelettrico.
 - **Offerta solare** — la sola quota fotovoltaica dell'indicatore precedente: è la
-  parte su cui agiscono direttamente la tariffa di ritiro (FiT) e il rimborso
-  federale.
+  parte su cui agiscono direttamente la rimunerazione dell'elettricità e il rimborso
+  PV federale.
 - **Elettricità consumata** — quanto viene effettivamente usato in Ticino, cioè rete
   più autoconsumo fotovoltaico.
 - **Elettricità esportata** — il surplus che esce dal cantone perché prodotto in ore

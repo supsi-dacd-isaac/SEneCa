@@ -51,8 +51,11 @@ with st.sidebar:
         meta = cfg.INPUT_META[name]
         opts = cfg.INPUT_GRID[name]
         label = meta["label"] + (f" ({meta['unit']})" if meta["unit"] != "-" else "")
-        val = st.select_slider(label, options=opts, value=opts[0],
-                               format_func=lambda x: f"{x:g}")
+        val = st.select_slider(
+            label, options=opts, value=opts[0],
+            format_func=lambda x: f"{x:g}",
+            help=meta.get("help") or None,
+        )
         values.append(val)
 
     compare_base = st.checkbox("Confronta con scenario Base", value=False)

@@ -57,12 +57,39 @@ BASE_SCENARIO: dict[str, float] = {
 
 # Etichette/unita' per la UI (allineate all'Excel)
 INPUT_META = {
-    "PV rebate cantonal": {"label": "PV rebate cantonale", "unit": "-"},
-    "FiT": {"label": "FiT", "unit": "CHF/kWh"},
-    "Battery Rebate": {"label": "Rimborso batterie", "unit": "-"},
-    "PV rebate federal": {"label": "PV rebate federale", "unit": "-"},
+    "PV rebate cantonal": {
+        "label": "Rimborso PV cantonale",
+        "unit": "-",
+        "help": "Frazione del costo di investimento rimborsata.",
+    },
+    "FiT": {
+        "label": "Rimunerazione elettricità",
+        "unit": "Rp/kWh",
+        "scale": 100,
+        "help": (
+            "Rimunerazione per l'elettricità non autoconsumata e immessa in rete, "
+            "in aggiunta all'attuale rimunerazione FER."
+        ),
+    },
+    "Battery Rebate": {
+        "label": "Rimborso batterie",
+        "unit": "-",
+        "help": "Frazione del costo di investimento rimborsata.",
+    },
+    "PV rebate federal": {
+        "label": "Rimborso PV federale",
+        "unit": "-",
+        "help": "Frazione del costo di investimento rimborsata.",
+    },
     "PV reg scenario": {"label": "Obbligo PV nuovi edifici", "unit": "-"},
-    "Energy Community scenario": {"label": "Comunità energetica (RCP)", "unit": "-"},
+    "Energy Community scenario": {
+        "label": "Comunità energetica (RCPv)",
+        "unit": "-",
+        "help": (
+            "Questa policy dà la possibilità di creare comunità energetiche "
+            "virtuali (RCPv)."
+        ),
+    },
 }
 
 # =============================================================

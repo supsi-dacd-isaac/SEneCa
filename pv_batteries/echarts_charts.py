@@ -1,6 +1,7 @@
 """Helper ECharts per grafici interattivi nelle pagine Streamlit."""
 from __future__ import annotations
 
+import importlib
 import json
 import math
 import re
@@ -9,10 +10,11 @@ from copy import deepcopy
 import pandas as pd
 import streamlit as st
 
+import ui_colors
+importlib.reload(ui_colors)
 from section_ui import chart_title, clean_base, elem_label, match_cols
 from ui_colors import (
-    BASE_GRAY, CHART_TEXT, DATA_COLORS, SUPSI_BLUE, SUPSI_PURPLE,
-    data_color, line_color,
+    BASE_GRAY, CHART_TEXT, data_color, line_color, palette_for,
 )
 
 _ECHARTS_CDN = "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
@@ -57,6 +59,7 @@ def build_line_options(
     data_zoom: bool = False,
     area: bool = False,
     legend_position: str = "auto",
+    y_min: float | None = None,
 ) -> dict:
     """Opzioni ECharts multi-serie (smooth, legenda, toolbox)."""
     if series_order:
@@ -66,8 +69,9 @@ def build_line_options(
         legend = list(series.keys())
 
     echarts_series: list[dict] = []
+    n = len(legend)
     for index, label in enumerate(legend):
-        color = line_color(index, label)
+        color = line_color(index, label, n=n)
         item: dict = {
             "name": label,
             "type": "line",
@@ -120,7 +124,9 @@ def build_line_options(
             "data": [str(y) for y in years],
             "axisLabel": {"margin": 10},
         },
-        "yAxis": {"type": "value", "name": unit},
+        "yAxis": {"type": "value", "name": unit, **(
+            {} if y_min is None else {"min": y_min}
+        )},
         "grid": {"bottom": grid_bottom},
         "series": echarts_series,
     }
@@ -191,7 +197,7 @@ def build_stacked_bar_options(
             "type": "bar",
             "stack": "total",
             "emphasis": {"focus": "series"},
-            "itemStyle": {"color": data_color(index, label)},
+            "itemStyle": {"color": data_color(index, label, n=len(legend))},
             "data": series[label],
         }
         for index, label in enumerate(legend)
@@ -230,6 +236,9 @@ def build_pie_options(
         for cat, val in zip(categories, values, strict=True)
         if val is not None and not pd.isna(val)
     ]
+    colors = palette_for(len(data))
+    for i, item in enumerate(data):
+        item["itemStyle"] = {"color": colors[i % len(colors)]}
     y_name = unit or "Valore"
     return {
         "toolbox": {
@@ -299,8 +308,8 @@ def build_radar_options(
                 {
                     "value": pcts,
                     "name": series_label,
-                    "lineStyle": {"color": SUPSI_BLUE, "width": 2.5},
-                    "itemStyle": {"color": SUPSI_BLUE},
+                    "lineStyle": {"color": data_color(0), "width": 2.5},
+                    "itemStyle": {"color": data_color(0)},
                     "areaStyle": {"opacity": 0.25},
                 },
                 {
@@ -328,7 +337,7 @@ def build_boxplot_options(
         "id": "policy-mix-boxplot",
         "name": "Distribuzione",
         "type": "boxplot",
-        "itemStyle": {"color": "#DDE5FF", "borderColor": SUPSI_BLUE},
+        "itemStyle": {"color": data_color(1), "borderColor": data_color(0)},
         "data": [
             {"name": category, "value": box}
             for category, box in zip(categories, boxes, strict=True)
@@ -337,7 +346,7 @@ def build_boxplot_options(
         "id": "policy-mix-outliers",
         "name": "Outlier",
         "type": "scatter",
-        "itemStyle": {"color": SUPSI_PURPLE},
+        "itemStyle": {"color": data_color(2)},
         "data": outliers or [],
         "symbolSize": 6,
         "animationDurationUpdate": 0,
@@ -414,8 +423,8 @@ def build_multi_radar_options(
                         for v in series[name]
                     ],
                     "name": name,
-                    "lineStyle": {"color": line_color(index, name), "width": 2},
-                    "itemStyle": {"color": line_color(index, name)},
+                    "lineStyle": {"color": line_color(index, name, n=len(names)), "width": 2},
+                    "itemStyle": {"color": line_color(index, name, n=len(names))},
                     "areaStyle": {"opacity": 0.12},
                 }
                 for index, name in enumerate(names)
@@ -468,12 +477,20 @@ def _transition_compatible(previous: dict, current: dict) -> bool:
     return True
 
 
+def _categorical_count(options: dict) -> int:
+    """Numero di categorie colorate: fette della torta, altrimenti serie."""
+    series = options.get("series") or []
+    if len(series) == 1 and series[0].get("type") == "pie":
+        return len(series[0].get("data") or [])
+    return len(series)
+
+
 def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2,
 ) -> None:
-    """Render ECharts, transitioning from the chart's last visible values."""
+    """Renderizza ECharts in iframe, animando solo se assi e serie coincidono."""
     options = deepcopy(options)
-    options.setdefault("color", list(DATA_COLORS))
+    options.setdefault("color", list(palette_for(_categorical_count(options))))
     options.setdefault("backgroundColor", "#FFFFFF")
     options.setdefault("textStyle", {"color": CHART_TEXT})
     options.setdefault("animationDuration", 0)
@@ -601,6 +618,7 @@ def _render_echarts_series(
         series_order=series_order,
         compare=compare,
         legend_position=meta.get("legend", "auto"),
+        y_min=meta.get("y_min"),
     )
     render_chart_header(title, meta["unit"], meta.get("desc"))
     render_echarts(
@@ -712,18 +730,19 @@ def build_district_combo_options(
     if share_values and max(share_values) <= 100:
         right_yaxis["max"] = 100
 
+    n_combo = len(bar_legend) + len(share_legend)
     echarts_series: list[dict] = []
     for index, label in enumerate(bar_legend):
         echarts_series.append({
             "name": label,
             "type": "bar",
             "yAxisIndex": 0,
-            "itemStyle": {"color": data_color(index, label)},
+            "itemStyle": {"color": data_color(index, label, n=n_combo)},
             "data": bar_series[label],
         })
     for index, label in enumerate(bar_legend):
         if compare_bar and label in compare_bar:
-            color = line_color(index, label)
+            color = line_color(index, label, n=n_combo)
             echarts_series.append({
                 "name": f"{label} (Base)",
                 "type": "line",
@@ -734,7 +753,7 @@ def build_district_combo_options(
                 "data": compare_bar[label],
             })
     for index, label in enumerate(share_legend):
-        color = line_color(index + len(bar_legend), label)
+        color = line_color(index + len(bar_legend), label, n=n_combo)
         echarts_series.append({
             "name": label,
             "type": "line",
@@ -746,7 +765,7 @@ def build_district_combo_options(
         })
     for index, label in enumerate(share_legend):
         if compare_share and label in compare_share:
-            color = line_color(index + len(bar_legend), label)
+            color = line_color(index + len(bar_legend), label, n=n_combo)
             echarts_series.append({
                 "name": f"{label} (Base)",
                 "type": "line",
@@ -800,7 +819,7 @@ def build_category_bar_options(
         yaxis["axisLabel"] = {"formatter": "{value}%"}
 
     echarts_series: list[dict] = [
-        {"name": series_label, "type": "bar", "itemStyle": {"color": SUPSI_BLUE},
+        {"name": series_label, "type": "bar", "itemStyle": {"color": data_color(0)},
          "data": values},
     ]
     if compare_values is not None:
@@ -899,7 +918,7 @@ def build_grouped_bar_options(
     legend = [label for label in series_order if label in series]
     legend.extend(label for label in series if label not in legend)
     echarts_series = [
-        {"name": label, "type": "bar", "itemStyle": {"color": data_color(index, label)},
+        {"name": label, "type": "bar", "itemStyle": {"color": data_color(index, label, n=len(legend))},
          "data": series[label]}
         for index, label in enumerate(legend)
     ]

@@ -77,6 +77,14 @@ def total_pv_power_mw(df: pd.DataFrame, year: int) -> float | None:
     return float(res.sum()) + nr_kw / 1000.0
 
 
+def total_pv_production_gwh(df: pd.DataFrame, year: int) -> float | None:
+    cols = match_cols(df, "Total PV electricity production")
+    if not cols or year not in df.index:
+        return None
+    val = df.loc[year, cols[0]]
+    return None if pd.isna(val) else float(val)
+
+
 def total_battery_mwh(df: pd.DataFrame, year: int) -> float | None:
     cols = match_cols(df, "Total Battery capacity District")
     if not cols or year not in df.index:
@@ -116,6 +124,7 @@ def render_summary_metrics(
     gmd_base_row = gmd_store.get(base_key, {}) if base_key else {}
 
     pv = total_pv_power_mw(df, year)
+    prod = total_pv_production_gwh(df, year)
     bat = total_battery_mwh(df, year)
     cost = avg_annual_cost_chf(df, year)
     gmd_levy = scale_gmd_equity(
@@ -126,6 +135,9 @@ def render_summary_metrics(
     )
 
     pv_base = total_pv_power_mw(df_base, year) if df_base is not None else None
+    prod_base = (
+        total_pv_production_gwh(df_base, year) if df_base is not None else None
+    )
     bat_base = total_battery_mwh(df_base, year) if df_base is not None else None
     cost_base = avg_annual_cost_chf(df_base, year) if df_base is not None else None
     gmd_levy_base = (
@@ -139,6 +151,13 @@ def render_summary_metrics(
 
     items = (
         ("Potenza PV totale", _fmt_metric(pv, "MW"), pv, pv_base, "normal"),
+        (
+            "Produzione PV totale (GWh)",
+            _fmt_metric(prod, "GWh", decimals=0),
+            prod,
+            prod_base,
+            "normal",
+        ),
         ("Capacità batterie totale", _fmt_metric(bat, "MWh"), bat,
          bat_base, "normal"),
         ("Costo medio annuale", _fmt_metric(cost, "CHF"), cost,
@@ -148,17 +167,28 @@ def render_summary_metrics(
         ("Equità costo (GMD)", fmt_scaled_gmd(gmd_cost), gmd_cost,
          gmd_cost_base, "normal"),
     )
-    cols = st.columns(len(items))
-    for col, (label, display, value, value_base, color) in zip(
-        cols, items, strict=True,
-    ):
-        delta, delta_color = metric_delta_vs_base(value, value_base, color)
-        with col:
-            with st.container(border=True):
-                st.metric(
-                    label, display, delta=delta, delta_color=delta_color,
-                    help=GMD_DISPLAY_CAPTION if "Equità" in label else None,
+    for row in (items[:3], items[3:]):
+        cols = st.columns(len(row))
+        for col, (label, display, value, value_base, color) in zip(
+            cols, row, strict=True,
+        ):
+            delta, delta_color = metric_delta_vs_base(value, value_base, color)
+            if "Equità" in label:
+                help_text = GMD_DISPLAY_CAPTION
+            elif label == "Costo medio annuale":
+                help_text = (
+                    "Costo medio per economia domestica: comprende elettricità, "
+                    "riscaldamento e i costi annualizzati di investimento per "
+                    "tecnologie e risanamento."
                 )
+            else:
+                help_text = None
+            with col:
+                with st.container(border=True):
+                    st.metric(
+                        label, display, delta=delta, delta_color=delta_color,
+                        help=help_text,
+                    )
 
     render_kpi_radar(
         [(label, value, value_base) for label, _, value, value_base, _ in items],
@@ -172,12 +202,15 @@ def _format_input_value(name: str, value: float) -> str:
     return f"{value:g}"
 
 
-def _render_binary_input(label: str, *, default: float = 0.0) -> float:
+def _render_binary_input(
+    label: str, *, default: float = 0.0, help: str | None = None,
+) -> float:
     default_label = "Sì" if default == 1.0 else "No"
     selected = st.segmented_control(
         label,
         options=list(BINARY_LABELS),
         default=default_label,
+        help=help,
     )
     return 1.0 if selected == "Sì" else 0.0
 
@@ -203,10 +236,16 @@ with st.sidebar:
         label = f"{meta['label']}" + (f" ({meta['unit']})"
                                       if meta["unit"] != "-" else "")
         if name in BINARY_INPUTS:
-            val = _render_binary_input(label, default=opts[0])
+            val = _render_binary_input(
+                label, default=opts[0], help=meta.get("help") or None,
+            )
         else:
-            val = st.select_slider(label, options=opts, value=opts[0],
-                                   format_func=lambda x: f"{x:g}")
+            scale = float(meta.get("scale", 1) or 1)
+            val = st.select_slider(
+                label, options=opts, value=opts[0],
+                format_func=lambda x, scale=scale: f"{x * scale:g}",
+                help=meta.get("help") or None,
+            )
         values.append(val)
 
     compare_base = st.checkbox("Confronta con scenario Base", value=False)
@@ -220,7 +259,10 @@ with st.sidebar:
                 )
             else:
                 unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-                st.markdown(f"- {imeta['label']}: `{base_val:g}`{unit}")
+                scale = float(imeta.get("scale", 1) or 1)
+                st.markdown(
+                    f"- {imeta['label']}: `{base_val * scale:g}`{unit}"
+                )
 
 key = combo_key(values)
 base_key = base_combo_key(_cfg)
@@ -263,6 +305,8 @@ ogni valore è il confronto con lo scenario Base.
 
 - **Potenza PV totale** — potenza fotovoltaica installata sul territorio, somma degli
   impianti residenziali e di quelli non residenziali di ogni taglia.
+- **Produzione PV totale** — energia elettrica prodotta dagli impianti fotovoltaici
+  nell'anno, in GWh.
 - **Capacità batterie totale** — capacità di accumulo installata, sommata sugli otto
   distretti.
 - **Costo medio annuale** — spesa media di una famiglia per elettricità, riscaldamento

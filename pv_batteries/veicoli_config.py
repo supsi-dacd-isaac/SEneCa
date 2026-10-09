@@ -47,9 +47,32 @@ BASE_SCENARIO: dict[str, float] = {
 
 INPUT_META = {
     "EV charger incentive input": {"label": "Incentivo colonnina EV", "unit": "CHF"},
-    "CO2 coefficient ICE": {"label": "Coefficiente tassa ICE", "unit": "-"},
-    "EV annual cost reduction input": {"label": "Riduzione annuale costo EV", "unit": "-"},
-    "ICE fuel price input": {"label": "Prezzo carburante ICE", "unit": "CHF/l"},
+    "CO2 coefficient ICE": {
+        "label": "Coefficiente tassa ICE",
+        "unit": "-",
+        "help": (
+            "Coefficiente che serve a determinare la tassa di circolazione "
+            "per i veicoli a combustione interna (ICE), attualmente pari a circa 2."
+        ),
+    },
+    "EV annual cost reduction input": {
+        "label": "Riduzione annuale costo EV",
+        "unit": "-",
+        "help": (
+            "Assunzione sulla riduzione annuale, in percentuale, del costo di "
+            "investimento per i veicoli elettrici. Il valore è una frazione: "
+            "0.01 corrisponde all'1%."
+        ),
+    },
+    "ICE fuel price input": {
+        "label": "Prezzo carburante ICE",
+        "unit": "CHF/l",
+        "help": (
+            "In queste simulazioni si assume, per semplicità, che questo sia "
+            "il prezzo di entrambi i carburanti (diesel e benzina) per i "
+            "veicoli a combustione interna (ICE)."
+        ),
+    },
 }
 
 OUTPUTS = [

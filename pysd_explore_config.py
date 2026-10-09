@@ -32,11 +32,7 @@ class ExploreInput:
     binary: bool = False
     choice_labels: dict[float, str] | None = None
     note: str = ""
-
-
-def _meta(cfg, name: str) -> tuple[str, str]:
-    m = cfg.INPUT_META.get(name, {})
-    return m.get("label", name), m.get("unit", "")
+    scale: float = 1.0
 
 
 def _default(cfg, name: str) -> float:
@@ -45,7 +41,9 @@ def _default(cfg, name: str) -> float:
 
 def _inp(cfg, name: str, *, binary: bool = False, choice_labels=None,
          note: str = "") -> ExploreInput:
-    lbl, unit = _meta(cfg, name)
+    m = cfg.INPUT_META.get(name, {})
+    lbl = m.get("label", name)
+    unit = m.get("unit", "")
     return ExploreInput(
         name, lbl, unit,
         list(cfg.INPUT_GRID[name]),
@@ -54,7 +52,8 @@ def _inp(cfg, name: str, *, binary: bool = False, choice_labels=None,
         pysd_name=name,
         binary=binary,
         choice_labels=choice_labels,
-        note=note,
+        note=note or m.get("help", ""),
+        scale=float(m.get("scale", 1) or 1),
     )
 
 
@@ -124,5 +123,5 @@ def format_ui_summary(ui: dict[str, float]) -> str:
         if inp.choice_labels and v in inp.choice_labels:
             parts.append(f"{inp.label}={inp.choice_labels[v]}")
         else:
-            parts.append(f"{inp.label}={v:g}")
+            parts.append(f"{inp.label}={v * inp.scale:g}")
     return " | ".join(parts)

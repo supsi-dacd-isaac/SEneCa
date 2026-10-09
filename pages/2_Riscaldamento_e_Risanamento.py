@@ -90,6 +90,7 @@ with st.sidebar:
             val = st.select_slider(
                 label, options=opts, value=opts[0],
                 format_func=lambda x: f"{x:g}",
+                help=meta.get("help") or None,
             )
         values.append(val)
 

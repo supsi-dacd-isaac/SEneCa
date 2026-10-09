@@ -48,21 +48,28 @@ POLICY_META = {
         "label": "Incentivi cantonali PV",
         "unit": "-",
         "kind": "binary",
+        "help": (
+            "Comprende sia la presenza del rimborso cantonale sia la "
+            "rimunerazione per l'elettricità da parte del cantone."
+        ),
     },
     "Battery Rebate": {
         "label": "Rimborso batterie",
         "unit": "-",
         "kind": "numeric",
+        "help": "Frazione del costo di investimento rimborsata.",
     },
     "Renewable heating incentives": {
         "label": "Incentivi riscaldamento rinnovabile",
         "unit": "-",
         "kind": "numeric",
+        "help": "Frazione del costo di investimento rimborsata.",
     },
     "Retrofit incentive input": {
         "label": "Incentivo risanamento",
         "unit": "CHF/m2",
         "kind": "numeric",
+        "help": "Incentivi per metro quadro di elemento strutturale risanato.",
     },
     "PV reg scenario": {
         "label": "Obbligo PV nuovi edifici",
@@ -75,9 +82,13 @@ POLICY_META = {
         "kind": "muken",
     },
     "Energy Community scenario": {
-        "label": "Comunità energetica (RCP)",
+        "label": "Comunità energetica (RCPv)",
         "unit": "-",
         "kind": "binary",
+        "help": (
+            "Questa policy dà la possibilità di creare comunità energetiche "
+            "virtuali (RCPv)."
+        ),
     },
 }
 

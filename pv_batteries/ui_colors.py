@@ -7,36 +7,27 @@ SUPSI_TEAL = "#00C4AA"
 SUPSI_SKY = "#00A3FF"
 SUPSI_SOFT_GRAY = "#A7B4C8"
 
-# Le tinte chiare SUPSI funzionano bene come superfici. Per linee sottili su
-# bianco usiamo varianti più scure della stessa tinta.
-DATA_COLORS = (
-    SUPSI_BLUE,
-    SUPSI_PURPLE,
-    SUPSI_TEAL,
-    SUPSI_SKY,
-    SUPSI_GREEN,
-    "#9654D8",
-    "#4D74B8",
-    "#426878",
-    "#547D55",
+# Palette categorica predefinita di Streamlit (tema chiaro), per tutti i grafici.
+STREAMLIT_CHART_COLORS = (
+    "#0068c9",
+    "#83c9ff",
+    "#ff2b2b",
+    "#ffabab",
+    "#29b09d",
+    "#7defa1",
+    "#ff8700",
+    "#ffd16a",
+    "#6d3fc0",
+    "#d5dae5",
 )
-LINE_COLORS = (
-    SUPSI_BLUE,
-    SUPSI_PURPLE,
-    "#008875",
-    "#007DBD",
-    "#2D8437",
-    "#7D35BC",
-    "#345AAF",
-    "#426878",
-    "#456D48",
-)
+DATA_COLORS = STREAMLIT_CHART_COLORS
+LINE_COLORS = STREAMLIT_CHART_COLORS
 
 BASE_GRAY = "#667085"
 CHART_TEXT = "#344054"
 
-# Le categorie che ricorrono in più grafici mantengono la stessa tinta anche
-# quando l'ordine delle serie cambia. Le altre seguono l'ordine del grafico.
+# Indici storici delle categorie. Il colore effettivo segue l'ordine della
+# palette Streamlit, indipendentemente dal numero di serie.
 CATEGORY_INDEX = {
     "SFH": 0, "DFH": 1, "MFH": 2,
     "Bellinzona": 0, "Blenio": 1, "Leventina": 2, "Locarno": 3,
@@ -47,11 +38,17 @@ CATEGORY_INDEX = {
 }
 
 
-def data_color(index: int, label: str | None = None) -> str:
-    slot = CATEGORY_INDEX.get(label, index)
-    return DATA_COLORS[slot % len(DATA_COLORS)]
+def palette_for(n: int, *, lines: bool = False) -> tuple[str, ...]:
+    """Palette categorica predefinita di Streamlit, per qualsiasi numero di serie."""
+    del n, lines
+    return STREAMLIT_CHART_COLORS
 
 
-def line_color(index: int, label: str | None = None) -> str:
-    slot = CATEGORY_INDEX.get(label, index)
-    return LINE_COLORS[slot % len(LINE_COLORS)]
+def data_color(index: int, label: str | None = None, *, n: int = 1) -> str:
+    colors = palette_for(n, lines=False)
+    return colors[index % len(colors)]
+
+
+def line_color(index: int, label: str | None = None, *, n: int = 1) -> str:
+    colors = palette_for(n, lines=True)
+    return colors[index % len(colors)]

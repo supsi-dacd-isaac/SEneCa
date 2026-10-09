@@ -135,7 +135,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
     n_ok = sum(1 for i in cfg.ALL_INPUTS if i.supported)
     n_tot = len(cfg.ALL_INPUTS)
     st.sidebar.caption(
-        f"Sezioni allineate alle pagine Risultati. "
+        f"Sezioni allineate alle pagine Simulazioni SEneCa. "
         f"**{n_ok}/{n_tot}** leve applicate 1:1 come costanti in "
         f"`{paths.pysd_py().name}`."
     )
@@ -172,10 +172,12 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                             key=key,
                         )
                     else:
+                        scale = inp.scale
                         st.select_slider(
                             label,
                             options=inp.values,
                             value=inp.default,
+                            format_func=lambda x, scale=scale: f"{x * scale:g}",
                             disabled=True,
                             help=help_txt or "Non disponibile in PySD",
                             key=key,
@@ -205,10 +207,12 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                     )
                     ui[inp.name] = 1.0 if choice == "Sì" else 0.0
                 else:
+                    scale = inp.scale
                     ui[inp.name] = float(st.select_slider(
                         label,
                         options=inp.values,
                         value=inp.default,
+                        format_func=lambda x, scale=scale: f"{x * scale:g}",
                         help=help_txt, key=key,
                     ))
 
@@ -257,8 +261,8 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
     st.subheader("Scenario scelto vs scenario base")
     st.caption(f"**Scelta** ({src_user}): {cfg.format_ui_summary(ui)}")
     st.caption(
-        f"**Base** ({src_base}): valori BASE delle pagine Risultati (mappati su PySD). "
-        "Linee tratteggiate = Base (stesso stile delle sezioni Risultati)."
+        f"**Base** ({src_base}): valori BASE delle pagine Simulazioni SEneCa (mappati su PySD). "
+        "Linee tratteggiate = Base (stesso stile delle sezioni Simulazioni SEneCa)."
     )
 
     # Sottopagine al posto delle tab: ogni blocco impagina i risultati come la
@@ -347,6 +351,6 @@ else:
     st.info(
         "Imposta gli input nella barra laterale (sezioni 1–4) e premi "
         "**Simula e confronta vs base**. I grafici (incl. Elettricità oraria) "
-        "appaiono nelle quattro sottopagine allineate alle pagine Risultati. "
+        "appaiono nelle quattro sottopagine allineate alle pagine Simulazioni SEneCa. "
         "Se hai risultati in cache da prima dell'aggiornamento, rilancia la simulazione."
     )

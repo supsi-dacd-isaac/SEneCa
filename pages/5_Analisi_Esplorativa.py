@@ -31,9 +31,10 @@ from echarts_charts import (  # noqa: E402
     build_stacked_bar_options,
     render_echarts,
 )
-from ui_colors import SUPSI_BLUE, SUPSI_SOFT_GRAY  # noqa: E402
-
 WEIGHT_PREFIX = "expl_w_"
+WEIGHT_MODE_KEY = "expl_weight_mode"
+MODE_RELATIVE = "Pesi relativi"
+MODE_ABSOLUTE = "Pesi assoluti"
 TOP_N = 5
 SUBPAGE_INSPECT = "Esplora un policy mix"
 SUBPAGE_RANK = "Migliori policy mix"
@@ -70,43 +71,95 @@ def _load_store() -> pd.DataFrame:
     return _load_rows(str(part_dir), signature)
 
 
+def _round_weight(value: float) -> float:
+    """Tre cifre decimali: 0.125 resta 0.125 e coincide con lo step dello slider."""
+    return round(min(max(float(value), 0.0), 1.0), 3)
+
+
+def _raw_weights() -> dict[str, float]:
+    return {
+        key: _round_weight(st.session_state.get(f"{WEIGHT_PREFIX}{key}", 0.0))
+        for key in cfg.KPI_ORDER
+    }
+
+
+def _store_weights(weights: dict[str, float]) -> None:
+    for key, value in weights.items():
+        st.session_state[f"{WEIGHT_PREFIX}{key}"] = _round_weight(value)
+
+
+def _as_relative(weights: dict[str, float], anchor: str) -> dict[str, float]:
+    """Scala i pesi perché sommino a 1 e assorbe l'arrotondamento sull'ancora."""
+    cleaned = {key: max(float(value), 0.0) for key, value in weights.items()}
+    total = sum(cleaned.values())
+    if total <= 1e-12:
+        even = 1.0 / len(cfg.KPI_ORDER)
+        cleaned = {key: even for key in cfg.KPI_ORDER}
+    else:
+        cleaned = {key: value / total for key, value in cleaned.items()}
+    rounded = {key: _round_weight(value) for key, value in cleaned.items()}
+    drift = round(1.0 - sum(rounded.values()), 3)
+    target = anchor if anchor in rounded else cfg.KPI_ORDER[-1]
+    rounded[target] = _round_weight(rounded[target] + drift)
+    drift = round(1.0 - sum(rounded.values()), 3)
+    if drift:
+        for key in cfg.KPI_ORDER:
+            if key == target:
+                continue
+            adjusted = _round_weight(rounded[key] + drift)
+            used = round(adjusted - rounded[key], 3)
+            if used:
+                rounded[key] = adjusted
+                drift = round(drift - used, 3)
+                if not drift:
+                    break
+    return rounded
+
+
 def _init_weights() -> None:
+    st.session_state.setdefault(WEIGHT_MODE_KEY, MODE_RELATIVE)
     even = 1.0 / len(cfg.KPI_ORDER)
     for key in cfg.KPI_ORDER:
-        st.session_state.setdefault(f"{WEIGHT_PREFIX}{key}", even)
+        st.session_state.setdefault(f"{WEIGHT_PREFIX}{key}", _round_weight(even))
+
+
+def _is_relative() -> bool:
+    return st.session_state.get(WEIGHT_MODE_KEY, MODE_RELATIVE) == MODE_RELATIVE
 
 
 def _renormalize(changed: str) -> None:
-    weights = {
-        key: float(st.session_state.get(f"{WEIGHT_PREFIX}{key}", 0.0))
-        for key in cfg.KPI_ORDER
-    }
-    new_val = min(max(weights[changed], 0.0), 1.0)
+    weights = _raw_weights()
+    if not _is_relative():
+        _store_weights(weights)
+        return
+    new_val = _round_weight(weights[changed])
     others = [key for key in cfg.KPI_ORDER if key != changed]
     rest = 1.0 - new_val
-    other_sum = sum(max(weights[key], 0.0) for key in others)
+    other_sum = sum(weights[key] for key in others)
     if other_sum <= 1e-12:
         share = rest / len(others) if others else 0.0
-        for key in others:
-            st.session_state[f"{WEIGHT_PREFIX}{key}"] = share
+        scaled = {key: share for key in others}
     else:
         scale = rest / other_sum
-        for key in others:
-            st.session_state[f"{WEIGHT_PREFIX}{key}"] = max(weights[key], 0.0) * scale
-    st.session_state[f"{WEIGHT_PREFIX}{changed}"] = new_val
+        scaled = {key: weights[key] * scale for key in others}
+    scaled[changed] = new_val
+    _store_weights(_as_relative(scaled, changed))
+
+
+def _on_mode_change() -> None:
+    if _is_relative():
+        anchor = cfg.KPI_ORDER[0]
+        _store_weights(_as_relative(_raw_weights(), anchor))
 
 
 def _reset_weights() -> None:
     even = 1.0 / len(cfg.KPI_ORDER)
-    for key in cfg.KPI_ORDER:
-        st.session_state[f"{WEIGHT_PREFIX}{key}"] = even
+    weights = {key: even for key in cfg.KPI_ORDER}
+    _store_weights(_as_relative(weights, cfg.KPI_ORDER[0]))
 
 
 def _current_weights() -> dict[str, float]:
-    raw = {
-        key: float(st.session_state.get(f"{WEIGHT_PREFIX}{key}", 0.0))
-        for key in cfg.KPI_ORDER
-    }
+    raw = _raw_weights()
     total = sum(raw.values())
     if total <= 0:
         even = 1.0 / len(cfg.KPI_ORDER)
@@ -158,11 +211,6 @@ def _composition_chart(top: pd.DataFrame) -> None:
         categories, series, unit="%",
         series_order=["Valore alto / presente", "Valore basso / assente"],
     )
-    for item in options["series"]:
-        item["itemStyle"]["color"] = (
-            SUPSI_BLUE if item["name"] == "Valore alto / presente"
-            else SUPSI_SOFT_GRAY
-        )
     options["xAxis"] = {"type": "value", "max": 100, "name": "% dei 5 migliori"}
     options["yAxis"] = {
         "type": "category",
@@ -178,18 +226,41 @@ def _composition_chart(top: pd.DataFrame) -> None:
     options["grid"] = {"left": 260, "right": "8%", "top": "8%", "bottom": "16%"}
     render_echarts(options, chart_key="expl_policy_shares", height=420)
 
-    cards = st.columns(len(cfg.POLICY_ORDER))
-    for col, name, high_lab, high_pct in zip(
-        cards, cfg.POLICY_ORDER, high_labels, high_vals, strict=True,
-    ):
-        with col:
-            with st.container(border=True):
-                st.metric(
-                    cfg.POLICY_META[name]["label"],
-                    f"{high_pct:.0f}%",
-                    delta=high_lab,
-                    delta_color="off",
-                )
+    st.html(
+        """
+        <style>
+        div.st-key-expl_policy_cards [data-testid="stMetricLabel"],
+        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] * {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            height: auto !important;
+            max-height: none !important;
+            line-height: 1.25 !important;
+        }
+        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] label,
+        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] > div {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: flex-start !important;
+        }
+        </style>
+        """
+    )
+    with st.container(key="expl_policy_cards"):
+        cards = st.columns(len(cfg.POLICY_ORDER))
+        for col, name, high_lab, high_pct in zip(
+            cards, cfg.POLICY_ORDER, high_labels, high_vals, strict=True,
+        ):
+            with col:
+                with st.container(border=True):
+                    st.metric(
+                        cfg.POLICY_META[name]["label"],
+                        f"{high_pct:.0f}%",
+                        delta=high_lab,
+                        delta_color="off",
+                        help=cfg.POLICY_META[name].get("help") or None,
+                    )
 
 
 RADAR_LABELS = {
@@ -231,6 +302,7 @@ def _render_policy_selectors() -> dict[str, float]:
             options=labels,
             default=labels[0],
             key=f"expl_pol_{name}",
+            help=cfg.POLICY_META[name].get("help") or None,
         )
         chosen = chosen or labels[0]
         values[name] = float(opts[labels.index(chosen)])
@@ -297,11 +369,31 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
     col_weights, col_radar = st.columns(2)
     with col_weights:
         st.subheader("Pesi dei KPI")
-        st.markdown(
-            "Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
-            "su tutte le simulazioni. I pesi sommano a **1**: spostando uno "
-            "slider gli altri si ricalibrano."
+        st.segmented_control(
+            "Modalità di assegnazione",
+            options=[MODE_RELATIVE, MODE_ABSOLUTE],
+            default=MODE_RELATIVE,
+            key=WEIGHT_MODE_KEY,
+            on_change=_on_mode_change,
+            help=(
+                "Pesi relativi: spostando uno slider gli altri si ricalibrano "
+                "e la somma resta 1. Pesi assoluti: ogni slider cambia solo "
+                "quel KPI."
+            ),
         )
+        if _is_relative():
+            st.markdown(
+                "Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
+                "su tutte le simulazioni. I pesi sommano a **1**: spostando uno "
+                "slider gli altri si ricalibrano."
+            )
+        else:
+            st.markdown(
+                "Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
+                "su tutte le simulazioni. Ogni slider cambia solo quel KPI: "
+                "gli altri restano fermi e la somma può essere diversa da 1. "
+                "Lo score usa i pesi in proporzione tra loro."
+            )
         with st.expander("Come si calcola lo score"):
             st.markdown(
                 "Per ogni simulazione il vettore dei KPI scalati viene moltiplicato "
@@ -313,8 +405,8 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
                 r"w_k\,\tilde{x}_{p,s,k}"
             )
             st.markdown(
-                r"dove $S=50$ e $\sum_k w_k = 1$. I cinque mix con score più alto "
-                "compaiono a destra e sotto."
+                r"dove $S=50$. Nello score i pesi sono riportati a somma 1. "
+                "I cinque mix con score più alto compaiono a destra e sotto."
             )
         sub_left, sub_right = st.columns(2)
         mid = (len(cfg.KPI_ORDER) + 1) // 2
@@ -329,13 +421,15 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
                         spec["label"],
                         min_value=0.0,
                         max_value=1.0,
-                        step=0.01,
+                        step=0.001,
+                        format="%.3g",
                         key=f"{WEIGHT_PREFIX}{key}",
                         help=spec["help"],
                         on_change=_renormalize,
                         args=(key,),
                     )
-        st.caption(f"Somma dei pesi: **{sum(w.values()):.2f}**")
+        raw_sum = sum(_raw_weights().values())
+        st.caption(f"Somma dei pesi: **{raw_sum:.3g}**")
         st.button("Ripristina pesi uguali", on_click=_reset_weights)
 
     with col_radar:

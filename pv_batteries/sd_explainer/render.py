@@ -34,7 +34,7 @@ from sd_explainer.paths import (
     IMAGE_WORKSHOP,
     MAP_HTML,
 )
-from ui_colors import SUPSI_BLUE, SUPSI_PURPLE, SUPSI_SOFT_GRAY
+from ui_colors import SUPSI_PURPLE, data_color
 
 DISTRICTS = [
     "Bellinzona", "Blenio", "Leventina", "Locarno",
@@ -298,13 +298,13 @@ def _render_policy_priorities() -> None:
             {
                 "name": "Priorità Alta",
                 "type": "bar",
-                "itemStyle": {"color": SUPSI_BLUE},
+                "itemStyle": {"color": data_color(0)},
                 "data": [int(v) for v in prio["Priorità Alta"].tolist()],
             },
             {
                 "name": "Priorità Bassa",
                 "type": "bar",
-                "itemStyle": {"color": SUPSI_SOFT_GRAY},
+                "itemStyle": {"color": data_color(1)},
                 "data": [int(v) for v in prio["Priorità Bassa"].tolist()],
             },
         ],
@@ -447,7 +447,7 @@ def render_step_qualitative_model() -> None:
     st.markdown("#### Le quattro famiglie di feedback")
     st.markdown(
         "I sedici loop del diagramma si raggruppano in quattro meccanismi ricorrenti. "
-        "Riconoscerli aiuta a interpretare i risultati delle sezioni *Risultati*."
+        "Riconoscerli aiuta a interpretare i risultati delle sezioni *Simulazioni SEneCa*."
     )
 
     col_1, col_2 = st.columns(2)
@@ -724,27 +724,21 @@ def render_step_calibration() -> None:
         """
     )
 
-    col_a, col_b, col_c = st.columns(3)
+    col_a, col_b = st.columns(2)
     with col_a.container(border=True):
         st.markdown("**:material/tune: Cosa si stima**")
         st.markdown(
-            "I coefficienti delle **funzioni di utilità** dei moduli di scelta: il "
-            "peso di ciascun attributo e le costanti proprie di ogni segmento di "
-            "decisori. I parametri tecnici ed economici restano invece fissi."
+            "Si cambiano alcuni parametri del modello, quelli che descrivono "
+            "come le persone scelgono, finché le adozioni simulate **riproducono "
+            "i dati storici** del 2011–2024. I parametri tecnici ed economici "
+            "restano fissi."
         )
     with col_b.container(border=True):
         st.markdown("**:material/database: Contro quali dati**")
         st.markdown(
             "Le serie annuali osservate di adozione: fotovoltaico, pompe di calore, "
             "accumulatori, sostituzioni di riscaldamento, risanamenti e "
-            "immatricolazioni di veicoli, disaggregate per distretto e tipologia."
-        )
-    with col_c.container(border=True):
-        st.markdown("**:material/function: Con quale criterio**")
-        st.markdown(
-            "Per le scelte discrete si massimizza la **verosimiglianza**, che "
-            "confronta quote di mercato e non valori assoluti. Per le grandezze "
-            "continue si minimizza la somma dei **quadrati degli scarti**."
+            "immatricolazioni di veicoli."
         )
 
     st.warning(
@@ -763,9 +757,10 @@ def render_step_calibration() -> None:
     st.divider()
     st.markdown("#### Quanto bene il modello ricostruisce il passato")
     st.markdown(
-        "Le barre confrontano, anno per anno, le adozioni **osservate** con quelle "
-        "**simulate**. Sopra, il totale cumulato **osservato** sul periodo di "
-        "calibrazione."
+        "Quelli sotto sono solo **alcuni esempi** dei dati usati per la "
+        "calibrazione: le barre confrontano, anno per anno, le adozioni "
+        "**osservate** con quelle **simulate**. Sopra, il totale cumulato "
+        "osservato sul periodo di calibrazione."
     )
 
     data = {tech: _calibration_series(tech) for tech, _, _ in CALIBRATION_CHARTS}

@@ -62,10 +62,13 @@ with st.expander("Offerta, dispacciamento, consumo ed esportazione: cosa signifi
 BINARY_INPUTS = getattr(cfg, "BINARY_INPUTS", frozenset())
 
 
-def _render_binary_input(label: str, *, default: float = 0.0) -> float:
+def _render_binary_input(
+    label: str, *, default: float = 0.0, help: str | None = None,
+) -> float:
     default_label = "Sì" if default == 1.0 else "No"
     selected = st.segmented_control(
         label, options=list(cfg.BINARY_LABELS), default=default_label,
+        help=help,
     )
     return 1.0 if selected == "Sì" else 0.0
 
@@ -78,10 +81,16 @@ with st.sidebar:
         opts = cfg.INPUT_GRID[name]
         label = meta["label"] + (f" ({meta['unit']})" if meta["unit"] != "-" else "")
         if name in BINARY_INPUTS:
-            val = _render_binary_input(label, default=opts[0])
+            val = _render_binary_input(
+                label, default=opts[0], help=meta.get("help") or None,
+            )
         else:
-            val = st.select_slider(label, options=opts, value=opts[0],
-                                   format_func=lambda x: f"{x:g}")
+            scale = float(meta.get("scale", 1) or 1)
+            val = st.select_slider(
+                label, options=opts, value=opts[0],
+                format_func=lambda x, scale=scale: f"{x * scale:g}",
+                help=meta.get("help") or None,
+            )
         values.append(val)
 
     compare_base = st.checkbox("Confronta con scenario Base", value=False)
@@ -94,7 +103,10 @@ with st.sidebar:
                     f"- {imeta['label']}: **{'Sì' if base_val == 1.0 else 'No'}**")
             else:
                 unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-                st.markdown(f"- {imeta['label']}: `{base_val:g}`{unit}")
+                scale = float(imeta.get("scale", 1) or 1)
+                st.markdown(
+                    f"- {imeta['label']}: `{base_val * scale:g}`{unit}"
+                )
 
 key = combo_key(values)
 base_key = base_combo_key(cfg)

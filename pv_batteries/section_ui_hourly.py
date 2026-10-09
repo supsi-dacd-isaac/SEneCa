@@ -156,8 +156,10 @@ def render_stacked_bar(
         render_echarts(options, chart_key=chart_key, height=380)
         return
 
+    n = len(pivot.columns)
     st.bar_chart(
-        pivot, color=[data_color(i, str(col)) for i, col in enumerate(pivot.columns)],
+        pivot,
+        color=[data_color(i, str(col), n=n) for i, col in enumerate(pivot.columns)],
         sort=False,
     )
 
@@ -212,8 +214,10 @@ def render_annual_supplier_line(
         )
         return
 
+    n = len(annual.columns)
     st.line_chart(
-        annual, color=[line_color(i, str(col)) for i, col in enumerate(annual.columns)],
+        annual,
+        color=[line_color(i, str(col), n=n) for i, col in enumerate(annual.columns)],
     )
 
 

@@ -43,11 +43,32 @@ BASE_SCENARIO: dict[str, float] = {
     "MuKEn scenario": 1.0,
 }
 
+_REBATE_HELP = "Frazione del costo di investimento rimborsata."
+_RETROFIT_HELP = (
+    "Incentivi per metro quadro di elemento strutturale risanato."
+)
+
 INPUT_META = {
-    "Grant share HP": {"label": "Rimborso pompe di calore", "unit": "-"},
-    "Grant share PelletBoiler": {"label": "Rimborso stufe a legna", "unit": "-"},
-    "Grant share DH": {"label": "Rimborso rete termica", "unit": "-"},
-    "Retrofit incentive input": {"label": "Incentivo risanamento", "unit": "CHF/m2"},
+    "Grant share HP": {
+        "label": "Rimborso pompe di calore",
+        "unit": "-",
+        "help": _REBATE_HELP,
+    },
+    "Grant share PelletBoiler": {
+        "label": "Rimborso stufe a legna",
+        "unit": "-",
+        "help": _REBATE_HELP,
+    },
+    "Grant share DH": {
+        "label": "Rimborso rete termica",
+        "unit": "-",
+        "help": _REBATE_HELP,
+    },
+    "Retrofit incentive input": {
+        "label": "Incentivo risanamento",
+        "unit": "CHF/m2",
+        "help": _RETROFIT_HELP,
+    },
     "CO2 tax": {"label": "Tassa CO2", "unit": "CHF/tonCO2"},
     "MuKEn scenario": {"label": "Regolamentazione riscaldamento", "unit": "-"},
 }
@@ -72,7 +93,7 @@ OUTPUTS = [
      ]},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Consumi annuali per vettore",
-     "legend": "bottom",
+     "legend": "bottom", "y_min": 0,
      "series": [
          {"label": "Olio", "bases": ["Annual consumption Oil"]},
          {"label": "Gas", "bases": ["Annual consumption Gas"]},

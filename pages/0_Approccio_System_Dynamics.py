@@ -46,7 +46,8 @@ def _go_to_step(offset: int) -> None:
     st.session_state[STEP_KEY] = STEP_LABELS[target]
 
 
-st.title("Approccio System Dynamics")
+st.title("Metodologia")
+st.subheader("Approccio System Dynamics")
 
 render_sd_intro()
 
@@ -56,7 +57,7 @@ st.markdown("### Lo sviluppo del modello in quattro passi")
 st.markdown(
     "Dalla definizione del problema con gli stakeholder ai modelli "
     "qualitativi, ai dati storici e alla calibrazione. Il percorso prepara "
-    "alla lettura delle sezioni Risultati."
+    "alla lettura delle sezioni Simulazioni SEneCa."
 )
 
 st.session_state.setdefault(STEP_KEY, STEP_LABELS[0])
