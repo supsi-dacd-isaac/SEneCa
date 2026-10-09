@@ -1,0 +1,7 @@
+[deps]
+DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+OrdinaryDiffEqLowOrderRK = "1344f307-1e59-4825-a18e-ace9aa3fa4c6"
+PySD = "d7e3e0f0-7a2b-4e3a-9c1d-5a6b8c9d0e1f"

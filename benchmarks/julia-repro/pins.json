@@ -1,0 +1,20 @@
+{
+  "base_commit": "086be42884d92cd945c0afae2f2985f01cf13495",
+  "variant": "v3",
+  "data_release": "data-v1.0.0",
+  "pysd_reference": "3.14.3",
+  "python": "3.11.8",
+  "backend": "ode",
+  "dtype": "Float64",
+  "threads": 1,
+  "pysd_julia_commit": "8991d119e139029d4dec712d257cf5fcc3549b8f",
+  "pysd_jl_commit": "abe4251fe91734f83776a9c782088d3a2f09dc57",
+  "julia": "1.10.12",
+  "julia_macos_arm64_sha256": "53b12aee2a20d56d498589d21ab7f5f848bda0bbd75afdc5d94fe8876dab783f",
+  "seed": 20261009,
+  "rtol": 1e-9,
+  "atol_scale": 1e-12,
+  "initial_time": 2011,
+  "final_time": 2050,
+  "time_step": 1
+}
