@@ -18,7 +18,11 @@ def main():
     parser.add_argument("--scenarios", nargs="+", help="Default: complete frozen scenario suite")
     parser.add_argument("--mode", choices=["app", "diagnostic"], default="app")
     parser.add_argument("--label")
+    parser.add_argument("--resume", action="store_true", help="Reuse reference/Julia results only when their complete provenance still matches")
+    parser.add_argument("--jobs", type=int, default=1, help="Independent Julia validation processes; benchmarks always run sequentially")
     args = parser.parse_args()
+    if args.jobs < 1:
+        parser.error("--jobs must be positive")
     directory = args.run_dir or ROOT / "dist/julia-repro" / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     directory = directory.resolve()
     if args.phase not in {"inventory", "all"} and not (directory / "manifest.json").is_file():
@@ -47,35 +51,16 @@ def main():
             if phase == "test":
                 from scripts.julia_repro.fixtures import run
                 run_logged([RUNTIME / "python-reference/bin/python", "-m", "unittest", "discover", "-s", "tests",
-                            "-p", "test_julia_repro.py", "-v"], directory / "logs/unit-tests.log")
+                            "-p", "test_julia*.py", "-v"], directory / "logs/unit-tests.log")
                 if not run(directory)["pass"]:
                     raise RuntimeError("Julia semantic fixtures failed; see fixtures.json")
             elif phase == "reference":
-                from scripts.julia_repro.results import compare
-                from scripts.julia_repro.packing import validate_real_snapshot
-                for case in cases:
-                    for mode in ("app", "diagnostic"):
-                        run_logged([RUNTIME / "python-reference/bin/python", script, "_reference",
-                                    "--run-dir", directory, "--scenarios", case, "--mode", mode],
-                                   directory / "logs" / f"reference_{mode}_{case}.log")
-                    report = compare(directory / "reference/app" / case,
-                                     directory / "reference/diagnostic" / case, outputs=manifest["outputs"])
-                    dump(directory / "checks" / f"reference_{case}.json", report)
-                    if not report["pass"]:
-                        raise RuntimeError(f"Reference invalid or diagnostic path differs: {case}")
-                    dump(directory / "checks" / f"packing_{case}.json",
-                         validate_real_snapshot(directory / "reference/diagnostic" / case))
-                for label, seq in [("fresh_a", ["base"]), ("fresh_b", ["base"]),
-                                   ("sequence", ["base", "high", "base"])]:
-                    run_logged([RUNTIME / "python-reference/bin/python", script, "_reference",
-                                "--run-dir", directory, "--scenarios", *seq, "--label", label],
-                               directory / "logs" / f"reference_{label}.log")
-                reports = [compare(directory / "reference/app/base", directory / "reference/app" / suffix, exact=True)
-                           for suffix in ["fresh_a_00_base", "fresh_b_00_base", "sequence_00_base", "sequence_02_base"]]
-                dump(directory / "checks/reference_determinism.json", {"pass": all(r["pass"] for r in reports), "comparisons": reports})
-                if not all(r["pass"] for r in reports):
-                    raise RuntimeError("Reference determinism failed")
+                from scripts.julia_repro.reference import run_reference_suite
+                run_reference_suite(directory, cases, resume=args.resume)
             elif phase == "_reference":
+                import os
+                if os.environ.get("PYTHONHASHSEED") != "0" or sys.flags.hash_randomization != 0:
+                    raise RuntimeError("Reference requires PYTHONHASHSEED=0 at interpreter startup; use the public reference phase")
                 from scripts.julia_repro.reference import run_reference
                 run_reference(directory, cases, args.mode, args.label)
             elif phase == "translate":
@@ -88,7 +73,7 @@ def main():
                     translate(directory, case)
             elif phase == "validate":
                 from scripts.julia_repro.execution import validate
-                validate(directory, cases)
+                validate(directory, cases, resume=args.resume, jobs=args.jobs)
             elif phase == "benchmark":
                 from scripts.julia_repro.execution import benchmark
                 benchmark(directory)

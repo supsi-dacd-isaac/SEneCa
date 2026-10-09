@@ -49,6 +49,7 @@ def _rectangles(cells):
 
 
 def _except_nd(self, elem, identifier, is_control):
+    import numpy as np
     from pysd.builders.julia.julia_model_builder import _STATEFUL_STRUCTURES
     dims = self._element_dims(elem)
     if not dims:
@@ -64,6 +65,22 @@ def _except_nd(self, elem, identifier, is_control):
         if overlap:
             raise ValueError(f"Overlapping definitions in {elem.name}: {next(iter(overlap))}")
         seen.update(cells)
+        if isinstance(comp.ast, np.ndarray):
+            # Vensim arrays are reshaped over this component's labelled domain
+            # in Python C order, including singleton element selections. Assign
+            # each scalar to its explicit parent coordinate; never broadcast an
+            # entire vector into every scalar cell of a multicomponent element.
+            axes = [[coordinates[dim].index(label) + 1
+                     for label in self._subs_elems.get(spec, [spec])]
+                    for dim, spec in zip(coordinates, comp.subscripts[0])]
+            domain = list(itertools.product(*axes))
+            values = np.asarray(comp.ast, dtype=np.float64).ravel(order="C")
+            if len(domain) != len(values) or not np.isfinite(values).all():
+                raise ValueError(f"Invalid component array shape/value: {elem.name}")
+            allowed = set(cells)
+            equations.extend(f"{identifier}[{', '.join(map(str, cell))}] ~ {float(value)!r}"
+                             for cell, value in zip(domain, values) if cell in allowed)
+            continue
         idx_vars = self._idx_vars(len(dims))
         def component_visitor(indices):
             visitor = self._nd_visitor(dims, indices)
@@ -150,6 +167,8 @@ def _sort_equations(self, equations, stock_names):
 
 def apply():
     from pysd.builders.julia.julia_model_builder import JuliaSectionBuilder
+    if getattr(JuliaSectionBuilder, "_seneca_patches_applied", False):
+        return
     from pysd.translators.structures.abstract_expressions import GetDataStructure, GetConstantsStructure, GetLookupsStructure, LookupsStructure
     from pysd.builders.julia.julia_model_builder import _STATEFUL_STRUCTURES
     if not hasattr(JuliaSectionBuilder, "_repro_original_process"):
@@ -243,3 +262,12 @@ def apply():
     # The experiment explicitly invokes run_model; including a generated file
     # must not launch an unmeasured simulation or write unsolicited results.
     JuliaSectionBuilder._entrypoint_block = lambda self: ""
+    from . import external_patch, stateful_patch, indexing_patch, ode_patch, hotpath_patch, numpy_math_patch, lookup_patch
+    external_patch.apply()
+    stateful_patch.apply()
+    indexing_patch.apply()
+    ode_patch.apply()
+    hotpath_patch.apply()
+    numpy_math_patch.apply()
+    lookup_patch.apply()
+    JuliaSectionBuilder._seneca_patches_applied = True

@@ -60,8 +60,8 @@ def source_hashes():
 
 def experiment_hashes():
     files = sorted((ROOT / "scripts/julia_repro").glob("*.py"))
-    files += [ROOT / "scripts/benchmark_julia.py", ROOT / "scripts/setup_julia_repro.py",
-              ROOT / "tests/test_julia_repro.py", ROOT / "fix_selfref_sure.py"]
+    files += [ROOT / "scripts/benchmark_julia.py", ROOT / "scripts/setup_julia_repro.py", ROOT / "fix_selfref_sure.py"]
+    files += sorted((ROOT / "tests").glob("test_julia*.py"))
     files += sorted(p for p in CONFIG.rglob("*") if p.is_file() and p.suffix != ".md")
     return {str(p.relative_to(ROOT)): digest(p) for p in files}
 
@@ -80,8 +80,13 @@ def check_sources(manifest):
 def evidence_hashes(directory):
     """Freeze validation inputs and results; benchmark artefacts are independent."""
     files = [directory / "manifest.json", directory / "fixtures.json"]
-    for folder in ("reference", "candidate", "checks", "julia"):
+    for folder in ("reference", "candidate", "checks", "julia", "reduction-samples"):
         for path in (directory / folder).rglob("*"):
             if path.is_file() and not path.name.startswith("bench_"):
                 files.append(path)
-    return {str(p.relative_to(directory)): digest(p) for p in sorted(files)}
+    for path in (directory / "julia").glob("*/translation.json"):
+        translation = read(path)
+        for policy_name in ("delay_update_policy", "reduction_policy"):
+            policy = translation.get(policy_name, {})
+            files.extend(directory / name for name in policy.get("evidence", {}))
+    return {str(p.relative_to(directory)): digest(p) for p in sorted(set(files))}

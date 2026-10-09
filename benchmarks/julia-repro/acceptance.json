@@ -1,0 +1,7 @@
+{
+  "atol_scale": 1e-10,
+  "rtol": 1e-8,
+  "formula": "abs(Julia-Python) <= atol_scale*max(1,max_time(abs(Python))) + rtol*abs(Python)",
+  "authorization": "User authorized modestly relaxed numerical similarity on 2026-10-09 to avoid pursuing insignificant rounding differences.",
+  "strict_diagnostic": "Original pins.json tolerances remain unchanged; every comparison also records that result. Coordinates, years, discrete values and process repeatability remain exact."
+}

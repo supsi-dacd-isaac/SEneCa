@@ -28,6 +28,7 @@ def classify_warnings(messages, reference):
 
 
 def translate(directory, case):
+    experiment = experiment_hashes()
     from pysd.translators.vensim.vensim_file import VensimFile
     from pysd.builders.julia.julia_model_builder import JuliaModelBuilder, JuliaSectionBuilder
     manifest = read(directory / "manifest.json")
@@ -48,6 +49,18 @@ def translate(directory, case):
     for path in (ROOT / "Vensim").glob("*_pysd_v3.csv"):
         shutil.copy2(path, target / path.name)
     builder_patch.apply()
+    from .delay_audit import ensure_policy
+    from .stateful_patch import configure_delay_update_policy
+    from .reduction_policy import ensure_policy as ensure_reduction_policy, configure as configure_reductions
+    delay_policy = ensure_policy(directory)
+    reduction_policy = ensure_reduction_policy(directory, case)
+    for name in list(delay_policy["evidence"]):
+        base = directory / name.removesuffix(".audit.json")
+        for suffix in (".json", ".npz", ".inputs.npz", ".comparison.json"):
+            proof = base.with_suffix(suffix)
+            delay_policy["evidence"][str(proof.relative_to(directory))] = digest(proof)
+    configure_delay_update_policy(delay_policy["updated_reads"])
+    configure_reductions(reduction_policy)
     original = JuliaSectionBuilder._process_element
     applied = set()
 
@@ -82,8 +95,40 @@ def translate(directory, case):
             try:
                 parsed = VensimFile(source, encoding="latin-1")
                 parsed.parse()
-                builder = JuliaModelBuilder(parsed.get_abstract_model(), data_format="json", backend="ode")
+                abstract = parsed.get_abstract_model()
+                # Match the Python app's dependency pruning, including initial
+                # dependencies and every requested diagnostic. Equations and
+                # dimensions of the retained model remain unchanged.
+                from .inventory import closure
+                variables = {v["python_name"]: v for v in manifest["variables"].values()}
+                reachable = closure(variables, manifest["diagnostics"])
+                retained = {v["name"] for key, v in variables.items() if key in reachable}
+                retained.update({"INITIAL TIME", "FINAL TIME", "TIME STEP", "SAVEPER"})
+                removed = []
+                for section in abstract.sections:
+                    removed.extend(e.name for e in section.elements if e.name not in retained)
+                    section.elements = [e for e in section.elements if e.name in retained]
+                builder = JuliaModelBuilder(abstract, data_format="json", backend="ode")
                 path = builder.build_model()
+                used_policy = getattr(builder.sections[0], "_seneca_delay_update_policy_used", {})
+                if set(used_policy) != set(delay_policy["updated_reads"]):
+                    raise ValueError("Python sequential-update policy was not completely applied")
+                used_reductions = getattr(builder.sections[0].namespace, "_seneca_sum_policy_used", {})
+                expected_reductions = {entry["id"]: entry["plan"] for entry in reduction_policy["entries"]}
+                if used_reductions != expected_reductions:
+                    raise ValueError(f"SUM layout policy was not completely applied: {set(expected_reductions)-set(used_reductions)}")
+                from .hotpath_patch import HOTPATHS
+                python_hotpaths = getattr(builder.sections[0], "_seneca_python_hotpaths", [])
+                hotpath_names = [item["name"] for item in python_hotpaths]
+                if len(hotpath_names) != len(set(hotpath_names)) or set(hotpath_names) != set(HOTPATHS) & retained:
+                    raise ValueError("Current Python HS normalization optimizations were not completely applied")
+                from .numpy_math_patch import platform_contract
+                numpy_math = getattr(builder.sections[0], "_seneca_numpy_math", {})
+                if numpy_math.get("platform") != platform_contract() or numpy_math.get("operations") != ["EXP", "POWER"]:
+                    raise ValueError("Frozen NumPy elementary math compatibility was not applied")
+                numpy_lookup = getattr(builder.sections[0], "_seneca_numpy_lookup", {})
+                if not numpy_lookup.get("count") or len(set(numpy_lookup["tables"])) != numpy_lookup["count"]:
+                    raise ValueError("Frozen NumPy lookup compatibility was not applied")
                 if applied != set(params):
                     raise ValueError(f"Unapplied calibrated parameters: {sorted(set(params)-applied)}")
             finally:
@@ -109,11 +154,22 @@ def translate(directory, case):
                            "coords": {d: manifest["dimensions"][d] for d in dims}})
         dump(target / "export.json", export)
         dump(target / "export-app.json", [item for item in export if item["name"] in manifest["outputs"]])
+        if experiment_hashes() != experiment:
+            raise RuntimeError("Experiment changed during translation; regenerate under a fixed version")
         dump(target / "translation.json", {"pass": True, "model": path.name,
              "sha256": digest(path), "params_sha256": digest(params_path),
              "generated_hashes": {p.name: digest(p) for p in target.iterdir()
                                   if p.suffix in {".jl", ".csv", ".mdl", ".json"} and p.name != "translation.json"},
-             "seconds": time.perf_counter()-started, "experiment": experiment_hashes(),
+             "seconds": time.perf_counter()-started, "experiment": experiment,
+             "pruned_elements": removed,
+             "data_expressions": getattr(builder.sections[0], "_seneca_data_expressions", []),
+             "delay_update_policy": delay_policy, "delay_update_policy_used": used_policy,
+             "reduction_policy": reduction_policy, "reduction_policy_used": used_reductions,
+             "python_hotpaths": python_hotpaths,
+             "numpy_math": numpy_math,
+             "numpy_lookup": numpy_lookup,
              "applied_parameters": sorted(applied), "upstream": actual})
     finally:
         JuliaSectionBuilder._process_element = original
+        configure_delay_update_policy({})
+        configure_reductions({})

@@ -56,6 +56,7 @@ def prepare(directory):
 
 
 def run(directory):
+    experiment = experiment_hashes()
     target = directory / "fixtures"
     command = [RUNTIME / "python-julia/bin/python", "-B", "-c",
                "from pathlib import Path; from scripts.julia_repro.fixtures import prepare; prepare(Path(" + repr(str(directory)) + "))"]
@@ -78,8 +79,23 @@ def run(directory):
         runner = {"pass": True}
     except Exception as exc:
         runner = {"pass": False, "error": str(exc)}
-    result = {"pass": translation["pass"] and julia["pass"] and runner["pass"], "translation": translation,
-              "julia": julia, "runner": runner, "experiment": experiment_hashes()}
+    additional = {}
+    from . import external_fixtures, stateful_fixtures, semantic_fixtures, sure_external, indexing_fixtures, allocation_fixtures, reduction_fixtures, reduction_blocks, hotpath_fixtures, numpy_math_fixtures, lookup_fixtures
+    for name, module in (("external", external_fixtures), ("stateful", stateful_fixtures),
+                         ("semantics", semantic_fixtures), ("sure_inputs", sure_external),
+                         ("indexing", indexing_fixtures), ("allocation_stress", allocation_fixtures),
+                         ("reductions", reduction_fixtures), ("reduction_blocks", reduction_blocks),
+                         ("hotpaths", hotpath_fixtures), ("numpy_math", numpy_math_fixtures),
+                         ("lookups", lookup_fixtures)):
+        try:
+            additional[name] = module.run(directory)
+        except Exception as exc:
+            additional[name] = {"pass": False, "error": str(exc)}
+    unchanged = experiment == experiment_hashes()
+    result = {"pass": unchanged and translation["pass"] and julia["pass"] and runner["pass"]
+              and all(item["pass"] for item in additional.values()), "translation": translation,
+              "julia": julia, "runner": runner, **additional, "experiment": experiment,
+              "experiment_unchanged": unchanged}
     dump(directory / "fixtures.json", result)
     return result
 

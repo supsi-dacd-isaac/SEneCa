@@ -156,10 +156,13 @@ class GateTests(unittest.TestCase):
         from scripts.julia_repro.execution import check_benchmark_gate
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
+            dump(directory / "manifest.json", {})
+            dump(directory / "reference-suite.json", {"pass": True, "full_suite": True})
             dump(directory / "checks/reference_determinism.json", {"pass": True})
             valid = {"pass": True, "full_suite": True, "experiment": {"version": "a"}, "evidence": {"data": "a"}}
             with patch("scripts.julia_repro.execution.experiment_hashes", return_value={"version": "a"}), \
-                 patch("scripts.julia_repro.execution.evidence_hashes", return_value={"data": "a"}):
+                 patch("scripts.julia_repro.execution.evidence_hashes", return_value={"data": "a"}), \
+                 patch("scripts.julia_repro.common.check_sources"):
                 for changes in ({"pass": False}, {"full_suite": False}, {"experiment": {}}, {"evidence": {}}):
                     dump(directory / "validation.json", {**valid, **changes})
                     with self.assertRaises(RuntimeError):
