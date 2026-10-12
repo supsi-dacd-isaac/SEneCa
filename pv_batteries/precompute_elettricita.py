@@ -1,4 +1,4 @@
-"""Pre-calcolo 144 combinazioni "Elettricità" (output orari)."""
+"""Pre-calcolo 96 combinazioni "Elettricità" (output orari)."""
 from __future__ import annotations
 
 import sys

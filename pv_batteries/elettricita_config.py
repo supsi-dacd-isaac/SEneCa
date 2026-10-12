@@ -40,7 +40,7 @@ FINAL_YEAR = 2050
 
 
 
-# 3*3*2*2*2*2 = 144 combinazioni
+# 2*3*2*2*2*2 = 96 combinazioni
 #
 # Le due leve idroelettriche continue ("Seasonal PHS annual production 2050" e
 # "Additional annual inflow for Ticino") non esistono piu' nel modello: sono
@@ -51,10 +51,11 @@ FINAL_YEAR = 2050
 # pubblicato (entrambi = 1).
 #
 # Nota FiT: nel modello Vensim e' in CHF/kWh; l'Excel lo esprime in ct/kWh
-# (0-10). I valori discreti usati qui sono 0/0.05/0.10 CHF/kWh (= 0/5/10 ct/kWh).
+# (0-5 sulla pagina Elettricità, due valori). I valori discreti usati qui
+# sono 0/0.05 CHF/kWh (= 0/5 ct/kWh).
 INPUT_GRID: dict[str, list[float]] = {
 
-    "FiT": [0.0, 0.05, 0.10],
+    "FiT": [0.0, 0.05],
 
     "PV rebate federal": [0.0, 0.2, 0.4],
 

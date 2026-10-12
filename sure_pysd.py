@@ -167,10 +167,27 @@ def load_model(prune=True):
     return model
 
 
-def _in_ns(model, name):
+def namespace_key(model, name: str) -> str | None:
+    """Chiave reale nel namespace PySD.
+
+    PySD conserva le virgolette di Vensim sui nomi con caratteri speciali
+    (es. ``"Provvedimento 1.2"``). Le leve dell'interfaccia usano il nome
+    senza virgolette.
+    """
     from pysd.py_backend.utils import (
         get_key_and_value_by_insensitive_key_or_value as getkv)
-    return getkv(name, model._namespace)[1] is not None
+    ns = model._namespace
+    key, py_name = getkv(name, ns)
+    if py_name is not None:
+        return key
+    key, py_name = getkv(f'"{name}"', ns)
+    if py_name is not None:
+        return key
+    return None
+
+
+def _in_ns(model, name):
+    return namespace_key(model, name) is not None
 
 
 def build_constant_params(model):
@@ -210,8 +227,9 @@ def build_params(model, pv=0.0, fit=0.0, ec=0.0, const_params=None,
         }
     scen = {}
     for name, val in scenario_inputs.items():
-        if _in_ns(model, name):
-            scen[name] = float(val)
+        key = namespace_key(model, name)
+        if key is not None:
+            scen[key] = float(val)
     return {**const_params, **scen}
 
 

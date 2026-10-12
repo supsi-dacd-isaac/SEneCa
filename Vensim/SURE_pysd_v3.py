@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from pysd.py_backend.functions import vmax, sum, if_then_else, vmin
-from pysd.py_backend.statefuls import Integ, Smooth, DelayFixed
+from pysd.py_backend.functions import vmin, if_then_else, sum, vmax
+from pysd.py_backend.statefuls import Integ, DelayFixed, Smooth
 from pysd.py_backend.external import ExtData
 from pysd.py_backend.allocation import (
     allocate_available as _pysd_allocate_available,
@@ -29,102 +29,6 @@ from pysd import Component
 __pysd_version__ = "3.14.3"
 
 __data = {"scope": None, "time": lambda: 0}
-
-def _hotpath_asarray(arr):
-    return arr.values if isinstance(arr, xr.DataArray) else np.asarray(arr)
-
-
-def _hotpath_idx_list(dim, labels):
-    names = _subscript_dict[dim]
-    if isinstance(labels, str):
-        return [names.index(labels)]
-    return [names.index(x) for x in labels]
-
-
-def _hotpath_dt_broadcast_5d(arr):
-    """Broadcast (District, Type) -> (District, HS, Performance, Type, PVpanel)."""
-    v = _hotpath_asarray(arr)
-    return v[:, np.newaxis, np.newaxis, :, np.newaxis]
-
-
-def _hotpath_da_like(template, values):
-    # Always construct a new DataArray (never shallow-copy+mutate): mutating a
-    # shallow copy can corrupt PySD's per-step function cache.
-    if isinstance(template, xr.DataArray):
-        return xr.DataArray(
-            values, coords=template.coords, dims=template.dims, name=template.name
-        )
-    return xr.DataArray(
-        values,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel"],
-    )
-
-
-def _hotpath_ms_normalize(vals):
-    denom = vals.sum(axis=1, keepdims=True)
-    return vals / denom
-
-
-def _hotpath_ms_exclude(ms, exclude_labels):
-    """Zero selected HS labels and renormalize (nogas / nodh / etc.)."""
-    vals = np.array(_hotpath_asarray(ms), copy=True, dtype=float)
-    excl = _hotpath_idx_list("HS", exclude_labels)
-    vals[:, excl, :, :, :] = 0.0
-    return _hotpath_da_like(ms, _hotpath_ms_normalize(vals))
-
-
-def _hotpath_da_like_6d(template, values):
-    """DataArray like template with Battery as 6th dim."""
-    if isinstance(template, xr.DataArray):
-        return xr.DataArray(
-            values, coords=template.coords, dims=template.dims, name=template.name
-        )
-    return xr.DataArray(
-        values,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-            "Battery": _subscript_dict["Battery"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    )
-
-
-def _hotpath_build_utility_hs_exp_3(u2):
-    """Build utility HS exp 3 from utility exp 2 (single u2 read, numpy indexing)."""
-    u2v = _hotpath_asarray(u2)
-    value = np.full_like(u2v, np.nan)
-    one_minus = 1.0 - float(_hotpath_asarray(muken_2025_scenario_application()))
-
-    hs_r = _hotpath_idx_list("HS", _subscript_dict["RenSolution"])
-    value[:, hs_r, :, :, :] = u2v[:, hs_r, :, :, :]
-
-    hs_nr = _hotpath_idx_list("HS", _subscript_dict["NonRenSolution"])
-    pf_l = _hotpath_idx_list("Performance", _subscript_dict["PerformanceLow"])
-    for hi in hs_nr:
-        value[:, hi, pf_l, :, :] = u2v[:, hi, pf_l, :, :] * one_minus
-
-    pf_h = _hotpath_idx_list("Performance", _subscript_dict["PerformanceHigh"])
-    mod = _subscript_dict["Performance"].index("Moderate")
-    for hi in hs_nr:
-        for pi in pf_h:
-            if pi == mod:
-                continue
-            value[:, hi, pi, :, :] = u2v[:, hi, pi, :, :]
-        value[:, hi, mod, :, :] = u2v[:, hi, mod, :, :] * one_minus
-
-    return _hotpath_da_like(u2, value)
-
 
 _root = Path(__file__).parent
 
@@ -327,6 +231,16 @@ def time_step():
 #######################################################################
 #                           MODEL VARIABLES                           #
 #######################################################################
+
+
+@component.add(
+    name="Total PV electricity SC degree",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"total_pv_electricity_sc": 1, "total_pv_electricity_production": 1},
+)
+def total_pv_electricity_sc_degree():
+    return total_pv_electricity_sc() / total_pv_electricity_production()
 
 
 @component.add(
@@ -945,9 +859,9 @@ def investment_cost_hs_nost_adj():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "pv_rebate_cantonal": 1,
         "pv_investment_cost": 2,
         "cantonal_pv_support": 1,
-        "pv_rebate_cantonal": 1,
         "exploratory_analysis": 1,
     },
 )
@@ -1040,13 +954,13 @@ def hp_efficiency_uncertainty():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "heating_solution": 16,
-        "owned_buildings_with_pv": 4,
-        "owned_buildings_with_rcp": 4,
-        "share_of_owned_houses": 4,
-        "probability_adoption_pv_owners": 6,
-        "share_of_buildings_with_suitable_roof": 6,
         "owned_buildings_with_rcpv": 4,
+        "owned_buildings_with_rcp": 4,
+        "heating_solution": 16,
+        "probability_adoption_pv_owners": 6,
+        "share_of_owned_houses": 4,
+        "share_of_buildings_with_suitable_roof": 6,
+        "owned_buildings_with_pv": 4,
         "share_urban_buildings": 3,
         "owned_buildings_with_rcpv_pvno": 3,
         "energy_community_scenario": 2,
@@ -1345,16 +1259,16 @@ def exploratory_analysis():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_rcpv": 3,
-        "heating_solution": 9,
         "share_urban_buildings": 1,
-        "probability_adoption_rcp_owners": 3,
-        "owned_buildings_with_pv": 3,
+        "owned_buildings_with_rcpv": 3,
         "owned_buildings_with_rcp": 3,
+        "heating_solution": 9,
+        "probability_adoption_rcp_owners": 3,
         "share_of_owned_houses": 3,
+        "share_of_buildings_with_suitable_roof": 3,
+        "owned_buildings_with_pv": 3,
         "owned_buildings_with_rcpv_pvno": 2,
         "energy_community_scenario": 2,
-        "share_of_buildings_with_suitable_roof": 3,
     },
 )
 def owners_adopting_rcp():
@@ -1709,13 +1623,13 @@ def wall_specific_cost_base():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "probability_adoption_pv_renters": 6,
         "rented_buildings_with_pv": 4,
         "heating_solution": 16,
-        "probability_adoption_pv_renters": 6,
-        "rented_buildings_with_rcpv": 4,
         "rented_buildings_with_rcp": 4,
         "share_of_owned_houses": 6,
         "share_of_buildings_with_suitable_roof": 6,
+        "rented_buildings_with_rcpv": 4,
         "share_urban_buildings": 1,
         "rented_buildings_with_rcpv_pvno": 3,
         "energy_community_scenario": 2,
@@ -2229,16 +2143,16 @@ def grant_absolute():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "share_urban_buildings": 1,
         "rented_buildings_with_pv": 3,
         "rented_buildings_with_rcpv_pvno": 2,
         "heating_solution": 9,
-        "share_urban_buildings": 1,
-        "probability_adoption_rcp_renters": 3,
-        "rented_buildings_with_rcpv": 3,
         "rented_buildings_with_rcp": 3,
         "share_of_owned_houses": 3,
-        "energy_community_scenario": 2,
         "share_of_buildings_with_suitable_roof": 3,
+        "rented_buildings_with_rcpv": 3,
+        "probability_adoption_rcp_renters": 3,
+        "energy_community_scenario": 2,
     },
 )
 def renters_adopting_rcp():
@@ -3607,8 +3521,8 @@ def total_annual_electricity_consumed():
     comp_subtype="Normal",
     depends_on={
         "phs_annual_production_historical": 1,
-        "time": 2,
         "provvedimento_13": 1,
+        "time": 2,
     },
 )
 def phs_annual_production():
@@ -4401,8 +4315,8 @@ def grant_share_st():
     depends_on={
         "time": 1,
         "investment_grant_per_kw_15_kw_1": 1,
-        "initial_grant_15_kw_1": 1,
         "st_installed_capacity_by_arch": 1,
+        "initial_grant_15_kw_1": 1,
         "grant_absolute_st": 1,
     },
 )
@@ -4474,8 +4388,8 @@ def grant_share_hp():
         "buildings_construction": 3,
         "heating_solution": 6,
         "coeff_roof_suitability": 3,
-        "res_total_construction_by_perf_type_district": 3,
         "pv_reg_scenario": 1,
+        "res_total_construction_by_perf_type_district": 3,
         "building_construction_by_archetype": 2,
     },
 )
@@ -5392,8 +5306,8 @@ def annualization_coefficient_for_levy_payments():
         "annural_cantonal_subsidy_cu_by_archetype": 1,
         "pv_annual_adoption_30_100_kw": 1,
         "pv_cantonal_subsidy_30_100_kw_check": 1,
-        "pv_annual_adoption_100_kw": 1,
         "pv_cantonal_subsidy_100_kw_check": 1,
+        "pv_annual_adoption_100_kw": 1,
     },
 )
 def annual_cantonal_subsidy_cu():
@@ -5522,11 +5436,11 @@ def incentive_oilst_from_os_by_archetype():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "pv_investment_cost": 4,
         "tax_deduction_investment": 4,
-        "kwp_installed_per_building": 1,
+        "pv_investment_cost": 4,
         "pv_cantonal_subsidy": 2,
         "pv_federal_subsidy_check": 2,
+        "kwp_installed_per_building": 1,
     },
 )
 def pv_capex():
@@ -5851,12 +5765,12 @@ def adoptions_hpst_from_hs_by_archetype():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_size_by_type_and_district": 1,
         "wall_low_probabilities": 1,
+        "wall_size_by_type_and_district": 1,
         "low_changing_wall": 1,
+        "ground_size_by_type_and_district": 1,
         "ground_low_probabilities": 1,
         "low_changing_ground": 1,
-        "ground_size_by_type_and_district": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -6495,8 +6409,8 @@ def average_retrofit_cost():
     comp_subtype="Normal",
     depends_on={
         "adoptions_woodst_from_os_by_archetype": 1,
-        "grant_st": 1,
         "grant_pelletboiler_woodst": 1,
+        "grant_st": 1,
     },
 )
 def incentive_woodst_from_os_by_archetype():
@@ -8087,8 +8001,8 @@ def funds_coming_from_federal_co2_tax_2025():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "funds_coming_from_federal_co2_tax_2025": 1,
         "increase_co2_tax_scenario": 1,
+        "funds_coming_from_federal_co2_tax_2025": 1,
     },
 )
 def funds_coming_from_federal_co2_tax():
@@ -8447,9 +8361,9 @@ def annual_dhw_consumption_electricity_hp_by_type():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "market_share_hs_no_incentives_filtered": 3,
-        "market_share_hs_filtered": 3,
         "consumers_leaving_hs_for_old_age": 9,
+        "market_share_hs_filtered": 3,
+        "market_share_hs_no_incentives_filtered": 3,
     },
 )
 def buildings_adopting_hs_for_old_age():
@@ -8527,8 +8441,8 @@ def buildings_adopting_hs_for_old_age():
     depends_on={
         "time": 1,
         "low_to_performance_sq_m": 5,
-        "incentive_cece": 2,
         "incentive_minergie": 2,
+        "incentive_cece": 2,
         "incentive_base": 1,
     },
 )
@@ -8604,12 +8518,12 @@ def investment_grant_per_kw_15_kw():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_size_by_type_and_district": 1,
         "wall_low_probabilities": 1,
+        "wall_size_by_type_and_district": 1,
         "low_changing_wall": 1,
+        "ground_size_by_type_and_district": 1,
         "ground_low_probabilities": 1,
         "low_changing_ground": 1,
-        "ground_size_by_type_and_district": 1,
     },
 )
 def low_to_performance_sq_m():
@@ -8863,15 +8777,15 @@ def renovation_cost_index():
         "_smooth_total_present_variable_costs_sh_ground": {
             "initial": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "ground_lifetime": 1,
                 "additional_interest_rate_for_loan": 2,
-                "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "ground_lifetime": 1,
                 "additional_interest_rate_for_loan": 2,
-                "interest_rate": 2,
             },
         }
     },
@@ -9021,15 +8935,15 @@ def roof_specific_cost():
         "_smooth_total_present_variable_costs_sh_roof": {
             "initial": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
-                "roof_lifetime": 1,
                 "interest_rate": 2,
+                "roof_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
-                "roof_lifetime": 1,
                 "interest_rate": 2,
+                "roof_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
             },
         }
     },
@@ -9080,15 +8994,15 @@ _smooth_total_present_variable_costs_sh_roof = Smooth(
         "_smooth_total_present_variable_costs_sh_wall": {
             "initial": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
-                "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
-                "interest_rate": 2,
             },
         }
     },
@@ -9136,9 +9050,9 @@ _smooth_total_present_variable_costs_sh_wall = Smooth(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "incentive_minergie": 2,
         "verylow_to_performance_sq_m": 5,
         "incentive_cece": 2,
-        "incentive_minergie": 2,
         "incentive_base": 1,
     },
 )
@@ -9302,8 +9216,8 @@ def incentive_per_tech():
         "adoptions_hs_from_os_by_archetype": 5,
         "grant_pelletboiler_woodst": 1,
         "grant_pelletboiler_pellet": 1,
-        "grant_hp_hpst": 1,
         "grant_hp_heatpump": 1,
+        "grant_hp_hpst": 1,
         "grant_st": 1,
     },
 )
@@ -9448,8 +9362,8 @@ def buildings_by_type_district_performance():
         "annual_sh_demand": 17,
         "annual_mantainance_costs_hs": 14,
         "efficiency_dhw_storage": 10,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def annual_variable_costs_hs_by_archetype():
@@ -9924,8 +9838,8 @@ def building_area_by_performance():
         "annual_sh_demand": 17,
         "efficiency": 16,
         "carrier_used_cost_per_kwh": 14,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def annual_sh_variable_costs_hs_by_archetype():
@@ -11916,10 +11830,10 @@ def muken_2025_scenario_application():
     depends_on={"utility_hs_exp_3_no_incentives": 2},
 )
 def market_share_hs_no_incentives():
-    # hotpath: market_share_hs_no_incentives
-    u = utility_hs_exp_3_no_incentives()
-    vals = _hotpath_asarray(u)
-    return _hotpath_da_like(u, _hotpath_ms_normalize(vals))
+    return utility_hs_exp_3_no_incentives() / sum(
+        utility_hs_exp_3_no_incentives().rename({"HS": "HS!"}), dim=["HS!"]
+    )
+
 
 @component.add(
     name="Market Share HS no incentives filtered",
@@ -11931,24 +11845,20 @@ def market_share_hs_no_incentives():
         "dh_and_gas_suitability": 1,
         "market_share_hs_no_incentives_nogas": 1,
         "dh_only_suitability": 1,
-        "gas_only_suitability": 1,
         "market_share_hs_no_incentives_nodh": 1,
-        "market_share_hs_no_incentives_nodh_nogas": 1,
+        "gas_only_suitability": 1,
         "no_suitability": 1,
+        "market_share_hs_no_incentives_nodh_nogas": 1,
     },
 )
 def market_share_hs_no_incentives_filtered():
-    # hotpath: market_share_hs_no_incentives_filtered
-    ms = _hotpath_asarray(market_share_hs_no_incentives())
-    ms_ng = _hotpath_asarray(market_share_hs_no_incentives_nogas())
-    ms_nd = _hotpath_asarray(market_share_hs_no_incentives_nodh())
-    ms_ndng = _hotpath_asarray(market_share_hs_no_incentives_nodh_nogas())
-    w0 = _hotpath_dt_broadcast_5d(dh_and_gas_suitability())
-    w1 = _hotpath_dt_broadcast_5d(dh_only_suitability())
-    w2 = _hotpath_dt_broadcast_5d(gas_only_suitability())
-    w3 = _hotpath_dt_broadcast_5d(no_suitability())
-    out = ms * w0 + ms_ng * w1 + ms_nd * w2 + ms_ndng * w3
-    return _hotpath_da_like(market_share_hs_no_incentives(), out)
+    return (
+        market_share_hs_no_incentives() * dh_and_gas_suitability()
+        + market_share_hs_no_incentives_nogas() * dh_only_suitability()
+        + market_share_hs_no_incentives_nodh() * gas_only_suitability()
+        + market_share_hs_no_incentives_nodh_nogas() * no_suitability()
+    )
+
 
 @component.add(
     name="New to MiddleAge",
@@ -12234,8 +12144,8 @@ def ground_cost_low():
     comp_subtype="Normal",
     depends_on={
         "roof_cost": 1,
-        "total_present_variable_costs_sh_average": 8,
         "roof_cost_low": 1,
+        "total_present_variable_costs_sh_average": 8,
         "roof_cost_moderate": 1,
         "roof_cost_high": 1,
         "roof_cost_veryhigh": 1,
@@ -12368,8 +12278,8 @@ def coeff_high():
     comp_subtype="Normal",
     depends_on={
         "ground_cost_low": 2,
-        "ground_cost_moderate": 1,
         "total_present_variable_costs_sh_average_ground": 6,
+        "ground_cost_moderate": 1,
         "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
     },
@@ -12593,7 +12503,7 @@ def ground_moderate_probabilities():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"ground_moderate_scaled": 1, "ground_moderate": 3, "coeff_moderate": 1},
+    depends_on={"ground_moderate_scaled": 1, "coeff_moderate": 1, "ground_moderate": 3},
 )
 def ground_moderate_scaled():
     value = xr.DataArray(
@@ -12668,8 +12578,8 @@ def low_to_performance():
     comp_subtype="Normal",
     depends_on={
         "ground_cost": 1,
-        "ground_cost_low": 1,
         "total_present_variable_costs_sh_average_ground": 8,
+        "ground_cost_low": 1,
         "ground_cost_moderate": 1,
         "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
@@ -12886,10 +12796,10 @@ def wall_low_probabilities():
     depends_on={
         "high_changing_roof": 1,
         "roof_high_probabilities": 1,
-        "high_changing_wall": 1,
         "wall_high_probabilities": 1,
-        "ground_high_probabilities": 1,
+        "high_changing_wall": 1,
         "high_changing_ground": 1,
+        "ground_high_probabilities": 1,
     },
 )
 def high_to_performance():
@@ -13081,8 +12991,8 @@ def wall_verylow_probabilities():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_verylow_sfh_data": 1,
         "verylow_to_performance_sfh_ms": 1,
+        "retrofit_verylow_sfh_data": 1,
     },
 )
 def retrofit_verylow_sfh_log_likelihood():
@@ -13266,8 +13176,8 @@ def roof_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "roof_cost_moderate": 3,
-        "total_present_variable_costs_sh_average": 4,
         "roof_cost_high": 1,
+        "total_present_variable_costs_sh_average": 4,
         "roof_cost_veryhigh": 1,
     },
 )
@@ -13428,7 +13338,7 @@ def high_changing_ground():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"wall_moderate_scaled": 1, "coeff_moderate": 1, "wall_moderate": 3},
+    depends_on={"wall_moderate_scaled": 1, "wall_moderate": 3, "coeff_moderate": 1},
 )
 def wall_moderate_scaled():
     value = xr.DataArray(
@@ -13844,8 +13754,8 @@ _ext_data_retrofit_moderate_mfh_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "wall_cost_high": 4,
-        "wall_cost_veryhigh": 1,
         "total_present_variable_costs_sh_average_wall": 2,
+        "wall_cost_veryhigh": 1,
     },
 )
 def wall_high():
@@ -14026,10 +13936,10 @@ def roof_high():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_ms_hp_district": 1,
-        "average_ms_nohp_district": 1,
-        "adoption_hp_district_data": 1,
         "adoption_nohp_district_data": 1,
+        "adoption_hp_district_data": 1,
+        "average_ms_nohp_district": 1,
+        "average_ms_hp_district": 1,
     },
 )
 def hp_district_log_likelihood():
@@ -14199,8 +14109,8 @@ _integ_battery_capacity_100_kw_1 = Integ(
     depends_on={
         "time": 1,
         "pv_federal_subsidy_30_100_kw": 1,
-        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_30_100_kw_share_grant_over_cost": 1,
+        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_rebate_federal": 1,
     },
 )
@@ -14225,10 +14135,10 @@ def pv_federal_subsidy_30_100_kw_check():
         "time": 2,
         "pv_federal_subsidy_30_100_kw_check": 3,
         "pv_rebate_cantonal": 1,
-        "average_power_pv_30_100_kw": 3,
-        "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
+        "cantonal_pv_support": 1,
+        "exploratory_analysis": 1,
+        "average_power_pv_30_100_kw": 3,
     },
 )
 def pv_cantonal_subsidy_30_100_kw_check():
@@ -14263,9 +14173,9 @@ def pv_cantonal_subsidy_30_100_kw_check():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "pv_100_kw_investment_cost_time_adj": 2,
         "pv_100_kw_share_grant_over_cost": 1,
         "pv_federal_subsidy_100_kw": 1,
-        "pv_100_kw_investment_cost_time_adj": 2,
         "pv_rebate_federal": 1,
     },
 )
@@ -14291,8 +14201,8 @@ def pv_federal_subsidy_100_kw_check():
         "reference_levy": 1,
         "computed_levy_avg_2035_fixed": 1,
         "computed_levy_avg_2040_fixed": 1,
-        "computed_levy_avg_2030_fixed": 1,
         "computed_levy_avg_2045_fixed": 1,
+        "computed_levy_avg_2030_fixed": 1,
     },
 )
 def levy_evolution():
@@ -14402,10 +14312,10 @@ def share_of_buildings_with_pv_by_type():
         "time": 2,
         "pv_federal_subsidy_100_kw_check": 3,
         "pv_rebate_cantonal": 1,
-        "exploratory_analysis": 1,
+        "pv_100_kw_investment_cost_time_adj": 2,
         "average_power_pv_100_kw": 3,
         "cantonal_pv_support": 1,
-        "pv_100_kw_investment_cost_time_adj": 2,
+        "exploratory_analysis": 1,
     },
 )
 def pv_cantonal_subsidy_100_kw_check():
@@ -14440,8 +14350,8 @@ def pv_cantonal_subsidy_100_kw_check():
         "battery_capacity": 1,
         "buildings_construction_with_battery": 1,
         "consumers_adopting_pv_yes_with_battery": 1,
-        "battery_capacity_rcpv": 1,
         "consumers_adopting_rcpv_yes_with_battery": 1,
+        "battery_capacity_rcpv": 1,
     },
 )
 def battery_residential_flow():
@@ -14548,8 +14458,8 @@ def annual_incentive_battery():
         "battery_adoption_30_kw": 1,
         "battery_adoption_30_100_kw": 1,
         "battery_incentive_30_100_kw": 1,
-        "battery_incentive_100_kw": 1,
         "battery_adoption_100_kw": 1,
+        "battery_incentive_100_kw": 1,
     },
 )
 def annual_incentive_battery_nonres():
@@ -14569,8 +14479,8 @@ def annual_incentive_battery_nonres():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "battery_incentive": 1,
-        "battery_incentive_rcpv": 1,
         "consumers_adopting_rcpv_yes_with_battery": 1,
+        "battery_incentive_rcpv": 1,
     },
 )
 def annual_incentive_battery_res():
@@ -14593,8 +14503,8 @@ def annual_incentive_battery_res():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_capacity_rcpv": 1,
         "battery_rebate": 1,
+        "battery_capacity_rcpv": 1,
         "battery_investiment_cost": 1,
     },
 )
@@ -14671,8 +14581,8 @@ def battery_incentive_30_100_kw():
     depends_on={
         "time": 1,
         "battery_rebate": 1,
-        "battery_investiment_cost": 1,
         "average_battery_size_30_kw": 1,
+        "battery_investiment_cost": 1,
     },
 )
 def battery_incentive_30_kw():
@@ -14747,9 +14657,9 @@ def probability_adoption_battery_average():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
         "average_battery_size_100_kw": 1,
         "battery_investiment_cost": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_100_kw():
@@ -14768,8 +14678,8 @@ def battery_incentive_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_investment_cost_scenario": 1,
         "annual_battery_cost_reduction": 1,
+        "battery_investment_cost_scenario": 1,
     },
 )
 def battery_investment_cost_flow():
@@ -15391,7 +15301,7 @@ def total_pv_electricity_injected_in_the_grid():
     units="Mio CHF",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "total_pv_electricity_injected_in_the_grid": 1, "fit": 1},
+    depends_on={"time": 1, "fit": 1, "total_pv_electricity_injected_in_the_grid": 1},
 )
 def annual_incentives_cantonal_fit():
     return if_then_else(
@@ -16188,9 +16098,9 @@ def total_federal_demand_grid():
     depends_on={
         "time": 4,
         "reference_cantonal_levy": 1,
-        "computed_cantonal_levy_avg_2040_fixed": 1,
         "computed_cantonal_levy_avg_2045_fixed": 1,
         "computed_cantonal_levy_avg_2030_fixed": 1,
+        "computed_cantonal_levy_avg_2040_fixed": 1,
         "computed_cantonal_levy_avg_2035_fixed": 1,
     },
 )
@@ -16761,11 +16671,11 @@ def battery_adoption_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "additional_power_district_with_battery_30_100_kw": 2,
+        "pv_annual_generation_per_kw": 2,
         "self_consumption_degree_with_storage_100_kw": 1,
         "yearly_installed_capacity_pv_30_100_kw": 1,
         "average_sc_30_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
+        "additional_power_district_with_battery_30_100_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30_100_kw():
@@ -16794,13 +16704,13 @@ def additional_annual_pv_kwh_self_consumed_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "additional_power_district_with_battery_30_kw": 2,
-        "additional_annual_pv_kwh_produced_by_archetype": 1,
-        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
-        "average_sc_30_kw": 1,
-        "share_additional_power_30_kw": 1,
-        "self_consumption_degree_with_storage_30_kw": 1,
         "pv_annual_generation_per_kw": 2,
+        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
+        "self_consumption_degree_with_storage_30_kw": 1,
+        "share_additional_power_30_kw": 1,
+        "average_sc_30_kw": 1,
+        "additional_annual_pv_kwh_produced_by_archetype": 1,
+        "additional_power_district_with_battery_30_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30():
@@ -16854,10 +16764,10 @@ def additional_annual_pv_kwh_self_consumed_30():
     depends_on={
         "time": 1,
         "yearly_installed_capacity_pv_100_kw": 1,
+        "pv_annual_generation_per_kw": 2,
         "self_consumption_degree_with_storage_100_kw": 1,
         "average_sc_100_kw": 1,
         "additional_power_district_with_battery_100_kw": 2,
-        "pv_annual_generation_per_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_100_kw():
@@ -17214,10 +17124,10 @@ def battery_adoption_30_kw():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_30_100_kw": 4,
-        "average_sc_30_100_kw": 3,
         "sc_05_kwhmwh_30_100_kw": 3,
-        "sc_10_kwhmwh_30_100_kw": 3,
+        "average_sc_30_100_kw": 3,
         "sc_15_kwhmwh_30_100_kw": 1,
+        "sc_10_kwhmwh_30_100_kw": 3,
     },
 )
 def self_consumption_degree_with_storage_30_100_kw():
@@ -17318,10 +17228,10 @@ def kwh_over_mwh_of_demand_30_kw():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_30_kw": 4,
-        "average_sc_30_kw": 3,
         "sc_05_kwhmwh_30_kw": 3,
-        "sc_15_kwhmwh_30_kw": 1,
+        "average_sc_30_kw": 3,
         "sc_10_kwhmwh_30_kw": 3,
+        "sc_15_kwhmwh_30_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_30_kw():
@@ -17394,8 +17304,8 @@ def kwp_over_mwh_of_demand_30_kw():
         "kwh_over_mwh_of_demand_100_kw": 4,
         "sc_05_kwhmwh_100_kw": 3,
         "average_sc_100_kw": 3,
-        "sc_15_kwhmwh_100_kw": 1,
         "sc_10_kwhmwh_100_kw": 3,
+        "sc_15_kwhmwh_100_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_100_kw():
@@ -17596,10 +17506,10 @@ def consumers_adopting_rcpv_yes_with_battery():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually_rcpv": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
-        "battery_lifetime": 1,
+        "electricity_price": 1,
         "interest_rate": 2,
+        "battery_lifetime": 1,
     },
 )
 def battery_total_savings_rcpv():
@@ -17977,8 +17887,8 @@ _delayfixed_pv_adoptions_by_archetype = DelayFixed(
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_rcpv": 5,
-        "self_consumption_degree_rcpv": 2,
         "sc_05_kwhmwh_rcpv": 3,
+        "self_consumption_degree_rcpv": 2,
         "sc_15_kwhmwh_rcpv": 1,
         "sc_10_kwhmwh_rcpv": 3,
     },
@@ -18022,8 +17932,8 @@ def utility_battery_exp_rcpv():
     comp_subtype="Normal",
     depends_on={
         "el_consumption_per_building": 1,
-        "self_consumption_degree_rcpv": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "self_consumption_degree_rcpv": 1,
         "decentralized_storage_efficiency": 1,
     },
 )
@@ -18705,9 +18615,9 @@ def buildings_with_pv_type():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "buildings_pv_bno_type": 2,
         "probability_of_adoption_battery_type": 4,
         "adoption_battery_type_data": 4,
-        "buildings_pv_bno_type": 2,
     },
 )
 def battery_type_log_likelihood():
@@ -18771,8 +18681,8 @@ def delta_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "probability_of_adoption_battery_district": 2,
         "buildings_pv_bno_district": 1,
+        "probability_of_adoption_battery_district": 2,
         "adoption_battery_district_data": 2,
     },
 )
@@ -19042,8 +18952,8 @@ def hs_veryold_demolited():
     depends_on={
         "time": 6,
         "building_construction_by_archetype": 9,
-        "market_share_hs_no_incentives_filtered": 12,
         "probability_adoption_battery": 6,
+        "market_share_hs_no_incentives_filtered": 12,
     },
 )
 def buildings_construction_with_battery():
@@ -19768,10 +19678,10 @@ def battery_lifetime():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
-        "battery_lifetime": 1,
+        "electricity_price": 1,
         "interest_rate": 2,
+        "battery_lifetime": 1,
     },
 )
 def battery_total_savings():
@@ -19841,8 +19751,8 @@ def buildings_by_performance_mfh():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand": 5,
-        "sc_05_kwhmwh": 3,
         "self_consumption_degree": 2,
+        "sc_05_kwhmwh": 3,
         "sc_10_kwhmwh": 3,
         "sc_15_kwhmwh": 1,
     },
@@ -20696,11 +20606,11 @@ _integ_owned_buildings_with_rcpv_pvno = Integ(
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 3,
-        "owners_adopting_pv": 2,
-        "building_construction_by_archetype": 1,
-        "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
         "owned_buildings_with_rcpv": 1,
+        "owned_buildings_with_rcp": 1,
+        "owners_adopting_pv": 2,
+        "share_of_owned_houses": 1,
+        "building_construction_by_archetype": 1,
     },
 )
 def owners_adopting_pv_flow():
@@ -20745,11 +20655,11 @@ def owners_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 2,
-        "building_construction_by_archetype": 1,
-        "owners_adopting_rcp": 2,
+        "owned_buildings_with_rcpv": 1,
         "owned_buildings_with_rcp": 2,
         "share_of_owned_houses": 1,
-        "owned_buildings_with_rcpv": 1,
+        "owners_adopting_rcp": 2,
+        "building_construction_by_archetype": 1,
     },
 )
 def owners_adopting_rcp_flow():
@@ -20876,11 +20786,11 @@ def share_urban_buildings():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 3,
-        "renters_adopting_pv": 2,
-        "building_construction_by_archetype": 1,
-        "rented_buildings_with_rcpv": 1,
         "rented_buildings_with_rcp": 1,
         "share_of_owned_houses": 1,
+        "rented_buildings_with_rcpv": 1,
+        "renters_adopting_pv": 2,
+        "building_construction_by_archetype": 1,
     },
 )
 def renters_adopting_pv_flow():
@@ -20925,10 +20835,10 @@ def renters_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 2,
-        "building_construction_by_archetype": 1,
-        "rented_buildings_with_rcpv": 1,
         "rented_buildings_with_rcp": 2,
         "share_of_owned_houses": 1,
+        "rented_buildings_with_rcpv": 1,
+        "building_construction_by_archetype": 1,
         "renters_adopting_rcp": 2,
     },
 )
@@ -20975,10 +20885,10 @@ def renters_adopting_rcp_flow():
     depends_on={
         "rented_buildings_with_pv": 2,
         "renters_adopting_rcpv": 2,
-        "building_construction_by_archetype": 1,
-        "rented_buildings_with_rcpv": 2,
         "rented_buildings_with_rcp": 1,
         "share_of_owned_houses": 1,
+        "rented_buildings_with_rcpv": 2,
+        "building_construction_by_archetype": 1,
     },
 )
 def renters_adopting_rcpv_flow():
@@ -21345,10 +21255,10 @@ def adoption_pv_district():
     depends_on={
         "owned_buildings_with_pv": 2,
         "owned_buildings_with_rcpv": 2,
-        "building_construction_by_archetype": 1,
         "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
         "owners_adopting_rcpv": 2,
+        "share_of_owned_houses": 1,
+        "building_construction_by_archetype": 1,
     },
 )
 def owners_adopting_rcpv_flow():
@@ -22171,8 +22081,8 @@ def a_param_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "b_param_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "a_param_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_30_100_kw_investment_cost():
@@ -23378,10 +23288,10 @@ def adoption_nohp_pvpanel_data():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_hp_pvpanel_data": 1,
-        "average_ms_nohp_pvpanel": 1,
-        "adoption_nohp_pvpanel_data": 1,
         "average_ms_hp_pvpanel": 1,
+        "average_ms_nohp_pvpanel": 1,
+        "adoption_hp_pvpanel_data": 1,
+        "adoption_nohp_pvpanel_data": 1,
     },
 )
 def hp_pvpanel_log_likelihood():
@@ -23600,9 +23510,9 @@ def buildings_construction_total():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "probability_of_adoption_pv_type": 2,
-        "adoption_pv_type_data": 2,
         "buildings_type": 1,
+        "adoption_pv_type_data": 2,
+        "probability_of_adoption_pv_type": 2,
     },
 )
 def pv_type_log_likelihood():
@@ -23851,9 +23761,9 @@ def probability_of_adoption_pv_district():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_pv_performance_data": 2,
-        "buildings_performance": 1,
         "probability_of_adoption_pv_performance": 2,
+        "buildings_performance": 1,
+        "adoption_pv_performance_data": 2,
     },
 )
 def pv_performance_log_likelihood():
@@ -23918,8 +23828,8 @@ def average_ms_nohp_performance():
     depends_on={
         "time": 1,
         "average_ms_hp_type": 1,
-        "adoption_hp_type_data": 1,
         "average_ms_nohp_type": 1,
+        "adoption_hp_type_data": 1,
         "adoption_nohp_type_data": 1,
     },
 )
@@ -23962,8 +23872,8 @@ def probability_of_adoption_pv_type():
     depends_on={
         "time": 1,
         "adoption_pv_district_data": 2,
-        "probability_of_adoption_pv_district": 2,
         "buildings_district": 1,
+        "probability_of_adoption_pv_district": 2,
     },
 )
 def pv_district_log_likelihood():
@@ -24068,10 +23978,10 @@ _ext_data_buildings_type = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_ms_nohp_performance": 1,
         "adoption_hp_performance_data": 1,
         "average_ms_hp_performance": 1,
         "adoption_nohp_performance_data": 1,
+        "average_ms_nohp_performance": 1,
     },
 )
 def hp_performance_log_likelihood():
@@ -24168,14 +24078,14 @@ def share_of_consumers_considering_pv_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_fit_30_100_kw": 1,
-        "pv_annual_mantainance_cost": 2,
-        "pv_annual_generation_30_100_kw": 5,
         "interest_rate": 4,
-        "average_sc_30_100_kw": 2,
-        "electricity_price": 1,
+        "pv_annual_mantainance_cost": 2,
+        "pv_fit_30_100_kw": 1,
+        "pv_annual_generation_30_100_kw": 5,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "pv_lifetime": 1,
+        "average_sc_30_100_kw": 2,
     },
 )
 def pv_total_earnings_30_100_kw():
@@ -24213,14 +24123,14 @@ def pv_total_earnings_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_fit_100_kw": 1,
         "interest_rate": 4,
         "pv_annual_mantainance_cost": 2,
+        "pv_fit_100_kw": 1,
         "pv_annual_generation_100_kw": 5,
-        "electricity_price": 1,
-        "pv_lifetime": 1,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "average_sc_100_kw": 2,
+        "pv_lifetime": 1,
     },
 )
 def pv_total_earnings_100_kw():
@@ -25157,14 +25067,14 @@ def total_hydro_monthly_production():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
-        "hourly_phs_production": 3,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 1,
-        "wind_hourly_supply": 1,
         "share_phs": 2,
-        "rr_hourly_supply": 1,
-        "hourly_electricity_grid_demand": 1,
         "waste_hourly_supply": 1,
+        "rr_hourly_supply": 1,
+        "hourly_total_inflow_for_ticino": 1,
+        "pv_hourly_supply": 1,
+        "hourly_electricity_grid_demand": 1,
+        "hourly_phs_production": 3,
+        "wind_hourly_supply": 1,
     },
 )
 def phs_hourly_decrease():
@@ -25302,14 +25212,14 @@ def hourly_available_supply_by_supplier():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
-        "hourly_phs_production": 1,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 3,
-        "wind_hourly_supply": 1,
-        "rr_hourly_supply": 1,
-        "hourly_electricity_grid_demand": 1,
-        "share_hs": 2,
         "waste_hourly_supply": 1,
+        "rr_hourly_supply": 1,
+        "hourly_total_inflow_for_ticino": 3,
+        "pv_hourly_supply": 1,
+        "share_hs": 2,
+        "hourly_electricity_grid_demand": 1,
+        "hourly_phs_production": 1,
+        "wind_hourly_supply": 1,
     },
 )
 def hs_hourly_decrease():
@@ -25948,7 +25858,7 @@ def pv_annual_generation_100_kw():
     subscripts=["Vechicle"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"mass_vechicle": 1, "power_vehicle": 1, "co2_coefficient": 1},
+    depends_on={"mass_vechicle": 1, "co2_coefficient": 1, "power_vehicle": 1},
 )
 def annual_circulation_tax():
     return mass_vechicle() * 0.1 + co2_coefficient() * power_vehicle()
@@ -26015,8 +25925,8 @@ def delta_100_kw():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_100_kw": 1,
-        "pv_capacity_federal_subsidy_100_kw": 1,
         "average_power_pv_100_kw": 1,
+        "pv_capacity_federal_subsidy_100_kw": 1,
     },
 )
 def pv_federal_subsidy_100_kw():
@@ -26061,8 +25971,8 @@ _integ_capacity_pv_100_kw = Integ(
     depends_on={
         "time": 1,
         "pv_100_kw_investment_cost_time_adj": 2,
-        "pv_federal_subsidy_100_kw_check": 1,
         "pv_cantonal_subsidy_100_kw_check": 1,
+        "pv_federal_subsidy_100_kw_check": 1,
     },
 )
 def investment_pv_100_kw():
@@ -26217,8 +26127,8 @@ _integ_capacity_pv_30_100_kw = Integ(
     depends_on={
         "time": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
-        "pv_federal_subsidy_30_100_kw_check": 1,
         "pv_cantonal_subsidy_30_100_kw_check": 1,
+        "pv_federal_subsidy_30_100_kw_check": 1,
     },
 )
 def investment_pv_30_100_kw():
@@ -27152,8 +27062,8 @@ _ext_data_annual_hs_inflow_historical_for_ticino = ExtData(
     depends_on={
         "annual_hs_inflow_for_ticino": 1,
         "annual_phsn_inflow_for_ticino": 1,
-        "time": 8,
         "deflussi_minimi_lpac": 1,
+        "time": 8,
         "cambiamento_climatico_hydro": 1,
         "provvedimento_12": 1,
         "provvedimento_13": 1,
@@ -30508,8 +30418,8 @@ def probability_adoption_pv_owners():
     depends_on={
         "market_share_hs": 1,
         "dh_and_gas_suitability": 1,
-        "market_share_hs_nogas": 1,
         "dh_only_suitability": 1,
+        "market_share_hs_nogas": 1,
         "gas_only_suitability": 1,
         "market_share_hs_nodh": 1,
         "market_share_hs_nodh_nogas": 1,
@@ -30517,17 +30427,13 @@ def probability_adoption_pv_owners():
     },
 )
 def market_share_hs_filtered():
-    # hotpath: market_share_hs_filtered
-    ms = _hotpath_asarray(market_share_hs())
-    ms_ng = _hotpath_asarray(market_share_hs_nogas())
-    ms_nd = _hotpath_asarray(market_share_hs_nodh())
-    ms_ndng = _hotpath_asarray(market_share_hs_nodh_nogas())
-    w0 = _hotpath_dt_broadcast_5d(dh_and_gas_suitability())
-    w1 = _hotpath_dt_broadcast_5d(dh_only_suitability())
-    w2 = _hotpath_dt_broadcast_5d(gas_only_suitability())
-    w3 = _hotpath_dt_broadcast_5d(no_suitability())
-    out = ms * w0 + ms_ng * w1 + ms_nd * w2 + ms_ndng * w3
-    return _hotpath_da_like(market_share_hs(), out)
+    return (
+        market_share_hs() * dh_and_gas_suitability()
+        + market_share_hs_nogas() * dh_only_suitability()
+        + market_share_hs_nodh() * gas_only_suitability()
+        + market_share_hs_nodh_nogas() * no_suitability()
+    )
+
 
 @component.add(
     name="Utility PV Owners exp",
@@ -30976,9 +30882,9 @@ def annural_cantonal_subsidy_cu_by_archetype():
     depends_on={
         "time": 4,
         "initial_dso_charge": 4,
-        "total_annual_grid_demand_districts": 8,
-        "initial_dso_expenses": 4,
         "total_annual_grid_upgrading_cost_by_dso_smooth": 4,
+        "initial_dso_expenses": 4,
+        "total_annual_grid_demand_districts": 8,
         "dso_charge": 4,
     },
 )
@@ -31149,9 +31055,9 @@ _integ_res_verylow_buildings = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "res_verylow_buildings": 2,
-        "overall_demolited_buildings": 2,
         "res_buildings_share": 2,
+        "overall_demolited_buildings": 2,
+        "res_verylow_buildings": 2,
     },
 )
 def res_verylow_demolition():
@@ -31740,12 +31646,12 @@ def equivalent_lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
         "dwellings_per_building": 4,
-        "tax_deduction_investment": 4,
-        "kwp_installed_per_building": 1,
         "pv_cantonal_subsidy": 2,
         "pv_federal_subsidy_check": 2,
+        "kwp_installed_per_building": 1,
     },
 )
 def initial_investment_pv_owner():
@@ -31833,11 +31739,11 @@ def green_utility_hs():
         "carrier_used_cost_per_kwh": 19,
         "annual_sh_demand": 17,
         "annual_mantainance_costs_hs": 14,
-        "lifetime": 14,
         "interest_rate": 28,
+        "lifetime": 14,
         "efficiency_dhw_storage": 10,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def total_variable_costs_hs():
@@ -36162,11 +36068,11 @@ _integ_res_veryhigh_buildings = Integ(
         "res_verylow_high_renovation": 1,
         "res_verylow_veryhigh_renovation": 1,
         "share_hs_by_archetype": 4,
-        "res_low_high_renovation": 1,
         "res_low_to_moderate_renovation": 1,
         "res_low_veryhigh_renovation": 1,
-        "res_moderate_veryhigh_renovation": 1,
+        "res_low_high_renovation": 1,
         "res_moderate_high_renovation": 1,
+        "res_moderate_veryhigh_renovation": 1,
         "res_high_veryhigh_renovation": 1,
     },
 )
@@ -36286,15 +36192,15 @@ _integ_res_moderate_buildings = Integ(
     depends_on={
         "res_verylow_low_renovation": 1,
         "share_hs_by_archetype": 10,
-        "res_verylow_moderate_renovation": 1,
         "res_low_to_moderate_renovation": 1,
+        "res_verylow_moderate_renovation": 1,
+        "res_verylow_high_renovation": 1,
         "res_low_high_renovation": 1,
         "res_moderate_high_renovation": 1,
-        "res_verylow_high_renovation": 1,
-        "res_moderate_veryhigh_renovation": 1,
-        "res_high_veryhigh_renovation": 1,
-        "res_verylow_veryhigh_renovation": 1,
         "res_low_veryhigh_renovation": 1,
+        "res_verylow_veryhigh_renovation": 1,
+        "res_high_veryhigh_renovation": 1,
+        "res_moderate_veryhigh_renovation": 1,
     },
 )
 def buildings_hs_renovation_to():
@@ -37615,10 +37521,34 @@ def utility_vehicle():
     depends_on={"market_share_hs_no_incentives_nodh": 3},
 )
 def market_share_hs_no_incentives_nodh_nogas():
-    # hotpath: market_share_hs_no_incentives_nodh_nogas
-    return _hotpath_ms_exclude(
-        market_share_hs_no_incentives_nodh(), _subscript_dict["WithGas"]
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
     )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["WithGas"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs_no_incentives_nodh()
+        / (
+            sum(market_share_hs_no_incentives_nodh().rename({"HS": "HS!"}), dim=["HS!"])
+            - sum(
+                market_share_hs_no_incentives_nodh()
+                .loc[:, _subscript_dict["WithGas"], :, :, :]
+                .rename({"HS": "WithGas!"}),
+                dim=["WithGas!"],
+            )
+        )
+    ).values[except_subs.values]
+    value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="Market Share HS no incentives noGas",
@@ -37628,10 +37558,34 @@ def market_share_hs_no_incentives_nodh_nogas():
     depends_on={"market_share_hs_no_incentives": 3},
 )
 def market_share_hs_no_incentives_nogas():
-    # hotpath: market_share_hs_no_incentives_nogas
-    return _hotpath_ms_exclude(
-        market_share_hs_no_incentives(), _subscript_dict["WithGas"]
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
     )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["WithGas"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs_no_incentives()
+        / (
+            sum(market_share_hs_no_incentives().rename({"HS": "HS!"}), dim=["HS!"])
+            - sum(
+                market_share_hs_no_incentives()
+                .loc[:, _subscript_dict["WithGas"], :, :, :]
+                .rename({"HS": "WithGas!"}),
+                dim=["WithGas!"],
+            )
+        )
+    ).values[except_subs.values]
+    value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="Market Share HS noDH noGas",
@@ -37641,8 +37595,34 @@ def market_share_hs_no_incentives_nogas():
     depends_on={"market_share_hs_nodh": 3},
 )
 def market_share_hs_nodh_nogas():
-    # hotpath: market_share_hs_nodh_nogas
-    return _hotpath_ms_exclude(market_share_hs_nodh(), _subscript_dict["WithGas"])
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["WithGas"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs_nodh()
+        / (
+            sum(market_share_hs_nodh().rename({"HS": "HS!"}), dim=["HS!"])
+            - sum(
+                market_share_hs_nodh()
+                .loc[:, _subscript_dict["WithGas"], :, :, :]
+                .rename({"HS": "WithGas!"}),
+                dim=["WithGas!"],
+            )
+        )
+    ).values[except_subs.values]
+    value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="Market Share HS noGas",
@@ -37652,15 +37632,41 @@ def market_share_hs_nodh_nogas():
     depends_on={"market_share_hs": 3},
 )
 def market_share_hs_nogas():
-    # hotpath: market_share_hs_nogas
-    return _hotpath_ms_exclude(market_share_hs(), _subscript_dict["WithGas"])
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["WithGas"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs()
+        / (
+            sum(market_share_hs().rename({"HS": "HS!"}), dim=["HS!"])
+            - sum(
+                market_share_hs()
+                .loc[:, _subscript_dict["WithGas"], :, :, :]
+                .rename({"HS": "WithGas!"}),
+                dim=["WithGas!"],
+            )
+        )
+    ).values[except_subs.values]
+    value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="HS Log Likelihood",
     subscripts=["HS"],
     comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 3, "adoption_heating_solutions_data": 3, "average_ms_by_hs": 3},
+    depends_on={"time": 3, "average_ms_by_hs": 3, "adoption_heating_solutions_data": 3},
 )
 def hs_log_likelihood():
     value = xr.DataArray(np.nan, {"HS": _subscript_dict["HS"]}, ["HS"])
@@ -38282,8 +38288,8 @@ def total_annualised_cost_vehicle():
         "initial_purchase_cost_vehicle": 7,
         "vehicle_purchase_cost_factor": 7,
         "ev_buying_incentive": 5,
-        "private_charging_station_incentive": 3,
         "private_charging_station_cost": 3,
+        "private_charging_station_incentive": 3,
         "federal_tax_deduction_import_ev": 1,
     },
 )
@@ -39303,11 +39309,11 @@ def charged_electricity_per_year():
     depends_on={
         "fuel_consumption_per_km": 6,
         "petrol_price": 3,
-        "density_petrol": 3,
         "lhv_petrol": 3,
-        "lhv_diesel": 3,
-        "diesel_price": 3,
+        "density_petrol": 3,
         "denity_diesel": 3,
+        "diesel_price": 3,
+        "lhv_diesel": 3,
     },
 )
 def cost_per_km_fuel():
@@ -39583,9 +39589,9 @@ def primary_houses_pv_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 11,
-        "fit": 1,
         "cantonal_pv_support": 1,
         "pv_uncertain_remunaration_factor": 1,
+        "fit": 1,
     },
 )
 def pv_cumulative_compensation_price():
@@ -39719,8 +39725,75 @@ def utility_pv_no_eco():
     },
 )
 def utility_hs_exp_3_no_incentives():
-    # hotpath: utility_hs_exp_3_no_incentives
-    return _hotpath_build_utility_hs_exp_3(utility_hs_exp_2_no_incentives())
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    value.loc[:, _subscript_dict["RenSolution"], :, :, :] = (
+        utility_hs_exp_2_no_incentives()
+        .loc[:, _subscript_dict["RenSolution"], :, :, :]
+        .rename({"HS": "RenSolution"})
+        .values
+    )
+    value.loc[
+        :, _subscript_dict["NonRenSolution"], _subscript_dict["PerformanceLow"], :, :
+    ] = (
+        utility_hs_exp_2_no_incentives()
+        .loc[
+            :,
+            _subscript_dict["NonRenSolution"],
+            _subscript_dict["PerformanceLow"],
+            :,
+            :,
+        ]
+        .rename({"HS": "NonRenSolution", "Performance": "PerformanceLow"})
+        * (1 - muken_2025_scenario_application())
+    ).values
+    except_subs = xr.zeros_like(value, dtype=bool)
+    except_subs.loc[
+        :, _subscript_dict["NonRenSolution"], _subscript_dict["PerformanceHigh"], :, :
+    ] = True
+    except_subs.loc[:, _subscript_dict["NonRenSolution"], ["Moderate"], :, :] = False
+    value.values[except_subs.values] = (
+        utility_hs_exp_2_no_incentives()
+        .loc[
+            :,
+            _subscript_dict["NonRenSolution"],
+            _subscript_dict["PerformanceHigh"],
+            :,
+            :,
+        ]
+        .rename({"HS": "NonRenSolution", "Performance": "PerformanceHigh"})
+        .values[
+            except_subs.loc[
+                :,
+                _subscript_dict["NonRenSolution"],
+                _subscript_dict["PerformanceHigh"],
+                :,
+                :,
+            ].values
+        ]
+    )
+    value.loc[:, _subscript_dict["NonRenSolution"], ["Moderate"], :, :] = (
+        (
+            utility_hs_exp_2_no_incentives()
+            .loc[:, _subscript_dict["NonRenSolution"], "Moderate", :, :]
+            .reset_coords(drop=True)
+            .rename({"HS": "NonRenSolution"})
+            * (1 - muken_2025_scenario_application())
+        )
+        .expand_dims({"PerformanceHigh": ["Moderate"]}, 2)
+        .values
+    )
+    return value
+
 
 @component.add(
     name="Utility HS exp 3",
@@ -39730,8 +39803,75 @@ def utility_hs_exp_3_no_incentives():
     depends_on={"utility_hs_exp_2": 4, "muken_2025_scenario_application": 2},
 )
 def utility_hs_exp_3():
-    # hotpath: utility_hs_exp_3
-    return _hotpath_build_utility_hs_exp_3(utility_hs_exp_2())
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    value.loc[:, _subscript_dict["RenSolution"], :, :, :] = (
+        utility_hs_exp_2()
+        .loc[:, _subscript_dict["RenSolution"], :, :, :]
+        .rename({"HS": "RenSolution"})
+        .values
+    )
+    value.loc[
+        :, _subscript_dict["NonRenSolution"], _subscript_dict["PerformanceLow"], :, :
+    ] = (
+        utility_hs_exp_2()
+        .loc[
+            :,
+            _subscript_dict["NonRenSolution"],
+            _subscript_dict["PerformanceLow"],
+            :,
+            :,
+        ]
+        .rename({"HS": "NonRenSolution", "Performance": "PerformanceLow"})
+        * (1 - muken_2025_scenario_application())
+    ).values
+    except_subs = xr.zeros_like(value, dtype=bool)
+    except_subs.loc[
+        :, _subscript_dict["NonRenSolution"], _subscript_dict["PerformanceHigh"], :, :
+    ] = True
+    except_subs.loc[:, _subscript_dict["NonRenSolution"], ["Moderate"], :, :] = False
+    value.values[except_subs.values] = (
+        utility_hs_exp_2()
+        .loc[
+            :,
+            _subscript_dict["NonRenSolution"],
+            _subscript_dict["PerformanceHigh"],
+            :,
+            :,
+        ]
+        .rename({"HS": "NonRenSolution", "Performance": "PerformanceHigh"})
+        .values[
+            except_subs.loc[
+                :,
+                _subscript_dict["NonRenSolution"],
+                _subscript_dict["PerformanceHigh"],
+                :,
+                :,
+            ].values
+        ]
+    )
+    value.loc[:, _subscript_dict["NonRenSolution"], ["Moderate"], :, :] = (
+        (
+            utility_hs_exp_2()
+            .loc[:, _subscript_dict["NonRenSolution"], "Moderate", :, :]
+            .reset_coords(drop=True)
+            .rename({"HS": "NonRenSolution"})
+            * (1 - muken_2025_scenario_application())
+        )
+        .expand_dims({"PerformanceHigh": ["Moderate"]}, 2)
+        .values
+    )
+    return value
+
 
 @component.add(
     name="Utility HS no incentives",
@@ -39845,8 +39985,29 @@ def utility_hs_no_incentives():
     depends_on={"market_share_hs": 3},
 )
 def market_share_hs_nodh():
-    # hotpath: market_share_hs_nodh
-    return _hotpath_ms_exclude(market_share_hs(), ["DH"])
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, ["DH"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs()
+        / (
+            sum(market_share_hs().rename({"HS": "HS!"}), dim=["HS!"])
+            - market_share_hs().loc[:, "DH", :, :, :].reset_coords(drop=True)
+        )
+    ).values[except_subs.values]
+    value.loc[:, ["DH"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="Market Share HS no incentives noDH",
@@ -39856,8 +40017,31 @@ def market_share_hs_nodh():
     depends_on={"market_share_hs_no_incentives": 3},
 )
 def market_share_hs_no_incentives_nodh():
-    # hotpath: market_share_hs_no_incentives_nodh
-    return _hotpath_ms_exclude(market_share_hs_no_incentives(), ["DH"])
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, ["DH"], :, :, :] = False
+    value.values[except_subs.values] = (
+        market_share_hs_no_incentives()
+        / (
+            sum(market_share_hs_no_incentives().rename({"HS": "HS!"}), dim=["HS!"])
+            - market_share_hs_no_incentives()
+            .loc[:, "DH", :, :, :]
+            .reset_coords(drop=True)
+        )
+    ).values[except_subs.values]
+    value.loc[:, ["DH"], :, :, :] = 0
+    return value
+
 
 @component.add(
     name="Buildings adopting HS",
@@ -40005,10 +40189,10 @@ def verylow_to_performance_sfh_ms():
     depends_on={"utility_hs_exp_3": 2},
 )
 def market_share_hs():
-    # hotpath: market_share_hs
-    u = utility_hs_exp_3()
-    vals = _hotpath_asarray(u)
-    return _hotpath_da_like(u, _hotpath_ms_normalize(vals))
+    return utility_hs_exp_3() / sum(
+        utility_hs_exp_3().rename({"HS": "HS!"}), dim=["HS!"]
+    )
+
 
 @component.add(
     name="VeryLow to Performance",
@@ -40040,16 +40224,16 @@ def verylow_to_performance():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "kwp_installed_per_building": 2,
-        "dwellings_per_building": 5,
-        "interest_rate": 10,
         "pv_fit_10_30_kw": 2,
-        "pv_annual_mantainance_cost": 5,
         "pv_annual_generation_per_building": 12,
+        "interest_rate": 10,
+        "kwp_installed_per_building": 2,
         "pv_fit_10_kw": 1,
-        "electricity_price": 2,
-        "pv_cumulative_compensation_price": 2,
+        "dwellings_per_building": 5,
+        "pv_annual_mantainance_cost": 5,
         "self_consumption_degree": 4,
+        "pv_cumulative_compensation_price": 2,
+        "electricity_price": 2,
         "pv_lifetime": 2,
     },
 )
@@ -40265,9 +40449,9 @@ def annualized_total_cost_hs_no_incentives():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "kwp_installed_per_building": 1,
         "pv_federal_investment_grant_capacity": 1,
         "pv_initial_grant": 1,
+        "kwp_installed_per_building": 1,
         "pv_investment_cost": 1,
         "pv_rebate_federal": 1,
     },
@@ -40469,15 +40653,15 @@ def pv_differential_cost_change():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "owned_buildings_with_rcpv": 1,
-        "heating_solution": 3,
         "share_urban_buildings": 1,
-        "owned_buildings_with_pv": 1,
-        "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
-        "owned_buildings_with_rcpv_pvno": 1,
         "probability_adoption_rcpv_owners": 1,
+        "owned_buildings_with_rcpv": 1,
+        "owned_buildings_with_rcp": 1,
+        "heating_solution": 3,
         "share_of_buildings_with_suitable_roof": 1,
+        "share_of_owned_houses": 1,
+        "owned_buildings_with_pv": 1,
+        "owned_buildings_with_rcpv_pvno": 1,
         "energy_community_scenario": 1,
     },
 )
@@ -40545,15 +40729,15 @@ def owners_adopting_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "share_urban_buildings": 1,
         "rented_buildings_with_pv": 1,
+        "probability_adoption_rcpv_renters": 1,
         "rented_buildings_with_rcpv_pvno": 1,
         "heating_solution": 3,
-        "share_urban_buildings": 1,
-        "probability_adoption_rcpv_renters": 1,
-        "rented_buildings_with_rcpv": 1,
         "rented_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
         "share_of_buildings_with_suitable_roof": 1,
+        "share_of_owned_houses": 1,
+        "rented_buildings_with_rcpv": 1,
         "energy_community_scenario": 1,
     },
 )
@@ -41688,8 +41872,8 @@ def retrofit_high_mfh_log_likelihood():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_moderate_sfh_data": 1,
         "moderate_to_performance_sfh_ms": 1,
+        "retrofit_moderate_sfh_data": 1,
     },
 )
 def retrofit_moderate_sfh_log_likelihood():
@@ -41719,8 +41903,8 @@ def retrofit_moderate_sfh_log_likelihood():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "moderate_to_performance_mfh_ms": 1,
         "retrofit_moderate_mfh_data": 1,
+        "moderate_to_performance_mfh_ms": 1,
     },
 )
 def retrofit_moderate_mfh_log_likelihood():
@@ -41791,12 +41975,12 @@ def battery_capacity_1_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "kwp_installed_per_building": 2,
-        "interest_rate": 10,
         "pv_fit_10_30_kw": 2,
-        "pv_annual_mantainance_cost": 5,
         "pv_annual_generation_per_building": 10,
+        "interest_rate": 10,
+        "kwp_installed_per_building": 2,
         "pv_fit_10_kw": 1,
+        "pv_annual_mantainance_cost": 5,
         "pv_cumulative_compensation_price": 2,
         "pv_lifetime": 2,
     },
@@ -41921,15 +42105,15 @@ def rcpv_eco_utility_renter():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_cumulative_compensation_price": 1,
-        "dwellings_per_building": 1,
-        "pv_annual_generation_per_building_rcpv": 4,
-        "self_consumption_degree_rcpv": 3,
-        "electricity_price": 2,
-        "pv_annual_mantainance_cost": 1,
         "buildings_pvno_connected_to_rcpv": 1,
-        "pv_lifetime": 1,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 2,
+        "self_consumption_degree_rcpv": 3,
+        "pv_annual_generation_per_building_rcpv": 4,
+        "dwellings_per_building": 1,
+        "pv_annual_mantainance_cost": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcpv_total_savings_owner():
@@ -41986,11 +42170,11 @@ def rcpv_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "pv_investment_cost": 4,
         "tax_deduction_investment": 4,
-        "kwp_installed_per_building": 1,
+        "pv_investment_cost": 4,
         "pv_cantonal_subsidy": 2,
         "pv_federal_subsidy_check": 2,
+        "kwp_installed_per_building": 1,
     },
 )
 def initial_investment_pv_renter():
@@ -42293,8 +42477,8 @@ def pv_eco_utility_renter():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building_rcpv": 3,
-        "a_param_10_kw": 1,
         "b_param_10_kw": 1,
+        "a_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -42316,14 +42500,14 @@ def pv_initial_investment_cost_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_cumulative_compensation_price": 1,
-        "pv_annual_generation_per_building_rcpv": 3,
-        "self_consumption_degree_rcpv": 2,
-        "electricity_price": 1,
-        "pv_annual_mantainance_cost": 1,
         "buildings_pvno_connected_to_rcpv": 2,
-        "pv_lifetime": 1,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
+        "self_consumption_degree_rcpv": 2,
+        "pv_annual_generation_per_building_rcpv": 3,
+        "pv_annual_mantainance_cost": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcpv_total_savings_renter():
@@ -42690,7 +42874,7 @@ def roof_high_exp():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"roof_high_scaled": 2, "roof_high": 3, "coeff_high": 1},
+    depends_on={"roof_high_scaled": 2, "coeff_high": 1, "roof_high": 3},
 )
 def roof_high_scaled():
     value = xr.DataArray(
@@ -42899,7 +43083,7 @@ def retrofit_low_sfh_log_likelihood():
     subscripts=["Performance"],
     comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "low_to_performance_mfh_ms": 1, "retrofit_low_mfh_data": 1},
+    depends_on={"time": 1, "retrofit_low_mfh_data": 1, "low_to_performance_mfh_ms": 1},
 )
 def retrofit_low_mfh_log_likelihood():
     """
@@ -43255,10 +43439,10 @@ def annual_mantainance_costs_hs():
         "pv_annual_generation_per_building_rcpv": 3,
         "share_primary_houses": 3,
         "buildings_rcpv_by_archetype": 4,
-        "self_consumption_degree_with_storage": 1,
-        "self_consumption_degree_with_storage_rcpv": 1,
-        "time": 2,
         "pv_annual_generation_per_building": 2,
+        "self_consumption_degree_with_storage": 1,
+        "time": 2,
+        "self_consumption_degree_with_storage_rcpv": 1,
         "self_consumption_degree": 1,
     },
 )
@@ -43417,10 +43601,10 @@ def annual_cost_cantonal_levy_by_arch():
         "pv_annual_generation_per_building_rcpv": 3,
         "share_primary_houses": 3,
         "buildings_rcpv_by_archetype": 4,
-        "self_consumption_degree_with_storage": 1,
-        "self_consumption_degree_with_storage_rcpv": 1,
-        "time": 2,
         "pv_annual_generation_per_building": 2,
+        "self_consumption_degree_with_storage": 1,
+        "time": 2,
+        "self_consumption_degree_with_storage_rcpv": 1,
         "self_consumption_degree": 1,
     },
 )
@@ -43583,14 +43767,14 @@ def pv_annual_generation_per_building():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_cumulative_compensation_price": 1,
-        "dwellings_per_building": 1,
-        "electricity_price": 1,
         "pv_annual_generation_per_building": 3,
-        "pv_annual_mantainance_cost": 1,
         "self_consumption_degree": 2,
-        "pv_lifetime": 1,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
+        "dwellings_per_building": 1,
+        "pv_annual_mantainance_cost": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcp_total_savings_owner():
@@ -43635,8 +43819,8 @@ def rcp_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building": 3,
-        "a_param_10_kw": 1,
         "b_param_10_kw": 1,
+        "a_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -43657,13 +43841,13 @@ def pv_initial_investment_cost():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "pv_annual_generation_per_building": 3,
+        "self_consumption_degree": 2,
         "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "self_consumption_degree": 2,
         "pv_annual_mantainance_cost": 1,
-        "pv_annual_generation_per_building": 3,
-        "pv_lifetime": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcp_total_savings_renter():
@@ -44098,11 +44282,11 @@ def roof_low_exp():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "investment_grant_per_kw_15_kw": 1,
-        "investment_grant_per_kw_15_kw_1": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44139,9 +44323,9 @@ def grant_pelletboiler_pellet():
     depends_on={
         "time": 1,
         "investment_grant_per_kw_15_kw": 1,
-        "technology_sh_installed_capacity_just_sh": 3,
-        "investment_grant_per_kw_15_kw_1": 1,
         "initial_grant_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44169,9 +44353,9 @@ def grant_pelletboiler_woodst():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_sh_installed_capacity_sh_and_dhw": 1,
         "investment_grant_per_kw_dh": 1,
         "initial_grant_dh": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "grant_absolute": 1,
     },
@@ -44196,11 +44380,11 @@ def grant_dh():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "investment_grant_per_kw_15_kw": 1,
-        "investment_grant_per_kw_15_kw_1": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44237,9 +44421,9 @@ def grant_hp_heatpump():
     depends_on={
         "time": 1,
         "investment_grant_per_kw_15_kw": 1,
-        "technology_sh_installed_capacity_just_sh": 3,
-        "investment_grant_per_kw_15_kw_1": 1,
         "initial_grant_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44271,14 +44455,14 @@ def grant_hp_hpst():
         "emissions_per_capacity_installed": 15,
         "lifetime": 15,
         "technology_sh_installed_capacity_just_sh": 4,
-        "st_share_of_total_heat_production": 4,
-        "annual_sh_demand": 11,
         "efficiency": 10,
-        "emissions_per_kwh_carrier_used": 11,
         "annual_dhw_demand": 11,
+        "annual_sh_demand": 11,
+        "emissions_per_kwh_carrier_used": 11,
+        "st_share_of_total_heat_production": 4,
+        "efficiency_dhw_storage": 6,
         "technology_sh_installed_capacity_sh_and_dhw": 7,
         "technology_dhw_installed_capacity_sh_and_dhw": 7,
-        "efficiency_dhw_storage": 6,
     },
 )
 def annual_gwp_heating_solution():
@@ -44973,9 +45157,9 @@ def economic_utility_hs():
     comp_subtype="Normal",
     depends_on={
         "annual_light_and_appl_demand_by_arch": 4,
-        "annual_sh_demand": 3,
         "efficiency_dhw_storage": 2,
         "annual_dhw_demand": 3,
+        "annual_sh_demand": 3,
         "efficiency": 3,
         "annual_electricity_consumption_per_building_evs": 4,
         "st_share_of_total_heat_production": 1,
@@ -45101,8 +45285,8 @@ def investment_cost_hs_no_incentives():
     comp_subtype="Normal",
     depends_on={
         "annual_sh_demand": 1,
-        "st_share_of_total_heat_production": 1,
         "annual_dhw_demand": 1,
+        "st_share_of_total_heat_production": 1,
         "equivalent_hours_just_sh": 1,
     },
 )

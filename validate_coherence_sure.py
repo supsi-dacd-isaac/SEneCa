@@ -36,6 +36,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import sure_paths as paths  # noqa: E402
+from pv_batteries.vensim_runner import setval_name  # noqa: E402
 
 YEARS = np.arange(2011, 2051)
 RTOL = 1e-2          # tolleranza relativa "di accettazione" elemento per elemento
@@ -123,8 +124,8 @@ class Vensim:
         self._cmd(f"SIMULATE>RUNNAME|{run_name}")
         skipped = []
         for var, val in inputs.items():
-            if self.dll.vensim_command(
-                    f"SIMULATE>SETVAL|{var}={val}".encode("mbcs")) != 1:
+            cmd = f"SIMULATE>SETVAL|{setval_name(var)}={val}"
+            if self.dll.vensim_command(cmd.encode("mbcs")) != 1:
                 skipped.append(var)
         self._cmd("MENU>RUN|O")
         return skipped, self._horizon(run_name)
@@ -182,7 +183,9 @@ def compare_var(var, df, ven, run_name, max_elems, years):
     if not cols:
         return None
     n_all = len(cols)
-    if max_elems and len(cols) > max_elems:
+    # Le serie orarie si giudicano sull'aggregato annuo per fornitore: il
+    # sotto-campionamento lo renderebbe non calcolabile.
+    if max_elems and len(cols) > max_elems and not _aggregate_groups(cols):
         step = int(np.ceil(len(cols) / max_elems))
         cols = cols[::step]
 
@@ -327,8 +330,8 @@ def main():
     ns = model._namespace
     outputs = [o for o in outputs if o in ns]
     levers_all = sorted({k for s in scenarios.values() for k in s})
-    levers_ok = [k for k in levers_all if k in ns]
-    levers_missing = [k for k in levers_all if k not in ns]
+    levers_ok = [k for k in levers_all if sp.namespace_key(model, k)]
+    levers_missing = [k for k in levers_all if sp.namespace_key(model, k) is None]
     print(f"output validati: {len(outputs)}   leve applicate: {len(levers_ok)}")
     if levers_missing:
         print(f"leve non presenti nel modello (ignorate): {levers_missing}")

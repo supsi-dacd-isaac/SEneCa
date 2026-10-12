@@ -78,7 +78,7 @@ STEPS = [
     ("patch_model_sure.py", "SURE.mdl -> SURE_pysd.mdl + *_pysd.csv"),
     ("_translate.py", "pysd.read_vensim -> SURE_pysd.py"),
     ("fix_selfref_sure.py", "Fix self-referential array eqs"),
-    ("fix_allocate_sure.py", "ALLOCATE AVAILABLE: richieste negative -> 0 (come Vensim)"),
+    ("fix_allocate_sure.py", "ALLOCATE AVAILABLE: clip + merito rettangolare come Vensim"),
     ("extract_constants_sure.py", "Costanti calibrate da SURE.vpmx -> constants_ref.pkl"),
 ]
 

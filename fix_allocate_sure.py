@@ -34,18 +34,31 @@ MARKER = "# allocate_nonneg:"
 
 WRAPPER = f'''from pysd.py_backend.allocation import (
     allocate_available as _pysd_allocate_available,
+    allocate_by_priority as _pysd_allocate_by_priority,
 )
 
 
 def allocate_available(request, pp, avail):  {MARKER} wrapper
-    """ALLOCATE AVAILABLE con richieste negative trattate come 0, come Vensim.
+    """ALLOCATE AVAILABLE allineato a Vensim.
 
-    Vensim non dispaccia nulla per un'offerta negativa (e non segnala errore),
-    mentre PySD solleva ValueError. Il clip riproduce il .vpmx pubblicato.
+    Le richieste negative sono azzerate: Vensim non le dispaccia e non
+    segnala errore, PySD invece solleva ValueError.
+
+    Con profilo rettangolare e una sola ampiezza, l'ordine di merito e'
+    esatto e coincide con il profilo rettangolare stretto di Vensim.
     """
-    if np.any(request < 0):
+    if np.any(np.asanyarray(request) < 0):
         request = request.clip(min=0.0)
-    return _pysd_allocate_available(request, pp, avail)
+    pdim = pp.dims[-1]
+    ptype = np.asanyarray(pp.isel({{pdim: 0}}))
+    width = np.asanyarray(pp.isel({{pdim: 2}}), dtype=float)
+    widths = np.unique(np.round(width[np.isfinite(width)], 6))
+    if not (ptype.size and np.all(ptype == 1) and widths.size == 1):
+        return _pysd_allocate_available(request, pp, avail)
+    priority = pp.isel({{pdim: 1}})
+    w = float(widths[0])
+    width_b = (xr.zeros_like(avail) + w) if hasattr(avail, "dims") else w
+    return _pysd_allocate_by_priority(request, priority, width_b, avail)
 '''
 
 
@@ -57,7 +70,7 @@ def main():
     if IMPORT_LINE not in src:
         raise SystemExit(f"Import di allocate_available non trovato in {PY.name}")
     PY.write_text(src.replace(IMPORT_LINE, WRAPPER, 1), encoding="utf-8")
-    print(f"{PY.name}: ALLOCATE AVAILABLE ora azzera le richieste negative.")
+    print(f"{PY.name}: ALLOCATE AVAILABLE allineato a Vensim (clip + merito rettangolare).")
 
 
 if __name__ == "__main__":
