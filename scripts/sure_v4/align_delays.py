@@ -104,7 +104,7 @@ def validate(original, directory):
         ROOT / "benchmarks/julia-parametric/worker.jl")}
     artifacts = {str(p.relative_to(directory)): digest(p) for p in sorted(directory.rglob("*"))
                  if p.is_file() and p.suffix in {".json", ".npz", ".bin", ".jl"}
-                 and p.name not in {"validation.json", "evidence.json"}}
+                 and p.name not in {"validation.json", "evidence.json", "summary.json"}}
     dump(directory / "evidence.json", {"implementation": implementation, "artifacts": artifacts})
     report["evidence_sha256"] = digest(directory / "evidence.json")
     dump(directory / "validation.json", report)
