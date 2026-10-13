@@ -1,4 +1,4 @@
-"""Regression checks against the actual v5 source and physical acceptance gate."""
+"""Regression checks against the actual v6 source and physical acceptance gate."""
 import ast
 from pathlib import Path
 import tempfile
@@ -23,6 +23,40 @@ def source_function(name, environment):
 
 
 class StockLimitsTests(unittest.TestCase):
+    def test_zero_substitutions_do_not_empty_a_heating_category(self):
+        from pysd.py_backend.functions import if_then_else, sum as pysd_sum
+        coords = {"District": ["A"], "HS": ["HeatPump", "Oil"],
+                  "Performance": ["VeryLow"], "Type": ["SFH"],
+                  "PVpanel": ["PVyes", "PVno"], "Battery": ["Byes", "Bno"]}
+        stock = xr.DataArray(np.full((1, 2, 1, 1, 2, 2), 5.), dims=list(coords), coords=coords)
+        function = source_function("equivalent_lifetime", {
+            "_subscript_dict": coords, "heating_solution": lambda: stock,
+            "hs_substituted": lambda: xr.DataArray([0., 2.], dims=["HS"], coords={"HS": coords["HS"]}),
+            "sum": pysd_sum, "if_then_else": if_then_else,
+        })
+        np.testing.assert_array_equal(function(), [1e6, 10.])
+
+    def test_equipped_demolition_is_paired_and_cannot_empty_more_than_the_pool(self):
+        from pysd.py_backend.functions import if_then_else, sum as pysd_sum
+        coords = {"District": ["A"], "HS": ["HeatPump"],
+                  "Performance": ["VeryLow"], "Type": ["SFH"],
+                  "PVpanel": ["PVyes", "PVno"], "Battery": ["Byes", "Bno"]}
+        demolition = xr.DataArray(np.zeros((1, 1, 1, 1, 2, 2)), dims=list(coords), coords=coords)
+        demolition.loc[dict(PVpanel="PVyes")] = 50.
+        names = [f"{owner}_buildings_with_{kind}" for owner in ["owned", "rented"] for kind in ["pv", "rcp", "rcpv"]]
+        pools = {name: float(i+1) for i, name in enumerate(names)}
+        total = sum(pools.values())
+        environment = {"_subscript_dict": coords, "sum": pysd_sum, "if_then_else": if_then_else,
+                       "building_demolition_by_archetype": lambda: demolition,
+                       "equipped_buildings": lambda: total,
+                       **{name: (lambda value=value: value) for name, value in pools.items()}}
+        actual = [source_function(name+"_demolished", environment)().item() for name in names]
+        np.testing.assert_array_equal(actual, list(pools.values()))
+        self.assertEqual(sum(actual), total)
+        environment["equipped_buildings"] = lambda: 0.
+        for name in names:
+            self.assertEqual(source_function(name+"_demolished", environment)().item(), 0.)
+
     def test_heating_replacement_uses_only_remaining_stock(self):
         stock = xr.DataArray([10., 10., 10.], dims=["HS"])
         function = source_function("consumers_leaving_hs_for_old_age", {

@@ -1,4 +1,4 @@
-# SURE v5 production backend
+# SURE v6 production backend
 
 Implementation branch: `julia-production`, based on main
 `17db1f4245c6bb0e8ef41a4cac5e8d3a6817cac6`; the validated experiments were
@@ -8,8 +8,8 @@ are excluded from the application image.
 ## Execution contract
 
 `SURE_BACKEND=julia` is the application default; `SURE_BACKEND=python`
-selects the independent PySD 3.14.3 implementation. Both use the upstream v5
-equations from commit `bf39813` without the provisional v4 stock-flow patch,
+selects the independent PySD 3.14.3 implementation. Both use the upstream v6
+equations from commit `9080f62` without the provisional v4 stock-flow patch,
 calibrated constants, synchronous pre-step DELAY FIXED inputs, Float64 and
 fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
@@ -95,7 +95,7 @@ dataset.
 
 For the previous `v0.1.1` image, also restore its model selection:
 `SENECA_IMAGE_TAG=v0.1.1 SURE_VARIANT=v3 SURE_BACKEND=python docker compose -f docker-compose.prod.yml up -d`.
-Current images require v5; the variant override exists to make old-image
+Current images require v6; the variant override exists to make old-image
 rollback explicit, not to run the production Julia backend against v3.
 
 ## Historical validation of the original, unbounded v4
@@ -190,7 +190,7 @@ after 160 successful cases when the owner confirmed the original negative
 stocks in native Vensim and supplied a corrected source. These experimental
 equations are retained for investigation only and are not used by production.
 
-## Current upstream v5
+## Historical upstream v5
 
 Commit `bf39813` supplies the updated `Vensim/SURE.mdl`, its translated
 `SURE_pysd_v5.mdl`/`.py`, CSV inputs and calibrated constants. CSV contents and
@@ -216,3 +216,16 @@ the first exact transition and all 40 inputs are recorded in
 Regeneration and release remain blocked. Failed arrays are saved for diagnosis
 without weakening the physical gate. The v5 targeted translator suite passes;
 neither the full v5 suite nor a replacement dataset is certified.
+
+## Current upstream v6
+
+Commit `9080f62` adds nonnegative requests for all six PV/RCP/RCPv adoption
+flows and demolition withdrawals from the six owner/renter equipped-building
+stocks. When HS substitutions are at most 0.001, the equivalent lifetime now
+uses 1,000,000 years instead of one year. CSV inputs and calibrated constants
+are byte-identical to v5. Saved scenario defaults are still overridden by
+all 40 explicit application parameters.
+
+The production profile is `sure-v6-9080f62`. Prior certificates cannot certify
+this revision. The v6 numerical and physical validation is pending; no new
+dataset or code release is authorized by a historical passing result.

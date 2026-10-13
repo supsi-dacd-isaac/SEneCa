@@ -6,8 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
-MODEL_VARIANT = "v5"
-MODEL_REVISION = "sure-v5-bf39813"
+MODEL_VARIANT = "v6"
+MODEL_REVISION = "sure-v6-9080f62"
 MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
 MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
 CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"

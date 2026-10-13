@@ -22,7 +22,7 @@ services:
       no_proxy: ${no_proxy:-${NO_PROXY:-}}
       # Letta da pv_batteries/sd_explainer/loaders.py (poi, in fallback, da /app/.env).
       CARTO_API_KEY: ${CARTO_API_KEY:-}
-      SURE_VARIANT: ${SURE_VARIANT:-v5}
+      SURE_VARIANT: ${SURE_VARIANT:-v6}
       SURE_BACKEND: ${SURE_BACKEND:-julia}
       PYTHONPATH: /app
       STREAMLIT_SERVER_PORT: 8501

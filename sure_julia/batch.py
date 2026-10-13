@@ -227,7 +227,7 @@ def consolidate(directory, planned):
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/scenarios.parquet"),
         "numerical_tolerance": {"atol_scale": 1e-10, "rtol": 1e-8},
-        "reference": "SURE v5; synchronous DELAY FIXED; exact allocation",
+        "reference": "SURE v6; synchronous DELAY FIXED; exact allocation",
         "native_vensim_equivalent": False,
         "legacy_vensim_files": "Historical input/reference archives retained from data-v1.0.0; not Julia outputs"})
 

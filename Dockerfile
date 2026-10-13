@@ -16,7 +16,7 @@ RUN git clone https://github.com/SDXorg/pysd.git /opt/pysd && \
     git -C /opt/pysd -c submodule.pysd/builders/julia/PySD.jl.url=https://github.com/rogersamso/PySD.jl.git submodule update --init pysd/builders/julia/PySD.jl && \
     test "$(git -C /opt/pysd/pysd/builders/julia/PySD.jl rev-parse HEAD)" = abe4251fe91734f83776a9c782088d3a2f09dc57 && \
     python -m venv --system-site-packages /opt/translator && /opt/translator/bin/pip install --no-deps -e /opt/pysd
-ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 SURE_VARIANT=v5 JULIA_DEPOT_PATH=/runtime/julia-depot
+ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 SURE_VARIANT=v6 JULIA_DEPOT_PATH=/runtime/julia-depot
 WORKDIR /app
 
 FROM runtime AS model-builder

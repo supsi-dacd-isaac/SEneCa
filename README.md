@@ -8,7 +8,7 @@ bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
 Il modello è sviluppato in Vensim e tradotto con
 [PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
-simulazioni live di SURE v5 con Julia; il backend Python resta selezionabile.
+simulazioni live di SURE v6 con Julia; il backend Python resta selezionabile.
 
 ## Riconoscimenti
 
@@ -90,7 +90,7 @@ Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
 una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.2.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 usa v5.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 usa v6.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
