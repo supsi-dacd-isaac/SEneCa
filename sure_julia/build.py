@@ -25,9 +25,10 @@ def build(target):
     target.mkdir(parents=True, exist_ok=True)
     dump(target / "build.json", {"complete": False})
     checkout = Path(__import__("pysd").__file__).resolve().parents[1]
-    if subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=checkout, text=True).strip() != "8991d119e139029d4dec712d257cf5fcc3549b8f":
+    git = ["git", "-c", f"safe.directory={checkout}"]
+    if subprocess.check_output(git + ["rev-parse", "HEAD"], cwd=checkout, text=True).strip() != "8991d119e139029d4dec712d257cf5fcc3549b8f":
         raise ValueError("Wrong translator revision")
-    if subprocess.check_output(["git", "diff", "--name-only"], cwd=checkout, text=True).strip():
+    if subprocess.check_output(git + ["diff", "--name-only"], cwd=checkout, text=True).strip():
         raise ValueError("Translator checkout must be clean")
     variables, dimensions = inventory()
     requested = outputs()

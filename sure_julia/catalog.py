@@ -55,7 +55,8 @@ def outputs():
     from pv_batteries import exploratory_config as exp, pv_batteries_config as pv, risanamento_config as ris
     policy = read(Path(__file__).with_name("translation-policy.json"))
     native = read(ROOT / "Vensim_test_runs/inputs.json")
-    extra = ["Electricity supply", "Hourly demand and PHS", "Priority vector by supplier",
+    extra = ["Hourly demand and PHS", "Priority vector by supplier", "Marginal cost by supplier",
+             "Hourly imported electricity", "PHS hourly supply", "Hour factor PHS consumption",
              "Seasonal PHS monthly demand", "Seasonal PHS monthly production",
              "Seasonal PHS hourly demand", "Seasonal PHS hourly production"]
     return list(dict.fromkeys(list(OUTPUTS) + policy["diagnostics"] + native["output_bases"] + extra
