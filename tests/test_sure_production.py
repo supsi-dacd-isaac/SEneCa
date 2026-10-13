@@ -65,6 +65,18 @@ class ProductionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 backend_name()
 
+    def test_model_location_changes_the_live_cache_identity(self):
+        from sure_backend import engine_identity
+        with tempfile.TemporaryDirectory() as temporary:
+            directories = [Path(temporary) / name for name in ("first", "second")]
+            for directory in directories:
+                directory.mkdir()
+                (directory / "build.json").write_text("same manifest")
+            with patch.dict(os.environ, {"SURE_BACKEND": "julia", "SURE_JULIA_MODEL": str(directories[0])}):
+                first = engine_identity()
+            with patch.dict(os.environ, {"SURE_BACKEND": "julia", "SURE_JULIA_MODEL": str(directories[1])}):
+                self.assertNotEqual(first, engine_identity())
+
     def test_unresponsive_worker_is_reaped_after_timeout(self):
         # A real subprocess exercises pipe ownership and timeout cleanup without
         # requiring Julia or an expensive model compilation in unit tests.

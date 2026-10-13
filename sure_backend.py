@@ -1,5 +1,6 @@
 """Shared live-simulation interface; engine choice never changes implicitly."""
 import os
+from pathlib import Path
 
 from sure_julia.common import ROOT, digest, identity, read
 from sure_pysd import OUTPUTS
@@ -14,8 +15,10 @@ def backend_name():
 
 def engine_identity():
     name = backend_name()
-    model = ROOT / "sure_julia/generated/build.json" if name == "julia" else ROOT / "Vensim/SURE_pysd_v4.py"
+    directory = Path(os.environ.get("SURE_JULIA_MODEL", ROOT / "sure_julia/generated")).resolve()
+    model = directory / "build.json" if name == "julia" else ROOT / "Vensim/SURE_pysd_v4.py"
     return identity({"backend": name, "model": digest(model), "data": read(ROOT / "data-release.json"),
+                     "model_path": str(model), "julia_command": os.environ.get("SURE_JULIA_BIN", "julia") if name == "julia" else None,
                      "calibration": digest(ROOT / "constants_ref_v4.pkl"),
                      "runtime": {p.name: digest(p) for p in (ROOT / "sure_julia").glob("*.py")}})
 
