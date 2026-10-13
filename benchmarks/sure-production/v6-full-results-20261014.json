@@ -1,0 +1,4506 @@
+{
+  "source_commit": "9080f62",
+  "production_commit": "e3d33ad",
+  "model_revision": "sure-v6-9080f62",
+  "run_directory": "/runs/v6-diagnostic-full-001",
+  "complete": true,
+  "pass": false,
+  "cases": 318,
+  "accepted": 169,
+  "failed": 149,
+  "gates": {
+    "comparison": {
+      "passed": 318,
+      "failed": []
+    },
+    "python_energy": {
+      "passed": 318,
+      "failed": []
+    },
+    "julia_energy": {
+      "passed": 318,
+      "failed": []
+    },
+    "python_physical": {
+      "passed": 169,
+      "failed": [
+        "base",
+        "01_base",
+        "05_heat_max",
+        "06_heat_min",
+        "07_vehicles_max",
+        "08_vehicles_min",
+        "09_hydro_on",
+        "lever_00_0",
+        "lever_00_1",
+        "lever_01_0",
+        "lever_02_0",
+        "lever_02_1",
+        "lever_03_1",
+        "lever_04_0",
+        "lever_04_1",
+        "lever_05_0",
+        "lever_06_0",
+        "lever_06_1",
+        "lever_07_0",
+        "lever_07_1",
+        "lever_08_0",
+        "lever_08_1",
+        "lever_09_0",
+        "lever_09_1",
+        "lever_10_0",
+        "lever_10_1",
+        "lever_11_0",
+        "lever_11_1",
+        "lever_11_2",
+        "lever_12_0",
+        "lever_12_1",
+        "lever_13_0",
+        "lever_13_1",
+        "lever_14_0",
+        "lever_14_1",
+        "lever_15_0",
+        "lever_15_1",
+        "lever_16_0",
+        "lever_16_1",
+        "lever_17_0",
+        "lever_17_1",
+        "lever_18_0",
+        "lever_18_1",
+        "lever_19_0",
+        "lever_19_1",
+        "policy_000",
+        "policy_002",
+        "policy_004",
+        "policy_006",
+        "policy_008",
+        "policy_010",
+        "policy_012",
+        "policy_014",
+        "policy_016",
+        "policy_018",
+        "policy_020",
+        "policy_022",
+        "policy_024",
+        "policy_026",
+        "policy_028",
+        "policy_030",
+        "policy_032",
+        "policy_034",
+        "policy_036",
+        "policy_038",
+        "policy_040",
+        "policy_042",
+        "policy_046",
+        "policy_048",
+        "policy_050",
+        "policy_052",
+        "policy_054",
+        "policy_056",
+        "policy_058",
+        "policy_062",
+        "uncertainty_00_0",
+        "uncertainty_01_0",
+        "uncertainty_02_0",
+        "uncertainty_02_1",
+        "uncertainty_03_0",
+        "uncertainty_03_1",
+        "uncertainty_04_1",
+        "uncertainty_05_0",
+        "uncertainty_05_1",
+        "uncertainty_06_0",
+        "uncertainty_06_1",
+        "uncertainty_07_0",
+        "uncertainty_07_1",
+        "uncertainty_08_0",
+        "uncertainty_08_1",
+        "uncertainty_09_0",
+        "uncertainty_09_1",
+        "uncertainty_10_0",
+        "uncertainty_10_1",
+        "uncertainty_11_0",
+        "uncertainty_11_1",
+        "uncertainty_12_0",
+        "uncertainty_12_1",
+        "uncertainty_13_0",
+        "uncertainty_13_1",
+        "uncertainty_14_0",
+        "uncertainty_14_1",
+        "uncertainty_15_0",
+        "uncertainty_15_1",
+        "uncertainty_16_0",
+        "uncertainty_16_1",
+        "sample_min_00",
+        "sample_min_01",
+        "sample_min_02",
+        "sample_min_03",
+        "sample_min_04",
+        "sample_min_05",
+        "sample_min_06",
+        "sample_min_07",
+        "sample_min_08",
+        "sample_min_10",
+        "sample_min_12",
+        "sample_min_13",
+        "sample_min_14",
+        "sample_min_15",
+        "sample_min_16",
+        "sample_min_17",
+        "sample_min_18",
+        "sample_min_19",
+        "sample_min_20",
+        "sample_min_21",
+        "sample_min_22",
+        "sample_min_23",
+        "sample_min_25",
+        "sample_min_26",
+        "sample_min_27",
+        "sample_min_29",
+        "sample_min_31",
+        "sample_min_32",
+        "sample_min_33",
+        "sample_min_34",
+        "sample_min_35",
+        "sample_min_36",
+        "sample_min_37",
+        "sample_min_38",
+        "sample_min_39",
+        "sample_min_40",
+        "sample_min_41",
+        "sample_min_42",
+        "sample_min_43",
+        "sample_min_44",
+        "sample_min_45",
+        "sample_min_46",
+        "sample_min_48"
+      ]
+    },
+    "julia_physical": {
+      "passed": 169,
+      "failed": [
+        "base",
+        "01_base",
+        "05_heat_max",
+        "06_heat_min",
+        "07_vehicles_max",
+        "08_vehicles_min",
+        "09_hydro_on",
+        "lever_00_0",
+        "lever_00_1",
+        "lever_01_0",
+        "lever_02_0",
+        "lever_02_1",
+        "lever_03_1",
+        "lever_04_0",
+        "lever_04_1",
+        "lever_05_0",
+        "lever_06_0",
+        "lever_06_1",
+        "lever_07_0",
+        "lever_07_1",
+        "lever_08_0",
+        "lever_08_1",
+        "lever_09_0",
+        "lever_09_1",
+        "lever_10_0",
+        "lever_10_1",
+        "lever_11_0",
+        "lever_11_1",
+        "lever_11_2",
+        "lever_12_0",
+        "lever_12_1",
+        "lever_13_0",
+        "lever_13_1",
+        "lever_14_0",
+        "lever_14_1",
+        "lever_15_0",
+        "lever_15_1",
+        "lever_16_0",
+        "lever_16_1",
+        "lever_17_0",
+        "lever_17_1",
+        "lever_18_0",
+        "lever_18_1",
+        "lever_19_0",
+        "lever_19_1",
+        "policy_000",
+        "policy_002",
+        "policy_004",
+        "policy_006",
+        "policy_008",
+        "policy_010",
+        "policy_012",
+        "policy_014",
+        "policy_016",
+        "policy_018",
+        "policy_020",
+        "policy_022",
+        "policy_024",
+        "policy_026",
+        "policy_028",
+        "policy_030",
+        "policy_032",
+        "policy_034",
+        "policy_036",
+        "policy_038",
+        "policy_040",
+        "policy_042",
+        "policy_046",
+        "policy_048",
+        "policy_050",
+        "policy_052",
+        "policy_054",
+        "policy_056",
+        "policy_058",
+        "policy_062",
+        "uncertainty_00_0",
+        "uncertainty_01_0",
+        "uncertainty_02_0",
+        "uncertainty_02_1",
+        "uncertainty_03_0",
+        "uncertainty_03_1",
+        "uncertainty_04_1",
+        "uncertainty_05_0",
+        "uncertainty_05_1",
+        "uncertainty_06_0",
+        "uncertainty_06_1",
+        "uncertainty_07_0",
+        "uncertainty_07_1",
+        "uncertainty_08_0",
+        "uncertainty_08_1",
+        "uncertainty_09_0",
+        "uncertainty_09_1",
+        "uncertainty_10_0",
+        "uncertainty_10_1",
+        "uncertainty_11_0",
+        "uncertainty_11_1",
+        "uncertainty_12_0",
+        "uncertainty_12_1",
+        "uncertainty_13_0",
+        "uncertainty_13_1",
+        "uncertainty_14_0",
+        "uncertainty_14_1",
+        "uncertainty_15_0",
+        "uncertainty_15_1",
+        "uncertainty_16_0",
+        "uncertainty_16_1",
+        "sample_min_00",
+        "sample_min_01",
+        "sample_min_02",
+        "sample_min_03",
+        "sample_min_04",
+        "sample_min_05",
+        "sample_min_06",
+        "sample_min_07",
+        "sample_min_08",
+        "sample_min_10",
+        "sample_min_12",
+        "sample_min_13",
+        "sample_min_14",
+        "sample_min_15",
+        "sample_min_16",
+        "sample_min_17",
+        "sample_min_18",
+        "sample_min_19",
+        "sample_min_20",
+        "sample_min_21",
+        "sample_min_22",
+        "sample_min_23",
+        "sample_min_25",
+        "sample_min_26",
+        "sample_min_27",
+        "sample_min_29",
+        "sample_min_31",
+        "sample_min_32",
+        "sample_min_33",
+        "sample_min_34",
+        "sample_min_35",
+        "sample_min_36",
+        "sample_min_37",
+        "sample_min_38",
+        "sample_min_39",
+        "sample_min_40",
+        "sample_min_41",
+        "sample_min_42",
+        "sample_min_43",
+        "sample_min_44",
+        "sample_min_45",
+        "sample_min_46",
+        "sample_min_48"
+      ]
+    },
+    "warnings": {
+      "passed": 318,
+      "failed": []
+    }
+  },
+  "compared_cells": 1811213520,
+  "failed_checks": {
+    "nonnegative:Heating Solution": 147,
+    "nonnegative:Annual archetypes": 147,
+    "nonnegative:Building demolition by archetype": 149,
+    "nonnegative:Buildings HS Renovation From": 147,
+    "nonnegative:Buildings HS Renovation To": 146
+  },
+  "cases_summary": [
+    {
+      "case": "base",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "regression_negative_stock",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "low",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.7763568394002505e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "mid",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.469446951953614e-18,
+      "minimum_weight": -2.983724378680108e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "high",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -1.3877787807814457e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "01_base",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "02_pv_max",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "03_pv_min",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "04_fit_005",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "05_heat_max",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.0982645139534966e-06,
+      "minimum_weight": -2.196529027906993e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "06_heat_min",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.7583977511616134e-06,
+      "minimum_weight": -3.516795502323227e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "07_vehicles_max",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6112671505731876e-06,
+      "minimum_weight": -5.222534301146375e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "08_vehicles_min",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.57849472777086e-06,
+      "minimum_weight": -5.15698945554172e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "09_hydro_on",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3845584435745708e-06,
+      "minimum_weight": -2.7691168871491416e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "10_mixed",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3877787807814457e-17,
+      "minimum_weight": -2.7755575615628914e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "lever_00_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.460169926339234e-07,
+      "minimum_weight": -1.4920339852678469e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_00_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.5892833391037235e-06,
+      "minimum_weight": -9.178566678207447e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_01_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_01_1",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "lever_02_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_02_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.5022293024499485e-06,
+      "minimum_weight": -3.004458604899897e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_03_0",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "lever_03_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.064171510023445e-06,
+      "minimum_weight": -7.463472996744866e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_04_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.3772401965786304e-06,
+      "minimum_weight": -6.754480393157261e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_04_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_05_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_05_1",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.734723475976807e-18,
+      "minimum_weight": -1.491862189340054e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "lever_06_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.5108227059674504e-06,
+      "minimum_weight": -5.021645411934901e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_06_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.721674527370689e-06,
+      "minimum_weight": -5.443349054741378e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_07_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.662068582116535e-06,
+      "minimum_weight": -5.32413716423307e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_07_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.551033311409499e-06,
+      "minimum_weight": -5.102066622818998e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_08_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6165761846956915e-06,
+      "minimum_weight": -5.233152369391383e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_08_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.5863652363593334e-06,
+      "minimum_weight": -5.172730472718667e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_09_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.3694685755736706e-06,
+      "minimum_weight": -6.738937151147341e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_09_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.2339438312091799e-06,
+      "minimum_weight": -2.4678876624183598e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_10_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.4867236831021087e-06,
+      "minimum_weight": -2.9734473662042174e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_10_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.278949516788792e-06,
+      "minimum_weight": -4.557899033577584e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_11_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3270367183791978e-06,
+      "minimum_weight": -2.6540734367583955e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_11_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_11_2",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.7869533408824134e-06,
+      "minimum_weight": -5.573906681764827e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_12_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.5979331963602125e-06,
+      "minimum_weight": -5.195866392720425e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_12_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6232836728667565e-06,
+      "minimum_weight": -5.246567345733513e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_13_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6028644841155357e-06,
+      "minimum_weight": -5.2057289682310715e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_13_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.617286924600784e-06,
+      "minimum_weight": -5.234573849201568e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_14_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.606131016635943e-06,
+      "minimum_weight": -5.212262033271886e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_14_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6236146295326992e-06,
+      "minimum_weight": -5.2472292590653984e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_15_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_15_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6245580610757904e-06,
+      "minimum_weight": -5.249116122151581e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_16_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_16_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.135705384443098e-06,
+      "minimum_weight": -4.271410768886196e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_17_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_17_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.8945297977120021e-06,
+      "minimum_weight": -3.7890595954240043e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_18_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_18_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.4724585392264764e-06,
+      "minimum_weight": -4.944917078452953e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_19_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6023519876082936e-06,
+      "minimum_weight": -5.204703975216587e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "lever_19_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.4721503925024848e-06,
+      "minimum_weight": -4.9443007850049696e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_000",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.918192900927026e-07,
+      "minimum_weight": -9.83638580185405e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_001",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_002",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.357899826596708e-06,
+      "minimum_weight": -2.715799653193416e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_003",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_004",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.9106817157645477e-07,
+      "minimum_weight": -3.8213634315290954e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_005",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_006",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.004591233359655e-07,
+      "minimum_weight": -1.600918246671931e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_007",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_008",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.7789872844694606e-07,
+      "minimum_weight": -3.557974568938921e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_009",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_010",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.690744040376168e-07,
+      "minimum_weight": -1.1381488080752337e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_011",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_012",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3852322171016368e-08,
+      "minimum_weight": -2.7704644342032736e-08,
+      "physical_failed_checks": [
+        "nonnegative:Building demolition by archetype"
+      ]
+    },
+    {
+      "case": "policy_013",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3877787807814457e-17,
+      "minimum_weight": -1.3877787807814457e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_014",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.217210800385548e-07,
+      "minimum_weight": -4.434421600771096e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_015",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.1102230246251565e-16,
+      "minimum_weight": -1.1102230246251565e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_016",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.159110095403957e-07,
+      "minimum_weight": -1.0318220190807914e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_017",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_018",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3691676469543329e-06,
+      "minimum_weight": -2.7383352939086657e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_019",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.168404344971009e-19,
+      "minimum_weight": -1.734723475976807e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_020",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.0539370332334313e-07,
+      "minimum_weight": -4.1078740664668626e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_021",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_022",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.105564188278328e-07,
+      "minimum_weight": -1.6211128376556657e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_023",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_024",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.830118297429277e-07,
+      "minimum_weight": -3.660236594858554e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_025",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_026",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.746267558160408e-07,
+      "minimum_weight": -1.1492535116320816e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_027",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -7.892991815694472e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_028",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.003691295411369e-08,
+      "minimum_weight": -4.007382590822738e-08,
+      "physical_failed_checks": [
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From"
+      ]
+    },
+    {
+      "case": "policy_029",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -7.892991815694472e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_030",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.2891370735889435e-07,
+      "minimum_weight": -4.578274147177887e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_031",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -1.734723475976807e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_032",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.5293590288510077e-07,
+      "minimum_weight": -7.058718057702015e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_033",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_034",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.04322139638903e-06,
+      "minimum_weight": -2.08644279277806e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_035",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_036",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1610215093231826e-07,
+      "minimum_weight": -2.3220430186463653e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_037",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_038",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.800080487906822e-07,
+      "minimum_weight": -1.1600160975813644e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_039",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3877787807814457e-17,
+      "minimum_weight": -1.1934897514720432e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_040",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1083393367242991e-07,
+      "minimum_weight": -2.2166786734485982e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_041",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_042",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.7150126935095985e-07,
+      "minimum_weight": -7.430025387019197e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_043",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.7755575615628914e-17,
+      "minimum_weight": -2.7755575615628914e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_044",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_045",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_046",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1280823841927863e-07,
+      "minimum_weight": -2.2561647683855725e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_047",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_048",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.717039936486056e-07,
+      "minimum_weight": -7.434079872972112e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_049",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_050",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.0472321956144963e-06,
+      "minimum_weight": -2.0944643912289925e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_051",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_052",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.2820994850247996e-07,
+      "minimum_weight": -2.564198970049599e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_053",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_054",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.842350558752439e-07,
+      "minimum_weight": -1.1684701117504877e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_055",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -5.967448757360216e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_056",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1422116096561969e-07,
+      "minimum_weight": -2.2844232193123938e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_057",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -7.892991815694472e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_058",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.736863283476331e-07,
+      "minimum_weight": -7.473726566952662e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_059",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_060",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -4.529709940470638e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_061",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.336808689942018e-19,
+      "minimum_weight": -8.673617379884035e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_062",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1251177058941853e-07,
+      "minimum_weight": -2.2502354117883705e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "policy_063",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.469446951953614e-18,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_064",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -7.638334409421077e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_065",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_066",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.7763568394002505e-15,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_067",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_068",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_069",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_070",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_071",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -1.4876988529977098e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_072",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -4.529709940470638e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_073",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_074",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_075",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -4.529709940470638e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_076",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_077",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_078",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_079",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.469446951953614e-18,
+      "minimum_weight": -3.469446951953614e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_080",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_081",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.336808689942018e-19,
+      "minimum_weight": -8.673617379884035e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_082",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_083",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.7755575615628914e-17,
+      "minimum_weight": -2.3869795029440865e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_084",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_085",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_086",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_087",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_088",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_089",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_090",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.1102230246251565e-16,
+      "minimum_weight": -2.220446049250313e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_091",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3552527156068805e-20,
+      "minimum_weight": -2.710505431213761e-20,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_092",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -4.04121180963557e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_093",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -5.421010862427522e-20,
+      "minimum_weight": -3.63207727782644e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_094",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_095",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.7763568394002505e-15,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_096",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_097",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_098",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_099",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_100",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_101",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_102",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_103",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_104",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_105",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_106",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_107",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -2.220446049250313e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_108",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_109",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.168404344971009e-19,
+      "minimum_weight": -4.336808689942018e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_110",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -4.529709940470638e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_111",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3877787807814457e-17,
+      "minimum_weight": -2.7755575615628914e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_112",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_113",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_114",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_115",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -7.194245199571014e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_116",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_117",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.734723475976807e-18,
+      "minimum_weight": -1.491862189340054e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_118",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.7763568394002505e-15,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_119",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_120",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_121",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_122",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_123",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -5.551115123125783e-17,
+      "minimum_weight": -1.1102230246251565e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_124",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_125",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.336808689942018e-19,
+      "minimum_weight": -3.946495907847236e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_126",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "policy_127",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.0842021724855044e-19,
+      "minimum_weight": -4.0115480381963666e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "uncertainty_00_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.26325222396603e-06,
+      "minimum_weight": -6.52650444793206e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_00_1",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "uncertainty_01_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.114971249304981e-06,
+      "minimum_weight": -1.0229942498609963e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_01_1",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "uncertainty_02_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.048210228562232e-07,
+      "minimum_weight": -1.2096420457124464e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_02_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.943862618368112e-07,
+      "minimum_weight": -1.7887725236736223e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_03_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.49355108464951e-06,
+      "minimum_weight": -2.98710216929902e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_03_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.9965973130273983e-07,
+      "minimum_weight": -3.9931946260547965e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_04_0",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "uncertainty_04_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.0507173432723764e-05,
+      "minimum_weight": -1.4897172506800258e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_05_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.159113700465526e-07,
+      "minimum_weight": -1.2318227400931051e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_05_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.310858310479662e-07,
+      "minimum_weight": -1.6621716620959325e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_06_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.0787650168069493e-06,
+      "minimum_weight": -2.1575300336138987e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_06_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.6755184201525314e-07,
+      "minimum_weight": -9.351036840305063e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_07_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.58396705238655e-07,
+      "minimum_weight": -1.51679341047731e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_07_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.172949516693919e-07,
+      "minimum_weight": -1.4345899033387839e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_08_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -9.721996493348813e-07,
+      "minimum_weight": -1.9443992986697627e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_08_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.358876784097252e-07,
+      "minimum_weight": -1.2717753568194504e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_09_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.004959968305857e-07,
+      "minimum_weight": -1.4009919936611713e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_09_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.051105972721168e-07,
+      "minimum_weight": -1.6102211945442336e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_10_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.387364364508492e-07,
+      "minimum_weight": -1.4774728729016984e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_10_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.799707033015435e-07,
+      "minimum_weight": -5.59941406603087e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_11_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.470394240881887e-07,
+      "minimum_weight": -1.6940788481763774e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_11_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.670257195022632e-07,
+      "minimum_weight": -1.3340514390045263e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_12_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.8856619709934224e-07,
+      "minimum_weight": -3.771323941986845e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_12_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.047788613538359e-07,
+      "minimum_weight": -1.6095577227076719e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_13_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.3790698519787432e-07,
+      "minimum_weight": -4.7581397039574864e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_13_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.665879702406595e-07,
+      "minimum_weight": -1.333175940481319e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_14_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.803897911340602e-07,
+      "minimum_weight": -1.3607795822681204e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_14_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.146401893697381e-07,
+      "minimum_weight": -1.6292803787394763e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_15_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.392213521722036e-07,
+      "minimum_weight": -1.6784427043444072e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_15_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.8712236140126062e-07,
+      "minimum_weight": -3.7424472280252123e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_16_0",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.0653191886798235e-06,
+      "minimum_weight": -2.130638377359647e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "uncertainty_16_1",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3124565239399588e-07,
+      "minimum_weight": -2.6249130478799177e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_00",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.512693671891163e-06,
+      "minimum_weight": -5.025387343782326e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_01",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.721515526779907e-06,
+      "minimum_weight": -1.093977472127795e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_02",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.2927126282034363e-06,
+      "minimum_weight": -4.585425256406873e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_03",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.409348513358026e-06,
+      "minimum_weight": -4.818697026716052e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_04",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.9092476519370086e-06,
+      "minimum_weight": -3.818495303874017e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_05",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -7.750145643983724e-06,
+      "minimum_weight": -8.656198978672392e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_06",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.6313959543812338e-06,
+      "minimum_weight": -3.2627919087624675e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_07",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.3188690118292818e-07,
+      "minimum_weight": -4.6377380236585635e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_08",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.002959952659197e-06,
+      "minimum_weight": -4.005919905318394e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_09",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -3.597122599785507e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_10",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.947906490845992e-06,
+      "minimum_weight": -1.2131726542811261e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_11",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_12",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.465381053905168e-05,
+      "minimum_weight": -3.465381053905168e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_13",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.3291666150271e-07,
+      "minimum_weight": -8.6583332300542e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_14",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.736475029611671e-07,
+      "minimum_weight": -1.1472950059223342e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_15",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.029020402196828e-06,
+      "minimum_weight": -1.2058040804393656e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_16",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -9.833246613973182e-06,
+      "minimum_weight": -1.632613089494802e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_17",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.7991716871659346e-06,
+      "minimum_weight": -3.598343374331869e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_18",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.1351701000961754e-06,
+      "minimum_weight": -4.270340200192351e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_19",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.2131693197901452e-05,
+      "minimum_weight": -1.5078816369249022e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_20",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.142096452428325e-07,
+      "minimum_weight": -1.028419290485665e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_21",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.3538741921253476e-06,
+      "minimum_weight": -2.707748384250695e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_22",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.049583887192419e-06,
+      "minimum_weight": -5.859260507027059e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_23",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.66871891479405e-06,
+      "minimum_weight": -7.3374378295881e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_24",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.08242361927114e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_25",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.411457183867936e-05,
+      "minimum_weight": -1.4693646858397504e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_26",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.45305152106906e-08,
+      "minimum_weight": -4.90610304213812e-08,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype"
+      ]
+    },
+    {
+      "case": "sample_min_27",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.6138287417655978e-06,
+      "minimum_weight": -5.2276574835311955e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_28",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_29",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -6.01579158545488e-07,
+      "minimum_weight": -1.203158317090976e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_30",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_31",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1595326092183487e-05,
+      "minimum_weight": -1.261355570191798e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_32",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -2.2399554955540982e-06,
+      "minimum_weight": -4.4799109911081964e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_33",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.6356217809513975e-06,
+      "minimum_weight": -9.172367316393366e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_34",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.962594177293263e-06,
+      "minimum_weight": -7.925188354586525e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_35",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.107767652190447e-07,
+      "minimum_weight": -6.215535304380894e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_36",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.17724291803067e-05,
+      "minimum_weight": -1.6613796928842838e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_37",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.52318327846502e-06,
+      "minimum_weight": -7.04636655693004e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_38",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -3.1281221234667956e-07,
+      "minimum_weight": -6.256244246933591e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_39",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.3455511047469573e-07,
+      "minimum_weight": -8.691102209493915e-07,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_40",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.982248462255495e-06,
+      "minimum_weight": -3.96449692451099e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_41",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.5903015959765924e-06,
+      "minimum_weight": -3.1806031919531847e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_42",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -5.919307331025865e-06,
+      "minimum_weight": -1.0590709299536723e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_43",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.1259620737652818e-06,
+      "minimum_weight": -2.2519241475305637e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_44",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -8.772524228282994e-07,
+      "minimum_weight": -1.7545048456565988e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_45",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -1.6009673186511884e-05,
+      "minimum_weight": -1.7512177234746693e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_46",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -4.151173438268858e-06,
+      "minimum_weight": -8.302346876537716e-06,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_47",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_min_48",
+      "pass": false,
+      "numerical_pass": true,
+      "minimum_stock": -9.849848197003075e-06,
+      "minimum_weight": -1.3442496486483945e-05,
+      "physical_failed_checks": [
+        "nonnegative:Heating Solution",
+        "nonnegative:Annual archetypes",
+        "nonnegative:Building demolition by archetype",
+        "nonnegative:Buildings HS Renovation From",
+        "nonnegative:Buildings HS Renovation To"
+      ]
+    },
+    {
+      "case": "sample_min_49",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_00",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.710505431213761e-20,
+      "minimum_weight": -5.421010862427522e-20,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_01",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.1102230246251565e-16,
+      "minimum_weight": -1.1102230246251565e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_02",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_03",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_04",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.3877787807814457e-17,
+      "minimum_weight": -1.3877787807814457e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_05",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -8.215650382226159e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_06",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -2.264854970235319e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_07",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -7.025630077706068e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_08",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_09",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_10",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -7.892991815694472e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_11",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.168404344971009e-19,
+      "minimum_weight": -1.1058862159352144e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_12",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_13",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_14",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -4.04121180963557e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_15",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_16",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_17",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_18",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_19",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_20",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_21",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.673617379884035e-19,
+      "minimum_weight": -1.734723475976807e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_22",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_23",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_24",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_25",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_26",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -6.938893903907228e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_27",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -5.421010862427522e-20,
+      "minimum_weight": -4.391018798566293e-19,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_28",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.1102230246251565e-16,
+      "minimum_weight": -4.773959005888173e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_29",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -1.4876988529977098e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_30",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_31",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_32",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_33",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_34",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_35",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -3.552713678800501e-15,
+      "minimum_weight": -3.552713678800501e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_36",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_37",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_38",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -5.551115123125783e-17,
+      "minimum_weight": -1.1102230246251565e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_39",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_40",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -8.881784197001252e-16,
+      "minimum_weight": -8.881784197001252e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_41",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.7763568394002505e-15,
+      "minimum_weight": -1.7763568394002505e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_42",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -5.551115123125783e-17,
+      "minimum_weight": -5.551115123125783e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_43",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -6.938893903907228e-18,
+      "minimum_weight": -1.3877787807814457e-17,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_44",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": 0.0,
+      "minimum_weight": 0.0,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_45",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.336808689942018e-19,
+      "minimum_weight": -3.469446951953614e-18,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_46",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -4.440892098500626e-16,
+      "minimum_weight": -4.04121180963557e-15,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_47",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -1.1102230246251565e-16,
+      "minimum_weight": -2.220446049250313e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_48",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    },
+    {
+      "case": "sample_max_49",
+      "pass": true,
+      "numerical_pass": true,
+      "minimum_stock": -2.220446049250313e-16,
+      "minimum_weight": -4.440892098500626e-16,
+      "physical_failed_checks": []
+    }
+  ],
+  "evidence": {
+    "manifest.json": "3f98bc521b8557ec5aff515f82fa39a21ebbcec4bc66fd23698fc21e2d797ffd",
+    "summary.json": "74d0bd1fcac3ec018d047b14bd486ed67a67d93d953bc603b51e1bcd18aeeea3",
+    "base/report.json": "1f8bc4bd46ff2134da5e276363553d5c070c5a6d58ff304b8f76a149e1d45d98",
+    "base/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "regression_negative_stock/report.json": "3b8200514ba582d6f1e1cb9342720a1f79fd263811ab989270ab137f78f1789e",
+    "regression_negative_stock/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "low/report.json": "92826df67274b27303dd6ea2f925b53abca4838b3b92eb7e6b9ac41ddd580e38",
+    "low/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "mid/report.json": "72c421d80e66ebccb9f602fa4da9e1400697a00f5b89706ecda78de2932e7a06",
+    "mid/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "high/report.json": "11d488d1cb9053d519bb5822137bd82faa55c33460146b728fe449bbf5c2497d",
+    "high/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "01_base/report.json": "35d17ac38cb8448be9c9fc23f72c354f1975cf4c33790a265b0523f8f80ccb31",
+    "01_base/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "02_pv_max/report.json": "5c3baf451f4a5c54b6408d7e1ab45fc1d4ab634c515d1ad91567416326aa74de",
+    "02_pv_max/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "03_pv_min/report.json": "1f99e9a3123c4a5587e30d64c11dd95c6d835731b19aa29ae1f7e4ca208a878c",
+    "03_pv_min/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "04_fit_005/report.json": "3ecdba5f8baaf81a5193b4c10d1eb6af05e6dcf8619d386be3bff3d53dc1b643",
+    "04_fit_005/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "05_heat_max/report.json": "44ae8243b5d6c65f63d3b34024e1facfc6df2b6646fc576210c8d32efb7526fc",
+    "05_heat_max/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "06_heat_min/report.json": "c46724d7546a914e376987b1171c0997a0e23ef67ee9e77b8389152b4f23de3f",
+    "06_heat_min/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "07_vehicles_max/report.json": "a9098567c7de9313f8812825d333cd793df4bfd2514f9f24e3d6af788a006f4d",
+    "07_vehicles_max/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "08_vehicles_min/report.json": "28460e224eb2f3539b1df8e6dadb6e7da4150c2522dfcfde2a9a81d40393288c",
+    "08_vehicles_min/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "09_hydro_on/report.json": "69680da22d33750082c0204867301bbe6f009d792a0610fec6efd0f176ebc9e3",
+    "09_hydro_on/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "10_mixed/report.json": "40f023ee4acde4e669e4f19d2e2dcdaa0a3b8387f3cf122676ffaf5f052ff435",
+    "10_mixed/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_00_0/report.json": "6119651eaa2b3d5dc50fe41e7c99cdcfb3ba975eb4b9daf10d6fd902fba0e316",
+    "lever_00_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_00_1/report.json": "2ca99086d84e18e9c922c348094fa93248a4e27691d2fbe1a6c90edfcc10021a",
+    "lever_00_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_01_0/report.json": "7c445606630bf8221b65cdb7f55368a7fe0e7fd61f434732ba43e92c2af7afd8",
+    "lever_01_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_01_1/report.json": "105ef41b97819413517393ce756f8024d0e19216d6858a430c7c079960614950",
+    "lever_01_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_02_0/report.json": "b045ace72cbc39d54f0d941ca422e1f6d0b1a98fb68a5644a075b4464e1cb200",
+    "lever_02_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_02_1/report.json": "7c1193696cd2bd02037a5e29ded3b14b1a3f27e882625554384708c5c1ff523c",
+    "lever_02_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_03_0/report.json": "e75af0a1673c1e1d4630c2478a8a2e19bd24c8b71cffcd8de764795a2ad19f5e",
+    "lever_03_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_03_1/report.json": "a29ee594efb5716ff9cbf2bd997a6897ad296599059b8c05af71596f2c771e9f",
+    "lever_03_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_04_0/report.json": "029b813e837928beec20d306a943977aa3ca9fc13e4ec382c3729fe9070ff824",
+    "lever_04_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_04_1/report.json": "cacaa528905191170e1397914c9419aaa6783c054fb69230ebc48321d84e89bf",
+    "lever_04_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_05_0/report.json": "88aa683a565718086fec18883f17cb96bd165dbdc6c2f03106c33b731edd8adb",
+    "lever_05_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_05_1/report.json": "818cfaba98111459122c0f68826a2ecc2b9a3db147b68e23c46f3ffed9bdb0ba",
+    "lever_05_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_06_0/report.json": "32e4daf433380cdf9be172bbb1b8866d0b4dc5b66cb6668ad695e2eaec7f84e5",
+    "lever_06_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_06_1/report.json": "47a7b60ef422610e896d76d4e7734cfbc9365f145a787a946dea3e6f99b9416d",
+    "lever_06_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_07_0/report.json": "1a9052e3295195311e85dbe8a158d6419118a37a4a660e97b20c1f7429d440e5",
+    "lever_07_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_07_1/report.json": "aa300d3437eadb19be33bc74398666f69a39ed93b37084efa7ecc929b9354436",
+    "lever_07_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_08_0/report.json": "d0e77a7bc45346890d7b901cfddb886d29a63a835e9c3d5700cf39b2a71da14f",
+    "lever_08_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_08_1/report.json": "f7516f51b79410b4fa0f21d82439bf1e39443b46c58aa4d818160eb1ad973789",
+    "lever_08_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_09_0/report.json": "2bfc07598d6a3115ab6fe47d07b2d6d060bd4530d8920f30a12d1bb578647a66",
+    "lever_09_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_09_1/report.json": "eb69fc2d06d69d94f52b86ddfd8dbab89b180ab5f3541ab392b9eca2ff4fbb5e",
+    "lever_09_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_10_0/report.json": "391350958968a6f467a20576851c682746e64a595d12d7900aa77a586306857b",
+    "lever_10_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_10_1/report.json": "b445b54c4f9288a519a4ff7526974c5d5155eed03f01a5f4e9ea76b2fe5d1551",
+    "lever_10_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_11_0/report.json": "b1eeab3abe1d3b76d57ef635926069d0d634e869a876571e5c67e5266b9efac1",
+    "lever_11_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_11_1/report.json": "159a5d277d3f7d79341bb889a87f1341c9f755e5bf19746cf60f1ab6c9547a8c",
+    "lever_11_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_11_2/report.json": "cddc8ee39c73423bfb22d367f371096d53f0338904da839c1264732404405c7c",
+    "lever_11_2/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_12_0/report.json": "87cfb6fe47dc3c6f2fc1bd9224f56ef9c8b1ffbd9996c4c1f86f4ea4600c19c9",
+    "lever_12_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_12_1/report.json": "61d2cdcaf24a8d6e481ec95f3fc0ff1696acd97e752ffd0a68a6c5733f171417",
+    "lever_12_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_13_0/report.json": "8eb19ab1ebf5dfc58d068cb1927d41e6a259533efe98fd96fe219f299bce4417",
+    "lever_13_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_13_1/report.json": "bc1cb29e90b9c6f8efcf273dd7c41b07e4623221c4b1a747fcce7bf8abc04d48",
+    "lever_13_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_14_0/report.json": "8eb47aec2146516c4646afbf4fa3454cd799cfeaa5f50cf1d608458aa786f590",
+    "lever_14_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_14_1/report.json": "c9ca17606f0005d7e6ff336b41eb161004094ef616cf5b8b19464f779ea0acfa",
+    "lever_14_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_15_0/report.json": "5789806782a2e0a550fdd3ad1fccac47bb18f82a3152564a82f7f6758865d19d",
+    "lever_15_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_15_1/report.json": "d01b9afde24a5a114b3f8fef5b2bee0f9a5970211e673d1dd48de7cd75c5dc86",
+    "lever_15_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_16_0/report.json": "03f0ff7681cd2afabff3f5accef41bd3e58c26671a59b9e8fc3897e2a845776d",
+    "lever_16_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_16_1/report.json": "f8fd4a9fb40a062062769fa621ab0d46745a71e1dd8f1ffa67bc530a4b14b2dd",
+    "lever_16_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_17_0/report.json": "d5c2b50bb5056578003e926345c42e17ce3bb7267ebc356483124434d649285d",
+    "lever_17_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_17_1/report.json": "c01546ee1b0439e48868abcb895f469f7cc69115f820de59bcab3420640a50d7",
+    "lever_17_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_18_0/report.json": "38ddc9412749f337febaec1190616d2be1978eccc4febb6a452c09bf1310dd29",
+    "lever_18_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_18_1/report.json": "97096d2d0a39a3a0e6a47e871dfc14b249c00761e54e42e13de9d27790832306",
+    "lever_18_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_19_0/report.json": "65df38840f24f282a7a78a81f979766b25cd32939d1c4d3476179cd1cb5222fe",
+    "lever_19_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "lever_19_1/report.json": "6b8a85361c1af74c54ca5b01b1c4751e77c8141120ddddb8a3d5bedb6c28ebcd",
+    "lever_19_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_000/report.json": "b9034984a454f0f2e4d3ca95e2cd6b13ace9f8be799f0d2b2377909cbaacc447",
+    "policy_000/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_001/report.json": "796bd4611fe50c2aaa3e325d031686ff793abb3005b07bd5b08730d145c419da",
+    "policy_001/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_002/report.json": "dc14db933b22ded83470ec61957efa07e44af85e40dd76c885b6e057a790c501",
+    "policy_002/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_003/report.json": "01deeacf08c71886e96e49437fba6d985ede127b69b6605e17489521b69a01bf",
+    "policy_003/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_004/report.json": "93013c067891e37bd9c5cd4ffe036994d0b4788cf8f61af19297704dfdc691b9",
+    "policy_004/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_005/report.json": "08d4eabbe353d7da16b1dd8f64c910687e854671dff6c98da35a67264be16896",
+    "policy_005/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_006/report.json": "3c9a81fe61de0e0883d216bf8bd41c96b97c2f82b436beba6e95ae04026ab6cc",
+    "policy_006/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_007/report.json": "d9531e68b8fb1f720aa6b7121530a5e3701e9b7d51ae59c83f2b1eb1a5198558",
+    "policy_007/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_008/report.json": "5e43515b924aebbaec6f8e2a685de48d88e36727f832a829068a74eb3ef84bc5",
+    "policy_008/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_009/report.json": "1fd659f1a11319dec4692cca2530ebd5c194619ec71e6f343ab26d859411a9e9",
+    "policy_009/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_010/report.json": "63d4d84df69492eecfb9c6cee1dba009c1faad663d49911432300554530947f5",
+    "policy_010/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_011/report.json": "d14ea1d5c8f86786761f6e9a3a78dd56e102ee6aaefcbd94a57c8558c55bb9de",
+    "policy_011/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_012/report.json": "0c0b48bc50d726db9d0baa6a6047e28a0e5f3e26f3bd60cc5617dab2811ebb56",
+    "policy_012/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_013/report.json": "fc88e2594e8aca07c19ce2443488f799974ed184a8e0ff7f70d97b70c8bf9bee",
+    "policy_013/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_014/report.json": "c0989c389dcee38433a544ff0e8e4ec00fa02df8fb178462883c96925dee0ce8",
+    "policy_014/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_015/report.json": "5f5e42d43ecb205a4718b96cf01c7f5d0234c08d2602be28680c15b0502eea81",
+    "policy_015/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_016/report.json": "bf9e7f4469ecd68fa15b3a5e697f0a1464ea47721c15b0fd99789888e77ae045",
+    "policy_016/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_017/report.json": "ca1c4c671b5fdab01c3d4ea6a0329d336a56f8a1739e5cd5deeba5e7ddb75ff4",
+    "policy_017/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_018/report.json": "a6e3335dd1ef376acc2a3c77f04ba940e1e077e915e26c44dcc56128dc0ebcef",
+    "policy_018/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_019/report.json": "edb79b756ac16758ec0676d4040396a1052a93644c9d3d7cac1849167f066b62",
+    "policy_019/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_020/report.json": "f8a52572f1404c814654f242df5190eb3626c51f53d9f1cf22c87a83b2c349be",
+    "policy_020/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_021/report.json": "8febe76f656e63cb2780fa7fff747e2245d55383feefe64ea56a6ff79b3c3e64",
+    "policy_021/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_022/report.json": "a92c7ab1def2be54ad7cfa0e90bafdbab21c6115532fb15a530b6948f46448de",
+    "policy_022/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_023/report.json": "3688b3bd62785a687dc483b8ae71d6262aa1b6afa0904ba6a986cd9b417e4cb9",
+    "policy_023/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_024/report.json": "5b862b2e506df59ee2ee61a679f4248ca6e14f09d60fea01c52b8812ef1235de",
+    "policy_024/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_025/report.json": "f099e8f1525e825e5a2f0e87813fdfe97effae65ce3c8ce5035e84c802fa75f0",
+    "policy_025/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_026/report.json": "afea1a6788bad89713f1efa93473c2263a32cb570bd562dd5c9189ea47d22fbd",
+    "policy_026/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_027/report.json": "f5b714b2774a4a2d9ee048099e3070745e585e56fb6916a372f511c92e0ed5dd",
+    "policy_027/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_028/report.json": "85bf175c80419fbc2b4a1cc440330007d0cf9f06a7702c010a6e66e27498c130",
+    "policy_028/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_029/report.json": "4648a36d63473b629c3cc54197d60172ebb916d44a884b9f3b724e83cccb6c46",
+    "policy_029/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_030/report.json": "bd5d26e855b4de65c13c04d5b75ef196667f155a674bf86df42e1c16ebb6f175",
+    "policy_030/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_031/report.json": "aeb3768af5563b06e668121d2514bd0f7c81cff04cdc92ed40a058b467fa1106",
+    "policy_031/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_032/report.json": "a70ee0567d395009087fb60bf061b625a323fb66ffb09a1ad21d9d6769cf7a8a",
+    "policy_032/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_033/report.json": "381827272321e46309e69903a6969c830b82170049980a6fb42c3b5870fe25ce",
+    "policy_033/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_034/report.json": "727ced5004b405c0d5d95a4cdfda8a02395452ac194beb8e126c135be7514ceb",
+    "policy_034/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_035/report.json": "edfcb1d3da823322eed78419c34c9b60fdd59af289d0b9729c91012991ba5d50",
+    "policy_035/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_036/report.json": "29c10674e2380396c96af6ef4cf5e67d68356e9d8629c07a71a9713bc9a56def",
+    "policy_036/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_037/report.json": "84aa2531226ca9076bff9f16521b9bdb4d505230afa6722bf17f69b617789b2a",
+    "policy_037/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_038/report.json": "8cb42f02c262c35156239220990f6fd597720db936f2ace11c040ea3fca638ae",
+    "policy_038/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_039/report.json": "51561d75a48454b2f6ab9221e5901e7a86eff01fce0ad7370191a4759071655e",
+    "policy_039/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_040/report.json": "42fc43e2e2bd8b073216f3f9bc044c6fc5ba0c5a05ba1d4f0edc2070c976e800",
+    "policy_040/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_041/report.json": "cb276612e4b6fdacbb723d81aa200663696635e2576990911d4ae733f16a0cfb",
+    "policy_041/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_042/report.json": "d3ba72380111e67af07b93537432d0a28168b09280c5a09d232e08e0e7b1a3ec",
+    "policy_042/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_043/report.json": "6a849a0da5fd3c7f39f036d4b4f2a8e9269c302a718564d8eb1947e1533f6f5f",
+    "policy_043/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_044/report.json": "635b9ac837307547ef27acbce8d47eec92a843f5c2619ccf7afe2f2d3a8ef813",
+    "policy_044/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_045/report.json": "3ede06e71a335f4c40a30c30e145897a2757a97978100f31e5b042e602d0877e",
+    "policy_045/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_046/report.json": "5a51f6cd661ab29532175b52c1f66a465d9f6a8ea25bd1210599f12742a5a8a3",
+    "policy_046/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_047/report.json": "b2359694f86e39541424fe791ce34960a84bdce93276ddad4a0184e745e1c741",
+    "policy_047/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_048/report.json": "9ebf4ce6ae737d152cc5335865287768bb55ddbc1f6696f2a2b1eed197f3e998",
+    "policy_048/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_049/report.json": "d16d8c44ed1dd0f22166e12f7129fa270a270100e2228346f5f7cd4a8198d1f9",
+    "policy_049/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_050/report.json": "9a95fa186c016bf21a626afbebfbc637e346f1fc58080ba93cb78646fd052332",
+    "policy_050/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_051/report.json": "ca03d82fc76148d46805f1ae60221402c68c71cb93904927c6c988d821e36605",
+    "policy_051/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_052/report.json": "76c52a11a3188e51ab74a8eb0541711d11b4bdffcd17708580cf8424c7afdf00",
+    "policy_052/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_053/report.json": "8adcdd2c0b3d4703758896bc9644f7c96dd4fcc56877334777a7d227286a63e3",
+    "policy_053/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_054/report.json": "96c40ad7bc9a1127961a1c07cfbd468cf8bf0e350154e86d1e585f3015f7d383",
+    "policy_054/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_055/report.json": "3a444f4eaaba4bd59e030010dabd974b05f6c016948b6db04ae8ae98fd4148d0",
+    "policy_055/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_056/report.json": "211d39eee3deaa74116cccc4ee894965f64f391bd255241809841ce6146cc904",
+    "policy_056/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_057/report.json": "a619551956019b8eff0c6d4417d03766431c88ba5a35309a566cc80b41210a15",
+    "policy_057/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_058/report.json": "d377140819eff6a01892645817f8194d428e93e37a76b9c2957f513af94514ce",
+    "policy_058/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_059/report.json": "a9e5457a553c53b1be2f8fc21c976e3a1951facf763bd1582f0acb9b05794c9d",
+    "policy_059/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_060/report.json": "905a0deeb63e3b90d7a5a77c0d3e28e213949cab176e1673251320d4ad6a1f89",
+    "policy_060/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_061/report.json": "83d5ed7e10f8889c6bed6b4378925fb862c26395522810aa53aa20d8159b82dd",
+    "policy_061/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_062/report.json": "a492dd0b2cedd5aaf596f486cab2c6f1b5590073ed15a02dcd137bc0ce6efe6a",
+    "policy_062/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_063/report.json": "4e21df1e50b0ca6931b479acfa06aa3c22186c6b875ddf176ba78b35b389ebf9",
+    "policy_063/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_064/report.json": "d443f9d16c798e1336afb3a57988c3dc20ae05f264e56f90d2919fe42be12a59",
+    "policy_064/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_065/report.json": "f05657ac489e21c98919936def30a7a4e729b5f91100f4f9abddaf5210e93c66",
+    "policy_065/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_066/report.json": "26bf5e8233b624c7a9103c0b85521f6c3a73b5cb38a36e0a3c9650b2e6ce6284",
+    "policy_066/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_067/report.json": "b1213bc693943ef2089934e629a56697e7cb98dfc82cf4decc4f3d44e4abf550",
+    "policy_067/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_068/report.json": "2c6b6a778af0cb4b0e42ce57902de8f53640f45e35d8ea0826f9aadc93ae32f2",
+    "policy_068/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_069/report.json": "e25f1aa6dee40534729036c250c106606d656bf345f602a3fe9602a096dfbd42",
+    "policy_069/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_070/report.json": "fdec2387d213b4c1cae178e0015c250c9cd1a6aac4f4644a915e6a61afdadf5f",
+    "policy_070/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_071/report.json": "79752c3e0fe90d928ede982ce4d7dc11469e4597f23ca4e62d7c54dccb7f302e",
+    "policy_071/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_072/report.json": "466fe28e1c8b60f9fcf6d8f98e6e0d992b5a800c8a61dd69527276b227cad80f",
+    "policy_072/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_073/report.json": "d589141b0569f185d98b6268b58c38c3c61080bc2eb86032fc2c0ad28f84e7c8",
+    "policy_073/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_074/report.json": "ca31912ae35c78536545b96dea003d2160ffad00462783a47a6b063c7ffe5041",
+    "policy_074/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_075/report.json": "376288eb7629088040419027c815dfa2019e36aa26b002d38bcdc59d7313ea36",
+    "policy_075/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_076/report.json": "891d8867237918fffb3cffa44ca977a1008b05a0982d59aa29c5e6f5b1fb61ee",
+    "policy_076/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_077/report.json": "5a6188fd6a9dd0e7bb588105cfa9d9b84a0a0e865371bbe46cf35905eb490975",
+    "policy_077/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_078/report.json": "a05ca5358d42c0147cf35abc38cc0998d7948b95698a7dfadb68146d95e7439c",
+    "policy_078/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_079/report.json": "c7351ad9f54d8bb309cbf6f12cca8ac14fafeac62ecaa120f6975e1cc89109cd",
+    "policy_079/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_080/report.json": "55460f1689f106f1148377f14a7e1837a245313d89b2083ff7af45cb2338ef47",
+    "policy_080/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_081/report.json": "5f4a7e2e480765cc034723261f6595c55ad36a13f3714fa689a402aee9de325d",
+    "policy_081/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_082/report.json": "3e0772e6513155fc2364c725fdad654eed92cdf73f134b6f60700550fbfe8a5a",
+    "policy_082/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_083/report.json": "fccec33cabe22d1561d14a61c2802b921b32f8722f5f39acb7e42913ad59cc1a",
+    "policy_083/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_084/report.json": "8b8193858744afc07cb4e4ac0e3064e6dfbd0855bcb857a2c3cb1b67f62ca114",
+    "policy_084/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_085/report.json": "5e52ddd97befc04b709e3e3c31862847dbdb14b2e44975546d575659027088a8",
+    "policy_085/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_086/report.json": "288a299d9987cfcaf6e91115811c70acf5bfcfc6f374318b8de6d0174db6c36d",
+    "policy_086/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_087/report.json": "d3dc6cdd6bea1108cb4b21f2c3db0669d08e0a4c56022572c59807db9a9be174",
+    "policy_087/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_088/report.json": "35a6da7f84168afe4747dbc8afa0765a72fbdb20628fbb68906f0920d72f0252",
+    "policy_088/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_089/report.json": "9846a7d5dd9944f2eeda973404aeed260d0b323e6fe069069b7e99e8e2eaeaec",
+    "policy_089/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_090/report.json": "3c18635ec99c4405ec8f84eeacf70bbe09e128c2dddb399242a4b5eae7b2e10b",
+    "policy_090/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_091/report.json": "1f45f1c2e8c56826d9d98be5a6baf64cd7d9d2ee0414989bfbd22856f79d3aff",
+    "policy_091/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_092/report.json": "6a1320ea5459d107b26f295ae1ab88fb61bf3c6e2efa03e685877e814509d37c",
+    "policy_092/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_093/report.json": "d50cbf55e41fd765030160157ba7460e0188936eee9570507c5f8e48224faf72",
+    "policy_093/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_094/report.json": "9d638a3dd2846dc1af5d79f198ad763192ed664ed3d552e404133224f074026f",
+    "policy_094/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_095/report.json": "991c61540ae4f5264eb008c7989cfe6e6a68cdb842cced15d664f751bf1b62f6",
+    "policy_095/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_096/report.json": "4075e03db6eb04fc5755b923aca55e75539dde539765ad73e9cb52576a850adb",
+    "policy_096/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_097/report.json": "c196668503483b4432738373e8eac7d5736e2a79434a9ffad2b086577c119ea7",
+    "policy_097/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_098/report.json": "f888eb7c22047d906b6c1e5f87ea4c9761fd22837bb9d0bd327df5d35709cf06",
+    "policy_098/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_099/report.json": "41820d94f3fee4cedf3058abfa7ece45e02dce70152b40df8b6c523ee01b467d",
+    "policy_099/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_100/report.json": "0f8467377fdef4df1a90910661554a5a10100169c656db28761e521efda3b089",
+    "policy_100/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_101/report.json": "54b03a9765a48e6c3bb45d6e344d9ca31055f56383b298d39391a042773e286a",
+    "policy_101/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_102/report.json": "e6071b49efef5b3059db9643deb2477c386fc60b9b38a0cb2a1c3545b5608204",
+    "policy_102/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_103/report.json": "36ac92cf00644016516f932232e6f39dde0e51020a6aa9935f256ba59b939ca5",
+    "policy_103/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_104/report.json": "6ffbeb52ca69038c15061c2b0402d6b8372b30d6c5252803d8a613bd535b7f66",
+    "policy_104/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_105/report.json": "2f91b00d3c33b62c729be9265479a16730c8943fe0465a54d05f11584201ec76",
+    "policy_105/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_106/report.json": "c0f435107219b3765f396c3b2685d4f6ab9fc2173d6bf9b182b97a6a38ab4640",
+    "policy_106/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_107/report.json": "e8951a6e444581b05920afe2256b495809b21b7f84827104049b30badb7ed935",
+    "policy_107/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_108/report.json": "4528a0ba36b894dc9ef1f90b8256cbfaec2e79d5237609f8bc7157e3c8fffdfb",
+    "policy_108/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_109/report.json": "136504648d7fc7df41634e8f7e20eac249e001a6dd70fb71a8b620a881535c51",
+    "policy_109/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_110/report.json": "6b46374051b9f59d6be7f0d87a7815c722942bcf7dae2d4678861209d607dee3",
+    "policy_110/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_111/report.json": "24e6f76307ff9ef9ebfacd123bb08a7d719a3289b4af3f6547171eea3a830572",
+    "policy_111/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_112/report.json": "b44898f28f8e18971fcd0316a6c684bb7108eb9d5398d2b4d186362fd48efc5c",
+    "policy_112/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_113/report.json": "ad48e8a0d6cfa1fb06aac05aa070e8d4ce0a28986afd1c47cc7ab142e34cefea",
+    "policy_113/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_114/report.json": "ba5b72d6b4aeaa1ccb1745ae4bdd31813cb0ce92038618ff0c840eb392e723c8",
+    "policy_114/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_115/report.json": "a536262032e3cbc467ba6a7d079663cdfe813e042b03a0a198a997b4275e868c",
+    "policy_115/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_116/report.json": "a9956f3f5767866f888d996b020134ade7f7f509b20c3f84755b7b28c2a9d195",
+    "policy_116/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_117/report.json": "49e749d45de560935cacab186d1d1305c2a40280f7658bc8ad51ee0e9fd8abba",
+    "policy_117/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_118/report.json": "c20fdedacbb30eb3b34501d10d9af5063b27b910e11e2c0660da591d53f20654",
+    "policy_118/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_119/report.json": "f1ff772a485321369664bd27d741696d454252464182621fbd5968b4fd470c71",
+    "policy_119/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_120/report.json": "db141896f90b640e93995e1aa541efe34523d55224068194a69ab2275b5c4045",
+    "policy_120/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_121/report.json": "c43fe54f671fdb0c0fd00f7551da2189d4f6eb05d25fef50a20d601d1f4f38a8",
+    "policy_121/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_122/report.json": "4aea5b2a9bac23b04e15886348647d8b01399c851ad85d33922ae6af88d38884",
+    "policy_122/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_123/report.json": "fba7999a52865169d50d228ba2fdfb4f22de3681f30bafeaed07b615de6b2d8c",
+    "policy_123/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_124/report.json": "629fd219df29821f0b333c3f2e8ad9a318d9ad3411fbcb670273c07cec10ef49",
+    "policy_124/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_125/report.json": "8cbd654f0282297c06a478c1bf5b09f9c8506ac50b2d0e5d84722df056169195",
+    "policy_125/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_126/report.json": "3c5fada08f9337c3a8b232ef8408414ce71d94fb02fae575523beb2bfd959c1e",
+    "policy_126/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "policy_127/report.json": "0a4a421b99f07ad9871afc1b886bf63be876f5652a4018625114cee8fa1c6cba",
+    "policy_127/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_00_0/report.json": "3115f162b089e58f2bf1b3fd7267e241e794056ab74bffe502a10e06c9b2775f",
+    "uncertainty_00_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_00_1/report.json": "a6d61653a97a4b047894fae329998404af90dc1b7710f206072537d3994dbf9e",
+    "uncertainty_00_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_01_0/report.json": "f062d54cf57985b797be589e8530b3c6a96af58980640b6f29a128a4c64d9bc0",
+    "uncertainty_01_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_01_1/report.json": "fc6bbfff2e2c6ee4e7f611842ad9e9003db494ffcf8229ae07f4c1ccf98d43cb",
+    "uncertainty_01_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_02_0/report.json": "35631483a5b34e738de230d7bef515cc841528c23e2a3192b18f813d525acd71",
+    "uncertainty_02_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_02_1/report.json": "65a393a496d54fa66fa0956ce0882e4664f3383624cbbf7750a3b73b1711f154",
+    "uncertainty_02_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_03_0/report.json": "d7368b2fd71c05ccc05ca3c3f3f3d873cbb6442067e6a5b2e2086589683a2a3c",
+    "uncertainty_03_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_03_1/report.json": "93e21b9dcbb52d6bfcc75028c8d3253da8e45f7595e5d849269f42bb9a2e0ebc",
+    "uncertainty_03_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_04_0/report.json": "5f2579a2977966154d2272b909c23c6b1321f0bca0ce7bc9786e2c2b54dc3eec",
+    "uncertainty_04_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_04_1/report.json": "2420bf501c7ed4b599d6fffd017a2f80b0a88d03f1e0173c2e1317252ca12afa",
+    "uncertainty_04_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_05_0/report.json": "851c9375779775107f995365eb84535e835e6d71d3a0ccb86b0c643c5df0cc2a",
+    "uncertainty_05_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_05_1/report.json": "f014f55d067222ba3144b17c41ae4d13b655447a5b5905900db91b2b3349d783",
+    "uncertainty_05_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_06_0/report.json": "9994963817c85da86702e723fcdc80a9223a34501102fc12b2f55e9ff547e059",
+    "uncertainty_06_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_06_1/report.json": "1283fae06f293e704ff59acd600517ced18816f2d0f53c441f59d844e762b349",
+    "uncertainty_06_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_07_0/report.json": "7ce42d1aa7b80d3d07b0a41e422ae1fbb257fd41e36e7e264bbe650f25c8034c",
+    "uncertainty_07_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_07_1/report.json": "32065eb9b924015350d6b7b6f8bb8439f34f8ba0ed1be7114ce15528ca0dcfa2",
+    "uncertainty_07_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_08_0/report.json": "3a8c2d523795319d08167b328353fb415bbd8de0ba845255aa60b2ad78ce74dd",
+    "uncertainty_08_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_08_1/report.json": "2423c5eef89dc262ffe4f8c064cd709a617daee355fb623b7120b6a9e6813637",
+    "uncertainty_08_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_09_0/report.json": "f216273a2c58539ac6032695f1d666e7572c5dc1f4f096a9d54a8afd81c78dce",
+    "uncertainty_09_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_09_1/report.json": "b741524e2eadce300ed857e8a17b4dc15971038a34567e126bc378ef7274cddb",
+    "uncertainty_09_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_10_0/report.json": "02cd917f7ccc27a044fd93543bdb85a92e939870325bb302ef2610f4a0970ee3",
+    "uncertainty_10_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_10_1/report.json": "e90f8923b93131f6b11da913179bc244b3806b477a18615216aae1fc6f29a0d3",
+    "uncertainty_10_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_11_0/report.json": "78d88fd06cb150676539831497403d8ae5b9571d3159f95c1d42921bf1b55de4",
+    "uncertainty_11_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_11_1/report.json": "d913391b1cd23464b9631506ec9b851f578d90f016e961bb6f96ec5dc2ed4dc8",
+    "uncertainty_11_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_12_0/report.json": "4b9ea73a907c43d3a59a1b6b93f972080451c7452b223f0844474d08fc009ebb",
+    "uncertainty_12_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_12_1/report.json": "ab178389ace3a952627f3c80879aafc335cd58266f17c006bb0388411be8935e",
+    "uncertainty_12_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_13_0/report.json": "78a9ef39b2c20a1fb352bffef7bacc5d624a8b46a8c6ac26f0f94d6bbf3bdc11",
+    "uncertainty_13_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_13_1/report.json": "46f3cb78e84bc2f42ecb3cb7ab88ff89820f7014e56a60561a58777c4cbd5a2b",
+    "uncertainty_13_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_14_0/report.json": "c57fbebbe3220bac916427b9e736687732bf50ecef5f329d87bedc18abd56e31",
+    "uncertainty_14_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_14_1/report.json": "1dcb9ddb7c4fb91e8ad6dfaa8965b7c3b11782c2e37cc2ca95642a4fc8d39695",
+    "uncertainty_14_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_15_0/report.json": "7f760d36d37afe3a7e7314bb1e1883f07a8cf1ea9ca8637c97430355fe1a452d",
+    "uncertainty_15_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_15_1/report.json": "f4ceaf7eefcefcd2c8f48e06aed6339ef6bd2ab73c5a756d4c1d63d700fc1fec",
+    "uncertainty_15_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_16_0/report.json": "73c44923697a1c752ab735fb27ab8baf06d21fbcc79a5c00c4eee7f04f5f9c1b",
+    "uncertainty_16_0/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "uncertainty_16_1/report.json": "61359b74efbdfbb41977e677a93dbf7a129614f44d6959bdbceb5c7880c48a91",
+    "uncertainty_16_1/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_00/report.json": "c4ac0be645ab8dba6a522707dcf0c7cee206aa917193acace22562558c38d9f7",
+    "sample_min_00/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_01/report.json": "1e6c8a899089ea98c25df008f00f9ca698880d0c9bf40a941c3f2b1fbf94665d",
+    "sample_min_01/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_02/report.json": "6328464244c5b38e3017476df74acc5bef944c3955eb29d38e538f0f217f6587",
+    "sample_min_02/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_03/report.json": "6b5804e80006b2b1a3cc33dda2e2810c0c9a67141e5b702e07a33aeab9ebd04e",
+    "sample_min_03/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_04/report.json": "ae254e80fa94c30fd4f3e28c5915093405f53ab091a43a2d70b9bf7f0c199725",
+    "sample_min_04/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_05/report.json": "09460a3fa17aa11b7abd0e66f5d9fcadd28852a5a1013429f47f5aa68820b3a5",
+    "sample_min_05/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_06/report.json": "389967bdaabfe22283564ce0b0b2217e3c4b928dba4bba9094c4e4af8f84199f",
+    "sample_min_06/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_07/report.json": "f1a1fc9645318f658a3ba564169fd5b072acc54692bf110a374aa92fb3fbe72c",
+    "sample_min_07/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_08/report.json": "2b0bde05b8a7e2cb64031b28098ac241ac3f78260e4aabf907b2eeaa831367c8",
+    "sample_min_08/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_09/report.json": "dac7812ed461ca404e7269a141313ecab566c09be837908a997b96e0188c1d2f",
+    "sample_min_09/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_10/report.json": "aec65d77ced743bda17c0be01bf0446ea16036705501b9b43c03847879286ada",
+    "sample_min_10/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_11/report.json": "746783434e26410cbdf9989200bc97d3a82375a3ef1bd9a15a40b07922a0dca9",
+    "sample_min_11/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_12/report.json": "5474ea6913f1c2fada426a8c479b63f6a87310ec9b2dddfb1403ca6c2bb96355",
+    "sample_min_12/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_13/report.json": "7765531db922b0c3e711d4fffd27bd1b9cf0cd47d29d0be651791ab6208a1d8b",
+    "sample_min_13/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_14/report.json": "2b6694749742533bf3952819be694ce2a5e5dcdef4b52a97e175d56b278d89bd",
+    "sample_min_14/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_15/report.json": "03f9772de02b2d3ebf082050d4ccd88d6111ff00d34d0c7d1356821640a97aab",
+    "sample_min_15/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_16/report.json": "8d2808377a062dc9391b041efb6bf614bc8d42692301023a6263cfbfd055607e",
+    "sample_min_16/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_17/report.json": "28f901b2e074fc5a6cf5e470e9e23790cd197d36cb69aa21593406571f9ae5e5",
+    "sample_min_17/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_18/report.json": "6d3ffb55580863a4e2b3da23d6c7872d75499e0b1ec37729a3653e705202c3a9",
+    "sample_min_18/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_19/report.json": "6ffe0d24d8c47c8a6df1fefc97fbff98af541e8fddc541365338778d88ad5dfd",
+    "sample_min_19/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_20/report.json": "1e593e4d19021cd7336863a02faa5375705259252f90ede5b7b6643ab60ad789",
+    "sample_min_20/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_21/report.json": "6124b739b881772f2d759ecb9d1575e878b18d10e53a69756b6bfcdd307ab4df",
+    "sample_min_21/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_22/report.json": "5d71e8289b24f34e5100cab61191e8627e0df98188fda70199563dced873f648",
+    "sample_min_22/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_23/report.json": "7bd2099a0550496884837246044d2116951c77b12b5099ce0522234e9c98a2fb",
+    "sample_min_23/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_24/report.json": "7d237062c656d11ebdab1d95b5366ca734da795a45fccbc17b1ec620a8d98269",
+    "sample_min_24/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_25/report.json": "42b893e9a8013478a1334bb4762828ddbb35147ded95c3546566d11487062101",
+    "sample_min_25/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_26/report.json": "1d26761068cd4ad9a9aacd14289626a3a3265b8ec0723409694801d920731921",
+    "sample_min_26/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_27/report.json": "016efc8c1dc563be0db6a7cf2a33028e9aa5837175ea7702b9c1e1b65dc62812",
+    "sample_min_27/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_28/report.json": "da6466ccfb2c40cf25f4c153a4c7414b5af51286438397cb7ceea799ab916943",
+    "sample_min_28/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_29/report.json": "8393f8e47fbf8960508fec45c7fa032ec89d6259b3ddb44423b7dce34d79d1ff",
+    "sample_min_29/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_30/report.json": "ef73fe5377e0a38382110bff602710beeb4ea7aa9f29bcfad9288325fac8f1f2",
+    "sample_min_30/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_31/report.json": "81fcd1701ead1ad0fef21dd85e0f7e2e7a90d465b526e39486fe9824d1024cdc",
+    "sample_min_31/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_32/report.json": "8393857e908b076fa25fcb60decf2b8d0573172db1ddf81c63fb61ee6c493dcc",
+    "sample_min_32/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_33/report.json": "c4aca3a49c1a52a2b5d6ee8f63f61132da59d689eaa7e5ef484f84ca18662593",
+    "sample_min_33/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_34/report.json": "c858f13b6fc1c008290022590ec5a01c8cd508453a1789adf707e2a20b0a0d50",
+    "sample_min_34/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_35/report.json": "46fd77e024a9037895d363a96ae4ef0cdefcbb91928bbf8af73be1fed780d326",
+    "sample_min_35/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_36/report.json": "c2a339ac123ee05051260132460acc865fa4725421282828d659912f12309d3e",
+    "sample_min_36/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_37/report.json": "8e662aa5503a291f98f66d3a7fd7c91a76fb88251756cdd5d56f4309d3618d9f",
+    "sample_min_37/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_38/report.json": "c4a0a316d3ef289f464b8c0b9594fe127768f2a074256ebdf93a993f3faba8e2",
+    "sample_min_38/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_39/report.json": "c68f3bc48e3dd04b7b09e15634b7a075c03d00c2551f42cc7be82413e9469e30",
+    "sample_min_39/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_40/report.json": "aa2ac2afec86aa241917e2e4aa5e6a230e56f628d67cec8765b6cc944e26f1af",
+    "sample_min_40/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_41/report.json": "64ce930cb5c0666fb579739136108554e622a752ec75fea1a50f16fb6211d179",
+    "sample_min_41/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_42/report.json": "4be156ee737396610cbb53b736099ed724ba21ba950a248d202f2742bfe2d15c",
+    "sample_min_42/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_43/report.json": "081f1a363907ff0eead5875fbffeb523dffa1b701207a8e126626225e565f3c3",
+    "sample_min_43/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_44/report.json": "26ef06c9f9f4c4a0c46ee5dcc23c6740a28e6021f69c55e4308afdd2327e7503",
+    "sample_min_44/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_45/report.json": "3529512bf5110289fcde24bf96f4bda231e8b66c550f51028c9d4909d97babf4",
+    "sample_min_45/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_46/report.json": "063a7eee2a6fac9ddbcaba9ed1495d35fcbff767abcdec02369a044131d7cca0",
+    "sample_min_46/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_47/report.json": "7b9df0e4970baa444ba398c96ea0741e717eee859e61b52341733a69a402ab78",
+    "sample_min_47/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_48/report.json": "f5c832b917862ea25fca17f8a3630eef5c567b178059e350158e2a72bdd19333",
+    "sample_min_48/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_min_49/report.json": "4d651c776ac646ba8f57d89d2f3cfbe258f76bd59a1050c8f9ef72c7f5b72f6f",
+    "sample_min_49/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_00/report.json": "b06d46647fc4442c4ecd27e5a2545edc805a024db3896524d8bba8b85068344b",
+    "sample_max_00/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_01/report.json": "e855505c4a4f847e3eab6c3dde9b13537c582e2acd7938e8296997286e41a61f",
+    "sample_max_01/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_02/report.json": "b26a2b5d880120ed74dd954c74472f0abbaa14c5a77453fdd348c5ba97f22fea",
+    "sample_max_02/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_03/report.json": "64e9f3b0b11b4bcb03740ab8f12ef746a60a54d2d51ea8232d4bf02fb926d270",
+    "sample_max_03/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_04/report.json": "f85e97ca4f8f000ad9b99f3a24cfe6cdbf3ff0a7b90bf01f337bc25a5ddd8a42",
+    "sample_max_04/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_05/report.json": "539d9de1c705b0b74629a1d6e95a453e789ca5018a7d7410a7650b90b2f9b777",
+    "sample_max_05/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_06/report.json": "f36c7591b23d30b5f9a2ac8b968c548095dfdad222c3f1c0709c08668dbb3dbc",
+    "sample_max_06/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_07/report.json": "8d23df5bcbb39a7c4b40a3d15c9df6b0e68f851a0b70be21815dd9d620f63323",
+    "sample_max_07/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_08/report.json": "7cfb712fb8bb69414d4afb7cc472797bf3a64f7f078c7b602dfe18213b8eb87f",
+    "sample_max_08/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_09/report.json": "db2f93fc3eb7cfd4ae7f18f69f45987496e828bc61f20287aa83cefc4e6aeaa2",
+    "sample_max_09/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_10/report.json": "6d270c1daf9ead86135433d41c4f9c679c2d990c0b5a8be43e0f5ae3bbcd6b32",
+    "sample_max_10/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_11/report.json": "74d56f0d0f0cbc1d0e29ed7def9a02a9c39ee853bf4ebd3ee742fcd80c687d50",
+    "sample_max_11/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_12/report.json": "8f7b17d24616e21954ae4bf6a6f1284cb2c5bc2663fb07f05ec3714412140d77",
+    "sample_max_12/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_13/report.json": "e137cb6d4fa4419481b9099929a7e899d158ff280a7fe441b37c46aeca4f98dc",
+    "sample_max_13/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_14/report.json": "577b062129aa2eb03c1cf5bb81ec3b83a454650aa8b6d18b1a110021ef874bcc",
+    "sample_max_14/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_15/report.json": "b873ba7dd13171eee7ad3374aa75cb786a3b66a6d39e879c6027677449cba62b",
+    "sample_max_15/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_16/report.json": "c57fb0f0ba54ef4f60fc5124c317f9be7445177a354db0ddbcbb1850a3b1d7ad",
+    "sample_max_16/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_17/report.json": "c48f8c1f47e819f6a7b266b86806876464d4bb87142ff317aa332b2897506407",
+    "sample_max_17/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_18/report.json": "8820d415c0e87f4834a92090b952f0c0f8f50e3bc31159187cf89a40db6792a3",
+    "sample_max_18/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_19/report.json": "5dc573c6b3deba06026af1078fc97800b44c60be9fe3e1abf46193cf9fb17e8e",
+    "sample_max_19/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_20/report.json": "3c8d0263bc1067bd9b00a4b07f81d97a2625c0323580b6e2c980956d8a96f3f1",
+    "sample_max_20/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_21/report.json": "bdef251771b1246e9754ece5c7d11733df09bb47391952524afdb80931818b69",
+    "sample_max_21/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_22/report.json": "a3bb01c1352b45fd4c683b80f4b0477ce62d90c7fd471d1955bcdc5e91580e43",
+    "sample_max_22/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_23/report.json": "fd03f33e6c6e5859e231d50544c204def0029dc9dadcf3df55d9493f4fcc3b99",
+    "sample_max_23/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_24/report.json": "0ca5c619288fdcb5021b9a14c49dce7f9a1c4b46a678fa5c3aa4e7531db1720b",
+    "sample_max_24/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_25/report.json": "39a8c14ecf03887513c203d8d101aa137c844d3009235282d360ab1cf0c2c24d",
+    "sample_max_25/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_26/report.json": "8c502fc594ae74b379483546fe8f527d7757f26f4fe3bd5f3c529247467d4486",
+    "sample_max_26/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_27/report.json": "2553038084409e234830db69640dccfb7d83f75112f8fcea7ecdeb0b81f7a4f1",
+    "sample_max_27/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_28/report.json": "c36083adaf43de462381872c2ac84cb42f449f34c9c0a9ce3d16e2b587ee4e4e",
+    "sample_max_28/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_29/report.json": "e4fca8c7de3dc7ee7f96726911aeea7bb42f728885c2d84393d68909b43166ac",
+    "sample_max_29/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_30/report.json": "b21b456ef85a4a8d3e34c26ff085aabe1ef94e15034831183e9b00bbb079f721",
+    "sample_max_30/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_31/report.json": "0a4f4ec9e75aed7bdd0bdd12be0e84ba63bcb06e99416681436218b886777396",
+    "sample_max_31/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_32/report.json": "2b2e923895e33d2a84f9cfb9bd66de845c0cd401a51edfb9a3976d1c6b9d5e33",
+    "sample_max_32/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_33/report.json": "0b45ad8d912dade0db30ed33dead8f7bc938c84c93ecfdeb1184cd9a7a8c5949",
+    "sample_max_33/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_34/report.json": "53fd8b5d566ab746d9c314bb489e2b74d7c52b310273272dfaebbf835980ab5e",
+    "sample_max_34/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_35/report.json": "25ff639eec2dd8627ea9bfd8ee91942e0601c97bbfbf4faa4028eb3f9cfcc429",
+    "sample_max_35/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_36/report.json": "64abb637e63c01a607f2998e11fa054c2326af13119394119cde66acdda923a9",
+    "sample_max_36/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_37/report.json": "0f9bbe284b3592bdd37b87d113759c45f9444320d8bc2558b1b23a5254b891c5",
+    "sample_max_37/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_38/report.json": "3908a1f8fd0b384a773a51f143c49b6fb96ef9ea8fd5ea60c6b63672c9fea7c4",
+    "sample_max_38/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_39/report.json": "2f33a9ec04664d6e1a27a72fd8ef4a5f238b2d4009a86a98b900943c9ceafa9f",
+    "sample_max_39/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_40/report.json": "3dec4d3830daa8d3aefc1c1f2166ec5ceb9e4c42b2295deeaf1d8f0e748e796e",
+    "sample_max_40/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_41/report.json": "9627bf45745765e57a4b6c038404014a56cab9143d4684e3b3bc54372c21b236",
+    "sample_max_41/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_42/report.json": "81ea6cd03c87db39fb201f9a610107b0c6cd9c3ac4ec6777f2f276fb5fdba52a",
+    "sample_max_42/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_43/report.json": "d6008fa3297005ab40087fe9b3a34f972973954a85a9eb3636c1acff6cf495fe",
+    "sample_max_43/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_44/report.json": "cd363414bfd08601abc004c637900d8f6ce4bef7496d406ef8fda26309d5b786",
+    "sample_max_44/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_45/report.json": "47e77939e338d5981db06259b0e6ba379bae3f3e4abf65bc32f4d91bed088111",
+    "sample_max_45/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_46/report.json": "e1ea9927a733ca3d01173a7c8b2b7bd2b1152e93e9f77fc59baa010285138e9c",
+    "sample_max_46/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_47/report.json": "fae0f28416d9fd1ffc79293a0f6910bdf3ab670f54a83752ea855c34b6b37947",
+    "sample_max_47/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_48/report.json": "8294b56b3086426dee31ac0be078be6145fc9324ffe5403496d5e2ad37c3a626",
+    "sample_max_48/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff",
+    "sample_max_49/report.json": "8abd6c33fbc8d998e42c7b32dea31a2cd6b346f9ba06723b4e2599ed00f05c3d",
+    "sample_max_49/warnings.json": "bc4af2e58e13820ef9ce4b15fca710eb09b69924058b0add2857cf7de53c62ff"
+  },
+  "worst_stock": {
+    "case": "sample_min_12",
+    "year": 2050,
+    "coordinates": {
+      "District": "Mendrisio",
+      "HS": "ElectricHeater",
+      "Performance": "VeryLow",
+      "Type": "SFH",
+      "PVpanel": "PVno",
+      "Battery": "Bno"
+    },
+    "value": -3.465381053905168e-05,
+    "parameters": {
+      "PV rebate cantonal": 0.1,
+      "FiT": 0.0,
+      "Battery Rebate": 0.0,
+      "PV rebate federal": 0.2,
+      "PV reg scenario": 0.0,
+      "Energy Community scenario": 0.0,
+      "Grant share HP": 0.2,
+      "Grant share PelletBoiler": 0.2,
+      "Grant share DH": 0.2,
+      "Retrofit incentive input": 50.0,
+      "CO2 tax": 120.0,
+      "MuKEn scenario": 0.0,
+      "EV charger incentive input": 2000.0,
+      "CO2 coefficient ICE": 2.0,
+      "EV annual cost reduction input": 0.01,
+      "ICE fuel price input": 2.0,
+      "Provvedimento 1.2": 0.0,
+      "Provvedimento 1.3": 0.0,
+      "Provvedimento 1.4": 0.0,
+      "Provvedimento 1.7": 0.0,
+      "Cantonal PV support": 0.0,
+      "Renewable heating incentives": 0.0,
+      "Exploratory analysis": 1.0,
+      "PV uncertain cost": -0.16853626761265839,
+      "PV uncertain remuneration": -0.1865396804176443,
+      "Retrofit uncertain cost": 0.09765591003325055,
+      "Interest rate uncertainty": -0.05386236699181385,
+      "Import price uncertainty": 0.7073547215654485,
+      "Battery uncertain cost": 0.153068894303176,
+      "Construction rate uncertainty": 0.016403472568146837,
+      "Demolition rate uncertainty": 0.006541532903841324,
+      "Industry demand uncertainty": -0.0742032513745863,
+      "Tertiary demand uncertainty": 0.002516710423165064,
+      "Oil/gas lifetime uncertainty": -0.10305130878236124,
+      "Wood/pellet lifetime uncertainty": 0.11693052332476417,
+      "HP lifetime uncertainty": 0.02759324086230963,
+      "Oil/gas carrier cost uncertainty": 0.12066177904992553,
+      "Wood/pellet carrier cost uncertainty": -0.13800721389775328,
+      "HP cost uncertainty": -0.22171986557234233,
+      "HP efficiency uncertainty": -0.1341095253499079
+    }
+  },
+  "worst_case_first_failure": {
+    "year": 2039,
+    "coordinates": {
+      "District": "Lugano",
+      "HS": "ElectricHeater",
+      "Performance": "VeryLow",
+      "Type": "DFH",
+      "PVpanel": "PVno",
+      "Battery": "Bno"
+    },
+    "previous": {
+      "Heating Solution": 0.0,
+      "Buildings adopting HS": 0.0,
+      "Buildings leaving HS": 1.8776800030063917e-06,
+      "Buildings construction with battery": 0.0,
+      "Building demolition by archetype": 0.0,
+      "Buildings HS Renovation From": 0.0,
+      "Consumers leaving HS for old age": 0.0,
+      "Consumers adopting PV no": 1.8776800030063917e-06
+    },
+    "current": {
+      "Heating Solution": -1.8776800030063917e-06,
+      "Buildings adopting HS": 0.0,
+      "Buildings leaving HS": 9.592534101325772e-07,
+      "Buildings construction with battery": 0.0,
+      "Building demolition by archetype": -2.2518456565784283e-08,
+      "Buildings HS Renovation From": -4.542750884081215e-08,
+      "Consumers leaving HS for old age": -1.8776800030063917e-12,
+      "Consumers adopting PV no": 1.0272012532191766e-06
+    }
+  },
+  "worst_weight": {
+    "case": "sample_min_12",
+    "value": -3.465381053905168e-05
+  }
+}

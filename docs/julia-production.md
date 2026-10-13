@@ -227,5 +227,28 @@ are byte-identical to v5. Saved scenario defaults are still overridden by
 all 40 explicit application parameters.
 
 The production profile is `sure-v6-9080f62`. Prior certificates cannot certify
-this revision. The v6 numerical and physical validation is pending; no new
-dataset or code release is authorized by a historical passing result.
+this revision. No new dataset or code release is authorized by a historical
+passing result.
+
+The first three cases agree numerically in Python and Julia, and high and the
+adverse case now pass physically. Base still withdraws a small positive PV
+adoption flow from an empty stock. The minimum heating stock is -2.6024e-6.
+The gated regeneration has stopped. The separate 318-case diagnostic suite is
+complete: all 1,811,213,520 Python–Julia values pass comparison, while 169 cases
+pass physical acceptance and 149 fail. The worst heating stock and archetype
+weight are -3.4654e-5 in uncertainty sample `sample_min_12`. Energy and population
+balances pass throughout. Two fresh base runs are bit-for-bit identical in
+each engine. Both native architecture CI builds stop on the same base physical
+failure before completing numerical/UI smoke. No certificate has been issued.
+See [`V6_RESULTS.md`](../benchmarks/sure-production/V6_RESULTS.md) for the exact
+transition and complete parameters.
+
+After a future full regeneration passes, audit the packaged inputs with:
+
+```sh
+python scripts/verify_production_data.py /runs/full /runs/release-verification.json --resources /runs/resources.jsonl
+```
+
+This checks all nine application Parquets, complete 40-parameter scenario
+provenance, physical reports, unchanged uncertainty samples, configuration
+coverage, Float64/finite values and zero compilation after worker warm-up.
