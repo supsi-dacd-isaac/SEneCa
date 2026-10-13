@@ -8,7 +8,7 @@ import numpy as np
 from .catalog import defaults, inventory, outputs as all_outputs, parameters
 from .common import ROOT, YEARS, MODEL_PY, MODEL_VARIANT, MODEL_REVISION, model_sources, identity, read
 from .synchronous_delays import install
-from .physical import OUTPUTS as PHYSICAL_OUTPUTS, check as physical_check
+from .physical import OUTPUTS as PHYSICAL_OUTPUTS, PhysicalInvariantError, check as physical_check
 
 
 class PythonBackend:
@@ -67,9 +67,10 @@ class PythonBackend:
                                     timestamps=YEARS, flatten=False, return_columns=internal)
             result = self._arrays(frame)
             self.last_physical = physical_check(result)
-            if not self.last_physical["pass"]:
-                raise ValueError(f"Housing stock or transfer invariant failed: {self.last_physical}")
             self.last_timing = {"seconds": time.perf_counter()-start}
+            self._record(caught)
+            if not self.last_physical["pass"]:
+                raise PhysicalInvariantError(self.last_physical, result)
         self._record(caught)
         if list(frame.index) != YEARS:
             raise ValueError("Incomplete Python years")

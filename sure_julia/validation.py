@@ -131,8 +131,17 @@ def check(job):
     started = time.perf_counter()
     report = {"scenario": params, "pass": False}
     try:
-        a = PYTHON.run_arrays(params)
-        b = JULIA.run_arrays(params)
+        from .physical import PhysicalInvariantError
+        def run(engine):
+            try:
+                return engine.run_arrays(params)
+            except PhysicalInvariantError as failure:
+                # Preserve and compare failed states for diagnosis. The
+                # physical report below still makes this case fail acceptance.
+                report.setdefault("physical_failures", {})[engine.backend] = failure.report
+                return failure.arrays
+        a = run(PYTHON)
+        b = run(JULIA)
         result = compare(a, b, JULIA.export)
         from .physical import check as physical_check
         report.update(comparison=result, python_energy=energy(a), julia_energy=energy(b),

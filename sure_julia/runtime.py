@@ -134,10 +134,10 @@ class JuliaBackend:
                     raise ValueError(f"Invalid Julia output: {name}")
                 arrays[name] = values.reshape(shape)
             self.last_timing = result
-            from .physical import check
+            from .physical import check, PhysicalInvariantError
             self.last_physical = check(arrays)
             if not self.last_physical["pass"]:
-                raise ValueError(f"Housing stock or transfer invariant failed: {self.last_physical}")
+                raise PhysicalInvariantError(self.last_physical, arrays)
             return {name: arrays[name] for name in requested}
 
     def run(self, scenario=None, outputs=None, flatten=True):

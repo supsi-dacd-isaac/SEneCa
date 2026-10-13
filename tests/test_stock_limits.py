@@ -1,6 +1,10 @@
 """Regression checks against the actual v5 source and physical acceptance gate."""
 import ast
+from pathlib import Path
+import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import xarray as xr
@@ -92,6 +96,34 @@ class PhysicalGateTests(unittest.TestCase):
         a = self.arrays()
         a["Total Res buildings"][10:] += 1.
         self.assertFalse(check(a)["checks"]["fine_coarse_changes"]["pass"])
+
+    def test_agreeing_engines_cannot_certify_physically_invalid_results(self):
+        import json
+        from sure_julia import validation
+        from sure_julia.physical import PhysicalInvariantError
+        a = self.arrays()
+        a["Heating Solution"][10, 0, 0, 0, 0, 0, 0] = -1.
+        report = check(a)
+        def failed_run(parameters):
+            raise PhysicalInvariantError(report, a)
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            (directory / "warnings.json").write_text("[]")
+            python = SimpleNamespace(backend="python", run_arrays=failed_run,
+                                     last_timing={}, warnings=[], variables={})
+            julia = SimpleNamespace(backend="julia", run_arrays=failed_run,
+                                    last_timing={}, directory=directory,
+                                    export=[{"name": n, "dims": [], "coords": {}} for n in a])
+            with patch.multiple(validation, create=True, PYTHON=python, JULIA=julia, TARGET=directory), \
+                    patch.object(validation, "energy", return_value={"pass": True}):
+                self.assertEqual(validation.check(("invalid", {})), ("invalid", False))
+            saved = json.loads((directory / "invalid/report.json").read_text())
+            self.assertTrue(saved["comparison"]["pass"])
+            self.assertFalse(saved["pass"])
+            self.assertFalse(saved["python_physical"]["pass"])
+            self.assertFalse(saved["julia_physical"]["pass"])
+            self.assertTrue((directory / "invalid/python.npz").exists())
+            self.assertTrue((directory / "invalid/julia.npz").exists())
 
 
 if __name__ == "__main__":

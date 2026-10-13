@@ -1,6 +1,15 @@
 """Cell-wise housing and transfer invariants for the corrected SURE model."""
 import numpy as np
 
+
+class PhysicalInvariantError(ValueError):
+    """Keep failed numerical arrays available for diagnosis, never acceptance."""
+    def __init__(self, report, arrays):
+        super().__init__(f"Housing stock or transfer invariant failed: {report}")
+        self.report = report
+        self.arrays = arrays
+
+
 OUTPUTS = [
     "Heating Solution", "Annual archetypes", "Total Res buildings",
     "Buildings adopting HS", "Buildings leaving HS", "Buildings construction with battery",
