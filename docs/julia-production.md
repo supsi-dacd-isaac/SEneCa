@@ -206,3 +206,13 @@ The profile is `sure-v5-bf39813`; older generated profiles are rejected.
 The new source equations have synthetic regression tests and retain every
 physical/numerical release gate. Prior v4 validation certificates and data
 cannot certify this version; v5 requires its own full suite and regeneration.
+
+The first v5 check on Elettra compares base, high and the original adverse
+scenario. All 17,086,920 Python–Julia values pass the numerical tolerance,
+but all three cases fail housing-stock nonnegativity in both engines.
+Negative PV adoption inflows can still drive a positive stock below zero;
+the first exact transition and all 40 inputs are recorded in
+[`benchmarks/sure-production/V5_RESULTS.md`](../benchmarks/sure-production/V5_RESULTS.md).
+Regeneration and release remain blocked. Failed arrays are saved for diagnosis
+without weakening the physical gate. The v5 targeted translator suite passes;
+neither the full v5 suite nor a replacement dataset is certified.
