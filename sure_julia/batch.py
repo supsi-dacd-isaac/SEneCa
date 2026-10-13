@@ -193,6 +193,7 @@ def consolidate(directory, planned):
     atomic_parquet(pd.DataFrame(provenance), directory / "release/provenance/scenarios.parquet")
     dump(directory / "release/provenance/build.json", {
         "backend": "julia", "model": read(ROOT / "sure_julia/generated/build.json"),
+        "generation": read(directory / "manifest.json"),
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/scenarios.parquet"),
         "numerical_tolerance": {"atol_scale": 1e-10, "rtol": 1e-8},
@@ -242,6 +243,7 @@ def main():
     if args.pilot:
         planned = [planned[i] for i in np.linspace(0, len(planned)-1, 100, dtype=int)]
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "jobs": planned,
+             "validation_certificate_sha256": digest(args.validation / "certificate.json"),
              "sample_sha256": digest(ROOT / "precomputed/exploratory/uncertainty_samples.parquet"),
              "code": {p.name: digest(p) for p in Path(__file__).parent.glob("*.py")}}
     args.directory.mkdir(parents=True, exist_ok=True)

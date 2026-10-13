@@ -82,4 +82,6 @@ dataset.
 - Elettra infrastructure and existing data-v1.0.0 archive verified.
 - Linux runtime built; portable model translated with 121 exports and 40 parameters.
 - First base comparison passed: 5,689,080 cells and energy conservation.
-- Full-suite validation, pilot, complete regeneration and releases remain pending.
+- Full Linux AMD64 suite passed: all 317 cases, each comparing 5,689,080 cells
+  across 121 application and diagnostic outputs. Targeted tests also passed.
+- State isolation, pilot, complete regeneration and releases remain pending.

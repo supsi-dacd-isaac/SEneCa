@@ -44,7 +44,8 @@ def main():
             raise RuntimeError(f"Live UI failed: {app.exception}")
         import streamlit as st
         st.cache_resource.clear()
-    dump(args.directory / "summary.json", {"pass": True, "cases": list(cases), "ui": args.ui})
+    dump(args.directory / "summary.json", {"pass": True, "cases": list(cases), "ui": args.ui,
+                                         "model": jl.metadata})
 
 
 if __name__ == "__main__":
