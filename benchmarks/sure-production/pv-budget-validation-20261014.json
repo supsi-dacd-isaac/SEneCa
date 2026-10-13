@@ -1,0 +1,2181 @@
+{
+  "model_revision": "sure-v6-pv-budget-2",
+  "pass": true,
+  "cases": 318,
+  "passing_cases": 318,
+  "compared_values": 1995907920,
+  "outputs": 137,
+  "passing_gates": {
+    "comparison": 318,
+    "python_physical": 318,
+    "julia_physical": 318,
+    "python_energy": 318,
+    "julia_energy": 318,
+    "warnings": 318
+  },
+  "minima": {
+    "python:Heating Solution": {
+      "case": "sample_min_00",
+      "minimum": -7.105427357601002e-15
+    },
+    "python:Annual archetypes": {
+      "case": "lever_10_0",
+      "minimum": -1.5276668818842153e-14
+    },
+    "julia:Heating Solution": {
+      "case": "sample_min_33",
+      "minimum": -7.105427357601002e-15
+    },
+    "julia:Annual archetypes": {
+      "case": "lever_10_0",
+      "minimum": -1.5276668818842153e-14
+    }
+  },
+  "maximum_absolute_errors": {
+    "PV residential power by Type": {
+      "case": "sample_max_38",
+      "max_abs": 2.2737367544323206e-13
+    },
+    "\"Capacity PV < 30 kW total\"": {
+      "case": "regression_negative_stock",
+      "max_abs": 2.1827872842550278e-11
+    },
+    "\"Capacity PV 30 - 100 kW total\"": {
+      "case": "sample_max_34",
+      "max_abs": 5.820766091346741e-11
+    },
+    "\"Capacity PV > 100 kW total\"": {
+      "case": "high",
+      "max_abs": 2.9103830456733704e-10
+    },
+    "Share of buildings with PV by Type": {
+      "case": "sample_max_44",
+      "max_abs": 3.885780586188048e-16
+    },
+    "Share of buildings with PV by District": {
+      "case": "policy_118",
+      "max_abs": 4.440892098500626e-16
+    },
+    "Battery residential Type": {
+      "case": "sample_max_26",
+      "max_abs": 5.684341886080802e-14
+    },
+    "\"Total Battery capacity < 100 kW\"": {
+      "case": "sample_max_05",
+      "max_abs": 5.329070518200751e-15
+    },
+    "\"Total Battery capacity > 100 kW\"": {
+      "case": "policy_044",
+      "max_abs": 1.0658141036401503e-14
+    },
+    "Total Battery capacity District": {
+      "case": "policy_120",
+      "max_abs": 7.105427357601002e-14
+    },
+    "Batteries by Type": {
+      "case": "sample_min_33",
+      "max_abs": 4.440892098500626e-16
+    },
+    "Electricity price": {
+      "case": "high",
+      "max_abs": 1.6653345369377348e-16
+    },
+    "Energy price": {
+      "case": "sample_min_43",
+      "max_abs": 8.326672684688674e-17
+    },
+    "TSO charge": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "DSO charge": {
+      "case": "high",
+      "max_abs": 1.3877787807814457e-16
+    },
+    "Annual grid upgrading cost District": {
+      "case": "high",
+      "max_abs": 9.313225746154785e-09
+    },
+    "Levy Evolution": {
+      "case": "lever_03_1",
+      "max_abs": 1.3877787807814457e-17
+    },
+    "Cantonal Levy Evolution": {
+      "case": "lever_01_1",
+      "max_abs": 1.3877787807814457e-17
+    },
+    "Total PV electricity production": {
+      "case": "regression_negative_stock",
+      "max_abs": 9.094947017729282e-13
+    },
+    "Total PV electricity injected in the grid": {
+      "case": "regression_negative_stock",
+      "max_abs": 9.094947017729282e-13
+    },
+    "Total PV electricity SC": {
+      "case": "sample_max_42",
+      "max_abs": 2.2737367544323206e-13
+    },
+    "Total annual demand Districts": {
+      "case": "sample_max_49",
+      "max_abs": 2.384185791015625e-07
+    },
+    "Total PV electricity production District": {
+      "case": "high",
+      "max_abs": 2.8421709430404007e-13
+    },
+    "PV electricity SC by District": {
+      "case": "high",
+      "max_abs": 1.9895196601282805e-13
+    },
+    "Average electricity and heating and retrofit cost": {
+      "case": "sample_max_43",
+      "max_abs": 1.8189894035458565e-12
+    },
+    "Specific final consumption": {
+      "case": "sample_max_33",
+      "max_abs": 3.552713678800501e-14
+    },
+    "Specific net final consumption": {
+      "case": "sample_min_38",
+      "max_abs": 2.842170943040401e-14
+    },
+    "Annual consumption Oil": {
+      "case": "lever_03_0",
+      "max_abs": 4.547473508864641e-13
+    },
+    "Annual consumption Gas": {
+      "case": "sample_max_49",
+      "max_abs": 1.1368683772161603e-13
+    },
+    "Annual consumption Wood": {
+      "case": "uncertainty_02_1",
+      "max_abs": 1.7053025658242404e-13
+    },
+    "Annual consumption Electricity EH": {
+      "case": "sample_max_49",
+      "max_abs": 5.684341886080802e-14
+    },
+    "Annual consumption Electricity HP": {
+      "case": "sample_max_27",
+      "max_abs": 1.7053025658242404e-13
+    },
+    "Annual consumption Ambient Heat": {
+      "case": "sample_max_43",
+      "max_abs": 4.547473508864641e-13
+    },
+    "Annual consumption Solar": {
+      "case": "sample_max_49",
+      "max_abs": 7.105427357601002e-15
+    },
+    "Annual consumption DH": {
+      "case": "uncertainty_07_0",
+      "max_abs": 5.684341886080802e-14
+    },
+    "Building area by Performance": {
+      "case": "regression_negative_stock",
+      "max_abs": 7.105427357601002e-15
+    },
+    "Annual incentives Renovation": {
+      "case": "policy_075",
+      "max_abs": 5.684341886080802e-14
+    },
+    "Annual incentives Heating Technologies": {
+      "case": "sample_max_48",
+      "max_abs": 2.5757174171303632e-14
+    },
+    "Annual cantonal funds needed": {
+      "case": "sample_max_16",
+      "max_abs": 5.684341886080802e-14
+    },
+    "Cumulative CO2 emissions": {
+      "case": "uncertainty_06_1",
+      "max_abs": 2.6645352591003757e-15
+    },
+    "Adoption Vehicles": {
+      "case": "sample_min_24",
+      "max_abs": 3.637978807091713e-12
+    },
+    "Vehicles by type": {
+      "case": "sample_max_43",
+      "max_abs": 2.1827872842550278e-11
+    },
+    "Annual CO2 emissions vehicles flow": {
+      "case": "sample_max_49",
+      "max_abs": 1.1102230246251565e-16
+    },
+    "EV by district": {
+      "case": "sample_min_49",
+      "max_abs": 7.275957614183426e-12
+    },
+    "Cumulative CO2 emissions vehicles": {
+      "case": "sample_max_49",
+      "max_abs": 1.7763568394002505e-15
+    },
+    "Electricity dispatched": {
+      "case": "10_mixed",
+      "max_abs": 1.2607970223399434e-14
+    },
+    "Hourly exported electricity": {
+      "case": "10_mixed",
+      "max_abs": 1.264266469291897e-14
+    },
+    "Electricity consumed": {
+      "case": "10_mixed",
+      "max_abs": 1.2607970223399434e-14
+    },
+    "Hourly available supply by Supplier": {
+      "case": "high",
+      "max_abs": 1.149080830487037e-14
+    },
+    "PHS hourly demand": {
+      "case": "10_mixed",
+      "max_abs": 1.1851630787873546e-14
+    },
+    "Power by Type": {
+      "case": "uncertainty_06_0",
+      "max_abs": 2.2737367544323206e-13
+    },
+    "Annual CO2 emissions": {
+      "case": "sample_max_37",
+      "max_abs": 1.6653345369377348e-16
+    },
+    "Building demolition by archetype": {
+      "case": "sample_max_18",
+      "max_abs": 2.1316282072803006e-14
+    },
+    "Buildings adopting HS for old age": {
+      "case": "policy_071",
+      "max_abs": 3.410605131648481e-13
+    },
+    "Consumers adopting PV yes with battery": {
+      "case": "regression_negative_stock",
+      "max_abs": 7.673861546209082e-13
+    },
+    "Consumers adopting RCPv yes with battery": {
+      "case": "sample_max_22",
+      "max_abs": 2.948752353404416e-13
+    },
+    "Buildings construction with battery": {
+      "case": "sample_min_45",
+      "max_abs": 1.0658141036401503e-14
+    },
+    "Initial Heating Solution battery": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Share HS by archetype": {
+      "case": "sample_max_13",
+      "max_abs": 4.440892098500626e-16
+    },
+    "Buildings HS Renovation From": {
+      "case": "sample_min_20",
+      "max_abs": 1.8474111129762605e-13
+    },
+    "Buildings HS Renovation To": {
+      "case": "sample_max_16",
+      "max_abs": 1.6342482922482304e-13
+    },
+    "Buildings adopting HS": {
+      "case": "regression_negative_stock",
+      "max_abs": 7.389644451905042e-13
+    },
+    "Consumers leaving HS for old age": {
+      "case": "policy_071",
+      "max_abs": 2.6290081223123707e-13
+    },
+    "Buildings leaving HS": {
+      "case": "regression_negative_stock",
+      "max_abs": 1.2505552149377763e-12
+    },
+    "Heating Solution": {
+      "case": "policy_096",
+      "max_abs": 2.2737367544323206e-12
+    },
+    "Consumers adopting PV no": {
+      "case": "regression_negative_stock",
+      "max_abs": 1.2505552149377763e-12
+    },
+    "Annual fuel cost archetype": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Ground High exp": {
+      "case": "sample_max_17",
+      "max_abs": 1.0800249583553523e-12
+    },
+    "Ground High scaled": {
+      "case": "sample_max_44",
+      "max_abs": 4.440892098500626e-15
+    },
+    "Ground Low exp": {
+      "case": "06_heat_min",
+      "max_abs": 3.183231456205249e-12
+    },
+    "House Value coefficient HT": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Market Share HS no incentives noDH": {
+      "case": "policy_046",
+      "max_abs": 8.93729534823251e-15
+    },
+    "Market Share HS no incentives noDH noGas": {
+      "case": "policy_106",
+      "max_abs": 6.106226635438361e-16
+    },
+    "Market Share HS no incentives noGas": {
+      "case": "sample_min_28",
+      "max_abs": 7.216449660063518e-16
+    },
+    "Market Share HS noDH": {
+      "case": "policy_095",
+      "max_abs": 2.4091839634365897e-14
+    },
+    "Market Share HS noDH noGas": {
+      "case": "policy_105",
+      "max_abs": 5.551115123125783e-16
+    },
+    "Market Share HS noGas": {
+      "case": "sample_min_29",
+      "max_abs": 7.771561172376096e-16
+    },
+    "Overall demolition rate": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Owners adopting PV": {
+      "case": "regression_negative_stock",
+      "max_abs": 9.379164112033322e-13
+    },
+    "Owners adopting RCP": {
+      "case": "regression_negative_stock",
+      "max_abs": 4.518607710224387e-14
+    },
+    "Peer effect HS factor": {
+      "case": "sample_min_29",
+      "max_abs": 2.220446049250313e-15
+    },
+    "Renters adopting PV": {
+      "case": "regression_negative_stock",
+      "max_abs": 2.984279490192421e-13
+    },
+    "Renters adopting RCP": {
+      "case": "regression_negative_stock",
+      "max_abs": 8.970602038971265e-14
+    },
+    "Roof High exp": {
+      "case": "sample_max_17",
+      "max_abs": 8.881784197001252e-15
+    },
+    "Roof High scaled": {
+      "case": "sample_min_17",
+      "max_abs": 4.440892098500626e-15
+    },
+    "Roof Low exp": {
+      "case": "06_heat_min",
+      "max_abs": 2.1316282072803006e-14
+    },
+    "Utility HS": {
+      "case": "sample_min_29",
+      "max_abs": 2.6645352591003757e-15
+    },
+    "Utility HS exp 3": {
+      "case": "sample_max_18",
+      "max_abs": 1.5916157281026244e-12
+    },
+    "Utility HS exp 3 no incentives": {
+      "case": "sample_max_49",
+      "max_abs": 1.3642420526593924e-12
+    },
+    "Utility HS no incentives": {
+      "case": "sample_min_29",
+      "max_abs": 2.6645352591003757e-15
+    },
+    "Utility PV no Eco": {
+      "case": "regression_negative_stock",
+      "max_abs": 3.552713678800501e-15
+    },
+    "Utility battery": {
+      "case": "regression_negative_stock",
+      "max_abs": 1.0658141036401503e-14
+    },
+    "Utility battery RCPv": {
+      "case": "lever_02_1",
+      "max_abs": 7.105427357601002e-15
+    },
+    "Utility vehicle": {
+      "case": "sample_min_32",
+      "max_abs": 1.7763568394002505e-15
+    },
+    "Vehicle range factor change": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Wall High exp": {
+      "case": "sample_max_05",
+      "max_abs": 6.394884621840902e-14
+    },
+    "Wall High scaled": {
+      "case": "sample_max_44",
+      "max_abs": 4.440892098500626e-15
+    },
+    "Wall Low exp": {
+      "case": "low",
+      "max_abs": 3.979039320256561e-13
+    },
+    "Hourly demand and PHS": {
+      "case": "10_mixed",
+      "max_abs": 1.1879386363489175e-14
+    },
+    "PV reg scenario": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Energy Community scenario": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "MuKEn scenario": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Electricity and heating and retrofit annual cost": {
+      "case": "uncertainty_03_0",
+      "max_abs": 1.4901161193847656e-08
+    },
+    "Average levy minus incentives archetype": {
+      "case": "02_pv_max",
+      "max_abs": 4.092726157978177e-12
+    },
+    "Average tax minus incentives archetype": {
+      "case": "lever_10_1",
+      "max_abs": 3.725290298461914e-09
+    },
+    "Batteries": {
+      "case": "policy_096",
+      "max_abs": 2.2737367544323206e-12
+    },
+    "HeatPumps": {
+      "case": "sample_min_47",
+      "max_abs": 3.637978807091713e-12
+    },
+    "Total annual electricity consumed": {
+      "case": "sample_max_49",
+      "max_abs": 5.4569682106375694e-12
+    },
+    "Total annual electricity demand": {
+      "case": "policy_127",
+      "max_abs": 2.2737367544323206e-12
+    },
+    "Total annual electricity dispatched": {
+      "case": "uncertainty_03_1",
+      "max_abs": 1.3642420526593924e-12
+    },
+    "Total Res buildings": {
+      "case": "sample_min_41",
+      "max_abs": 5.4569682106375694e-12
+    },
+    "HS VeryNew": {
+      "case": "sample_max_05",
+      "max_abs": 1.8189894035458565e-11
+    },
+    "HS New": {
+      "case": "sample_min_41",
+      "max_abs": 1.2732925824820995e-11
+    },
+    "HS Old": {
+      "case": "sample_max_43",
+      "max_abs": 1.0913936421275139e-11
+    },
+    "HS VeryOld": {
+      "case": "policy_109",
+      "max_abs": 9.094947017729282e-12
+    },
+    "Priority vector by supplier": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Marginal cost by supplier": {
+      "case": "sample_max_49",
+      "max_abs": 0.0
+    },
+    "Hourly imported electricity": {
+      "case": "mid",
+      "max_abs": 1.2385925618474403e-15
+    },
+    "PHS hourly supply": {
+      "case": "high",
+      "max_abs": 1.149080830487037e-14
+    },
+    "Hour factor PHS consumption": {
+      "case": "10_mixed",
+      "max_abs": 2.2985086056692694e-17
+    },
+    "Seasonal PHS monthly demand": {
+      "case": "lever_17_1",
+      "max_abs": 3.552713678800501e-15
+    },
+    "Seasonal PHS monthly production": {
+      "case": "high",
+      "max_abs": 2.8066438062523957e-13
+    },
+    "Seasonal PHS hourly demand": {
+      "case": "lever_17_1",
+      "max_abs": 2.0816681711721685e-17
+    },
+    "Seasonal PHS hourly production": {
+      "case": "high",
+      "max_abs": 1.149080830487037e-14
+    },
+    "Annual archetypes": {
+      "case": "policy_093",
+      "max_abs": 1.0913936421275139e-11
+    },
+    "Owners adopting RCPv": {
+      "case": "sample_max_22",
+      "max_abs": 3.6770586575585185e-13
+    },
+    "Renters adopting RCPv": {
+      "case": "sample_max_22",
+      "max_abs": 1.5631940186722204e-13
+    },
+    "Requested Owners adopting PV": {
+      "case": "regression_negative_stock",
+      "max_abs": 9.379164112033322e-13
+    },
+    "Requested Owners adopting RCP": {
+      "case": "regression_negative_stock",
+      "max_abs": 4.518607710224387e-14
+    },
+    "Requested Owners adopting RCPv": {
+      "case": "sample_max_22",
+      "max_abs": 3.6770586575585185e-13
+    },
+    "Requested Renters adopting PV": {
+      "case": "regression_negative_stock",
+      "max_abs": 2.984279490192421e-13
+    },
+    "Requested Renters adopting RCP": {
+      "case": "regression_negative_stock",
+      "max_abs": 8.970602038971265e-14
+    },
+    "Requested Renters adopting RCPv": {
+      "case": "sample_max_22",
+      "max_abs": 1.5631940186722204e-13
+    },
+    "Available PV adoption": {
+      "case": "sample_max_45",
+      "max_abs": 1.8189894035458565e-12
+    },
+    "Total PV request": {
+      "case": "regression_negative_stock",
+      "max_abs": 1.2505552149377763e-12
+    },
+    "Accepted PV adoption": {
+      "case": "regression_negative_stock",
+      "max_abs": 1.2505552149377763e-12
+    },
+    "Cumulative archetype HH": {
+      "case": "sample_max_17",
+      "max_abs": 1.7462298274040222e-10
+    }
+  },
+  "case_results": [
+    {
+      "case": "base",
+      "pass": true
+    },
+    {
+      "case": "regression_negative_stock",
+      "pass": true
+    },
+    {
+      "case": "low",
+      "pass": true
+    },
+    {
+      "case": "mid",
+      "pass": true
+    },
+    {
+      "case": "high",
+      "pass": true
+    },
+    {
+      "case": "01_base",
+      "pass": true
+    },
+    {
+      "case": "02_pv_max",
+      "pass": true
+    },
+    {
+      "case": "03_pv_min",
+      "pass": true
+    },
+    {
+      "case": "04_fit_005",
+      "pass": true
+    },
+    {
+      "case": "05_heat_max",
+      "pass": true
+    },
+    {
+      "case": "06_heat_min",
+      "pass": true
+    },
+    {
+      "case": "07_vehicles_max",
+      "pass": true
+    },
+    {
+      "case": "08_vehicles_min",
+      "pass": true
+    },
+    {
+      "case": "09_hydro_on",
+      "pass": true
+    },
+    {
+      "case": "10_mixed",
+      "pass": true
+    },
+    {
+      "case": "lever_00_0",
+      "pass": true
+    },
+    {
+      "case": "lever_00_1",
+      "pass": true
+    },
+    {
+      "case": "lever_01_0",
+      "pass": true
+    },
+    {
+      "case": "lever_01_1",
+      "pass": true
+    },
+    {
+      "case": "lever_02_0",
+      "pass": true
+    },
+    {
+      "case": "lever_02_1",
+      "pass": true
+    },
+    {
+      "case": "lever_03_0",
+      "pass": true
+    },
+    {
+      "case": "lever_03_1",
+      "pass": true
+    },
+    {
+      "case": "lever_04_0",
+      "pass": true
+    },
+    {
+      "case": "lever_04_1",
+      "pass": true
+    },
+    {
+      "case": "lever_05_0",
+      "pass": true
+    },
+    {
+      "case": "lever_05_1",
+      "pass": true
+    },
+    {
+      "case": "lever_06_0",
+      "pass": true
+    },
+    {
+      "case": "lever_06_1",
+      "pass": true
+    },
+    {
+      "case": "lever_07_0",
+      "pass": true
+    },
+    {
+      "case": "lever_07_1",
+      "pass": true
+    },
+    {
+      "case": "lever_08_0",
+      "pass": true
+    },
+    {
+      "case": "lever_08_1",
+      "pass": true
+    },
+    {
+      "case": "lever_09_0",
+      "pass": true
+    },
+    {
+      "case": "lever_09_1",
+      "pass": true
+    },
+    {
+      "case": "lever_10_0",
+      "pass": true
+    },
+    {
+      "case": "lever_10_1",
+      "pass": true
+    },
+    {
+      "case": "lever_11_0",
+      "pass": true
+    },
+    {
+      "case": "lever_11_1",
+      "pass": true
+    },
+    {
+      "case": "lever_11_2",
+      "pass": true
+    },
+    {
+      "case": "lever_12_0",
+      "pass": true
+    },
+    {
+      "case": "lever_12_1",
+      "pass": true
+    },
+    {
+      "case": "lever_13_0",
+      "pass": true
+    },
+    {
+      "case": "lever_13_1",
+      "pass": true
+    },
+    {
+      "case": "lever_14_0",
+      "pass": true
+    },
+    {
+      "case": "lever_14_1",
+      "pass": true
+    },
+    {
+      "case": "lever_15_0",
+      "pass": true
+    },
+    {
+      "case": "lever_15_1",
+      "pass": true
+    },
+    {
+      "case": "lever_16_0",
+      "pass": true
+    },
+    {
+      "case": "lever_16_1",
+      "pass": true
+    },
+    {
+      "case": "lever_17_0",
+      "pass": true
+    },
+    {
+      "case": "lever_17_1",
+      "pass": true
+    },
+    {
+      "case": "lever_18_0",
+      "pass": true
+    },
+    {
+      "case": "lever_18_1",
+      "pass": true
+    },
+    {
+      "case": "lever_19_0",
+      "pass": true
+    },
+    {
+      "case": "lever_19_1",
+      "pass": true
+    },
+    {
+      "case": "policy_000",
+      "pass": true
+    },
+    {
+      "case": "policy_001",
+      "pass": true
+    },
+    {
+      "case": "policy_002",
+      "pass": true
+    },
+    {
+      "case": "policy_003",
+      "pass": true
+    },
+    {
+      "case": "policy_004",
+      "pass": true
+    },
+    {
+      "case": "policy_005",
+      "pass": true
+    },
+    {
+      "case": "policy_006",
+      "pass": true
+    },
+    {
+      "case": "policy_007",
+      "pass": true
+    },
+    {
+      "case": "policy_008",
+      "pass": true
+    },
+    {
+      "case": "policy_009",
+      "pass": true
+    },
+    {
+      "case": "policy_010",
+      "pass": true
+    },
+    {
+      "case": "policy_011",
+      "pass": true
+    },
+    {
+      "case": "policy_012",
+      "pass": true
+    },
+    {
+      "case": "policy_013",
+      "pass": true
+    },
+    {
+      "case": "policy_014",
+      "pass": true
+    },
+    {
+      "case": "policy_015",
+      "pass": true
+    },
+    {
+      "case": "policy_016",
+      "pass": true
+    },
+    {
+      "case": "policy_017",
+      "pass": true
+    },
+    {
+      "case": "policy_018",
+      "pass": true
+    },
+    {
+      "case": "policy_019",
+      "pass": true
+    },
+    {
+      "case": "policy_020",
+      "pass": true
+    },
+    {
+      "case": "policy_021",
+      "pass": true
+    },
+    {
+      "case": "policy_022",
+      "pass": true
+    },
+    {
+      "case": "policy_023",
+      "pass": true
+    },
+    {
+      "case": "policy_024",
+      "pass": true
+    },
+    {
+      "case": "policy_025",
+      "pass": true
+    },
+    {
+      "case": "policy_026",
+      "pass": true
+    },
+    {
+      "case": "policy_027",
+      "pass": true
+    },
+    {
+      "case": "policy_028",
+      "pass": true
+    },
+    {
+      "case": "policy_029",
+      "pass": true
+    },
+    {
+      "case": "policy_030",
+      "pass": true
+    },
+    {
+      "case": "policy_031",
+      "pass": true
+    },
+    {
+      "case": "policy_032",
+      "pass": true
+    },
+    {
+      "case": "policy_033",
+      "pass": true
+    },
+    {
+      "case": "policy_034",
+      "pass": true
+    },
+    {
+      "case": "policy_035",
+      "pass": true
+    },
+    {
+      "case": "policy_036",
+      "pass": true
+    },
+    {
+      "case": "policy_037",
+      "pass": true
+    },
+    {
+      "case": "policy_038",
+      "pass": true
+    },
+    {
+      "case": "policy_039",
+      "pass": true
+    },
+    {
+      "case": "policy_040",
+      "pass": true
+    },
+    {
+      "case": "policy_041",
+      "pass": true
+    },
+    {
+      "case": "policy_042",
+      "pass": true
+    },
+    {
+      "case": "policy_043",
+      "pass": true
+    },
+    {
+      "case": "policy_044",
+      "pass": true
+    },
+    {
+      "case": "policy_045",
+      "pass": true
+    },
+    {
+      "case": "policy_046",
+      "pass": true
+    },
+    {
+      "case": "policy_047",
+      "pass": true
+    },
+    {
+      "case": "policy_048",
+      "pass": true
+    },
+    {
+      "case": "policy_049",
+      "pass": true
+    },
+    {
+      "case": "policy_050",
+      "pass": true
+    },
+    {
+      "case": "policy_051",
+      "pass": true
+    },
+    {
+      "case": "policy_052",
+      "pass": true
+    },
+    {
+      "case": "policy_053",
+      "pass": true
+    },
+    {
+      "case": "policy_054",
+      "pass": true
+    },
+    {
+      "case": "policy_055",
+      "pass": true
+    },
+    {
+      "case": "policy_056",
+      "pass": true
+    },
+    {
+      "case": "policy_057",
+      "pass": true
+    },
+    {
+      "case": "policy_058",
+      "pass": true
+    },
+    {
+      "case": "policy_059",
+      "pass": true
+    },
+    {
+      "case": "policy_060",
+      "pass": true
+    },
+    {
+      "case": "policy_061",
+      "pass": true
+    },
+    {
+      "case": "policy_062",
+      "pass": true
+    },
+    {
+      "case": "policy_063",
+      "pass": true
+    },
+    {
+      "case": "policy_064",
+      "pass": true
+    },
+    {
+      "case": "policy_065",
+      "pass": true
+    },
+    {
+      "case": "policy_066",
+      "pass": true
+    },
+    {
+      "case": "policy_067",
+      "pass": true
+    },
+    {
+      "case": "policy_068",
+      "pass": true
+    },
+    {
+      "case": "policy_069",
+      "pass": true
+    },
+    {
+      "case": "policy_070",
+      "pass": true
+    },
+    {
+      "case": "policy_071",
+      "pass": true
+    },
+    {
+      "case": "policy_072",
+      "pass": true
+    },
+    {
+      "case": "policy_073",
+      "pass": true
+    },
+    {
+      "case": "policy_074",
+      "pass": true
+    },
+    {
+      "case": "policy_075",
+      "pass": true
+    },
+    {
+      "case": "policy_076",
+      "pass": true
+    },
+    {
+      "case": "policy_077",
+      "pass": true
+    },
+    {
+      "case": "policy_078",
+      "pass": true
+    },
+    {
+      "case": "policy_079",
+      "pass": true
+    },
+    {
+      "case": "policy_080",
+      "pass": true
+    },
+    {
+      "case": "policy_081",
+      "pass": true
+    },
+    {
+      "case": "policy_082",
+      "pass": true
+    },
+    {
+      "case": "policy_083",
+      "pass": true
+    },
+    {
+      "case": "policy_084",
+      "pass": true
+    },
+    {
+      "case": "policy_085",
+      "pass": true
+    },
+    {
+      "case": "policy_086",
+      "pass": true
+    },
+    {
+      "case": "policy_087",
+      "pass": true
+    },
+    {
+      "case": "policy_088",
+      "pass": true
+    },
+    {
+      "case": "policy_089",
+      "pass": true
+    },
+    {
+      "case": "policy_090",
+      "pass": true
+    },
+    {
+      "case": "policy_091",
+      "pass": true
+    },
+    {
+      "case": "policy_092",
+      "pass": true
+    },
+    {
+      "case": "policy_093",
+      "pass": true
+    },
+    {
+      "case": "policy_094",
+      "pass": true
+    },
+    {
+      "case": "policy_095",
+      "pass": true
+    },
+    {
+      "case": "policy_096",
+      "pass": true
+    },
+    {
+      "case": "policy_097",
+      "pass": true
+    },
+    {
+      "case": "policy_098",
+      "pass": true
+    },
+    {
+      "case": "policy_099",
+      "pass": true
+    },
+    {
+      "case": "policy_100",
+      "pass": true
+    },
+    {
+      "case": "policy_101",
+      "pass": true
+    },
+    {
+      "case": "policy_102",
+      "pass": true
+    },
+    {
+      "case": "policy_103",
+      "pass": true
+    },
+    {
+      "case": "policy_104",
+      "pass": true
+    },
+    {
+      "case": "policy_105",
+      "pass": true
+    },
+    {
+      "case": "policy_106",
+      "pass": true
+    },
+    {
+      "case": "policy_107",
+      "pass": true
+    },
+    {
+      "case": "policy_108",
+      "pass": true
+    },
+    {
+      "case": "policy_109",
+      "pass": true
+    },
+    {
+      "case": "policy_110",
+      "pass": true
+    },
+    {
+      "case": "policy_111",
+      "pass": true
+    },
+    {
+      "case": "policy_112",
+      "pass": true
+    },
+    {
+      "case": "policy_113",
+      "pass": true
+    },
+    {
+      "case": "policy_114",
+      "pass": true
+    },
+    {
+      "case": "policy_115",
+      "pass": true
+    },
+    {
+      "case": "policy_116",
+      "pass": true
+    },
+    {
+      "case": "policy_117",
+      "pass": true
+    },
+    {
+      "case": "policy_118",
+      "pass": true
+    },
+    {
+      "case": "policy_119",
+      "pass": true
+    },
+    {
+      "case": "policy_120",
+      "pass": true
+    },
+    {
+      "case": "policy_121",
+      "pass": true
+    },
+    {
+      "case": "policy_122",
+      "pass": true
+    },
+    {
+      "case": "policy_123",
+      "pass": true
+    },
+    {
+      "case": "policy_124",
+      "pass": true
+    },
+    {
+      "case": "policy_125",
+      "pass": true
+    },
+    {
+      "case": "policy_126",
+      "pass": true
+    },
+    {
+      "case": "policy_127",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_00_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_00_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_01_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_01_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_02_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_02_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_03_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_03_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_04_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_04_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_05_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_05_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_06_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_06_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_07_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_07_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_08_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_08_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_09_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_09_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_10_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_10_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_11_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_11_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_12_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_12_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_13_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_13_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_14_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_14_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_15_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_15_1",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_16_0",
+      "pass": true
+    },
+    {
+      "case": "uncertainty_16_1",
+      "pass": true
+    },
+    {
+      "case": "sample_min_00",
+      "pass": true
+    },
+    {
+      "case": "sample_min_01",
+      "pass": true
+    },
+    {
+      "case": "sample_min_02",
+      "pass": true
+    },
+    {
+      "case": "sample_min_03",
+      "pass": true
+    },
+    {
+      "case": "sample_min_04",
+      "pass": true
+    },
+    {
+      "case": "sample_min_05",
+      "pass": true
+    },
+    {
+      "case": "sample_min_06",
+      "pass": true
+    },
+    {
+      "case": "sample_min_07",
+      "pass": true
+    },
+    {
+      "case": "sample_min_08",
+      "pass": true
+    },
+    {
+      "case": "sample_min_09",
+      "pass": true
+    },
+    {
+      "case": "sample_min_10",
+      "pass": true
+    },
+    {
+      "case": "sample_min_11",
+      "pass": true
+    },
+    {
+      "case": "sample_min_12",
+      "pass": true
+    },
+    {
+      "case": "sample_min_13",
+      "pass": true
+    },
+    {
+      "case": "sample_min_14",
+      "pass": true
+    },
+    {
+      "case": "sample_min_15",
+      "pass": true
+    },
+    {
+      "case": "sample_min_16",
+      "pass": true
+    },
+    {
+      "case": "sample_min_17",
+      "pass": true
+    },
+    {
+      "case": "sample_min_18",
+      "pass": true
+    },
+    {
+      "case": "sample_min_19",
+      "pass": true
+    },
+    {
+      "case": "sample_min_20",
+      "pass": true
+    },
+    {
+      "case": "sample_min_21",
+      "pass": true
+    },
+    {
+      "case": "sample_min_22",
+      "pass": true
+    },
+    {
+      "case": "sample_min_23",
+      "pass": true
+    },
+    {
+      "case": "sample_min_24",
+      "pass": true
+    },
+    {
+      "case": "sample_min_25",
+      "pass": true
+    },
+    {
+      "case": "sample_min_26",
+      "pass": true
+    },
+    {
+      "case": "sample_min_27",
+      "pass": true
+    },
+    {
+      "case": "sample_min_28",
+      "pass": true
+    },
+    {
+      "case": "sample_min_29",
+      "pass": true
+    },
+    {
+      "case": "sample_min_30",
+      "pass": true
+    },
+    {
+      "case": "sample_min_31",
+      "pass": true
+    },
+    {
+      "case": "sample_min_32",
+      "pass": true
+    },
+    {
+      "case": "sample_min_33",
+      "pass": true
+    },
+    {
+      "case": "sample_min_34",
+      "pass": true
+    },
+    {
+      "case": "sample_min_35",
+      "pass": true
+    },
+    {
+      "case": "sample_min_36",
+      "pass": true
+    },
+    {
+      "case": "sample_min_37",
+      "pass": true
+    },
+    {
+      "case": "sample_min_38",
+      "pass": true
+    },
+    {
+      "case": "sample_min_39",
+      "pass": true
+    },
+    {
+      "case": "sample_min_40",
+      "pass": true
+    },
+    {
+      "case": "sample_min_41",
+      "pass": true
+    },
+    {
+      "case": "sample_min_42",
+      "pass": true
+    },
+    {
+      "case": "sample_min_43",
+      "pass": true
+    },
+    {
+      "case": "sample_min_44",
+      "pass": true
+    },
+    {
+      "case": "sample_min_45",
+      "pass": true
+    },
+    {
+      "case": "sample_min_46",
+      "pass": true
+    },
+    {
+      "case": "sample_min_47",
+      "pass": true
+    },
+    {
+      "case": "sample_min_48",
+      "pass": true
+    },
+    {
+      "case": "sample_min_49",
+      "pass": true
+    },
+    {
+      "case": "sample_max_00",
+      "pass": true
+    },
+    {
+      "case": "sample_max_01",
+      "pass": true
+    },
+    {
+      "case": "sample_max_02",
+      "pass": true
+    },
+    {
+      "case": "sample_max_03",
+      "pass": true
+    },
+    {
+      "case": "sample_max_04",
+      "pass": true
+    },
+    {
+      "case": "sample_max_05",
+      "pass": true
+    },
+    {
+      "case": "sample_max_06",
+      "pass": true
+    },
+    {
+      "case": "sample_max_07",
+      "pass": true
+    },
+    {
+      "case": "sample_max_08",
+      "pass": true
+    },
+    {
+      "case": "sample_max_09",
+      "pass": true
+    },
+    {
+      "case": "sample_max_10",
+      "pass": true
+    },
+    {
+      "case": "sample_max_11",
+      "pass": true
+    },
+    {
+      "case": "sample_max_12",
+      "pass": true
+    },
+    {
+      "case": "sample_max_13",
+      "pass": true
+    },
+    {
+      "case": "sample_max_14",
+      "pass": true
+    },
+    {
+      "case": "sample_max_15",
+      "pass": true
+    },
+    {
+      "case": "sample_max_16",
+      "pass": true
+    },
+    {
+      "case": "sample_max_17",
+      "pass": true
+    },
+    {
+      "case": "sample_max_18",
+      "pass": true
+    },
+    {
+      "case": "sample_max_19",
+      "pass": true
+    },
+    {
+      "case": "sample_max_20",
+      "pass": true
+    },
+    {
+      "case": "sample_max_21",
+      "pass": true
+    },
+    {
+      "case": "sample_max_22",
+      "pass": true
+    },
+    {
+      "case": "sample_max_23",
+      "pass": true
+    },
+    {
+      "case": "sample_max_24",
+      "pass": true
+    },
+    {
+      "case": "sample_max_25",
+      "pass": true
+    },
+    {
+      "case": "sample_max_26",
+      "pass": true
+    },
+    {
+      "case": "sample_max_27",
+      "pass": true
+    },
+    {
+      "case": "sample_max_28",
+      "pass": true
+    },
+    {
+      "case": "sample_max_29",
+      "pass": true
+    },
+    {
+      "case": "sample_max_30",
+      "pass": true
+    },
+    {
+      "case": "sample_max_31",
+      "pass": true
+    },
+    {
+      "case": "sample_max_32",
+      "pass": true
+    },
+    {
+      "case": "sample_max_33",
+      "pass": true
+    },
+    {
+      "case": "sample_max_34",
+      "pass": true
+    },
+    {
+      "case": "sample_max_35",
+      "pass": true
+    },
+    {
+      "case": "sample_max_36",
+      "pass": true
+    },
+    {
+      "case": "sample_max_37",
+      "pass": true
+    },
+    {
+      "case": "sample_max_38",
+      "pass": true
+    },
+    {
+      "case": "sample_max_39",
+      "pass": true
+    },
+    {
+      "case": "sample_max_40",
+      "pass": true
+    },
+    {
+      "case": "sample_max_41",
+      "pass": true
+    },
+    {
+      "case": "sample_max_42",
+      "pass": true
+    },
+    {
+      "case": "sample_max_43",
+      "pass": true
+    },
+    {
+      "case": "sample_max_44",
+      "pass": true
+    },
+    {
+      "case": "sample_max_45",
+      "pass": true
+    },
+    {
+      "case": "sample_max_46",
+      "pass": true
+    },
+    {
+      "case": "sample_max_47",
+      "pass": true
+    },
+    {
+      "case": "sample_max_48",
+      "pass": true
+    },
+    {
+      "case": "sample_max_49",
+      "pass": true
+    }
+  ],
+  "report_sha256": {
+    "base": "6cb4fdbf65dfdf4409e9849c35f226fb3484c9481aa9b6f96766c96e2b78dfe5",
+    "regression_negative_stock": "a4cbfd1d1e582a2d66d8f5aa40380a1997513cfb6172735e5f404b05925d9440",
+    "low": "7f775beca12de189d30914ba5d6e427350504984767cd284331f4035d43e4034",
+    "mid": "a0baf2a5d49d820f62b40d321cf90ee8b1818b9f26e32769f994064680c49a6b",
+    "high": "597ee630a809ec68dc092c17c8b9e682d1effe5b6f4515c4f5dc153cde79b681",
+    "01_base": "776d7e14dd35eba02cd28eff1ee6de13b28c239951a620849369b4b646d7ac97",
+    "02_pv_max": "db4a56803a7f522d17842f82e7bb223caba7669ab72fd1bf8772556cf876850b",
+    "03_pv_min": "ede4e802bc7636120a26e82b20ea040c6e0348449e0e85c246c423d579cf985a",
+    "04_fit_005": "a7010d17d03f1f8b41fa38ca47d0b2872c497a317a41a7302d3878e9f68539d5",
+    "05_heat_max": "bb6b10602864f8ea3a5c0aab62636c88876a3c9f8adf05c83a8a9d85e619f741",
+    "06_heat_min": "33040bbdf2e4c1b4bfc10c268eeabf65daa00df0628266a9bd7207e35d1f15e3",
+    "07_vehicles_max": "6d1f65c93fc47cb3d84a7ea274aed2d68f7d84250b7162160b1efd04bfceeffc",
+    "08_vehicles_min": "33cbc7a7434851260c613afa1bd6be470fdceadd2c7abfa21ef83adf39db1623",
+    "09_hydro_on": "499476b9223543d5bde41a5d82e2cefeca76eac3eac056213fde06dc905f497e",
+    "10_mixed": "f828ed5f892c82ed472adbbfffabe5743016a29e1459026598252ce2ba884e94",
+    "lever_00_0": "8223b57537c85cbcea9571de1a90731eed0d920fe4b5110ed2564d32a62e14a3",
+    "lever_00_1": "2f0d81f38c36e6a3f63e9bf0fa1ef0941281f1ef05f2805daad3d782af4f1245",
+    "lever_01_0": "3d5ee4981e0040830bd1b55c722f10deaa6895056877f75147e421a66785c509",
+    "lever_01_1": "6beabe755733cc52b1d668247302b7412e38c61e1cf241ea7947b555ececad4e",
+    "lever_02_0": "0e102344f7f62ef2aff5f7c03d576f666ddea7b29caf51a27ab6ddc306dc780a",
+    "lever_02_1": "0c124edf06ab3d56db3b33fdb062e0056dd14d8e31b530499e8629b389de5139",
+    "lever_03_0": "0bf7c990a9b2916434c70eaf19247cc9d9244cd265480131bb776091a3cfa01c",
+    "lever_03_1": "11a90086a772b9df6d953a4834d43d05535b8766d0d4cf82f1cbc3865cfc6b71",
+    "lever_04_0": "a32f6bbb4edbfa0b1728e6cd1ad9cee54158ff4b18ba351bdc646c31c37d70b0",
+    "lever_04_1": "118fc92000cb932b3e42983567598104aff82dd8ff7696b0b1ff64e305228dc4",
+    "lever_05_0": "e593c5617bcb6c0e6c5ce3b2c9455ae0b842dbc7a6327466ea41d693f8eb4337",
+    "lever_05_1": "fe03014fd2b37c8902fa45eb15c2b9e207b1a74c59484e286cb09c46ceb14840",
+    "lever_06_0": "ee3b45753ecdb6aa5651637470ae20dbcfbca3baeb9d3de2350c0d24dac83a85",
+    "lever_06_1": "c9c820e46e0e7954aad7fcfddc3aa692cfb8547c1ed03861997831523bbacb43",
+    "lever_07_0": "888b96fb87ceb19c1738daa4761271b5cbedf849bb94ae92c1b097efa5fcf1d6",
+    "lever_07_1": "c30b92f642dccf0d4b34e9cc4c26893fec46033d48e651328d63d2832b3c8ffd",
+    "lever_08_0": "691201f05a371784b0764e99fa08db278b15d88eb7f65daaccc2e9c988bcef71",
+    "lever_08_1": "a36ac4f5c3899e8e699a4b8681cddd3da32589df6a48a2c865f835c131ce87be",
+    "lever_09_0": "11dc3a956e1792f86dd728c75c563928aba31c54577685527ecd88d1e496c095",
+    "lever_09_1": "805ffc705ca97236ac638f1530c88d0567e3e97ea683eacb6cf1ad6033dd520c",
+    "lever_10_0": "9bcd75b8bf5a5c025a9762b9518532901b423488260a6d5eb39fd72c2aed48d9",
+    "lever_10_1": "d5f88943c39cb1b0ff148b86ca7afc2674f1dfac3c4d08f9a3707705508afd70",
+    "lever_11_0": "80b20c20b3afc73135295459ef3ddf025b44e82328c246b3f46e6c616e2f2641",
+    "lever_11_1": "d0111e88df37d74516ee4764ae8d65cf29a141d339e1a377f301d461aa4a1d23",
+    "lever_11_2": "574eff267fd6b850031abe7be1a06dd70f8ba9698b80686bae2e9334072f1a78",
+    "lever_12_0": "7a3aba856223131405acb361a8dbb172c35137d23279ca57bf37499507d01ade",
+    "lever_12_1": "006cfed6385f23cf8eb23588a7ee14c4f7b99abaf2f9d1a73368aaba65ccd1b6",
+    "lever_13_0": "3b39427183c7a81929d30553d6ccdd4705a347284e6cf0ee7ab5f565e6fab9d8",
+    "lever_13_1": "24a5f15b33c72c5710cee82f468bb0c913b29d8fb55630fbf2e292406479a8e6",
+    "lever_14_0": "553b2ba2093c6a4d42ff3144db4a68b7265c58fe585def85aa957c23b04b27a3",
+    "lever_14_1": "7abe23c0deb5fd9a9b4390682fd91d37d2de2f0f9c09d659359657708f11d3a2",
+    "lever_15_0": "b335839f7fa2429482f3d4c7bce51756c2272fcf6e7d0c64c5913bf1dd72d8b0",
+    "lever_15_1": "370bc2bc8ba68886d782dec09344603b99c269ed3941fdf020ac692fb7eeec13",
+    "lever_16_0": "5a1e25f3745f6f68c6c929c5c0d03d6bd6d514d7328e3ed499c476a232f46e03",
+    "lever_16_1": "9e3a7f58eb62066053dc9a03ad3dbc38b62a3a8b9ffd54c11cc2f842b032c62b",
+    "lever_17_0": "cf64de7d263289ff4f1f357a73d88a7672d731cb935ef0016e41908313af5310",
+    "lever_17_1": "a04129f7e0240cf5119fff9553ac43e6dfadb9cecf9a2153e63ef22965658680",
+    "lever_18_0": "1c15bfafc746c63c41244e2ab9e265e77084493c32f7d497128d15204cc94b35",
+    "lever_18_1": "909a362dec672c02309b527b5cb9d5fb4f5a99cdcb8bbad448e3465b37b87542",
+    "lever_19_0": "cfbf0b22ff23e17be03ac66b0903f506b4d0fb3c86e238f4082f225163d021cd",
+    "lever_19_1": "2fa04ba8bd6d84d8be9b87c52c230e86536db61e2e8c15e95c662c24bce1b632",
+    "policy_000": "8bbf0f9dc8c58238089796182def36d999c3f64aa0233101f26dc8d4b7656200",
+    "policy_001": "6c32867670809a831c61fc82be9c033a6c3326c04cea206d0d50cd0e0fcdfd3d",
+    "policy_002": "de2b55e03a805d13ba5d4c161dbd3f27cedafcb72d24205f5a758caa48acd22e",
+    "policy_003": "b6277b73db86296d112f54e769af4241b8ba48c3e0fa8d1df3a9fc19e2c451fd",
+    "policy_004": "f9d475ec8b14ca141d6b3921f2e287a3058a67c58ba8a0747e8f9b2552ed008e",
+    "policy_005": "2718dfb28105600accc58be7b46ffcbd39d3a1de0ef2931196f92f1ce0e7fad5",
+    "policy_006": "4e762224222772941ce398eefeae085a1c568aef7c8c7dcc7ed353100e42daf4",
+    "policy_007": "e951cf3a733edfed5859d5a0be4eb0ba425ee854b79be949bd320c6717340396",
+    "policy_008": "ce0c1d5bc1ad220fe5377c3d203945c4ab044924244138458e7fbcfd0045398f",
+    "policy_009": "d00b640cc878db69ab71c03001bbd23b886db0084e61bc39aebc810abd1af99b",
+    "policy_010": "b864c16eda6631b738c464c7441e9ffdd51e535e2bb81bc71d3473123bcfa2ce",
+    "policy_011": "84dbc1c9ea7709f846166135dcd456b11e137c136bd51e0f26445919cad7fdb6",
+    "policy_012": "c1edaa9e23082c90a3188ec6d8da7c72d2794a192fbc2b0eb2f207902db9a5ca",
+    "policy_013": "33ff0e91ce60570311ddc8f5a9852ead0b335cfa934cc570afb41e467b98fd30",
+    "policy_014": "a2736fb5178f34f225eaefa1d8d7dd9dda78aab9bac96322e5260a1426dbee03",
+    "policy_015": "42837aee3d6034340de1e883341d6f428a2b5bd7f7dce1b4bf9679d3458ccc00",
+    "policy_016": "ed8bd2a1f7d6d237a87671b827232578083c7ccbe943df297a4aab861fd020b7",
+    "policy_017": "6b77ecd70b9fd8a19686e4c7e3ee64ee5ecc8a2cc9df4aea40dba98a96534118",
+    "policy_018": "3fb070a927dd6ef3f050bbd89e42f1a4c9525e11ecbcb4bb7601f5dbc5146aeb",
+    "policy_019": "e46fe9aa0b8608ab69899ae176514bb714cbaae48a61d6ae2ec3b2bff5316332",
+    "policy_020": "d68f0a3e8ed1c1177c20ec859759cc1814f4db796a371e6df99e09db2e9c9b3c",
+    "policy_021": "60edf4f96e4602533e3b5cc6b726c93e2c2d3c03f8942eed947e0ad716c04cf6",
+    "policy_022": "075bce8db2cd6edbe8b9f8ecfde018514fcff8012a966b3da5458c70b59a3acc",
+    "policy_023": "d9e392a1b46be3318e1dd10041fbc15fcb58db61f19221450670d1f2a2f9c9f4",
+    "policy_024": "b73898b16cba3627ac3240dad5390c3a4999e9224a9da8d62ae602cf76ef1310",
+    "policy_025": "2c6f01abbf111f26e27c8268ba3cf23c7783c1b523f5d93a570cfcd44396bcd0",
+    "policy_026": "f12bbd4ff6e38d196c9164459cecf1e9990f8d287f985ae2971e3aef777e33b0",
+    "policy_027": "abc555ca2974bb1ee080024ca1562a4ed4d72cc164f007f9a0cbe1f265864658",
+    "policy_028": "c56e435b91d6addd4bcad3d3bec99e9e780703d31c9c472ea6b4d3f492548340",
+    "policy_029": "cfb4423563e47a5c873c4950d083823da649146728c6ca54f695bceb2cdc7418",
+    "policy_030": "1acf8567d0c4095e32ab85dab100099e4afa8287ab6f7c73e8827c604dbb7e92",
+    "policy_031": "4f661171f04c9114e159d53f57460d3f4a9f62cc9a940b51910d3333e80a65f4",
+    "policy_032": "23440990f48745482a308a04bcb2f7b89d7ace680812d5a71275a2649b735d78",
+    "policy_033": "43729cf9f8341f81a3c09915bf073e566326ddc4f23f4e0ad87866652024d5d4",
+    "policy_034": "1f1783ac392fc0cb1705a830cdac3ae26d9535e1b81719a388811509c55de9e0",
+    "policy_035": "c77272d72d3371cc9872d58b191ff0a430331de59c1f6dd893b93f62e387b30a",
+    "policy_036": "fc6d9fd4375dcff013ede865c8ec019c4841c023a52a13f2b96214cd1113644a",
+    "policy_037": "b2cc9c10497d0af69ffc07f7f0b20360da233e16e682bb9709809e971aae24d6",
+    "policy_038": "eed9f661d7b170e8df3e27bdf730f737b9b9e0b9064ff345eddc753517d8825c",
+    "policy_039": "02e5c2a2d11bda0e8568e32b59a74686d32a15b24f668ed44532565a90f90dcd",
+    "policy_040": "ae98fcc3fd4351af5aeb2d287cb3fc66499983cab3b119ed4a8a1c3c646d5557",
+    "policy_041": "462371fd5ac00b8f94ee30fa42d420abc853f449b847e6cbf020e34e28f32fc6",
+    "policy_042": "34960ed08babed52e770104ccdf8545856bfb89ea4b7b1f086204746f8e94b09",
+    "policy_043": "8b26bbf0d6dd01197a7c70c862dfabe85fea2508628d0a3357ad0a057f1076f6",
+    "policy_044": "dac8ef012484d8deab461aa6fee832f165276463ab14c02ab1f46b66572da35f",
+    "policy_045": "aaf02a1c5018a484b0bd75f49f79cd598d4e587d4579eb785bb1b18c692c9e6d",
+    "policy_046": "d2e11afa8300b47e5a6c648793a6aa7494fe6b20307201da75a7ced4fc79e90f",
+    "policy_047": "72bc5e203974e7ffb716e2d4fb5d3cadc5c6b4d5a865c765dadebf559e8df510",
+    "policy_048": "879e729a4b39d6622d52118a013fd1799e5797da393a963240b51398cf2e9f29",
+    "policy_049": "20642e5d89b69ab18986645aea9e91506f3af3c9f12b91a7fc7ae9befa84fb86",
+    "policy_050": "8ad13b3ebe7f8b6bbc69c8bb9407d9a53d0e8ed7ec2e967626e2bec97b612419",
+    "policy_051": "4bdc81d82b8f57ae1409dbaad829fb0e0c2f86aeabb9a05ce24998ec91d90aab",
+    "policy_052": "fbac69eecf3e68379d5758732746862ddd9077dffcbf606d7a298d3f244609eb",
+    "policy_053": "fcbf41c3153a899854fa7f6882d0ab0d8fa0f12a62b7578c8e750d40ee9ce4c2",
+    "policy_054": "ce84b8aa3115f4aeca7b9c49a46afca94946fd45eb6561a7ac7147ed4112bef5",
+    "policy_055": "16398898523538f36498b2f971a7a4c789485e56f2260e055d0b860f7016c66a",
+    "policy_056": "a5f0d22cbd0b2c87e7be9c484160f874521ee961864341ac7885ba44dbf6025c",
+    "policy_057": "8e0e8bd12beb9155c3aef664fb45ae5fa6a7c0adea9fcf8accca45a01b5d5df5",
+    "policy_058": "2dc8b14873b737c74f15fd1839503d719e731752559a81dd6a5d43435e0c16fa",
+    "policy_059": "ca295e8fe7576c46e5badaeb8c16c59397b1833d01ecbd2757f4672e41bd0500",
+    "policy_060": "5ef554e39ba2472339577f47e0a998f5535389d5606afc9413a56686f398127a",
+    "policy_061": "1aca2a49aabe6fd3472366019b04150644b0ffddc45b2c936dbbbe1e1575424e",
+    "policy_062": "7971148e0a490d3d0fb237af3e64e60117235fdfc0f078e608fe91884456a382",
+    "policy_063": "be1b66d6a549177cd6801f16827650a5a52e33adda23b370dfba63e77a0348ee",
+    "policy_064": "365bf18b0f9751cf0c97c03e8a9d810a2e515877d6ce5aaf503e7532f1a74688",
+    "policy_065": "0b73d113b16fc7eded1934f08caa93bc9b71a1211f768098034679164e65911a",
+    "policy_066": "a74c7b86dff38c720dfe19b396712641fe7f5d26225bdec47023a9971ead0bca",
+    "policy_067": "ecc1c17b1038761ec4aef471745666a1415e1753d8f7d20da3ce3715c82a1f76",
+    "policy_068": "b08d56a05f80bc79713b47454fe0660208bfb00a105f1d4b7a2f0e9305b73497",
+    "policy_069": "9b4912a337ae10ded13d95e1f5509a97df365f35c227e16ec11a17886726ed72",
+    "policy_070": "8564b6c49d01a69c152fa5282734c945035309bece92d58cccb318c17089962c",
+    "policy_071": "8731b2cf7f3b9c7254729bc11749d6922590257afbf06f75c6579a90e16a3510",
+    "policy_072": "6de7604bfc4894b996d8a63c45434670488319ea42a9cfa583e424dfc68c80f5",
+    "policy_073": "00b00d8fc5b239eb11fd86a6fcc022cd8ac3a0783d351f2672c43b68f4581d15",
+    "policy_074": "abd5971470e6b96da132ccb0a4bda9279471dfd228a5eff07995344b877192de",
+    "policy_075": "3259292662cf9ddb06f067c26cb95923c64f9f1604badab9e17cd46510aa7766",
+    "policy_076": "af7fc958e3141c10b643b509e251462837f13f889af782f5bba98673ea69d1ba",
+    "policy_077": "0e188a466b822917d3d2259d72a67e904a16434f38f2a78e0b29a2a6c0a7b845",
+    "policy_078": "cbc468e9a2a666a4f55f7bb09d7198ce56f581b953c05e0f02b18efb572645ef",
+    "policy_079": "2a0a9955bffc370aee4d0bf3374df3a30bc8683ab817717a6154672ee044e6ff",
+    "policy_080": "ba5e5ad93bc486ed3aa0f295519845a41622adf1ec16e6b7a678da18b95afa30",
+    "policy_081": "e541f6b1debb06cade52710c622428107a20bcc72968354df38f7270685abf0e",
+    "policy_082": "c3560176c144908b89925b64babc274b6895c89f6b052d3d831ae038647393d7",
+    "policy_083": "2297001c2fc17ffbd0dbeb36a0273dfee734ea8e719abe78582134580c87aac0",
+    "policy_084": "1ca106beee6667635168918e6f31eac0d66d89965a89f4828b40a4730d3ba662",
+    "policy_085": "eb04c29a38e8dde8023549e047845a6810c8158427f36ed8c20b6b64d0a4ea7e",
+    "policy_086": "69c9bdf29d5b8a7ad07c5874267fd6ca96da693643a5883c0eb0f46ec36a0827",
+    "policy_087": "1bccd2c27222e5da633114dbf312ce54f6930a4adb84bfa0405de4ee2a524c88",
+    "policy_088": "7b4616dc6cc191ee49c44b27515735e8ebb1307638ea8f4cda1953560bb22341",
+    "policy_089": "bb99e7cbc5cb2dd0ba6a719840b77dd62986a113f5b0e5890d548d8614d6a259",
+    "policy_090": "f7edc2e406bfd4413d7ed2315324c868646ebaed004250ebf68fd5cb946521f8",
+    "policy_091": "8d3fbd04f68614338514eafae2076b48903e9ce789f9b29a7277d8c212afd354",
+    "policy_092": "b0e798f5de9a708bd1eed4a09b1f852d88b906ef299375a9509f1b0a2693d01f",
+    "policy_093": "b3f2359cac430a7af0e8fcc017b75a42a45d3a99fda9917b19e033c2bdeb51c0",
+    "policy_094": "cde6e257c4cfe2967b24be87765c1b61a6a7cd61d23b19bfc1eb300a31f87060",
+    "policy_095": "b0cb9981b88268f3279f3cb94ff3561021bbd72aff9159b77abc24aaee54c91e",
+    "policy_096": "606944b7cdee654f88a817065f75c9bf908840bed3447ae6f0721f4e69995bfe",
+    "policy_097": "d1129f816e5a3927cf71f15d4229e2cd6065424d9c8d513cf320ebdc235837f4",
+    "policy_098": "e1e482c0d46bb738ecbbb6ad6c1bcc920da38679681c340974e2e3e60e11ea1f",
+    "policy_099": "1bbcdacf4c3fee8e3160c9eca75b1b55e8d27c91ec9c048fe0f888ce9d42da5f",
+    "policy_100": "e8628003d071def08d3302f8d5037288b93839bb6df788cd8cdf8b803123dcf9",
+    "policy_101": "47e20372c6894ceb82564cb772abbf01e64b11f5d7b9d89269e740ec1bc38392",
+    "policy_102": "a4ae6bfd7b89d55739bdc67e69f11c44ea52379407ffe15e8c021b81c49656fe",
+    "policy_103": "14220c73ddd67334ae007c4ce90321eb6a501c5d19d2ddca0985174226c19967",
+    "policy_104": "9ee6e9e49d854315b60eb6b84c81ea176be19af1e1e59a6f5683029b33d419ea",
+    "policy_105": "41afecc597cd6e61b6fd5a12d137273d0e39c7ca0699d721f9351f72b92d7b35",
+    "policy_106": "83dbfefcea72fac6491e1d7867653b3f7a5c103aae8c7cf992b599720815a879",
+    "policy_107": "daeac94a795687041978894a614fe25b143ebf61c6380e7e19cd68866ccd8cb7",
+    "policy_108": "704748c143eeae9f063deb37235e32ef5b8e34d9bf38cfba3cd1a31d5bc143f0",
+    "policy_109": "5f7433ed7984734673a97ea349f4a9cda809ccf57867312745ce1882cf04ebea",
+    "policy_110": "444b3bdf353932af729ad9e2426c9ae86d68a47b29ed2ded15d59d7dc55e6b50",
+    "policy_111": "d37b726d4910417a75f79eb7007b3c50bcfab1a15d12e19edea6740d403b04ee",
+    "policy_112": "ef22225bd54c354e5342ea62be520509bc4748078f96b5c60acd7bfdaa899da6",
+    "policy_113": "70fc9de067516d402652e4d79173c8ac8d2d04823766ee953f7f0e899fd6ef6b",
+    "policy_114": "2ae49b36196ea7c8a7d00b86260b0d244a0bf9ff59a764043e007efb8570bfd1",
+    "policy_115": "a08b5021782089ad6a5cfd4febbd36ca30b7128f62ddf5e194ce0eb75487dc74",
+    "policy_116": "6e9ef6186b98be57fcec66400a5dce006b0b632eebdcb0966020f5bb9375a3b8",
+    "policy_117": "b7e84b10e3edd2bb6376d8e97628ab75708fc68400ae9d7075ab4391ec42d616",
+    "policy_118": "bdede8a3748e2c3eadbfd2c8adf2c3770d59cce7f2b6bd4cb886492dfdb94af4",
+    "policy_119": "59ab4226cdc00cd55d3816f8f50b203960c10d1327378ce1b1c2860bb5ca07c3",
+    "policy_120": "643dc32c01396e2c766238ba2516bc2f8ff85205df3f1c3711af205934cc7d8d",
+    "policy_121": "0b25a32895243cf350856a454fcaf7d5ddd680b9c491b0619cfcffb50cabd3b2",
+    "policy_122": "e728d3e1d57d3d040fdf37caa1bd5e27c4f6bdef73fc055e812aed3561e0ebac",
+    "policy_123": "284c822f5ea1774c27d93a37cb45b8ef27ddfd6f478704b20b889476f90d045d",
+    "policy_124": "7bf412f5397060e9926dd6c7c8d5c169393548c6e06589bb9bd9708f13b46dfd",
+    "policy_125": "3e6c6605ce3b5b1f9482d0cd06d2593efd77b25651209baf9ecfc6de8321eb75",
+    "policy_126": "b8972e87a45264bb7673d5c045520d7a3bc5203bf1678a2aea9f9bf000f12d3c",
+    "policy_127": "6c437c2d569d7743eadfcdc9f72937985c81ca0f7a726955c633835516bedbce",
+    "uncertainty_00_0": "f2cc94f2aa10f80a87db682d0e02175f2fdb6f6cd741207c1d0b5f2911cfdc15",
+    "uncertainty_00_1": "a8d7bcca29294eebfc9f0a524f62fed065c09b9cb7c682163fe4ff0d94328729",
+    "uncertainty_01_0": "7614631b2946890965d69110d8ff6d11bb59d33b7e6422eec8ef96434f2ea48e",
+    "uncertainty_01_1": "4f1cae2b4c716f6cc8abd84cc4e29f83c9779481238eca568c1b2ed3354e282f",
+    "uncertainty_02_0": "155b3402c86a97e94c23376f397efd32eb690ae84d229028bbf8e2cf6a69ab89",
+    "uncertainty_02_1": "49c44afd1d1632e175b80ad07adea21eb8481cc8f363a0d9262d2a42b2b4638a",
+    "uncertainty_03_0": "1e0402220c513c0440e2242a500102524d2e12df44a07384c2688d7019c40954",
+    "uncertainty_03_1": "e612faaa43949deabde31ce58e9aea2267a56c4e889033d350c7a39517087641",
+    "uncertainty_04_0": "a85ffb2b7ea50e0051d4ba7430677417a07f0ebf52e39e38842f72a2a1689bda",
+    "uncertainty_04_1": "5c0e3fc56e42d196e7a4253101ef7651f1deea837738eea852329507886f4311",
+    "uncertainty_05_0": "fd3d117d90d0ce407c4a921d122095d87cdb3063948a75c2afcfa5a39f4db739",
+    "uncertainty_05_1": "a55faf46de1d70fa0f6e7ddb244c583adf8afd1c919f9126b8c0fe149abfb878",
+    "uncertainty_06_0": "af988bc6989edba1b36c13702dd80255d872ce6f9053ae2064674c501a66765f",
+    "uncertainty_06_1": "2c078f95c6b1b9299e39f04ae6f31360374884eb4956133bb17ed2d073a029eb",
+    "uncertainty_07_0": "968bf60fb3ad92a4059fc5c6cc4bd3a04f78d57e6bd2b582726ab8779f9f6487",
+    "uncertainty_07_1": "ca7ed119ce8ccc862dbb7a500e4d2dc89d49d019ee9049a719083d055180ca91",
+    "uncertainty_08_0": "8634248fafdcb9f9240fd9452b00a0c8cc22576e7ce7cb86cd8b3c753e7f1830",
+    "uncertainty_08_1": "4698995ff0598c8fbc250f16507c6c21efbf909f2d23bedddceabc242f7cdad7",
+    "uncertainty_09_0": "f6d084c3e11b1ac4c880ba380dc437ab5eaecd68b2cc84456b73e7c64716321a",
+    "uncertainty_09_1": "cde3078b3c2ef616186b6222a3f99491af60159fa7d171d72e2a06cbbf7df4b3",
+    "uncertainty_10_0": "d9e4ebd0b11950219a15ac9e462916af70fa50cc529ce99c30f5df1262da8d51",
+    "uncertainty_10_1": "f20aabb7c30f1ed54ae52395a0ecffa0e561384084c48513cbc1cffca7eec947",
+    "uncertainty_11_0": "447be2eb0471672ab03decdf42eb053cbbd41b4a039f89502dd9873b48030b18",
+    "uncertainty_11_1": "6bb605bdf48878a898a1c3240e49d9073babcb8cf7a1b78861825a768553105d",
+    "uncertainty_12_0": "26ccc3b3175f28bce89b6c12f8a2b160eaae9ae0cf6ec1f0afbfcc1d7a0ad8dc",
+    "uncertainty_12_1": "05381a74064f570e4064363856463d8c4a4b5a5e54688c714fcd9b7393f57fad",
+    "uncertainty_13_0": "b22798b0a55df732e468ee60e02006ef04fe61d021e86da5b75adf484eef97ca",
+    "uncertainty_13_1": "a18fefadca29b80c6de8e1d857064a78ae30d716b7b467cf5acce11b400b5b48",
+    "uncertainty_14_0": "b7a7f17e76abd7eb95e3d701b7c3013e315fc1874e40a35b80f6c7dbdf0decaa",
+    "uncertainty_14_1": "57e44bb9beccb7f3b1b1740f1b480b1ed26ba7200bba4ccbeed85e0c905b4914",
+    "uncertainty_15_0": "68d07b9424dafbdf16b587b2e3a4318eb4cf33b6c702cddc83ee299965ea31be",
+    "uncertainty_15_1": "77c7ad82777a940c86f4adcf44017c1eff51435c5a688f622fe5ae8777ff6fc9",
+    "uncertainty_16_0": "387d42c3515bf34068c38fc75c8c9fce388df1ba5d82ac6fda3756169cbc3172",
+    "uncertainty_16_1": "34cb4581cbd7334e7310de3010ec4703cf72aed1cc38571093fd9511455dee10",
+    "sample_min_00": "6a17b0e7684882145d056f6c7a1434a1672c4a82f3f6321583c6fcccdae9fab1",
+    "sample_min_01": "f69e7a2970efa01589fc6655dcc7361aa27d1aea081146e36660896e9286a97c",
+    "sample_min_02": "2bfaed26dc0ec12de191aaa092e9f4a451cd16d31dbcb2ea8643443db90cf446",
+    "sample_min_03": "46dd3bc41ac06fff9512db6ee811a7159e75dfe5d405ca882da86e0fb19906d4",
+    "sample_min_04": "0b1ade77d2fd8c171bd387c6c6ebde80c48b8acf2647565666e17510452fa1b7",
+    "sample_min_05": "a35ca9dcc0866ea22d331188da8a5e6fd3e2125a509f9674f75d83ee84a27b00",
+    "sample_min_06": "c752c9f99405b01958b13667b3cb9c3a1882e642f61b89e261ccbfc236e766d2",
+    "sample_min_07": "cc6a8d6450b05cedb58781ab0149a26bcfc244677db811079cb5ba4dc550f8fe",
+    "sample_min_08": "62328cbf12b328cf08661e79935459a9762207628001be4ff009c6ec2f616b53",
+    "sample_min_09": "60680b1383f67353799b12394f74becf347d9e52bbe23ec56fbd3dbcae63b274",
+    "sample_min_10": "bc08d11640d2d7ed48ee7a3d4564eaf6f9ae6f1fe4474840ab129eeea11f6659",
+    "sample_min_11": "37b595c5c2123052dc30de99ae02d551c18d3152ce39df62bbf3233912a11ed4",
+    "sample_min_12": "fe7873b2e8693b147a690e572b0c3a8591e3cf08487fc42af3e5a704c9ee56e7",
+    "sample_min_13": "4d7a25a7d6960fbef0c4b1897f92d7b9f6992d6b6e374404f23ec9451ef14657",
+    "sample_min_14": "86f713f06a3dd3341672ca8b9ed5ab21e98c6e32062329db466fee4fa682f4c6",
+    "sample_min_15": "1cae709f1f1730bb5d735e21f78acf1aed912ff4714a31dcf80b40f67348c02b",
+    "sample_min_16": "fdf92bdfee4696386a73acec2ab4ee45be3647fa5d15a91713903c4201810c36",
+    "sample_min_17": "aec9a8769b2968cab7477e2eb66788fbcccb3a96dda2fc20520a4c2d8fdbfea8",
+    "sample_min_18": "728a1583ce3a7f29bb7536563dbab4129ba3e2ea542ffbb81a0949ef56765862",
+    "sample_min_19": "32c039b3cae809bd7cf29b8e3804feff63b1ce8c51c0693623f6a7505be70161",
+    "sample_min_20": "8654e69cdb11879bbdedcada8edc1a99950e5a3278c4abd4340d7bbb5c83fe2d",
+    "sample_min_21": "6a067768c79fa677567f85051d3f7cabae9f24387e65c719774b899994ea9e17",
+    "sample_min_22": "91c67f66bdaad3e0bf85f766f1761969024489e1abede66b618f1e079874a9c0",
+    "sample_min_23": "91cf3260c0e63b9b5985a67f5602bfaf1edc5ed03b705a7e09d980fdb932a21e",
+    "sample_min_24": "8f8ed311b7f64cf16a469eafea807d2a443dc317ecdd02a80dd0aed623e524b9",
+    "sample_min_25": "10c117591719465c638e02ceadb09c4fc79db6a5fd2c512ca00768c852e62599",
+    "sample_min_26": "4c2ba71c164128df2f55bcabc2858ee899b71fecbfc9364bb29ff83c23d59fd2",
+    "sample_min_27": "53dfe32ace48182056bfb0927b8b8a085370e447ed6b7f06e4b1bf11c51362bf",
+    "sample_min_28": "a2358db20d94707696b54c1257583966de54c4911d27a2e974f2f960b7ef08f0",
+    "sample_min_29": "d2cb60d9cf91a5a435d873e5a39c110372bfc8ab1067e8625fb96011f99a2e87",
+    "sample_min_30": "403786989b988c42f9f740bd4c676b1a780fcc05e620e75cfa226b6d25f5d870",
+    "sample_min_31": "7c25f36480f71adca91ca0cc890948732560d694cfb50506b7d5bf08c9638256",
+    "sample_min_32": "72222cb84aa4b6cff1b4dc035fbb255312b90bed43471abe9c62f40572d1959d",
+    "sample_min_33": "eb4ea9ffcc2e6edded7355f728f9e9915b0ca4bb16d44ff550136cbe8d1ce20c",
+    "sample_min_34": "168af54f8c9ce933c88d4723cacdab0bd05e936f006f7f6cf0ed3c53c8403a8d",
+    "sample_min_35": "530ddda366eb230ad3da25a24ad2e1de0f67bc627226a698098f3cb9341ad2e2",
+    "sample_min_36": "6d9c71a4246c08af854be43d791daaeb88b3cabe1f0d54064c0bfe93b8534379",
+    "sample_min_37": "c9f832e0b4b783930cbb729a2bc4894ea240a6e36aeeec20449b843f6134f8d5",
+    "sample_min_38": "2753c5d6268ba355ea905dd88a03110900b771124b81180327451a24635fa999",
+    "sample_min_39": "205622e7b4316997f595d7d02511363ddabf4e829a86a5fd4ad46e5ef805ae1e",
+    "sample_min_40": "191dfd479748269276ac19b60de40cf1b7d87c57e68c237f2c703c275926be6e",
+    "sample_min_41": "2e1c43b909ba735683189f79d01c245865cb72e1939583fba6d90dd36167d46c",
+    "sample_min_42": "4131a0f136dbae17b0bfc260a26e4fba0122c18a76d336b7e37ca0214ee678a0",
+    "sample_min_43": "09a395aa6f25dea4ae60c59987bff18d0e9caecfc46c62037c252c8446bf4263",
+    "sample_min_44": "0815e35f28e1210a88122910010afae0fff85fbc6340f572c8f68a426284c7e4",
+    "sample_min_45": "fa70ae62594856cad0ca8e957a6e521c257306f4e0ddd36eedceddaddb9c3142",
+    "sample_min_46": "60c253d0b95bedd59d229ea6b0e852e5ce7dbb02ca82beee174708ddd3647444",
+    "sample_min_47": "7fa24aca57e688eced7bce81b19af1aaa9094b931075682e8bc2d680cf41bfbb",
+    "sample_min_48": "5eb358ceb208f610cb4d571f3d6e520e66751aaf180be15079992f856da564ef",
+    "sample_min_49": "3a2bfa7d1a3318dd81da52c57237e6d17c94bfdf4bb4d9857c99e7e2a693785b",
+    "sample_max_00": "a53d44d1329561a52604a548b63cd49e826694b25d68077dc8a3276d7baf1f0c",
+    "sample_max_01": "436a4c8dfd4a586f27c1e2ad4e06c7e6fb5728da9fed780243cf8b69764e0d12",
+    "sample_max_02": "cf7a17f5788f9cd877a1d8ac54df0f6ea5e6691bce802da4a942dcb2643c14c1",
+    "sample_max_03": "9913904eb4a770f02ccff0522e12b0947f6dd8c88ae3a1160ca6f885a123ab3b",
+    "sample_max_04": "b13a94bfdb3f82a9cd426b8149cbd73f10223e3971c1fcd0ba52893d377b94a2",
+    "sample_max_05": "c15d13c71f44ce40412095d21d977cb65476c8e514f49b55f97a59ef03019cfd",
+    "sample_max_06": "873b1709f8d289db8a78ad8f3dd5e8172f3bb9c8f35557df2e1d87f0484c355b",
+    "sample_max_07": "082a414a0c278edb0aa85b6f2e23ce378ce91d0770a9099ab069909641ef8e64",
+    "sample_max_08": "16df611b9d39d15a0a8e5d95da5943629e493a08c44620f21c00f0dabf6da3c3",
+    "sample_max_09": "ead598d58cac0be66ca82fd22f44d58c560e505c5061cfa36f62f8347f8fec38",
+    "sample_max_10": "5c36b6f6a47c0a7f7419a0781dc396d7356b45133be526e2dbfe61da7ac6f604",
+    "sample_max_11": "5b941dd5e5ffca133f8c802a28c35add95ad74aff0effd3f097f44f5fa486618",
+    "sample_max_12": "8278fa73b15e4d31eae24a93e772490cf96314d1c2466b41c7ca8bf5faae1b51",
+    "sample_max_13": "5c3e4a31b1a39dcb318d4ff1806cd74f8ed6b4b4845104973363267c1b959b00",
+    "sample_max_14": "97370f2213c62f4cce5233f818e8ddf8762bbe3ccae342c868d7ff3501f0ab08",
+    "sample_max_15": "c3f0b38fda843235d1a3bc2ae2e3e35c3c7ede862b7d4ea334a0259a3a92f177",
+    "sample_max_16": "bf6d27b69eb978e4fb4c1d1149d463be8a8a652ea0f42be451c9de9e53d12554",
+    "sample_max_17": "3df634296dd785e816239ea5a0f3c920139dade0842d4cc153358d561cca4ffa",
+    "sample_max_18": "13c5c8bbed13504a09c64f4564b373e212cf933000e4fa79e6d267cddafd07f2",
+    "sample_max_19": "c1a79092cde176fb8158cacc89c967c3b1dc429175f039b4fbb50e492f7b2fd9",
+    "sample_max_20": "903c65301ed631039429b98e60dd8861284370074899e0ca81c0f91a79b6c819",
+    "sample_max_21": "df70c7b2785af964ea235f03472401539495e2c53fc2ec3a9e130834e60ce4e2",
+    "sample_max_22": "8722f637cb16fc7b03f2f90560bd3e8dd0b982b87fcaa17742a9acebe6e5e558",
+    "sample_max_23": "65cc42fe71ec5818c473b64bcd7cc8d2281f00aba8cfea6e7ac4de602f64db93",
+    "sample_max_24": "cfe07a2cef0456cdcf107762fcdc6595bb8a37660d77bed79d02d3e3d47e1365",
+    "sample_max_25": "e5d9d885f7ee5d7ce70dc5a2b0e8a8b00a403683be7a44a6f40f5143f25e28ed",
+    "sample_max_26": "334471b6912bf21f68fa661fe74af2e3873e72640160cffe63e5262ffc7867a4",
+    "sample_max_27": "54cc1940e59308f4d68079d1570fad3995983e980650394bb54ce92b65f4a2e9",
+    "sample_max_28": "61c0cae284f32696b96db5c634db5a82d2747e0e26bdb8ddcd156a1f3fad08c2",
+    "sample_max_29": "07716f209171eff91d391db9dbb59da901cfbddbf693379e92ee3eb4c91332c7",
+    "sample_max_30": "124702c95bf99b07b654f7a16d67c2af61fa6517bc8f75e3febe1f3bc2ccb811",
+    "sample_max_31": "2bd309cbf3e40427c27f638f835d82e32d65dff6382ce7037f162e1122619a8a",
+    "sample_max_32": "b9b03fede869a095acf32595cb456f9f8c8389fbb80a7e1d53ef99467b2e6638",
+    "sample_max_33": "7033afe95f3527d673686a34449c113d672e6008fe1318f500088ce5867d1aac",
+    "sample_max_34": "f1aaa7d7f5769135b7afda13c1ddadd6e103944461e9e2541d52c30e52162018",
+    "sample_max_35": "b0e2848a7dc990155d18939725941634720dfd830d255bb64e32041a760dcf06",
+    "sample_max_36": "31523db716b9550b9a562669fffbca0c49eb4767d187414893669d51f5eb8439",
+    "sample_max_37": "bd59dbc0ebe165cd355ae33efacc63d038465221e6834f8f76a657677ac6a2fe",
+    "sample_max_38": "1ea74b79d96ab1cd20a287b6ae49786d4d45e25b6369bb1b697461f50a9b6ea3",
+    "sample_max_39": "68c39ac045cc045edcba125c2c9817acffff616d98c27ada611a00bb4fb06b70",
+    "sample_max_40": "7477958c9f92121fae828035d5799b7a50a87531328b1b2a649d15ec6327d284",
+    "sample_max_41": "29ebec63dde0b461be4e86ccebdec75f1877b1f3d135888ec881b424597f4af2",
+    "sample_max_42": "8ad3edabad71874709ba871133bdbb657f597ce1bb4bbe0c2ca874ee6925405e",
+    "sample_max_43": "fd0a9db9fc69bd4358d70d519d247e545e7555fd9094036827716d44d85f753c",
+    "sample_max_44": "8c0bd2eb9a825cde0f057013062866df63ad1a08bf497ba11e26de70d97f6a78",
+    "sample_max_45": "16ed7dc4188f3b9736d2c713ebf757e251a4b88652658a50dd3329e40ed4cc2e",
+    "sample_max_46": "cf27b36d5bd66b5ddcc62458267995e3cdfc056417199280cc9fe94078efae84",
+    "sample_max_47": "8d596d3c99497475c59e966d0ab861d1118f982b0ac84a6d1862b7074f7f1943",
+    "sample_max_48": "c09128938f394916fbe60bc1ed89859e6455139e16d70add855353abfb4834a7",
+    "sample_max_49": "d0a85d12ed777b89e9e1130642b4088460e60f42535e8eb65218e1b763773b5d"
+  },
+  "validation_manifest_sha256": "c3c1a3fe2f2fe212cb5fd6010ef125c07004cd52cb7ce107f7369bcb7dbc762c",
+  "native_vensim_verified": false,
+  "release_and_deploy": "Await colleague's native Vensim verification"
+}

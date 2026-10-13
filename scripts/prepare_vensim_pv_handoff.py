@@ -47,6 +47,7 @@ def prepare(validation, target):
         (ROOT / "sure_julia/pv-budget.json", "source-audit.json"),
         (ROOT / "benchmarks/sure-production/PV_BUDGET_VENSIM.md", "README.md"),
         (ROOT / "benchmarks/sure-production/pv-budget-native.diff", "pv-budget-native.diff"),
+        (ROOT / "benchmarks/sure-production/pv-budget-base-trace-20261014.json", "pv-budget-base-trace-20261014.json"),
         (ROOT / "sure_julia/generated/export.json", "export.json"),
         (ROOT / "data-release.json", "historical-data-inputs.json"),
         (build, "build.json"),

@@ -75,6 +75,9 @@ Restano invariati allocatori, ritardi e le altre correzioni della v6.
    di uscita PV di circa 1.2345669441641882e-6; il flusso accettato deve essere
    zero quando il budget è zero. La traiettoria corretta può già divergere
    dall'originale negli anni precedenti: verificare l'invariante su tutte le celle.
+   `pv-budget-base-trace-20261014.json` registra il caso con tutti i 40 input:
+   nel riferimento corretto questa categoria resta esattamente a zero dal
+   2038 al 2050, mentre nel sorgente originale diventa negativa dal 2039.
 7. Confrontare Python–Julia e Vensim, riportando prima divergenza, errore
    massimo e propagazione. Separare gli scarti del dispacciamento/prezzo già
    noti dagli effetti della nuova correzione; non dichiarare equivalenza
