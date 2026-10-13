@@ -36,7 +36,8 @@ def parameters(values=None):
 
 
 def inventory():
-    tree = ast.parse((ROOT / "Vensim/SURE_pysd_v4.py").read_text())
+    from .stock_limits import python_source
+    tree = ast.parse(python_source((ROOT / "Vensim/SURE_pysd_v4.py").read_text()))
     variables, dimensions = {}, {}
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "_subscript_dict" for t in node.targets):
@@ -53,12 +54,15 @@ def inventory():
 def outputs():
     from sure_pysd import OUTPUTS
     from pv_batteries import exploratory_config as exp, pv_batteries_config as pv, risanamento_config as ris
+    from .physical import OUTPUTS as PHYSICAL_OUTPUTS
     policy = read(Path(__file__).with_name("translation-policy.json"))
-    extra = ["Hourly demand and PHS", "Priority vector by supplier", "Marginal cost by supplier",
+    extra = ["Total Res buildings", "Buildings construction with battery", "Consumers adopting RCPv yes with battery",
+             "Consumers adopting PV yes with battery", "HS VeryNew", "HS New", "HS Old", "HS VeryOld",
+             "Hourly demand and PHS", "Priority vector by supplier", "Marginal cost by supplier",
              "Hourly imported electricity", "PHS hourly supply", "Hour factor PHS consumption",
              "Seasonal PHS monthly demand", "Seasonal PHS monthly production",
              "Seasonal PHS hourly demand", "Seasonal PHS hourly production"]
-    return list(dict.fromkeys(list(OUTPUTS) + policy["diagnostics"] + policy["native_outputs"] + extra
+    return list(dict.fromkeys(list(OUTPUTS) + policy["diagnostics"] + policy["native_outputs"] + extra + PHYSICAL_OUTPUTS
                 + list(pv.GMD_VARS) + list(ris.GMD_VARS) + list(exp.GMD_VARS)
                 + list(exp.SCALAR_OUTPUTS.values()) + [exp.CANTONAL_FUNDS_VAR]))
 

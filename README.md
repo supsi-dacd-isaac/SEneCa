@@ -88,7 +88,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.1.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.2.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
 `SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 usa v4.
 `SENECA_PORT` cambia la porta host, che di

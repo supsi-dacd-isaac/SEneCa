@@ -24,6 +24,7 @@ def main():
         for name, params in cases.items():
             a, b = py.run_arrays(params), jl.run_arrays(params)
             reports[name] = {"comparison": compare(a, b, jl.export), "python_energy": energy(a), "julia_energy": energy(b),
+                             "python_physical": py.last_physical, "julia_physical": jl.last_physical,
                              "warnings": warning_review(py.warnings, read(jl.directory / "warnings.json"), py.variables),
                              "timing": jl.last_timing}
             metrics = []
@@ -38,7 +39,7 @@ def main():
                                 "pass": all(abs(left[k]-right[k]) <= 1e-10*max(1, abs(left[k]))+1e-8*abs(left[k]) for k in left)})
             reports[name]["gmd"] = {"pass": all(r["pass"] for r in metrics), "rows": metrics}
             dump(args.directory / f"{name}.json", reports[name])
-            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "warnings", "gmd")):
+            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings", "gmd")):
                 raise RuntimeError(f"Numerical smoke failed: {name}")
     finally:
         py.close()

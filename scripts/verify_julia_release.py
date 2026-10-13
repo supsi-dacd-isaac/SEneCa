@@ -15,7 +15,7 @@ def verify(root):
     actual = json.loads((root / "sure_julia/generated/build.json").read_text())
     # Build metadata also includes non-numerical runners and diagnostics, which
     # can evolve without changing the generated equations or their inputs.
-    for key in ("artifacts", "sources", "defaults", "parameters", "years", "float", "delay_policy"):
+    for key in ("artifacts", "sources", "defaults", "parameters", "years", "float", "delay_policy", "model_revision"):
         if actual[key] != expected[key]:
             raise ValueError(f"Runtime and pinned dataset use different model {key}")
     for path in ("sure_julia/julia/Manifest.toml", "sure_julia/julia/Project.toml", "sure_julia/python.lock"):

@@ -66,6 +66,7 @@ jobs:
         run: |
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_data_release.py -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_sure_production.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_stock_limits.py -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_chart_transitions.py -v
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
           mkdir -p smoke-results

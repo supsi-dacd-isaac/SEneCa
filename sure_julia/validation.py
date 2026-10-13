@@ -21,6 +21,8 @@ def cases():
     from pv_batteries import exploratory_config as exp
     base = defaults()
     result = {"base": base}
+    # Worst negative dwelling weight in the original 8,171-scenario batch.
+    result["regression_negative_stock"] = parameters({"PV rebate cantonal": 0.2, "FiT": 0.1, "Battery Rebate": 0.5, "PV rebate federal": 0.4})
     for name, select in [("low", min), ("mid", lambda v: sorted(v)[len(v)//2]), ("high", max)]:
         result[name] = parameters({i.name: float(select(i.values)) for i in ALL_INPUTS})
     for run in read(ROOT / "Vensim_test_runs/inputs.json")["runs"]:
@@ -128,10 +130,12 @@ def check(job):
         a = PYTHON.run_arrays(params)
         b = JULIA.run_arrays(params)
         result = compare(a, b, JULIA.export)
+        from .physical import check as physical_check
         report.update(comparison=result, python_energy=energy(a), julia_energy=energy(b),
+                      python_physical=physical_check(a), julia_physical=physical_check(b),
                       python_timing=PYTHON.last_timing, julia_timing=JULIA.last_timing)
         report["warnings"] = warning_review(PYTHON.warnings, read(JULIA.directory / "warnings.json"), PYTHON.variables)
-        report["pass"] = result["pass"] and report["python_energy"]["pass"] and report["julia_energy"]["pass"] and report["warnings"]["pass"]
+        report["pass"] = all(report[k]["pass"] for k in ["comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings"])
         if name == "base" or not report["pass"]:
             target.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(target / "python.npz", **a)
@@ -183,6 +187,7 @@ def repeat_checks(directory):
                 app = PythonBackend(outputs=OUTPUTS)
                 shared = app.run_arrays(selected["base"])
                 result["app_pruning_exact"] = all(np.array_equal(first[n], shared[n]) for n in shared)
+                app.close()
             results[kind] = result
         finally:
             engine.close()

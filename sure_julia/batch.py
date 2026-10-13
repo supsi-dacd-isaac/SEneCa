@@ -73,6 +73,8 @@ def gmd(arrays, specs, export, audit=None):
         series = arrays[name]
         final = series[-1]
         tolerance = 1e-10*np.maximum(1., np.abs(series).max(axis=0)) + 1e-8*np.abs(final)
+        if np.any(final < -tolerance):
+            raise ValueError(f"Substantive negative GMD weight after stock correction: {name}")
         negative = final[final < 0]
         if negative.size and audit is not None:
             audit.append({"variable": name, "year": 2050, "excluded_cells": int(negative.size),
@@ -127,6 +129,8 @@ def initialize(directory, affinity=None):
 def _execute(job):
     started = time.perf_counter()
     arrays = ENGINE.run_arrays(job["parameters"], job["outputs"])
+    if not ENGINE.last_physical["pass"]:
+        raise ValueError("Housing stock or transfer invariant failed")
     if ENGINE.last_timing["compilation_seconds"] != 0:
         raise RuntimeError("Unexpected compilation after worker warm-up")
     value_hash = hashlib.sha256()
@@ -164,7 +168,8 @@ def _execute(job):
         atomic_parquet(frame, path)
         paths.append(path)
     report = {"status": "complete", "parameters": job["parameters"], "destinations": job["destinations"], "value_sha256": value_hash.hexdigest(),
-              "timing": ENGINE.last_timing, "elapsed_seconds": time.perf_counter()-started, "gmd_weight_audit": gmd_audit,
+              "timing": ENGINE.last_timing, "physical": ENGINE.last_physical,
+              "elapsed_seconds": time.perf_counter()-started, "gmd_weight_audit": gmd_audit,
               "files": {str(p.relative_to(TARGET)): digest(p) for p in paths}}
     dump(TARGET / "completed" / f"{job['id']}.json", report)
     (TARGET / "failed" / f"{job['id']}.json").unlink(missing_ok=True)
@@ -197,6 +202,7 @@ def consolidate(directory, planned):
         provenance.append({"scenario_id": job["id"], "parameters_json": __import__("json").dumps(job["parameters"], sort_keys=True),
                            "destinations_json": __import__("json").dumps(job["destinations"], sort_keys=True),
                            "gmd_weight_audit_json": __import__("json").dumps(report["gmd_weight_audit"], sort_keys=True),
+                           "physical_checks_json": __import__("json").dumps(report["physical"], sort_keys=True),
                            "output_sha256": report["value_sha256"], "seconds": report["elapsed_seconds"], "backend": "julia"})
     for section, filename in destinations.items():
         files = sorted((directory / "parts" / section).glob("*.parquet"))

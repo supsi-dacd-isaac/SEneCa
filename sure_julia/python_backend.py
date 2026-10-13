@@ -2,12 +2,17 @@
 import threading
 import time
 import warnings
+import shutil
+import tempfile
+from pathlib import Path
 
 import numpy as np
 
 from .catalog import defaults, inventory, outputs as all_outputs, parameters
 from .common import ROOT, YEARS, digest, identity, read
 from .synchronous_delays import install
+from .stock_limits import REVISION, python_source
+from .physical import OUTPUTS as PHYSICAL_OUTPUTS, check as physical_check
 
 
 class PythonBackend:
@@ -21,15 +26,23 @@ class PythonBackend:
             raise ValueError("Python backend requires PySD 3.14.3")
         sure_paths.set_variant("v4")
         self.outputs = list(outputs or all_outputs())
+        self.reference_directory = tempfile.TemporaryDirectory(prefix="sure-python-")
+        reference = Path(self.reference_directory.name)
+        source = reference / "SURE_pysd_v4.py"
+        source.write_text(python_source((ROOT / "Vensim/SURE_pysd_v4.py").read_text()))
+        for path in (ROOT / "Vensim").glob("*_pysd_v4.csv"):
+            shutil.copy2(path, reference / path.name)
         self.lock = threading.Lock()
         self.warnings = []
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            self.model = sp.load_model(prune=True, outputs=self.outputs + ['"'+n+'"' if n.startswith("Provvedimento") else n for n in defaults()])
+            self.model = sp.load_model(prune=True, model_path=source,
+                                       outputs=list(dict.fromkeys(self.outputs+PHYSICAL_OUTPUTS)) + ['"'+n+'"' if n.startswith("Provvedimento") else n for n in defaults()])
             self.constants = sp.build_constant_params(self.model)
             install(self.model)
         self._record(caught)
         self.identity = identity({"backend": "python", "model": digest(ROOT / "Vensim/SURE_pysd_v4.py"),
+                                  "model_revision": REVISION, "correction": digest(ROOT / "sure_julia/stock_limits.py"),
                                   "calibration": digest(ROOT / "constants_ref_v4.pkl"), "data": read(ROOT / "data-release.json")})
         self.variables, self.dimensions = inventory()
 
@@ -42,6 +55,13 @@ class PythonBackend:
                 known.add(key)
 
     def run(self, scenario=None, outputs=None, flatten=True):
+        from .runtime import frame_from_arrays
+        arrays = self.run_arrays(scenario, outputs)
+        export = [{"name": n, "dims": self.variables[n].get("subscripts", []),
+                   "coords": {d: self.dimensions[d] for d in self.variables[n].get("subscripts", [])}} for n in arrays]
+        return frame_from_arrays(arrays, export, flatten=flatten)
+
+    def run_arrays(self, scenario=None, outputs=None):
         import sure_pysd as sp
         params = parameters(scenario)
         names = list(outputs or self.outputs)
@@ -50,19 +70,23 @@ class PythonBackend:
         missing = [n for n in params if sp.namespace_key(self.model, n) is None]
         if missing:
             raise ValueError(f"Unapplied Python parameters: {missing}")
+        internal = list(dict.fromkeys(names + PHYSICAL_OUTPUTS))
         with self.lock, warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             start = time.perf_counter()
             frame = sp.run_scenario(self.model, const_params=self.constants, scenario_inputs=params,
-                                    timestamps=YEARS, flatten=flatten, return_columns=names)
+                                    timestamps=YEARS, flatten=False, return_columns=internal)
+            result = self._arrays(frame)
+            self.last_physical = physical_check(result)
+            if not self.last_physical["pass"]:
+                raise ValueError(f"Housing stock or transfer invariant failed: {self.last_physical}")
             self.last_timing = {"seconds": time.perf_counter()-start}
         self._record(caught)
         if list(frame.index) != YEARS:
             raise ValueError("Incomplete Python years")
-        return frame
+        return {n: result[n] for n in names}
 
-    def run_arrays(self, scenario=None, outputs=None):
-        frame = self.run(scenario, outputs, flatten=False)
+    def _arrays(self, frame):
         result = {}
         for name in frame.columns:
             dims = self.variables[name].get("subscripts", [])
@@ -78,4 +102,4 @@ class PythonBackend:
         return result
 
     def close(self):
-        pass
+        self.reference_directory.cleanup()

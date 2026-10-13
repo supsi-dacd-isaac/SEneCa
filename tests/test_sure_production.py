@@ -105,7 +105,7 @@ class ProductionTests(unittest.TestCase):
             finally:
                 engine.close()
 
-    def test_batch_gmd_preserves_labels_and_audits_existing_negative_weight_rule(self):
+    def test_batch_gmd_preserves_labels_and_rejects_substantive_negative_weights(self):
         from sure_julia.batch import gmd
         dims = [f"D{i}" for i in range(6)]
         coords = {d: ["second", "first"] for d in dims}
@@ -119,13 +119,15 @@ class ProductionTests(unittest.TestCase):
         self.assertAlmostEqual(gmd(arrays, spec, export)["gmd"], expected, places=12)
         v, w = values[:-1], weights[:-1]
         expected = np.sum(w[:, None]*w[None, :]*abs(v[:, None]-v[None, :]))/(2*w.sum()**2)
-        for negative, significant in [(-1., 1), (-1e-15, 0)]:
-            arrays["weight"].flat[-1] = negative
-            audit = []
-            self.assertAlmostEqual(gmd(arrays, spec, export, audit)["gmd"], expected, places=12)
-            self.assertEqual(audit[0]["excluded_cells"], 1)
-            self.assertEqual(audit[0]["beyond_numerical_zero"], significant)
-            self.assertEqual(arrays["weight"].flat[-1], negative)
+        arrays["weight"].flat[-1] = -1.
+        with self.assertRaises(ValueError):
+            gmd(arrays, spec, export)
+        arrays["weight"].flat[-1] = -1e-15
+        audit = []
+        self.assertAlmostEqual(gmd(arrays, spec, export, audit)["gmd"], expected, places=12)
+        self.assertEqual(audit[0]["excluded_cells"], 1)
+        self.assertEqual(audit[0]["beyond_numerical_zero"], 0)
+        self.assertEqual(arrays["weight"].flat[-1], -1e-15)
         arrays["weight"].flat[-1] = np.nan
         with self.assertRaises(ValueError):
             gmd(arrays, spec, export)

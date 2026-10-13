@@ -104,6 +104,12 @@ class JuliaBackend:
         names = list(outputs or catalog)
         if len(set(names)) != len(names) or set(names) - set(catalog):
             raise ValueError("Unknown or duplicate requested outputs")
+        requested = list(names)
+        from .stock_limits import REVISION
+        bounded = self.metadata.get("model_revision") == REVISION
+        if bounded:
+            from .physical import OUTPUTS as PHYSICAL_OUTPUTS
+            names = list(dict.fromkeys(names + PHYSICAL_OUTPUTS))
         with self.lock, tempfile.TemporaryDirectory(prefix="sure-result-") as temporary:
             self._start()
             self.request_id += 1
@@ -129,7 +135,12 @@ class JuliaBackend:
                     raise ValueError(f"Invalid Julia output: {name}")
                 arrays[name] = values.reshape(shape)
             self.last_timing = result
-            return arrays
+            if bounded:
+                from .physical import check
+                self.last_physical = check(arrays)
+                if not self.last_physical["pass"]:
+                    raise ValueError(f"Housing stock or transfer invariant failed: {self.last_physical}")
+            return {name: arrays[name] for name in requested}
 
     def run(self, scenario=None, outputs=None, flatten=True):
         arrays = self.run_arrays(scenario, outputs)

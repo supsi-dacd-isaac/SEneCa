@@ -146,9 +146,9 @@ def _output_closure_vars(model, outputs=None):
     return [e for e in seen if not e.startswith("_")]
 
 
-def load_model(prune=True, outputs=None):
+def load_model(prune=True, outputs=None, model_path=None):
     import pysd
-    py = paths.pysd_py()
+    py = Path(model_path) if model_path is not None else paths.pysd_py()
     print(f"Caricamento modello {py.name} ...")
     model = pysd.load(str(py))
     if prune:
