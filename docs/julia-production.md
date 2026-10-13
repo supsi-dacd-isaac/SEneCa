@@ -45,9 +45,10 @@ julia --startup-file=no --project=sure_julia/julia -e 'using Pkg; Pkg.instantiat
 python -m sure_julia.targeted /runs/targeted
 python -m sure_julia.validation /runs/validation --workers 32 --targeted /runs/targeted
 python -m sure_julia.validation /runs/validation --repeats
+python -m sure_julia.validation /runs/validation --certify --targeted /runs/targeted
 python -m sure_julia.batch /runs/pilot-serial --pilot --workers 1 --validation /runs/validation
 python -m sure_julia.batch /runs/pilot-parallel --pilot --workers 32 --validation /runs/validation
-# Compare every pilot value hash before running the full dataset.
+python -c 'from sure_julia.batch import compare_pilots; compare_pilots("/runs/pilot-serial", "/runs/pilot-parallel", "/runs/pilot-comparison.json")'
 python -m sure_julia.batch /runs/full --workers 32 --validation /runs/validation
 ```
 

@@ -179,10 +179,44 @@ def repeat_checks(directory):
             else:
                 with np.load(Path(directory) / "base/python.npz") as previous:
                     result["fresh_process_exact"] = set(previous.files) == set(first) and all(np.array_equal(previous[n], first[n]) for n in first)
+                from sure_pysd import OUTPUTS
+                app = PythonBackend(outputs=OUTPUTS)
+                shared = app.run_arrays(selected["base"])
+                result["app_pruning_exact"] = all(np.array_equal(first[n], shared[n]) for n in shared)
             results[kind] = result
         finally:
             engine.close()
     dump(Path(directory) / "repeats.json", {"pass": all(all(r.values()) for r in results.values()), "results": results})
+
+
+def certify(directory, targeted):
+    directory = Path(directory)
+    stamp = read(directory / "manifest.json")
+    expected = cases()
+    if stamp["cases"] != expected or stamp["build"] != digest(ROOT / "sure_julia/generated/build.json"):
+        raise ValueError("Validation does not cover the current full model/scenario contract")
+    small = read(Path(targeted) / "summary.json")
+    current_patches = {p.name: digest(p) for p in (ROOT / "sure_julia/translator").glob("*.py")}
+    if not small["pass"] or small["production_patches"] != current_patches:
+        raise ValueError("Targeted tests belong to different translator code")
+    repeat = read(directory / "repeats.json")
+    required = {"python": {"base_high_base_exact", "fresh_process_exact", "app_pruning_exact"},
+                "julia": {"base_high_base_exact", "warm_no_compilation", "concurrent_isolation", "crash_recovery_exact", "fresh_exact"}}
+    if not repeat["pass"] or any(set(repeat["results"][engine]) != checks or
+                                not all(repeat["results"][engine].values()) for engine, checks in required.items()):
+        raise ValueError("State isolation checks failed")
+    dump(directory / "targeted.json", small)
+    evidence = {name: digest(directory / name) for name in ("manifest.json", "repeats.json", "targeted.json")}
+    results = {}
+    for name, params in expected.items():
+        report = read(directory / name / "report.json")
+        if report["scenario"] != params or not report["pass"]:
+            raise ValueError(f"Unvalidated scenario: {name}")
+        for filename in ["report.json", "warnings.json"]:
+            evidence[f"{name}/{filename}"] = digest(directory / name / filename)
+        results[name] = True
+    dump(directory / "certificate.json", {"pass": True, "complete_suite": True, "cases": results, "build": stamp["build"],
+         "targeted_sha256": digest(Path(targeted) / "summary.json"), "evidence": evidence, "identity": identity(stamp)})
 
 
 def main():
@@ -192,7 +226,11 @@ def main():
     parser.add_argument("--cases", nargs="+")
     parser.add_argument("--targeted", type=Path)
     parser.add_argument("--repeats", action="store_true")
+    parser.add_argument("--certify", action="store_true")
     args = parser.parse_args()
+    if args.certify:
+        certify(args.directory, args.targeted)
+        return
     if args.repeats:
         repeat_checks(args.directory)
         return
@@ -201,6 +239,8 @@ def main():
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "cases": selected,
              "samples": digest(ROOT / "precomputed/exploratory/uncertainty_samples.parquet")}
     args.directory.mkdir(parents=True, exist_ok=True)
+    dump(args.directory / "summary.json", {"pass": False, "complete_suite": False, "status": "running"})
+    (args.directory / "certificate.json").unlink(missing_ok=True)
     dump(args.directory / "manifest.json", stamp)
     if args.workers == 1:
         initialize(args.directory, None)
@@ -214,6 +254,8 @@ def main():
                                                     initargs=(str(args.directory), affinity)) as pool:
             results = dict(pool.map(check, selected.items()))
     targeted = read(args.targeted / "summary.json") if args.targeted else {"pass": False}
+    if digest(ROOT / "sure_julia/generated/build.json") != stamp["build"]:
+        raise ValueError("Build changed during validation")
     complete = set(selected) == set(all_cases) and targeted["pass"]
     dump(args.directory / "summary.json", {"pass": all(results.values()), "complete_suite": complete, "targeted": targeted,
                                            "cases": results, "identity": identity(stamp)})

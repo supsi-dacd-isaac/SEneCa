@@ -228,11 +228,14 @@ def main():
     parser.add_argument("--consolidate-only", action="store_true")
     parser.add_argument("--validation", type=Path, required=True)
     args = parser.parse_args()
-    certificate = read(args.validation / "summary.json")
+    certificate = read(args.validation / "certificate.json")
     if not certificate["pass"] or not certificate.get("complete_suite"):
         raise ValueError("Validation must pass before regeneration")
     if not read(args.validation / "repeats.json")["pass"]:
         raise ValueError("State isolation checks must pass before regeneration")
+    for name, expected in certificate["evidence"].items():
+        if digest(args.validation / name) != expected:
+            raise ValueError("Validation evidence changed")
     if read(args.validation / "manifest.json")["build"] != digest(ROOT / "sure_julia/generated/build.json"):
         raise ValueError("Validation belongs to another build")
     planned = jobs()
