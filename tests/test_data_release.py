@@ -53,6 +53,26 @@ class DataReleaseTests(unittest.TestCase):
         second = data_release.package_data(self.source, self.root / "other", "data-v1.0.0", "a" * 40)
         self.assertEqual(first["sha256"], second["sha256"])
 
+    def test_new_release_requires_and_verifies_provenance(self) -> None:
+        with self.assertRaisesRegex(ValueError, "mancante"):
+            data_release.package_data(self.source, self.root / "new", "data-v1.1.0", "b" * 40)
+        for name in data_release.PROVENANCE_PATHS:
+            path = self.source / name
+            path.parent.mkdir(exist_ok=True)
+            if path.suffix == ".parquet":
+                import pyarrow as pa
+                import pyarrow.parquet as pq
+                pq.write_table(pa.table({"scenario_id": ["test"]}), path)
+            else:
+                path.write_text('{"backend":"julia"}\n')
+        pin = data_release.package_data(self.source, self.root / "new", "data-v1.1.0", "b" * 40)
+        destination = self.root / "installed-new"
+        data_release.install_archive(self.root / "new" / pin["asset"], destination, pin)
+        data_release.verify_installed(destination, pin)
+        (destination / "provenance/build.json").write_text("modified")
+        with self.assertRaises(ValueError):
+            data_release.verify_installed(destination, pin)
+
     def test_missing_and_lfs_pointer_are_rejected(self) -> None:
         self.file.unlink()
         with self.assertRaisesRegex(ValueError, "mancante"):

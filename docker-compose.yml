@@ -23,7 +23,8 @@ services:
       # Letta da pv_batteries/sd_explainer/loaders.py (poi, in fallback, da /app/.env).
       CARTO_API_KEY: ${CARTO_API_KEY:-}
       # Vuota: sure_paths.py sceglie la traduzione PySD più recente.
-      SURE_VARIANT: ${SURE_VARIANT:-}
+      SURE_VARIANT: v4
+      SURE_BACKEND: ${SURE_BACKEND:-julia}
       PYTHONPATH: /app
       STREAMLIT_SERVER_PORT: 8501
       STREAMLIT_SERVER_ADDRESS: 0.0.0.0

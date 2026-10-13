@@ -189,6 +189,14 @@ def consolidate(directory, planned):
     (release / "exploratory").mkdir(exist_ok=True)
     shutil.copy2(ROOT / "precomputed/exploratory/uncertainty_samples.parquet", release / "exploratory/uncertainty_samples.parquet")
     atomic_parquet(pd.DataFrame(provenance), directory / "release/provenance/scenarios.parquet")
+    dump(directory / "release/provenance/build.json", {
+        "backend": "julia", "model": read(ROOT / "sure_julia/generated/build.json"),
+        "generation_manifest_sha256": digest(directory / "manifest.json"),
+        "scenarios_sha256": digest(directory / "release/provenance/scenarios.parquet"),
+        "numerical_tolerance": {"atol_scale": 1e-10, "rtol": 1e-8},
+        "reference": "SURE v4; synchronous DELAY FIXED; exact allocation",
+        "native_vensim_equivalent": False,
+        "legacy_vensim_files": "Historical input/reference archives retained from data-v1.0.0; not Julia outputs"})
 
 
 def main():

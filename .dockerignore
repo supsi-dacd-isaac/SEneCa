@@ -75,3 +75,11 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Historical experiments are retained in Git, never shipped to the app.
+benchmarks/
+scripts/julia_repro/
+scripts/julia_parametric/
+scripts/sure_v4/
+sure_julia/generated/
+Vensim_test_runs/

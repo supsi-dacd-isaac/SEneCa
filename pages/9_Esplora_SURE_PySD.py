@@ -82,7 +82,8 @@ def default_variant() -> str:
     return paths.variant()
 
 
-@st.cache_resource(show_spinner="Caricamento del modello...", max_entries=2)
+@st.cache_resource(show_spinner="Caricamento del modello...", max_entries=1,
+                   on_release=lambda engine: engine.close())
 def get_engine(engine_id: str):
     return backend.load_model()
 
@@ -302,8 +303,8 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 st.title("Simulazione in tempo reale")
 st.caption(
     f"Simulazione live con {len(sp.OUTPUTS)} output Risultati "
-    "(PV / Risanamento / Veicoli / Elettricità); tipicamente alcuni minuti "
-    "(il sottografo orario allunga la run)."
+    "(PV / Risanamento / Veicoli / Elettricità). "
+    "La prima simulazione richiede anche la preparazione del motore."
 )
 
 ui, run_clicked, variant = render_sidebar()

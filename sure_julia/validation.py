@@ -154,11 +154,21 @@ def repeat_checks(directory):
         engine = factory()
         try:
             first = engine.run_arrays(selected["base"])
-            engine.run_arrays(selected["high"])
+            high = engine.run_arrays(selected["high"])
+            high_compilation = engine.last_timing.get("compilation_seconds", 0)
             repeat = engine.run_arrays(selected["base"])
             result = {"base_high_base_exact": all(np.array_equal(first[n], repeat[n]) for n in first)}
             if kind == "julia":
-                result["warm_no_compilation"] = engine.last_timing["compilation_seconds"] == 0
+                result["warm_no_compilation"] = high_compilation == 0 and engine.last_timing["compilation_seconds"] == 0
+                with concurrent.futures.ThreadPoolExecutor(2) as pool:
+                    a = pool.submit(engine.run_arrays, selected["base"])
+                    b = pool.submit(engine.run_arrays, selected["high"])
+                    result["concurrent_isolation"] = (all(np.array_equal(first[n], a.result()[n]) for n in first)
+                                                      and all(np.array_equal(high[n], b.result()[n]) for n in high))
+                engine.process.kill()
+                engine.process.wait()
+                recovered = engine.run_arrays(selected["base"])
+                result["crash_recovery_exact"] = all(np.array_equal(first[n], recovered[n]) for n in first)
                 engine.close()
                 fresh = factory()
                 try:
@@ -166,6 +176,9 @@ def repeat_checks(directory):
                     result["fresh_exact"] = all(np.array_equal(first[n], other[n]) for n in first)
                 finally:
                     fresh.close()
+            else:
+                with np.load(Path(directory) / "base/python.npz") as previous:
+                    result["fresh_process_exact"] = set(previous.files) == set(first) and all(np.array_equal(previous[n], first[n]) for n in first)
             results[kind] = result
         finally:
             engine.close()
