@@ -1,0 +1,1101 @@
+{
+  "model_sha256": "a80f302afd90c5faf1bb6f9dccc94499e00d57804ee68d46470f3c4c5d15fb87",
+  "report_sha256": "802c01efdd9d0e0542cf3f191ee66fa89cdd56e9fa5447d029bf53997a305fdd",
+  "analysis_sha256": "4ee5651cf03c98574ddfb2d68ca24dae29dae827f36d4cca5e06a97e3d164ccb",
+  "controls": {
+    "Provvedimento 1.2": {
+      "case": "elettricita_007",
+      "rows": [
+        {
+          "variable": "Electricity dispatched",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.05730920657515526,
+          "julia_max_effect": 0.05807377364419608,
+          "max_effect_difference": 0.019489126276880597,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": 1.1489732014623164,
+              "julia": 1.07203264608052
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.37508981239322264,
+              "julia": 0.26169275472347614
+            },
+            "Hydro": {
+              "vensim": 26.74044638781197,
+              "julia": 26.646168788363166
+            },
+            "Import": {
+              "vensim": -20.173659887514077,
+              "julia": -20.380689995618678
+            },
+            "PHS": {
+              "vensim": -1.721318819957863,
+              "julia": -1.7141157212921283
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -0.08762979888918684,
+              "julia": -0.1286104644436682
+            }
+          }
+        },
+        {
+          "variable": "Hourly exported electricity",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.0581187903881073,
+          "julia_max_effect": 0.05820157388035857,
+          "max_effect_difference": 0.004169428230206662,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -3.652024371913285,
+              "julia": -3.4027543655018615
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": -0.3750910021578117,
+              "julia": -0.2616927547234752
+            },
+            "Hydro": {
+              "vensim": 187.259550812596,
+              "julia": 187.35382126063675
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 1.7213187455975762,
+              "julia": 1.7141157212921314
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.0876298375078477,
+              "julia": 0.12861046444366825
+            }
+          }
+        },
+        {
+          "variable": "Electricity consumed",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.05730920657515526,
+          "julia_max_effect": 0.05807377364419608,
+          "max_effect_difference": 0.019489126276880597,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -2.9232415061399784,
+              "julia": -2.6986688681890696
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.37508981239322264,
+              "julia": 0.26169275472347614
+            },
+            "Hydro": {
+              "vensim": 26.74044638781197,
+              "julia": 26.646168788363166
+            },
+            "Import": {
+              "vensim": -20.173659887514077,
+              "julia": -20.380689995618678
+            },
+            "PHS": {
+              "vensim": -1.721318819957863,
+              "julia": -1.7141157212921283
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -0.08762979888918684,
+              "julia": -0.1286104644436682
+            }
+          }
+        },
+        {
+          "variable": "Hourly available supply by Supplier",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.05871790647506714,
+          "julia_max_effect": 0.05879363858730424,
+          "max_effect_difference": 0.002263419304567027,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -2.5030524894608184,
+              "julia": -2.330721719421341
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Hydro": {
+              "vensim": 213.99999423573416,
+              "julia": 213.99999004899996
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": -4.603255850573381e-08,
+              "julia": 2.3744027577432547e-15
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.0,
+              "julia": 0.0
+            }
+          }
+        },
+        {
+          "variable": "PHS hourly demand",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.06135653704404831,
+          "julia_max_effect": 0.06277056120074632,
+          "max_effect_difference": 0.009689721349200889,
+          "annual_2050_effect_GWh": {
+            "total": {
+              "vensim": -5.665545662244161e-08,
+              "julia": 2.4799317691985106e-14
+            }
+          }
+        }
+      ]
+    },
+    "Provvedimento 1.3": {
+      "case": "elettricita_008",
+      "rows": [
+        {
+          "variable": "Electricity dispatched",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.1974523514509201,
+          "julia_max_effect": 0.1967420908897191,
+          "max_effect_difference": 0.17707398572326838,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": 160.9575786847351,
+              "julia": 161.30466685201267
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 124.37140791056058,
+              "julia": 130.97310633229534
+            },
+            "Hydro": {
+              "vensim": -60.82132115224037,
+              "julia": -63.48611772316952
+            },
+            "Import": {
+              "vensim": -95.86774345109006,
+              "julia": -102.40709694722436
+            },
+            "PHS": {
+              "vensim": 299.5787575253477,
+              "julia": 300.7098429528575
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 12.647599700680985,
+              "julia": 13.169490506024976
+            }
+          }
+        },
+        {
+          "variable": "Hourly exported electricity",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.19980177865363657,
+          "julia_max_effect": 0.19879616507368286,
+          "max_effect_difference": 0.1002062776411177,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -165.545472664744,
+              "julia": -165.3157860639586
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": -124.37141068667795,
+              "julia": -130.97310633229534
+            },
+            "Hydro": {
+              "vensim": 353.82131642521324,
+              "julia": 356.48610409866956
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 44.42124219654943,
+              "julia": 43.29017579964258
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -12.64759968330812,
+              "julia": -13.169490506024976
+            }
+          }
+        },
+        {
+          "variable": "Electricity consumed",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.19566544890403748,
+          "julia_max_effect": 0.19518708940598772,
+          "max_effect_difference": 0.17707398572326838,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": 153.65070003161236,
+              "julia": 154.9850259717682
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 124.37140791056058,
+              "julia": 130.97310633229534
+            },
+            "Hydro": {
+              "vensim": -60.82132115224037,
+              "julia": -63.48611772316952
+            },
+            "Import": {
+              "vensim": -95.86774345109006,
+              "julia": -102.40709694722436
+            },
+            "PHS": {
+              "vensim": 299.5787575253477,
+              "julia": 300.7098429528575
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 12.647599700680985,
+              "julia": 13.169490506024976
+            }
+          }
+        },
+        {
+          "variable": "Hourly available supply by Supplier",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.12519079726189375,
+          "julia_max_effect": 0.10556904104046617,
+          "max_effect_difference": 0.05413379743174963,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -4.587892023625197,
+              "julia": -4.011119211945956
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Hydro": {
+              "vensim": 292.99999661588424,
+              "julia": 292.9999863754998
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 343.9999997223398,
+              "julia": 344.0000187525001
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.0,
+              "julia": 0.0
+            }
+          }
+        },
+        {
+          "variable": "PHS hourly demand",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.24327625334262848,
+          "julia_max_effect": 0.24255093767007913,
+          "max_effect_difference": 0.18651646401451594,
+          "annual_2050_effect_GWh": {
+            "total": {
+              "vensim": 429.9999931419734,
+              "julia": 429.99999999999994
+            }
+          }
+        }
+      ]
+    },
+    "Provvedimento 1.4": {
+      "case": "elettricita_009",
+      "rows": [
+        {
+          "variable": "Electricity dispatched",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.01626698672771454,
+          "julia_max_effect": 0.01741970754551403,
+          "max_effect_difference": 0.012601416995721593,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": 0.26615974863716474,
+              "julia": 0.4019572874524136
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 50.40136711526429,
+              "julia": 50.532167165222376
+            },
+            "Hydro": {
+              "vensim": -37.80207241692551,
+              "julia": -37.61905515468766
+            },
+            "Import": {
+              "vensim": -9.938728104364904,
+              "julia": -9.530165200398244
+            },
+            "PHS": {
+              "vensim": -1.185615302771718,
+              "julia": -1.211508654500936
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -0.5086991756904051,
+              "julia": -0.4856773598377403
+            }
+          }
+        },
+        {
+          "variable": "Hourly exported electricity",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.047336943447589874,
+          "julia_max_effect": 0.04684640996341813,
+          "max_effect_difference": 0.004149723332375288,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -0.8954476757541368,
+              "julia": -1.244481371793055
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 29.598616559718117,
+              "julia": 29.46781451477751
+            },
+            "Hydro": {
+              "vensim": 37.80207601366177,
+              "julia": 37.619055154687636
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 1.185614300678329,
+              "julia": 1.211508654500937
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.5086991611945754,
+              "julia": 0.4856773598377402
+            }
+          }
+        },
+        {
+          "variable": "Electricity consumed",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.01626698672771454,
+          "julia_max_effect": 0.01741970754551403,
+          "max_effect_difference": 0.012601416995721593,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -0.7588613060094456,
+              "julia": -0.956314241213297
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 50.40136711526429,
+              "julia": 50.532167165222376
+            },
+            "Hydro": {
+              "vensim": -37.80207241692551,
+              "julia": -37.61905515468766
+            },
+            "Import": {
+              "vensim": -9.938728104364904,
+              "julia": -9.530165200398244
+            },
+            "PHS": {
+              "vensim": -1.185615302771718,
+              "julia": -1.211508654500936
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -0.5086991756904051,
+              "julia": -0.4856773598377403
+            }
+          }
+        },
+        {
+          "variable": "Hourly available supply by Supplier",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.04357496649026871,
+          "julia_max_effect": 0.04361161190544127,
+          "max_effect_difference": 0.0011986760088535942,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -0.6292847289607078,
+              "julia": -0.8425240843406412
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 79.99998308718204,
+              "julia": 79.99998168000025
+            },
+            "Hydro": {
+              "vensim": -3.625949223836263e-06,
+              "julia": -1.2663481374630692e-14
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": -9.702246946593127e-07,
+              "julia": 1.1344368731439995e-15
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.0,
+              "julia": 0.0
+            }
+          }
+        },
+        {
+          "variable": "PHS hourly demand",
+          "first_native_effect": 2028,
+          "first_julia_effect": 2028,
+          "native_max_effect": 0.013082621619105339,
+          "julia_max_effect": 0.013362632417183483,
+          "max_effect_difference": 0.0017184222731303073,
+          "annual_2050_effect_GWh": {
+            "total": {
+              "vensim": 2.5494955480098724e-07,
+              "julia": -2.129047806109785e-14
+            }
+          }
+        }
+      ]
+    },
+    "Provvedimento 1.7": {
+      "case": "elettricita_010",
+      "rows": [
+        {
+          "variable": "Electricity dispatched",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.03757646679878235,
+          "julia_max_effect": 0.03722173444202781,
+          "max_effect_difference": 0.012644254784731856,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": 0.35213406407365255,
+              "julia": 0.37338263670407357
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.546109823705289,
+              "julia": 0.5472392985206362
+            },
+            "Hydro": {
+              "vensim": 19.929600156816985,
+              "julia": 19.900928466035754
+            },
+            "Import": {
+              "vensim": -18.472206025132134,
+              "julia": -18.625894061989122
+            },
+            "PHS": {
+              "vensim": -0.044528384460136294,
+              "julia": -0.04352284826229378
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.07667537893363867,
+              "julia": 0.06499324259994786
+            }
+          }
+        },
+        {
+          "variable": "Hourly exported electricity",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.047336943447589874,
+          "julia_max_effect": 0.04684640996341813,
+          "max_effect_difference": 0.004558891856391523,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -1.2146705482276352,
+              "julia": -1.227643746184116
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": -0.5461104978166986,
+              "julia": -0.5472392985206354
+            },
+            "Hydro": {
+              "vensim": -19.929596480408996,
+              "julia": -19.900928466035776
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 0.04452877396640058,
+              "julia": 0.0435228482622955
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": -0.07667541998671368,
+              "julia": -0.06499324259994786
+            }
+          }
+        },
+        {
+          "variable": "Electricity consumed",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.03757646679878235,
+          "julia_max_effect": 0.03722173444202781,
+          "max_effect_difference": 0.012644254784731856,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -1.057701929698851,
+              "julia": -0.9819221039182958
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.546109823705289,
+              "julia": 0.5472392985206362
+            },
+            "Hydro": {
+              "vensim": 19.929600156816985,
+              "julia": 19.900928466035754
+            },
+            "Import": {
+              "vensim": -18.472206025132134,
+              "julia": -18.625894061989122
+            },
+            "PHS": {
+              "vensim": -0.044528384460136294,
+              "julia": -0.04352284826229378
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.07667537893363867,
+              "julia": 0.06499324259994786
+            }
+          }
+        },
+        {
+          "variable": "Hourly available supply by Supplier",
+          "first_native_effect": 2027,
+          "first_julia_effect": 2027,
+          "native_max_effect": 0.04544222354888916,
+          "julia_max_effect": 0.04545191266632853,
+          "max_effect_difference": 0.0017182209568282758,
+          "annual_2050_effect_GWh": {
+            "Solar": {
+              "vensim": -0.8625335442669287,
+              "julia": -0.8542611094800425
+            },
+            "Wind": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Nuclear": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "RoR": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Hydro": {
+              "vensim": 0.0,
+              "julia": -4.221160458210231e-14
+            },
+            "Import": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "PHS": {
+              "vensim": 4.0367012843489647e-07,
+              "julia": 1.7148464361479063e-15
+            },
+            "Coal": {
+              "vensim": 0.0,
+              "julia": 0.0
+            },
+            "Waste": {
+              "vensim": 0.0,
+              "julia": 0.0
+            }
+          }
+        },
+        {
+          "variable": "PHS hourly demand",
+          "first_native_effect": 2028,
+          "first_julia_effect": 2028,
+          "native_max_effect": 0.013069912791252136,
+          "julia_max_effect": 0.0133368265916956,
+          "max_effect_difference": 0.007159228412806612,
+          "annual_2050_effect_GWh": {
+            "total": {
+              "vensim": 2.8327728311220807e-07,
+              "julia": -1.8520341510397387e-14
+            }
+          }
+        }
+      ]
+    }
+  },
+  "defaults_differ": {
+    "Retrofit incentive input": {
+      "mdl": 60.0,
+      "ui": 50.0
+    },
+    "EV charger incentive input": {
+      "mdl": 500.0,
+      "ui": 2000.0
+    },
+    "CO2 coefficient ICE": {
+      "mdl": 2.5,
+      "ui": 2.0
+    },
+    "ICE fuel price input": {
+      "mdl": 1.81,
+      "ui": 2.0
+    }
+  },
+  "comparison_count": 90,
+  "native_scenarios_compared": 86,
+  "unique_julia_jobs": 82,
+  "native_equivalence_certified": false,
+  "base_phs_profile_diagnostic": {
+    "vensim": {
+      "shape_identity_max_abs_GWh": 1.28581290614882e-08
+    },
+    "julia": {
+      "shape_identity_max_abs_GWh": 4.163336342344337e-17
+    },
+    "largest_pumping_difference": {
+      "year": 2031,
+      "month": "M2",
+      "hour": "H14",
+      "demand_vensim_GWh": 0.13011054694652557,
+      "demand_julia_GWh": 0.10403418660879711,
+      "supply_vensim_GWh": 0.002318009501323104,
+      "supply_julia_GWh": 0.0029034096569597358
+    }
+  },
+  "python_julia": {
+    "source": "/Users/vasco.medici/Documents/projects/SEneCa/dist/vensim-comparison/20261012-pilot",
+    "triangulation_sha256": "5a368dbf2c920bc4c6ed1023c882aaed945fa21def7969d4602e6e94626d4529",
+    "jobs": {
+      "a433f2d532897264": {
+        "pass": true,
+        "variables": 50,
+        "max_tolerance_fraction": 2.2275245130296757e-05
+      },
+      "7e9a86c900b0beb2": {
+        "pass": true,
+        "variables": 50,
+        "max_tolerance_fraction": 4.014354737563648e-05
+      },
+      "544807197837bd34": {
+        "pass": true,
+        "variables": 50,
+        "max_tolerance_fraction": 2.2275245130296757e-05
+      }
+    }
+  },
+  "pilot_replay_exact": {
+    "a433f2d532897264": true,
+    "b9ec7e85fdff2cbb": true,
+    "0f00efe18212d995": true,
+    "8bdc8c37ec63584d": true,
+    "bc5e1f2fc28aa406": true,
+    "7e9a86c900b0beb2": true,
+    "7ce5d021a864b5a6": true,
+    "8ec9e2af1a6e5196": true,
+    "544807197837bd34": true,
+    "489e62ea9f3bb8e4": true,
+    "3567f207422225b5": true,
+    "20b158bf3ce5ae1b": true,
+    "6c149a64e5fa0aab": true,
+    "d032b430cd408e91": true,
+    "b79f3f877aa9028e": true
+  },
+  "additional_oracles": {
+    "python-extremes": {
+      "triangulation_sha256": "4b1ac3e6a7b799843c79420bc76b948f7a6388813d92e1725c8a38800c83fd2b",
+      "jobs": {
+        "d032b430cd408e91": {
+          "pass": true,
+          "variables": 50,
+          "max_tolerance_fraction": 0.07101451912959052
+        },
+        "1a921aacdac33f6a": {
+          "pass": true,
+          "variables": 50,
+          "max_tolerance_fraction": 0.11247506411667654
+        }
+      }
+    }
+  },
+  "sections": {
+    "pv_batteries": {
+      "archive_scenarios": 324,
+      "selected_scenarios": 21,
+      "variables": 25,
+      "series": 96,
+      "cells": 1244160,
+      "nonfinite": 0,
+      "stored_cells": 1244160,
+      "stored_nonfinite": 0,
+      "missing_cells": 0,
+      "non_float32": 0,
+      "cells_compared": 80640,
+      "numerical_failures": 66465,
+      "beyond_one_percent_diagnostic": 2206,
+      "variable_comparisons": 525,
+      "variables_matching": 21,
+      "worst": {
+        "id": "pv_batteries_019",
+        "labels": [
+          "random_5"
+        ],
+        "job": "3641fc2ecceb96ff",
+        "worst": {
+          "variable": "Energy price",
+          "max_abs": 0.0036049302926181997,
+          "max_fraction_variable_scale": 0.024032867662474304,
+          "maximum_difference": {
+            "year": 2037,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.05957518145442009,
+            "candidate": 0.06318011174703829
+          }
+        },
+        "first_divergence": 2011
+      }
+    },
+    "risanamento": {
+      "archive_scenarios": 1215,
+      "selected_scenarios": 25,
+      "variables": 15,
+      "series": 19,
+      "cells": 923400,
+      "nonfinite": 0,
+      "stored_cells": 923400,
+      "stored_nonfinite": 0,
+      "missing_cells": 0,
+      "non_float32": 0,
+      "cells_compared": 19000,
+      "numerical_failures": 17954,
+      "beyond_one_percent_diagnostic": 8,
+      "variable_comparisons": 375,
+      "variables_matching": 0,
+      "worst": {
+        "id": "risanamento_018",
+        "labels": [
+          "random_1"
+        ],
+        "job": "89c69cb2affe567c",
+        "worst": {
+          "variable": "Annual incentives Heating Technologies",
+          "max_abs": 0.2675574061497059,
+          "max_fraction_variable_scale": 0.005590344867530553,
+          "maximum_difference": {
+            "year": 2029,
+            "column": "Annual incentives Heating Technologies",
+            "vensim": 47.761878967285156,
+            "candidate": 47.49432156113545
+          }
+        },
+        "first_divergence": 2011
+      }
+    },
+    "veicoli": {
+      "archive_scenarios": 144,
+      "selected_scenarios": 22,
+      "variables": 5,
+      "series": 24,
+      "cells": 138240,
+      "nonfinite": 0,
+      "stored_cells": 138240,
+      "stored_nonfinite": 0,
+      "missing_cells": 0,
+      "non_float32": 0,
+      "cells_compared": 21120,
+      "numerical_failures": 16879,
+      "beyond_one_percent_diagnostic": 0,
+      "variable_comparisons": 110,
+      "variables_matching": 0,
+      "worst": {
+        "id": "veicoli_011",
+        "labels": [
+          "lever_2_3"
+        ],
+        "job": "2aaed1dcaeae0353",
+        "worst": {
+          "variable": "Adoption Vehicles",
+          "max_abs": 15.501906093120397,
+          "max_fraction_variable_scale": 0.0017881861345148667,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Adoption Vehicles[BEV]",
+            "vensim": 3880.3037109375,
+            "candidate": 3864.8018048443796
+          }
+        },
+        "first_divergence": 2011
+      }
+    },
+    "elettricita": {
+      "archive_scenarios": 144,
+      "selected_scenarios": 18,
+      "variables": 5,
+      "series": 10656,
+      "cells": 61378560,
+      "nonfinite": 1617408,
+      "stored_cells": 59761152,
+      "stored_nonfinite": 0,
+      "missing_cells": 1617408,
+      "non_float32": 0,
+      "cells_compared": 7672320,
+      "numerical_failures": 3282664,
+      "beyond_one_percent_diagnostic": 186342,
+      "variable_comparisons": 90,
+      "variables_matching": 0,
+      "worst": {
+        "id": "elettricita_012",
+        "labels": [
+          "random_1"
+        ],
+        "job": "1a921aacdac33f6a",
+        "worst": {
+          "variable": "PHS hourly demand",
+          "max_abs": 0.29501510781178875,
+          "max_fraction_variable_scale": 0.8770117804484376,
+          "maximum_difference": {
+            "year": 2049,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.03223973512649536,
+            "candidate": 0.3272548429382841
+          }
+        },
+        "first_divergence": 2011
+      }
+    }
+  },
+  "branch": "julia-reproducibility",
+  "starting_implementation_commit": "0cd60e9",
+  "run_directory": "dist/vensim-comparison/20261012-targeted",
+  "pilot_directory": "dist/vensim-comparison/20261012-pilot",
+  "bound_sources": {
+    "Vensim/SURE.mdl": "29f2729328692ff080820fa53bf3fe168b61c38d7a2198ef5b1ea1790b122480",
+    "Vensim/SURE.vpmx": "4f0a93672bd5777a5f7259b587b173110da5b74827530712bc9a7d706570222c",
+    "Vensim/SURE_pysd_v3.py": "6a305156021c4a789a9192f46a404088984ee621980b66aa262fce50a9e6cfb9",
+    "constants_ref_v3.pkl": "565e862dc8d78f8d7a44d43e31e5fd7699d64924be680c13d13fdedcb3dc0e55",
+    "data-release.json": "53f965802b1e0f8e7fd390e88627c48a4bf6a8692e6845ad118403f1fe3ff500",
+    ".data-release-installed.json": "b3d4ca6f52764ec42c718340a9ea982f5fa8d47ec16b1934d816cd3541304ffe",
+    "dist/julia-repro/20261009-reproducibility/manifest.json": "cb4d58bd3db2c173379b232d540d182a700b7535bf36f906d51fe0c8f73b303f",
+    "dist/julia-parametric/20261009/model/model.json": "872674f32652c98769f3f40b5e2a3a7224c2d691bd746a3f1254ac9e7d853748",
+    "dist/julia-parametric/20261009/model/SURE_parametric.jl": "a80f302afd90c5faf1bb6f9dccc94499e00d57804ee68d46470f3c4c5d15fb87",
+    "pv_batteries/vensim_runner.py": "25cc0bbc931063ac209a68399f845d8d6de001d224480859c77d8620eca7474e",
+    "pv_batteries/section_engine.py": "e1827cb2d9039d9dd099eaa6b1aaeb75184229284189ff3d3e9ac933ab8fc1a2",
+    "pv_batteries/section_engine_hourly.py": "b692aa172629f72f5d4ff010082d93effe116181532984a46791702326de6c0d",
+    "pv_batteries/precompute_pv_batteries.py": "26beebe5ab9f61d95fbbecafda5140e6f515b220c3975e666136991f24ef55c8",
+    "pv_batteries/pv_batteries_config.py": "071f45967aeb7c81990ce43af3b41841930083c8b9bd468a9b370aadb2d0af25",
+    "precomputed/pv_batteries_scenarios.parquet": "2134242b9bcad304fea00d6c108484ba928ce79570b3a22eb3d0498b49df326c",
+    "pv_batteries/risanamento_config.py": "3269badb766b57b80b8e775e03b6772520f7dbf3055167707644a9860a3e7cc5",
+    "precomputed/risanamento_scenarios.parquet": "a185adb915ca57bde7fb5b34a1ed619cb61ad9666558b87639132d009801843f",
+    "pv_batteries/veicoli_config.py": "d63715e80fc28db3e76e870c8889df2389fd7b7bb3bceafa19d05522bc88508d",
+    "precomputed/veicoli_scenarios.parquet": "fd4c36a2ea9f739f174db33e654fc62b3224f7dee61723d5f5878fde91653101",
+    "pv_batteries/elettricita_config.py": "12f31c415552bd3a6203bc43649d06485ff5b4f1a61df36a2f35325a99648add",
+    "precomputed/elettricita_hourly.parquet": "264b46d7205b213641717ed3a9011b12a2170cbea79df73a1d2d69aebc02484d"
+  },
+  "evidence_files": {
+    "dist/vensim-comparison/20261012-targeted/inventory.json": "55adff2ac72c11e44d137109c8d9a7db632eb682f7b069730ecf9c8cd2a12d2b",
+    "dist/vensim-comparison/20261012-targeted/execution.json": "31fb8b6848e97b2d6f9eef16c40cde729618ec4feabf818d7ad372bdd4a8f6ec",
+    "dist/vensim-comparison/20261012-targeted/report.json": "802c01efdd9d0e0542cf3f191ee66fa89cdd56e9fa5447d029bf53997a305fdd",
+    "dist/vensim-comparison/20261012-targeted/triangulation-python-extremes.json": "4b1ac3e6a7b799843c79420bc76b948f7a6388813d92e1725c8a38800c83fd2b",
+    "dist/vensim-comparison/20261012-targeted/analysis/artifacts.json": "a7eac09450de1570b79d4213ccb45a69d7888ee4436a34b0a1c47353fa2545bd",
+    "dist/vensim-comparison/20261012-pilot/triangulation.json": "5a368dbf2c920bc4c6ed1023c882aaed945fa21def7969d4602e6e94626d4529",
+    "dist/vensim-comparison/20261012-pilot/python/report.json": "27ad9dd452204f0a5eaa2cd8e03de3f10c9369b55004eb9664374a5ec8afb85b",
+    "scripts/compare_vensim.py": "382470e3fc8c4a656178acac520b9a7fd62e2fa4f8132acbb23477d4a33ca028",
+    "scripts/report_vensim.py": "4ee5651cf03c98574ddfb2d68ca24dae29dae827f36d4cca5e06a97e3d164ccb",
+    "scripts/vensim_comparison/core.py": "44ff3b194f452a7661c9aa03cff98ae4d8c86de17505a8b864b422ffd818fb87",
+    "scripts/vensim_comparison/__init__.py": "f48b1946ce396f265e96384ec19a870211e5714c6156a65d46c589b3c3303cdc",
+    "tests/test_vensim_comparison.py": "c0cc23f3198ca64254836d8b4d7706124d3e710d561a8190b1128d3a5614c029",
+    "tests/test_vensim_report.py": "99b955baa7a7dc8d1eef8880865c526a7dd4108081eae1cdc136b8af5cafdeda"
+  }
+}

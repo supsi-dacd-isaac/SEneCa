@@ -1,0 +1,1493 @@
+{
+  "experimental_validation_pass": true,
+  "python_julia_pass": true,
+  "native_pass": false,
+  "native_equivalence_certified": false,
+  "compiled_module_reused": true,
+  "evidence_sha256": "0699a3ca32b2bcb9aff3a3b230bbb5d0c6404c854624c7aa2df6e1e894194a83",
+  "scenarios": 10,
+  "variables_per_scenario": 110,
+  "compared_values": 54175200,
+  "max_tolerance_fraction": 7.860469510843304e-06,
+  "python_repeat": true,
+  "julia_repeat": true,
+  "order_probes": {
+    "01_base": true,
+    "09_hydro_on": true,
+    "10_mixed": true
+  },
+  "app_probes": {
+    "01_base": true,
+    "09_hydro_on": true,
+    "10_mixed": true
+  },
+  "unreviewed_warnings": {
+    "staged-before": [],
+    "staged-after": [],
+    "app": []
+  },
+  "validation_sha256": "6996424ef1b9b79f4df96bd938c32ba72f11d18cff4d1e20e01fa1382c82f376",
+  "baseline_validation_sha256": "1625b4f2a6965344205506cca7d1020b905b679a7e5e2cd38acf16b7897ed5b0",
+  "cases": {
+    "01_base": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.026035672041411412,
+          "max_fraction_variable_scale": 0.14462312545282505,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.13018003106117249,
+            "candidate": 0.10414435901976107
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984970793771026,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1367716438301242e-06,
+            "max_relative_significant": 2.136771660565099e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.00133916963358921,
+          "max_fraction_variable_scale": 0.007438828450947365,
+          "maximum_difference": {
+            "year": 2049,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.14581987261772156,
+            "candidate": 0.14715904225131077
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984970794339461,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.136771644073779e-06,
+            "max_relative_significant": 2.1367716608087544e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.02750169847420031,
+          "max_fraction_variable_scale": 0.07823226605717798,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "Electricity dispatched[M2,H14,Import]",
+            "vensim": 0.08118557929992676,
+            "candidate": 0.05368388082572645
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.647545669899955,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0012998667013235496,
+            "max_relative_significant": 0.01068027915850305
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.01150947419117658,
+          "max_fraction_variable_scale": 0.032740241405345843,
+          "maximum_difference": {
+            "year": 2027,
+            "column": "Electricity dispatched[M10,H17,Import]",
+            "vensim": 0.011670238338410854,
+            "candidate": 0.00016076414723427412
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.4767532938734007,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0011651163714887901,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.0028950567104692043,
+          "max_fraction_variable_scale": 0.019300377302866607,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.09904567152261734,
+            "candidate": 0.10194072823308654
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08024816960096359,
+            "candidate": 0.0802477589029461,
+            "difference": 4.1069801749726853e-07,
+            "numerical_limit": 9.024816960096359e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0020649855092945008,
+          "max_fraction_variable_scale": 0.013766569514929014,
+          "maximum_difference": {
+            "year": 2038,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.0699744001030922,
+            "candidate": 0.0720393856123867
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08024816960096359,
+            "candidate": 0.08024795488114347,
+            "difference": 2.147198201185585e-07,
+            "numerical_limit": 9.024816960096359e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "02_pv_max": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.009058719212091754,
+          "max_fraction_variable_scale": 0.06036871803722464,
+          "maximum_difference": {
+            "year": 2029,
+            "column": "PHS hourly demand[M3,H14]",
+            "vensim": 0.05036370828747749,
+            "candidate": 0.05942242749956925
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004981429828205819,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1352538315925208e-06,
+            "max_relative_significant": 2.1352538480563357e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0006384523201051207,
+          "max_fraction_variable_scale": 0.004254745863100666,
+          "maximum_difference": {
+            "year": 2027,
+            "column": "PHS hourly demand[M3,H12]",
+            "vensim": 0.13483959436416626,
+            "candidate": 0.13420114204406114
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004981429827637385,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1352538313488654e-06,
+            "max_relative_significant": 2.1352538478126808e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.010574428109333567,
+          "max_fraction_variable_scale": 0.029117330668615084,
+          "maximum_difference": {
+            "year": 2027,
+            "column": "Electricity dispatched[M1,H22,Import]",
+            "vensim": 0.12812833487987518,
+            "candidate": 0.13870276298920875
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.7185644970829088,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0013558985372287594,
+            "max_relative_significant": 0.016012743705483508
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.010865666604959523,
+          "max_fraction_variable_scale": 0.029919273572088602,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Electricity dispatched[M2,H22,Import]",
+            "vensim": 0.134233757853508,
+            "candidate": 0.14509942445846752
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.42242484479695,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0011222527694780984,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.0030998481207108186,
+          "max_fraction_variable_scale": 0.02066565331689284,
+          "maximum_difference": {
+            "year": 2037,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06014897674322128,
+            "candidate": 0.0632488248639321
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07730624079704285,
+            "candidate": 0.07822670662374105,
+            "difference": 0.0009204658266982052,
+            "numerical_limit": 8.730624079704285e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.003074696446799724,
+          "max_fraction_variable_scale": 0.020497975497481793,
+          "maximum_difference": {
+            "year": 2041,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.07080727815628052,
+            "candidate": 0.07388197460308024
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07730624079704285,
+            "candidate": 0.07795002139723416,
+            "difference": 0.0006437806001913099,
+            "numerical_limit": 8.730624079704285e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "03_pv_min": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.021013609604583858,
+          "max_fraction_variable_scale": 0.12059835252626465,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "PHS hourly demand[M3,H12]",
+            "vensim": 0.12755338847637177,
+            "candidate": 0.10653977887178791
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004983837685017534,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1362859434092886e-06,
+            "max_relative_significant": 2.1362859606592556e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.00199061824281882,
+          "max_fraction_variable_scale": 0.01142427622431466,
+          "maximum_difference": {
+            "year": 2041,
+            "column": "PHS hourly demand[M2,H13]",
+            "vensim": 0.1222866028547287,
+            "candidate": 0.12029598461190988
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004983837685301751,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.136285943531116e-06,
+            "max_relative_significant": 2.1362859607810835e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.02225894039224574,
+          "max_fraction_variable_scale": 0.06351467640533943,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Electricity dispatched[M3,H12,Import]",
+            "vensim": 0.09388741105794907,
+            "candidate": 0.07162847066570333
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.8602537044353653,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0014643292801961609,
+            "max_relative_significant": 0.013215461139162617
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.012941838438943892,
+          "max_fraction_variable_scale": 0.03692883246257581,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Electricity dispatched[M1,H20,Import]",
+            "vensim": 0.13226506114006042,
+            "candidate": 0.14520689957900432
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.4633560776669015,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.001151904789530338,
+            "max_relative_significant": 0.010318252969251202
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.002919101843517409,
+          "max_fraction_variable_scale": 0.019460678183484854,
+          "maximum_difference": {
+            "year": 2043,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.055204298347234726,
+            "candidate": 0.058123400190752135
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08490055054426193,
+            "candidate": 0.08555393334843162,
+            "difference": 0.0006533828041696832,
+            "numerical_limit": 9.490055054426193e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0023059666938684206,
+          "max_fraction_variable_scale": 0.015373110681583603,
+          "maximum_difference": {
+            "year": 2043,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.055204298347234726,
+            "candidate": 0.05751026504110315
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08490055054426193,
+            "candidate": 0.08555201735990399,
+            "difference": 0.0006514668156420572,
+            "numerical_limit": 9.490055054426193e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "04_fit_005": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.02376576641379699,
+          "max_fraction_variable_scale": 0.13822571052922658,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H15]",
+            "vensim": 0.12799754738807678,
+            "candidate": 0.10423178097427979
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984545878414792,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1365895005825436e-06,
+            "max_relative_significant": 2.136589523283094e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0012909948542858818,
+          "max_fraction_variable_scale": 0.007508644068791514,
+          "maximum_difference": {
+            "year": 2029,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.14712359011173248,
+            "candidate": 0.1458325952574466
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984545878130575,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.136589500460716e-06,
+            "max_relative_significant": 2.1365895231612664e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.026283302149889637,
+          "max_fraction_variable_scale": 0.07420594650720266,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "Electricity dispatched[M2,H15,Import]",
+            "vensim": 0.0863223671913147,
+            "candidate": 0.06003906504142506
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.8765068387515953,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0014805105552231736,
+            "max_relative_significant": 0.02034045730753698
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.01239820977242459,
+          "max_fraction_variable_scale": 0.035004006951290925,
+          "maximum_difference": {
+            "year": 2032,
+            "column": "Electricity dispatched[M1,H6,Import]",
+            "vensim": 0.13272850215435028,
+            "candidate": 0.14512671192677487
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.7586586097128816,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.001387531652400603,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.0043287332057353745,
+          "max_fraction_variable_scale": 0.02885822022484652,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.0572170652449131,
+            "candidate": 0.061545798450648476
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07728105783462524,
+            "candidate": 0.07889106765215606,
+            "difference": 0.0016100098175308164,
+            "numerical_limit": 8.728105783462524e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.002171115925416328,
+          "max_fraction_variable_scale": 0.014474105594292906,
+          "maximum_difference": {
+            "year": 2027,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.10440453886985779,
+            "candidate": 0.10657565479527412
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07728105783462524,
+            "candidate": 0.07888813456468731,
+            "difference": 0.0016070767300620653,
+            "numerical_limit": 8.728105783462524e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "05_heat_max": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.026536313264621553,
+          "max_fraction_variable_scale": 0.146700219531689,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.13081173598766327,
+            "candidate": 0.10427542272304172
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004981004911996934,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.135071692132236e-06,
+            "max_relative_significant": 2.135071710409401e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0027184891907833936,
+          "max_fraction_variable_scale": 0.015028574508657728,
+          "maximum_difference": {
+            "year": 2040,
+            "column": "PHS hourly demand[M2,H15]",
+            "vensim": 0.1142582818865776,
+            "candidate": 0.11153979269579421
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004981004911996934,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.135071692132236e-06,
+            "max_relative_significant": 2.135071710409401e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.028047914419126158,
+          "max_fraction_variable_scale": 0.08077710916465923,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "Electricity dispatched[M2,H14,Import]",
+            "vensim": 0.07955381274223328,
+            "candidate": 0.05150589832310712
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.7724190195134497,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0013983882245874068,
+            "max_relative_significant": 0.01622808649169927
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.012931415720136785,
+          "max_fraction_variable_scale": 0.037242069541070115,
+          "maximum_difference": {
+            "year": 2028,
+            "column": "Electricity dispatched[M2,H17,Import]",
+            "vensim": 0.13228793442249298,
+            "candidate": 0.14521935014262977
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.9642108939531226,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0015497065617499188,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.0038617455517208493,
+          "max_fraction_variable_scale": 0.025744969321792495,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.09754054993391037,
+            "candidate": 0.10140229548563122
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07958021014928818,
+            "candidate": 0.07990432209541931,
+            "difference": 0.0003241119461311337,
+            "numerical_limit": 8.958021014928817e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0018739206540188263,
+          "max_fraction_variable_scale": 0.012492803863706084,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.09754054993391037,
+            "candidate": 0.0994144705879292
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07958021014928818,
+            "candidate": 0.07957999444104641,
+            "difference": 2.1570824176864178e-07,
+            "numerical_limit": 8.958021014928817e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "06_heat_min": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.02760350862012724,
+          "max_fraction_variable_scale": 0.15255085262097812,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.13285237550735474,
+            "candidate": 0.1052488668872275
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004983696046565456,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.136225234095183e-06,
+            "max_relative_significant": 2.1362252482319723e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0017207724428415089,
+          "max_fraction_variable_scale": 0.009509852784828535,
+          "maximum_difference": {
+            "year": 2034,
+            "column": "PHS hourly demand[M2,H11]",
+            "vensim": 0.11706463992595673,
+            "candidate": 0.11534386748311522
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004983696046565456,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.136225234095183e-06,
+            "max_relative_significant": 2.1362252482319723e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.039403139677253354,
+          "max_fraction_variable_scale": 0.11727782483420417,
+          "maximum_difference": {
+            "year": 2032,
+            "column": "Electricity dispatched[M2,H15,Hydro]",
+            "vensim": 0.05611932650208473,
+            "candidate": 0.016716186824831378
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.7897497137098526,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0014120616496755825,
+            "max_relative_significant": 0.011530818322867552
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.012590164774702817,
+          "max_fraction_variable_scale": 0.03747282960636118,
+          "maximum_difference": {
+            "year": 2033,
+            "column": "Electricity dispatched[M2,H8,Import]",
+            "vensim": 0.1325734704732895,
+            "candidate": 0.1451636352479923
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.42242484479695,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0011222527694780984,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.002989675534146169,
+          "max_fraction_variable_scale": 0.01993116943564761,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.0973753035068512,
+            "candidate": 0.10036497904099737
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07943739742040634,
+            "candidate": 0.0794370994523036,
+            "difference": 2.979681027470704e-07,
+            "numerical_limit": 8.943739742040634e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0018346966776588564,
+          "max_fraction_variable_scale": 0.012231310698363756,
+          "maximum_difference": {
+            "year": 2038,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06773217022418976,
+            "candidate": 0.06956686690184861
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07943739742040634,
+            "candidate": 0.0794371836327337,
+            "difference": 2.1378767264823573e-07,
+            "numerical_limit": 8.943739742040634e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "07_vehicles_max": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.026058501433957937,
+          "max_fraction_variable_scale": 0.14525925608722617,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.13066339492797852,
+            "candidate": 0.10460489349402058
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004982279660055156,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.135618110400221e-06,
+            "max_relative_significant": 2.13561812310675e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.010115603274661013,
+          "max_fraction_variable_scale": 0.05638793198736863,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "PHS hourly demand[M10,H16]",
+            "vensim": 0.016439761966466904,
+            "candidate": 0.026555365241127917
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004982279660907807,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.135618110765704e-06,
+            "max_relative_significant": 2.135618123472233e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.027545396608084083,
+          "max_fraction_variable_scale": 0.07548996451693585,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "Electricity dispatched[M2,H14,Import]",
+            "vensim": 0.0817074105143547,
+            "candidate": 0.05416201390627062
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.7479037313962067,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0013790463591210054,
+            "max_relative_significant": 0.012534382934214812
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.017011771413984474,
+          "max_fraction_variable_scale": 0.04662187438009211,
+          "maximum_difference": {
+            "year": 2030,
+            "column": "Electricity dispatched[M10,H16,Hydro]",
+            "vensim": 0.028821341693401337,
+            "candidate": 0.04583311310738581
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.4314315511479663,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0011293588047693666,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.004456071065701284,
+          "max_fraction_variable_scale": 0.029707139257552903,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06361059099435806,
+            "candidate": 0.06806666206005935
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08025580644607544,
+            "candidate": 0.08051894485889285,
+            "difference": 0.00026313841281741523,
+            "numerical_limit": 9.025580644607543e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0032003853155036927,
+          "max_fraction_variable_scale": 0.02133590125554541,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06361059099435806,
+            "candidate": 0.06681097630986176
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08025580644607544,
+            "candidate": 0.0805189359943854,
+            "difference": 0.00026312954830995383,
+            "numerical_limit": 9.025580644607543e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "08_vehicles_min": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.02602733601595862,
+          "max_fraction_variable_scale": 0.1445359405361954,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.13005855679512024,
+            "candidate": 0.10403122077916162
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984262601226419,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1364680822225857e-06,
+            "max_relative_significant": 2.136468098306633e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.003176441621283499,
+          "max_fraction_variable_scale": 0.01763953010823026,
+          "maximum_difference": {
+            "year": 2049,
+            "column": "PHS hourly demand[M2,H14]",
+            "vensim": 0.14972874522209167,
+            "candidate": 0.14655230360080818
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.0004984262600942202,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 2.1364680821007582e-06,
+            "max_relative_significant": 2.1364680981848055e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.02747392918906061,
+          "max_fraction_variable_scale": 0.07951943659538074,
+          "maximum_difference": {
+            "year": 2031,
+            "column": "Electricity dispatched[M2,H14,Import]",
+            "vensim": 0.08102898299694061,
+            "candidate": 0.053555053807880004
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.9867210176659427,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0015674664094989315,
+            "max_relative_significant": 0.018782902188232243
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.011499913111409327,
+          "max_fraction_variable_scale": 0.03328488638163987,
+          "maximum_difference": {
+            "year": 2027,
+            "column": "Electricity dispatched[M10,H17,Import]",
+            "vensim": 0.011658952571451664,
+            "candidate": 0.00015903946004233727
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 1.42242484479695,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0011222527694780984,
+            "max_relative_significant": 0.010430359819528865
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.0033165767099891386,
+          "max_fraction_variable_scale": 0.02211051052133484,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06263356655836105,
+            "candidate": 0.06595014326835019
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08024651557207108,
+            "candidate": 0.0802460897350377,
+            "difference": 4.2583703337151224e-07,
+            "numerical_limit": 9.024651557207107e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0023344829681480744,
+          "max_fraction_variable_scale": 0.015563219169227063,
+          "maximum_difference": {
+            "year": 2036,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.06263356655836105,
+            "candidate": 0.06496804952650913
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.08024651557207108,
+            "candidate": 0.08024629732126501,
+            "difference": 2.1825080606663327e-07,
+            "numerical_limit": 9.024651557207107e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "09_hydro_on": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.2368855968895893,
+          "max_fraction_variable_scale": 0.7605990138567115,
+          "maximum_difference": {
+            "year": 2050,
+            "column": "PHS hourly demand[M4,H16]",
+            "vensim": 0.2818215489387512,
+            "candidate": 0.04493595204916192
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.000504651181358895,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 7.608252177166353e-07,
+            "max_relative_significant": 1.9799444045671906e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.1700095987055312,
+          "max_fraction_variable_scale": 0.5458716562741143,
+          "maximum_difference": {
+            "year": 2046,
+            "column": "PHS hourly demand[M3,H16]",
+            "vensim": 0.21885673701763153,
+            "candidate": 0.04884713831210033
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.000504651181358895,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 7.608252177166353e-07,
+            "max_relative_significant": 1.9799444045671906e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.1337603054259684,
+          "max_fraction_variable_scale": 0.35505939022711674,
+          "maximum_difference": {
+            "year": 2032,
+            "column": "Electricity dispatched[M2,H15,Import]",
+            "vensim": 0.18372249603271484,
+            "candidate": 0.04996219060674644
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 20.305769008488483,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.016020674547070173,
+            "max_relative_significant": 0.9707465891620878
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.08596620382170575,
+          "max_fraction_variable_scale": 0.22819257037334098,
+          "maximum_difference": {
+            "year": 2049,
+            "column": "Electricity dispatched[M12,H2,Hydro]",
+            "vensim": 0.04174397885799408,
+            "candidate": 0.12771018267969983
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 2.8225171786075407,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0022268858225996395,
+            "max_relative_significant": 0.09337284938306115
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.00847464789732745,
+          "max_fraction_variable_scale": 0.05649765040383475,
+          "maximum_difference": {
+            "year": 2050,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.04315093532204628,
+            "candidate": 0.03467628742471883
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07864636927843094,
+            "candidate": 0.07899378925216928,
+            "difference": 0.00034741997373834155,
+            "numerical_limit": 8.864636927843093e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.0029588994575332483,
+          "max_fraction_variable_scale": 0.019725995599714347,
+          "maximum_difference": {
+            "year": 2044,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.027533838525414467,
+            "candidate": 0.030492737982947715
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07864636927843094,
+            "candidate": 0.07900777059577822,
+            "difference": 0.00036140131734728465,
+            "numerical_limit": 8.864636927843093e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    },
+    "10_mixed": {
+      "PHS hourly demand": {
+        "sequential": {
+          "max_abs": 0.2294008673164297,
+          "max_fraction_variable_scale": 0.719409195090315,
+          "maximum_difference": {
+            "year": 2050,
+            "column": "PHS hourly demand[M2,H13]",
+            "vensim": 0.3163534700870514,
+            "candidate": 0.0869526027706217
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.000505411761423602,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 7.619718926467989e-07,
+            "max_relative_significant": 1.9830454371694878e-06
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.13663704340334812,
+          "max_fraction_variable_scale": 0.4284985779008997,
+          "maximum_difference": {
+            "year": 2048,
+            "column": "PHS hourly demand[M4,H17]",
+            "vensim": 0.23376582562923431,
+            "candidate": 0.0971287822258862
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "PHS hourly demand[M1,H1]",
+            "vensim": 0.0475340373814106,
+            "candidate": 0.04753402477466212,
+            "difference": 1.2606748478471985e-08,
+            "numerical_limit": 5.753403738141059e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 0.000505411761423602,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 7.619718926467989e-07,
+            "max_relative_significant": 1.9830454373957654e-06
+          }
+        }
+      },
+      "Electricity dispatched": {
+        "sequential": {
+          "max_abs": 0.09641254266892857,
+          "max_fraction_variable_scale": 0.25438174992336565,
+          "maximum_difference": {
+            "year": 2049,
+            "column": "Electricity dispatched[M4,H16,RoR]",
+            "vensim": 0.11430348455905914,
+            "candidate": 0.017890941890130574
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 23.975984573749713,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.018916370300531237,
+            "max_relative_significant": 0.8438847715678688
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.07374977320432663,
+          "max_fraction_variable_scale": 0.19458667767522778,
+          "maximum_difference": {
+            "year": 2048,
+            "column": "Electricity dispatched[M4,H17,Hydro]",
+            "vensim": 0.07374977320432663,
+            "candidate": 0.0
+          },
+          "first_divergence": {
+            "year": 2011,
+            "column": "Electricity dispatched[M1,H1,RoR]",
+            "vensim": 0.057946160435676575,
+            "candidate": 0.05794612792639999,
+            "difference": 3.2509276583214675e-08,
+            "numerical_limit": 6.794616043567657e-10,
+            "float32_half_ulp": 1.862645149230957e-09
+          },
+          "annual_aggregate": {
+            "max_abs": 3.8737050685244547,
+            "days_per_month": 30.416666666666668,
+            "max_fraction_scale": 0.0030562431872549907,
+            "max_relative_significant": 0.13634312729964387
+          }
+        }
+      },
+      "Energy price": {
+        "sequential": {
+          "max_abs": 0.012515925773357105,
+          "max_fraction_variable_scale": 0.08343950184012612,
+          "maximum_difference": {
+            "year": 2047,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.04558389261364937,
+            "candidate": 0.05809981838700647
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07897990942001343,
+            "candidate": 0.07938802033724875,
+            "difference": 0.00040811091723531867,
+            "numerical_limit": 8.897990942001343e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        },
+        "synchronous": {
+          "max_abs": 0.00458669636548624,
+          "max_fraction_variable_scale": 0.030577974554848723,
+          "maximum_difference": {
+            "year": 2047,
+            "column": "Energy price[Mendrisio]",
+            "vensim": 0.04558389261364937,
+            "candidate": 0.05017058897913561
+          },
+          "first_divergence": {
+            "year": 2027,
+            "column": "Energy price[Bellinzona]",
+            "vensim": 0.07897990942001343,
+            "candidate": 0.07942393835893875,
+            "difference": 0.00044402893892532547,
+            "numerical_limit": 8.897990942001343e-10,
+            "float32_half_ulp": 3.725290298461914e-09
+          }
+        }
+      }
+    }
+  }
+}
