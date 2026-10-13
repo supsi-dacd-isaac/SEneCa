@@ -6,9 +6,9 @@ fotovoltaico e delle batterie residenziali, risanamento degli edifici e
 sostituzione dei sistemi di riscaldamento, elettrificazione della mobilita',
 bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
-Il modello e' sviluppato in Vensim e tradotto in Python con
-[PySD](https://pysd.readthedocs.io/), cosi' che la webapp possa sia servire
-scenari pre-calcolati sia lanciare simulazioni live.
+Il modello è sviluppato in Vensim e tradotto con
+[PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
+simulazioni live di SURE v4 con Julia; il backend Python resta selezionabile.
 
 ## Riconoscimenti
 
@@ -24,11 +24,12 @@ Questo repository è distribuito con licenza MIT; vedi [LICENSE](LICENSE).
 
 ## Requisiti
 
-- Python 3.11 o superiore
+- Docker per l'ambiente completo, con Python 3.11.8 e Julia 1.10.12 bloccati
+- Python 3.11.8 per l'esecuzione da sorgenti con il backend Python
 - I dati binari sono distribuiti nella [release dati pinata](data-release.json),
   non nel checkout Git corrente; Git LFS non serve per i nuovi cloni
-- Vensim DSS con `vendll64.dll` — necessario **solo** per rigenerare gli store
-  pre-calcolati o ritradurre il modello, non per usare la webapp
+- Vensim DSS con `vendll64.dll` serve solo per i confronti con il motore
+  Vensim e la relativa estrazione delle costanti; il batch Julia non lo richiede
 
 ## Installazione
 
@@ -46,13 +47,21 @@ pip install -r requirements.txt
 ## Avvio della webapp
 
 ```bash
-streamlit run app.py
+SURE_BACKEND=python streamlit run app.py
 ```
+
+Questo comando usa l'ambiente Python installato sopra. Per Julia usare
+l'immagine Docker, che contiene già runtime, dipendenze e modello tradotto.
+`SURE_BACKEND=julia` è il default nell'immagine; `SURE_BACKEND=python` seleziona
+esplicitamente l'altro motore. Errori Julia non provocano un cambio automatico
+di backend. Preparazione, validazione e batch sono descritti nella
+[guida Julia](docs/julia-production.md).
 
 La cartella di progetto deve essere sul `PYTHONPATH`; da Windows PowerShell:
 
 ```powershell
 $env:PYTHONPATH = $PWD
+$env:SURE_BACKEND = "python"
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
@@ -99,6 +108,7 @@ pagina: limita il suo utilizzo nel pannello CARTO.
 | `app.py`, `pages/` | Router multipagina e le sette pagine Streamlit |
 | `pv_batteries/` | Renderer, configurazioni di sezione e script di pre-calcolo |
 | `precomputed/` | Store Parquet installati dalla release dati pinata |
+| `sure_julia/` | Traduttore SURE, runtime persistente, validazione e batch |
 | `Vensim/` | Modello `.mdl`, traduzione PySD e input binari dalla release dati |
 | `content/system_dynamics/` | Testi, immagini e dati della pagina divulgativa |
 
@@ -108,11 +118,16 @@ Le quattro pagine di risultati (`PV e Batterie`, `Riscaldamento e Risanamento`,
 `Veicoli`, `Elettricita'`) servono all'istante combinazioni gia' simulate: si
 scelgono le leve di policy con gli slider e il confronto con lo scenario Base e'
 immediato. `Simulazione in tempo reale` lancia invece una simulazione live su
-tutte le leve disponibili, al costo di alcuni minuti per run.
+tutte le leve disponibili. Julia prepara il modello al primo utilizzo e
+riusa il codice compilato per gli scenari successivi.
 
 ## Rigenerare gli store pre-calcolati
 
-Ogni sezione ha il suo script di batch, che richiede Vensim DSS:
+Il batch di produzione usa 32 processi Julia persistenti, con validazione
+Python–Julia obbligatoria e checkpoint verificati. Seguire la
+[procedura di rigenerazione](docs/julia-production.md).
+
+Gli script storici per il motore Vensim richiedono invece Vensim DSS:
 
 ```bash
 python pv_batteries/precompute_pv_batteries.py
