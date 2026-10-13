@@ -1,0 +1,247 @@
+{
+  "archive_sha256": "2b587916c3d99cec015c2c7d1f18364c99b49f238d521a766c5539d365eb97c6",
+  "normalized_probe_identity": {
+    "allocation_probe.mdl": {
+      "native_sha256": "c60b2b30e3a61036a2894341671ab9c714f7b0e735b623093e48aeed7521201d",
+      "local_sha256": "1e608176a3628432f64839556d68b70390912871aca2c00bcdf8475d1665176c",
+      "same_normalized_text": true
+    },
+    "cases.json": {
+      "native_sha256": "e3e75f3c16186afdd93bf48ec19f7f45ae8485adec830c951ca58589dd162efc",
+      "local_sha256": "4378924895a9071cce29baf55d4480675333ebd396e84d9209961cd4fe12d4fe",
+      "same_normalized_text": true
+    },
+    "SURE_priority_candidate.mdl": {
+      "native_sha256": "d019f7f83f3db73dcac34e5dca9ddc2014acdf77a01f604296447839a54a50a8",
+      "local_sha256": "5b0fc7b3bef53cf6c8b61c34d9af9ff23b8f5f212f35e60658e0098e481dc09b",
+      "same_normalized_text": true
+    },
+    "SURE_priority_candidate.patch": {
+      "native_sha256": "4f4ec159b9c0bd637a50d9997761349850d04e422d06abad2d3bedd04746b3d0",
+      "local_sha256": "2dd730a6f30ca9e109de8daf65b7c8f4adf860f13fcaeddec78a438bd9bdf67d",
+      "same_normalized_text": true
+    }
+  },
+  "base_reexport_exact": true,
+  "base_reexport_rows": 848048,
+  "native_diagnostics_rows": 71880,
+  "scenario_parameters_equal": true,
+  "delay": {
+    "delays": {
+      "0.01": {
+        "staged_delay_first": 0.0,
+        "staged_smooth_first": 0.0,
+        "sequential_smooth_first": 5.0
+      },
+      "0.1": {
+        "staged_delay_first": 0.0,
+        "staged_smooth_first": 0.0,
+        "sequential_smooth_first": 5.0
+      },
+      "1.0": {
+        "staged_delay_first": 0.0,
+        "staged_smooth_first": 0.0,
+        "sequential_smooth_first": 5.0
+      },
+      "2.0": {
+        "staged_delay_first": 0.0,
+        "staged_smooth_first": 0.0,
+        "sequential_smooth_first": 5.0
+      },
+      "4.0": {
+        "staged_delay_first": 0.0,
+        "staged_smooth_first": 0.0,
+        "sequential_smooth_first": 5.0
+      }
+    },
+    "native_repeats_exact": true,
+    "native_named_nested_exact": true
+  },
+  "static_allocation": {
+    "Available allocation": {
+      "pass": false,
+      "max_abs": 0.00016427721595768663
+    },
+    "Priority allocation": {
+      "pass": false,
+      "max_abs": 5.117072863769501e-07
+    }
+  },
+  "native_input_allocation_replay": {
+    "hours": 11520,
+    "cells": 103680,
+    "max_abs": 0.011518541839905083,
+    "max_native_balance_error": 0.011518541839905083,
+    "native_balance_range": [
+      -0.011426667449995875,
+      0.011518541839905083
+    ],
+    "hours_balance_exceeds_export_quantization": 399,
+    "negative_request_cells": 0,
+    "import_switches": 53,
+    "native_zero_replay_positive": 53,
+    "switches_outside_input_quantization": 53,
+    "minimum_gap_quantization_ratio": 27.11668584579977,
+    "price_switches": 53,
+    "max_hourly_price_difference": 294.8011779785156,
+    "price_units": "CHF/MWh; reconstructed with the frozen SURE Electricity market price equation",
+    "first_import_switch": {
+      "year": 2012,
+      "month": "M6",
+      "hour": "H15",
+      "native_import": 0.0,
+      "replay_import": 0.00191807234659791,
+      "supply_gap_above_import": 0.00191807234659791,
+      "input_quantization_bound": 5.048932507634163e-07,
+      "native_balance_error": -0.00191807234659791,
+      "native_price": 10.0,
+      "replay_price": 135.38119506835938
+    },
+    "input_precision": "Float32 exports, not native internal Float64 inputs",
+    "julia_helper": {
+      "cells": 104130,
+      "pass": true,
+      "cases": 11570,
+      "max_abs": 0.0
+    }
+  },
+  "unreviewed_warnings": [],
+  "native_equivalence_certified": false,
+  "python_julia": {
+    "pass": true,
+    "variables": 119,
+    "cells": 5477880,
+    "max_abs": 6.366462912410498e-12,
+    "shared_outputs_unchanged": {
+      "python": true,
+      "julia": true
+    }
+  },
+  "diagnostics": [
+    {
+      "variable": "Hourly demand and PHS",
+      "pass": false,
+      "cells": 11520,
+      "failures": 11388,
+      "max_abs": 0.0011999792411024335,
+      "first_divergence": {
+        "year": 2011,
+        "column": "Hourly demand and PHS[M1,H1]",
+        "vensim": 0.3288571536540985,
+        "candidate": 0.3288569983002112,
+        "difference": 1.5535388731002797e-07,
+        "numerical_limit": 3.3885715365409853e-09,
+        "float32_half_ulp": 1.4901161193847656e-08
+      }
+    },
+    {
+      "variable": "Priority vector by supplier",
+      "pass": false,
+      "cells": 1440,
+      "failures": 1,
+      "max_abs": 1.8615722638060106e-05,
+      "first_divergence": {
+        "year": 2023,
+        "column": "Priority vector by supplier[Import,ppriority]",
+        "vensim": -183.33120727539062,
+        "candidate": -183.3311965942383,
+        "difference": 1.0681152332381316e-05,
+        "numerical_limit": 1.868292190551758e-06,
+        "float32_half_ulp": 7.62939453125e-06
+      }
+    },
+    {
+      "variable": "Marginal cost by supplier",
+      "pass": false,
+      "cells": 360,
+      "failures": 1,
+      "max_abs": 1.8615722638060106e-05,
+      "first_divergence": {
+        "year": 2023,
+        "column": "Marginal cost by supplier[Import]",
+        "vensim": 183.33120727539062,
+        "candidate": 183.3311965942383,
+        "difference": 1.0681152332381316e-05,
+        "numerical_limit": 1.868292190551758e-06,
+        "float32_half_ulp": 7.62939453125e-06
+      }
+    },
+    {
+      "variable": "Hourly imported electricity",
+      "pass": false,
+      "cells": 11520,
+      "failures": 9571,
+      "max_abs": 0.00609171652638138,
+      "first_divergence": {
+        "year": 2012,
+        "column": "Hourly imported electricity[M1,H1]",
+        "vensim": 0.1639435738325119,
+        "candidate": 0.16394340730064383,
+        "difference": 1.665318680732497e-07,
+        "numerical_limit": 1.739435738325119e-09,
+        "float32_half_ulp": 7.450580596923828e-09
+      }
+    },
+    {
+      "variable": "PHS hourly supply",
+      "pass": false,
+      "cells": 11520,
+      "failures": 11305,
+      "max_abs": 0.000173646837514526,
+      "first_divergence": {
+        "year": 2011,
+        "column": "PHS hourly supply[M1,H1]",
+        "vensim": 0.006362807936966419,
+        "candidate": 0.006362810799999999,
+        "difference": 2.8630335801790863e-09,
+        "numerical_limit": 1.636280793696642e-10,
+        "float32_half_ulp": 2.3283064365386963e-10
+      }
+    },
+    {
+      "variable": "Hour factor PHS consumption",
+      "pass": false,
+      "cells": 11520,
+      "failures": 8607,
+      "max_abs": 5.7388611160581575e-06,
+      "first_divergence": {
+        "year": 2011,
+        "column": "Hour factor PHS consumption[M1,H4]",
+        "vensim": 0.0003737180959433317,
+        "candidate": 0.000373718553264716,
+        "difference": 4.5732138426657007e-10,
+        "numerical_limit": 1.0373718095943332e-10,
+        "float32_half_ulp": 1.4551915228366852e-11
+      }
+    },
+    {
+      "variable": "Seasonal PHS monthly demand",
+      "pass": true,
+      "cells": 480,
+      "failures": 0,
+      "max_abs": 0.0
+    },
+    {
+      "variable": "Seasonal PHS monthly production",
+      "pass": true,
+      "cells": 480,
+      "failures": 0,
+      "max_abs": 0.0
+    },
+    {
+      "variable": "Seasonal PHS hourly demand",
+      "pass": true,
+      "cells": 11520,
+      "failures": 0,
+      "max_abs": 0.0
+    },
+    {
+      "variable": "Seasonal PHS hourly production",
+      "pass": true,
+      "cells": 11520,
+      "failures": 0,
+      "max_abs": 0.0
+    }
+  ],
+  "review_sha256": "0da2703d1bda3250e0b7a0395956b5502d901a2369e34a95c67171d14d86554b"
+}

@@ -1,4 +1,73 @@
-# Allineamento SURE v4 con Vensim — 12 ottobre 2026
+# Allineamento SURE v4 con Vensim — 13 ottobre 2026
+
+## Verifica dell'archivio nativo del 13 ottobre
+
+Verificato `native-results-20261013.zip`, SHA256
+`2b587916c3d99cec015c2c7d1f18364c99b49f238d521a766c5539d365eb97c6`.
+Il sorgente e i quattro file della prova coincidono con quelli locali; le
+differenze di checksum dei file generati dipendono esclusivamente dai fine
+riga Windows. Anche il checksum del generatore coincide convertendo LF in CRLF.
+Rapporto e script nativi del collega sono nel commit `58d0d75` del branch
+`vensim-native-alignment`. Lo ZIP resta fuori da Git.
+
+- Il nuovo base Vensim riproduce tutte le **848.048 celle Float32** dell'archivio.
+- Le serie grezze del test dei ritardi confermano la politica sincrona locale:
+  per 0.01, 0.1, 1, 2 e 4 anni l'errore è esattamente zero. La lettura dopo
+  l'aggiornamento sequenziale dello SMOOTH anticipa la serie di un passo e
+  sbaglia di 5 nel test. «SMOOTH salvato spostato di un passo» nel rapporto
+  nativo non significa leggere il nuovo stato durante l'assegnazione Euler.
+- Rieseguito il base Python e Julia con i nove diagnostici aggiuntivi mancanti:
+  **119 variabili, 5.477.880 valori**, confronto superato. I 110 output
+  condivisi con l'esperimento precedente sono identici nei rispettivi motori.
+- Rigiocati in Python e Julia i **11.520 vettori orari nativi**, con offerta,
+  domanda e priorità esportate da Vensim. I due allocatori locali coincidono
+  esattamente, anche nei 50 casi sintetici: **104.130 celle** confrontate.
+
+Il replay isola una differenza reale dell'allocazione nativa, indipendente
+dalla successiva retroazione del modello. Su 399 vettori orari il bilancio
+Vensim supera persino il limite conservativo dovuto alla quantizzazione di
+tutti gli ingressi e le uscite Float32. Lo scarto massimo è **0.01151854 GWh**,
+e gli errori di bilancio hanno entrambi i segni.
+
+In **53 punti anno/mese/ora** Vensim assegna zero a Import mentre il replay
+assegna una quantità positiva. Tutti i 53 casi restano distinti considerando
+l'incertezza degli ingressi esportati. Il primo è **2012, M6, H15**:
+domanda residua 0.001918072 GWh, Import Vensim zero, incertezza conservativa
+degli ingressi circa 0.000000505 GWh. Applicando l'equazione del prezzo SURE
+alle due allocazioni si passa da **10 a 135.3812 CHF/MWh**. Sono prezzi orari
+ricostruiti con l'equazione, non il prezzo annuo all'utente.
+
+Il massimo scarto di bilancio è **2027, M10, H17**: Import nativo
+0.011670238 GWh contro 0.000151696 GWh nel replay. Non è giustificato un taglio
+fisso a 0.01: l'errore può essere in eccesso o in difetto, e Vensim salva anche
+allocazioni positive dell'ordine di 1e-7.
+
+I nuovi diagnostici mostrano anche piccoli scarti negli ingressi già nel 2011
+e nei costi marginali: l'allocatore non è necessariamente l'unica causa di
+ogni differenza numerica. Le quattro serie stagionali sono tutte zero sul
+base; questo archivio non certifica il comportamento con PECC attivi.
+Il replay usa ingressi esportati Float32, non gli ingressi interni del motore.
+
+L'equivalenza completa con Vensim resta **non raggiunta**. Il passo successivo
+è eseguire il candidato BY PRIORITY sui dieci scenari come prova diagnostica,
+anche se il test statico stretto fallisce, seguendo [NATIVE_TEST.md](NATIVE_TEST.md).
+Nessuna soglia è stata allargata e nessuna modifica è stata applicata alla webapp.
+
+Il riepilogo versionato è [native-review-summary.json](native-review-summary.json).
+Risultati completi: `dist/sure-alignment/20261013-native-review/review.json`,
+con ingressi, log e checksum in `evidence.json`. Riproduzione in una nuova cartella:
+
+```sh
+dist/julia-repro/runtime/python-reference/bin/python -B -m scripts.sure_v4.review_native all \
+  --archive /percorso/native-results-20261013.zip \
+  --run-dir dist/sure-alignment/new-native-review
+```
+
+Le fasi `prepare`, `simulate`, `analyze` sono eseguibili separatamente. Il comando
+richiede il riferimento v4 e l'esperimento sincrono già congelati; i relativi
+percorsi sono impostabili tramite `--baseline`, `--synchronous` e `--probe`.
+
+## Esperimento precedente del 12 ottobre
 
 La politica esplicita di aggiornamento dei ritardi riproduce il rapporto del
 collega sul base e mantiene Python e Julia concordi nei dieci scenari nativi.

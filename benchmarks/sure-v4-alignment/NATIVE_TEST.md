@@ -59,12 +59,16 @@ segno: la documentazione di ALLOCATE AVAILABLE indica priorità positive mentre
 SURE usa l'opposto dei costi marginali. Localmente la traslazione mantiene
 l'allocazione entro il solo arrotondamento numerico.
 
-Se BY PRIORITY supera il test e AVAILABLE no, abbiamo una giustificazione
-sperimentale per provare la sostituzione nel modello completo. Se entrambi
-falliscono, non adottare la modifica: occorre esaminare il risultato nativo o
-usare una formulazione esplicita condivisa dai motori.
+Il test statico resta un criterio di accettazione, ma non impedisce una prova
+diagnostica sul modello completo. I risultati del 13 ottobre mostrano che
+entrambe le funzioni falliscono la tolleranza stretta; BY PRIORITY riduce però
+l'errore massimo da 1.64e-4 a 5.12e-7 sui casi sintetici. Questo giustifica una
+prova del candidato, mantenendo esplicito il fallimento statico e senza
+adottare ancora la modifica né dichiarare equivalenza. I cambi di fornitore
+marginale vanno controllati separatamente dalle quantità, perché influenzano
+il prezzo anche per residui piccoli.
 
-## 3. Solo dopo: prova sul modello SURE completo
+## 3. Prova diagnostica sul modello SURE completo
 
 `SURE_priority_candidate.mdl` sostituisce l'allocazione con BY PRIORITY e
 `MAX(0, richiesta)`. Richiede gli stessi file esterni del sorgente originale,
