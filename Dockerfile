@@ -24,7 +24,7 @@ ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic
 COPY sure_julia/julia/Project.toml sure_julia/julia/Manifest.toml /opt/julia-env/
 RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 COPY . /app
-RUN python scripts/data_release.py verify && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated && python scripts/verify_julia_release.py
+RUN python scripts/data_release.py verify && python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated && python scripts/verify_julia_release.py
 
 FROM runtime AS application
 ARG CODE_VERSION=dev

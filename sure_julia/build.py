@@ -13,8 +13,9 @@ from pathlib import Path
 import numpy as np
 
 from .catalog import closure, defaults, inventory, outputs
-from .common import CONFIG, ROOT, MODEL_VARIANT, MODEL_REVISION, MODEL_PY, MODEL_MDL, CALIBRATION, digest, dump, read
+from .common import CONFIG, ROOT, MODEL_VARIANT, MODEL_REVISION, MODEL_PY, MODEL_MDL, CALIBRATION, digest, dump, read, model_sources
 from .translator.parameterize import CONTROLS, replace_once, resolve_name, transform
+from .pv_budget import FLOWS
 
 
 def build(target):
@@ -45,6 +46,8 @@ def build(target):
     # v5 distributes demolition over all PV/battery categories directly;
     # the former PV/battery SUM site no longer exists in its source equation.
     policy["entries"] = [e for e in policy["entries"] if e["component"] != "Building demolition by archetype"]
+    policy["entries"] = [{**e, "component": "Requested " + e["component"]} if e["component"] in FLOWS else e
+                         for e in policy["entries"]]
     reduction_policy.configure(policy)
     original = JuliaSectionBuilder._process_element
     applied = set()
@@ -65,11 +68,9 @@ def build(target):
         applied.add(elem.name)
         return []
 
-    sources = [CALIBRATION, MODEL_PY, ROOT / "Vensim/SURE.mdl"]
-    for path in (ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.*"):
-        if path.suffix in {".csv", ".mdl"}:
-            shutil.copy2(path, target / path.name)
-            sources.append(path)
+    source_hashes = model_sources()
+    for path in [MODEL_MDL, *(ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.csv")]:
+        shutil.copy2(path, target / path.name)
     JuliaSectionBuilder._process_element = process
     try:
         with warnings.catch_warnings(record=True) as caught:
@@ -77,6 +78,20 @@ def build(target):
             parsed = VensimFile(target / MODEL_MDL.name, encoding="latin-1")
             parsed.parse()
             abstract = parsed.get_abstract_model()
+            original_source = VensimFile(ROOT / "Vensim/SURE_pysd_v6.mdl", encoding="latin-1")
+            original_source.parse()
+            old_elements = {e.name: e for s in original_source.get_abstract_model().sections for e in s.elements}
+            new_elements = {e.name: e for s in abstract.sections for e in s.elements}
+            request_audit = []
+            for name in FLOWS:
+                old, new = old_elements[name].components, new_elements["Requested " + name].components
+                if len(old) != len(new) or any(repr(a.ast) != repr(b.ast) or a.subscripts != b.subscripts
+                                              for a, b in zip(old, new)):
+                    raise ValueError(f"Original PV request/EXCEPT clauses changed: {name}")
+                request_audit.append({"component": name, "requested_component": "Requested " + name,
+                                      "identical_clauses": len(old)})
+            dump(target / "pv-request-audit.json", {"pass": True, "requests": request_audit,
+                 "rebound_sum_sites": sum(e["component"].startswith("Requested ") for e in policy["entries"])})
             retained = closure(variables, requested) | set(params) | {"INITIAL TIME", "FINAL TIME", "TIME STEP", "SAVEPER"}
             for section in abstract.sections:
                 section.elements = [e for e in section.elements if e.name in retained]
@@ -107,7 +122,7 @@ def build(target):
         dump(target / "export.json", export)
         metadata = {"complete": True, "validated": False, "model": model.name, "parameters": fields, "defaults": scenario,
                     "model_revision": MODEL_REVISION,
-                    "sources": {str(p.relative_to(ROOT)): digest(p) for p in sources},
+                    "sources": source_hashes,
                     "implementation": {str(p.relative_to(ROOT)): digest(p) for p in Path(__file__).parent.rglob("*")
                                        if p.is_file() and p.suffix in {".py", ".jl", ".toml", ".lock", ".json"} and target not in p.parents},
                     "artifacts": {p.name: digest(p) for p in target.iterdir() if p.is_file() and p.name != "build.json"},

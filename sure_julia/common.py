@@ -7,15 +7,19 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "v6"
-MODEL_REVISION = "sure-v6-9080f62"
-MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
-MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
+MODEL_REVISION = "sure-v6-pv-budget-1"
+MODEL_PY = ROOT / "Vensim/SURE_pysd_v6_pvbounded.py"
+MODEL_MDL = ROOT / "Vensim/SURE_pysd_v6_pvbounded.mdl"
 CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"
 
 
 def model_sources():
     return {str(p.relative_to(ROOT)): digest(p) for p in
-            [MODEL_PY, MODEL_MDL, CALIBRATION, *sorted((ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.csv"))]}
+            [MODEL_PY, MODEL_MDL, CALIBRATION, ROOT / "Vensim/SURE.mdl",
+             ROOT / "Vensim/SURE_pysd_v6.mdl", ROOT / "Vensim/SURE_v6_pvbounded.mdl",
+             ROOT / "sure_julia/pv_budget.py", ROOT / "sure_julia/pv-budget.json",
+             ROOT / "fix_selfref_sure.py", ROOT / "fix_allocate_sure.py",
+             *sorted((ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.csv"))]}
 
 
 def read(path):

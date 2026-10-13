@@ -8,12 +8,31 @@ are excluded from the application image.
 ## Execution contract
 
 `SURE_BACKEND=julia` is the application default; `SURE_BACKEND=python`
-selects the independent PySD 3.14.3 implementation. Both use the upstream v6
-equations from commit `9080f62` without the provisional v4 stock-flow patch,
+selects the independent PySD 3.14.3 implementation. Both use the v6 equations
+from commit `9080f62` plus the shared PV source budget `sure-v6-pv-budget-1`,
 calibrated constants, synchronous pre-step DELAY FIXED inputs, Float64 and
 fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
 replace the precomputed dataset.
+
+The current scope stops **before release and deployment**. The colleague must
+review the corrected native model in Vensim first. The data pin remains
+`data-v1.0.0`; newly generated datasets are candidates, not published releases.
+See [the native handoff](../benchmarks/sure-production/PV_BUDGET_VENSIM.md).
+
+`python -m sure_julia.pv_budget` generates both corrected MDL copies and the
+Python reference. `--check` regenerates in a temporary directory and verifies
+all artifacts. The six original requests (ten clauses, including EXCEPT) are
+preserved under `Requested ...`; one common proportional factor caps their
+sum to stock/TIME STEP after demolition and renovation. No stock is clipped.
+The original v6 files, lifetime fallback and equipped-building demolition
+equations are preserved. Existing PySD self-reference and allocation fixes
+are applied automatically, with their hashes recorded.
+
+On Elettra, `sh scripts/prepare_pv_bounded.sh <new-run-id>` runs all gates,
+the serial/parallel pilots, all 8,171 unique simulations and the final data
+audit. It has no publication, merge or deployment step. Its final status is
+`awaiting-native-vensim-review`.
 
 Julia 1.10.12, Python 3.11.8, the translator revision and companion PySD.jl
 revision are pinned by `deploy/Dockerfile.julia-runtime`; package locks live

@@ -46,6 +46,15 @@ def check(arrays):
         if bad.any():rows[name]['first_index'] = np.argwhere(bad)[0].tolist()
 
     s = arrays['Heating Solution']
+    # Annual TIME STEP=1. Only the existing source stock funds PV transitions;
+    # simultaneous arrivals do not increase the available adoption budget.
+    pv_budget = np.maximum(0., s - np.maximum(0., arrays['Building demolition by archetype'])
+                           - np.maximum(0., arrays['Buildings HS Renovation From']))
+    pv_excess = arrays['Consumers adopting PV no'] - pv_budget
+    bad = pv_excess > 1e-10*np.maximum(1., np.abs(s).max(axis=0))
+    rows['pv_source_budget'] = {"pass": not bool(bad.any()), "failures": int(bad.sum()),
+                                "max_excess": float(np.maximum(0., pv_excess).max())}
+    if bad.any(): rows['pv_source_budget']['first_index'] = np.argwhere(bad)[0].tolist()
     balanced('annual_euler', s[1:],s[:-1]+arrays['Buildings adopting HS'][:-1]-arrays['Buildings leaving HS'][:-1])
     balanced('heating_transfer',arrays['Buildings adopting HS for old age'].sum(axis=2),arrays['Consumers leaving HS for old age'].sum(axis=2))
     balanced('renovation_transfer',arrays['Buildings HS Renovation To'].sum(axis=3),arrays['Buildings HS Renovation From'].sum(axis=3))

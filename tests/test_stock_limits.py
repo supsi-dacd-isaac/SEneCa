@@ -9,7 +9,8 @@ from unittest.mock import patch
 import numpy as np
 import xarray as xr
 
-from sure_julia.common import MODEL_PY
+from sure_julia.common import MODEL_PY, ROOT
+from sure_julia.pv_budget import FLOWS, corrected_source
 from sure_julia.physical import OUTPUTS, check
 
 
@@ -23,6 +24,51 @@ def source_function(name, environment):
 
 
 class StockLimitsTests(unittest.TestCase):
+    def test_pv_budget_preserves_ratios_and_empty_sources(self):
+        from pysd.py_backend.functions import if_then_else
+        coords = {"District": ["A"], "HS": ["A", "B", "C", "D"],
+                  "Performance": ["VeryLow"], "Type": ["SFH"],
+                  "PVpanel": ["PVyes", "PVno"], "Battery": ["Byes", "Bno"]}
+        stock = xr.DataArray(np.full((1, 4, 1, 1, 2, 2), 999.), dims=list(coords), coords=coords)
+        stock.loc[dict(PVpanel="PVno", Battery="Bno")] = np.array([2., 0., 10., 10.]).reshape(1, 4, 1, 1)
+        demolition, renovation = xr.zeros_like(stock), xr.zeros_like(stock)
+        demolition.loc[dict(PVpanel="PVno", Battery="Bno")] = np.array([0., 0., 20., 1.]).reshape(1, 4, 1, 1)
+        renovation.loc[dict(PVpanel="PVno", Battery="Bno")] = np.array([0., 0., 0., 1.]).reshape(1, 4, 1, 1)
+        env = {"_subscript_dict": coords, "heating_solution": lambda: stock,
+               "building_demolition_by_archetype": lambda: demolition,
+               "buildings_hs_renovation_from": lambda: renovation,
+               "time_step": lambda: .5, "if_then_else": if_then_else}
+        available = source_function("available_pv_adoption", env)()
+        np.testing.assert_array_equal(available.values.ravel(), [4., 0., 0., 18.])
+        env["available_pv_adoption"] = lambda: available
+        for demands in ([1., 2., 3., 4., 5., 6.], [0.]*6, [-5., 0., 0., 0., 0., 1.]):
+            for name, value in zip(FLOWS, demands):
+                env["requested_" + name.lower().replace(" ", "_")] = lambda value=value: xr.full_like(available, value)
+            total = source_function("total_pv_request", env)()
+            env["total_pv_request"] = lambda: total
+            factor = source_function("pv_availability_factor", env)()
+            env["pv_availability_factor"] = lambda: factor
+            accepted = [source_function(name.lower().replace(" ", "_"), env)() for name in FLOWS]
+            expected = np.minimum(available, sum(max(0., d) for d in demands))
+            np.testing.assert_allclose(sum(accepted), expected, rtol=1e-15, atol=1e-15)
+            self.assertTrue(all(bool((a >= 0).all()) for a in accepted))
+            if sum(demands) > 0:
+                for a, demand in zip(accepted, demands):
+                    if demand > 0:
+                        np.testing.assert_allclose(a, expected * demand / sum(max(0., d) for d in demands))
+
+    def test_source_patch_preserves_sketch_and_all_original_request_clauses(self):
+        original = (ROOT / "Vensim/SURE_pysd_v6.mdl").read_bytes().decode("latin-1")
+        corrected, clauses = corrected_source(original)
+        marker = "\\\\\\---///"
+        self.assertEqual(original.partition(marker)[2], corrected.partition(marker)[2])
+        self.assertEqual(sum(map(len, clauses.values())), 10)
+        for name, bodies in clauses.items():
+            for body in bodies:
+                self.assertIn("Requested " + name + body, corrected)
+        with self.assertRaises(ValueError):
+            corrected_source(corrected)
+
     def test_zero_substitutions_do_not_empty_a_heating_category(self):
         from pysd.py_backend.functions import if_then_else, sum as pysd_sum
         coords = {"District": ["A"], "HS": ["HeatPump", "Oil"],
@@ -130,6 +176,15 @@ class PhysicalGateTests(unittest.TestCase):
         a = self.arrays()
         a["Total Res buildings"][10:] += 1.
         self.assertFalse(check(a)["checks"]["fine_coarse_changes"]["pass"])
+
+    def test_paired_pv_cannot_withdraw_from_an_empty_source(self):
+        a = self.arrays()
+        a["Heating Solution"][10] = 0.
+        a["Consumers adopting PV no"][10] = 1e-6
+        a["Consumers adopting PV yes with battery"][10] = 1e-6
+        result = check(a)
+        self.assertTrue(result["checks"]["pv_transfer"]["pass"])
+        self.assertFalse(result["checks"]["pv_source_budget"]["pass"])
 
     def test_agreeing_engines_cannot_certify_physically_invalid_results(self):
         import json
