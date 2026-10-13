@@ -14,7 +14,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sure_julia.common import ROOT, MODEL_REVISION, CALIBRATION, YEARS, digest, dump, read
 from sure_julia.runtime import JuliaBackend
-from sure_julia.validation import cases
+from sure_julia.validation import cases, compare
 
 
 def prepare(validation, target):
@@ -48,6 +48,7 @@ def prepare(validation, target):
         (ROOT / "benchmarks/sure-production/PV_BUDGET_VENSIM.md", "README.md"),
         (ROOT / "benchmarks/sure-production/pv-budget-native.diff", "pv-budget-native.diff"),
         (ROOT / "sure_julia/generated/export.json", "export.json"),
+        (ROOT / "data-release.json", "historical-data-inputs.json"),
         (build, "build.json"),
         (validation / "certificate.json", "python-julia-certificate.json"),
         (validation / "repeats.json", "state-isolation.json"),
@@ -60,6 +61,12 @@ def prepare(validation, target):
     try:
         for name in selected:
             arrays = engine.run_arrays(scenarios[name])
+            if name == "base":
+                with np.load(validation / "base/python.npz") as reference:
+                    comparison = compare({n: reference[n] for n in reference.files}, arrays, engine.export)
+                if not comparison["pass"]:
+                    raise ValueError("Native handoff base differs from the validated Python reference")
+                dump(target / "base.reference-check.json", comparison)
             np.savez_compressed(target / f"{name}.julia.npz", **arrays)
             dump(target / f"{name}.physical.json", engine.last_physical)
     finally:
@@ -78,6 +85,7 @@ def prepare(validation, target):
         "fixed_controls": {"ICE ban year": 2050, "Deflussi minimi LPAc": 1, "Cambiamento climatico Hydro": 1},
         "scenario_count": len(scenarios), "parameters_per_scenario": 40,
         "raw_reference_cases": selected, "raw_reference_precision": "Float64",
+        "handoff_generator_sha256": digest(__file__),
         "data_inputs": "Use the same native external files as SURE v6; these are not bundled",
         "files": {str(p.relative_to(target)): digest(p) for p in sorted(target.rglob("*")) if p.is_file()},
     })

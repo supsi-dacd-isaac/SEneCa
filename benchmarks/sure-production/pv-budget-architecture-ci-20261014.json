@@ -1,0 +1,31 @@
+{
+  "workflow": "https://github.com/supsi-dacd-isaac/SEneCa/actions/runs/38483836935",
+  "commit": "7ac1aab",
+  "model_revision": "sure-v6-pv-budget-2",
+  "release_published": false,
+  "native_vensim_verified": false,
+  "architectures": {
+    "amd64": {
+      "pass": true,
+      "ui": true,
+      "cases": [
+        "base",
+        "high",
+        "regression_negative_stock"
+      ],
+      "summary_sha256": "e271a94ae4b124acbd87b43658dcc3170359cc152b35f268f83a02b6d5c256bf",
+      "model_sha256": "682a55aaf6707301856278716f5fe3ec21e7a3be010c17771f9e21dbe8ae7dcb"
+    },
+    "arm64": {
+      "pass": true,
+      "ui": true,
+      "cases": [
+        "base",
+        "high",
+        "regression_negative_stock"
+      ],
+      "summary_sha256": "f52bd4bca6b9252209f44750063e46a83d622390d10bebdada4b97c61c32dc94",
+      "model_sha256": "682a55aaf6707301856278716f5fe3ec21e7a3be010c17771f9e21dbe8ae7dcb"
+    }
+  }
+}

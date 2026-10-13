@@ -82,6 +82,12 @@ Restano invariati allocatori, ritardi e le altre correzioni della v6.
 
 Nessun motore Vensim è stato eseguito per preparare questa correzione.
 
+Per `Hourly exported electricity[...,Import]`, il motore può conservare solo
+il 2011 perché la definizione è costante a zero. Conservare l'export grezzo e
+segnalare questo caso esplicitamente: l'eventuale ricostruzione annuale deve
+essere motivata dalla relativa equazione. Non estendere automaticamente altre
+serie incomplete e non scartare celle o anni mancanti.
+
 ## Pacchetto di consegna
 
 Dopo la certificazione Python–Julia, eseguire nel container:
@@ -93,7 +99,7 @@ python scripts/prepare_vensim_pv_handoff.py /runs/pv-budget-003/validation /runs
 Il pacchetto contiene input completi per tutti i 318 casi, costanti calibrate
 in JSON con dimensioni/coordinate, schema dei 137 output e riferimenti grezzi
 Julia per i quattro casi iniziali, oltre al riferimento Python della base.
-Gli array NPZ hanno il tempo come primo asse; gli altri assi e le etichette
+   Gli array NPZ hanno il tempo come primo asse; gli altri assi e le etichette
 sono elencati in `export.json`. I rapporti dei 318 confronti sono inclusi;
 per un confronto numerico nativo sugli altri casi, conservarne gli export
 completi: i riferimenti possono essere rigenerati su Elettra con gli input
