@@ -37,6 +37,16 @@ def replace_once(source, before, after):
     return source.replace(before, after, 1)
 
 
+def parameterize_control(source, field):
+    # A saved source may have either binary setting. In both cases the
+    # scenario's explicit parameter must replace the getter's literal.
+    source, count = re.subn(r"(?m)^    " + re.escape(field) + r" = [01]\.0\n",
+                            f"    {field} = c.parameters.{field}\n", source)
+    if count != 1:
+        raise ValueError(f"Expected one binary control getter: {field}")
+    return source
+
+
 def transform(source, names, defaults):
     fields = {name: re.sub(r"\W+", "_", name.lower()).strip("_") for name in names}
     if len(set(fields.values())) != len(fields):
@@ -44,7 +54,7 @@ def transform(source, names, defaults):
     parameter_block, remaining = source.split("# Simulation control\n", 1)
     for name, field in fields.items():
         if name in CONTROLS:
-            remaining = replace_once(remaining, f"    {field} = 0.0\n", f"    {field} = c.parameters.{field}\n")
+            remaining = parameterize_control(remaining, field)
         else:
             parameter_block, count = re.subn(r"(?m)^const " + re.escape(field) + r" = [^\n]+\n", "", parameter_block)
             if count != 1:

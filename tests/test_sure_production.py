@@ -31,6 +31,18 @@ class ProductionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 parameters(values)
 
+    def test_binary_getters_use_scenario_values_for_either_saved_default(self):
+        from sure_julia.translator.parameterize import parameterize_control
+        field = "provvedimento_1_3"
+        for default in ("0.0", "1.0"):
+            source = f"    {field} = {default}\n    return {field}\n"
+            self.assertEqual(parameterize_control(source, field),
+                             f"    {field} = c.parameters.{field}\n    return {field}\n")
+        for source in (f"    {field} = 0.5\n", f"    {field} = another_variable\n",
+                       f"    {field} = 0.0\n"*2, ""):
+            with self.assertRaises(ValueError):
+                parameterize_control(source, field)
+
     def test_except_cells_and_rectangles_preserve_every_rank(self):
         for rank in range(1, 7):
             dims = {f"D{i}": [f"a{i}", f"b{i}", f"c{i}"] for i in range(rank)}
