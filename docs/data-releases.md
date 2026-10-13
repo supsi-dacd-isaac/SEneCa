@@ -72,6 +72,8 @@ default. Il deploy è manuale (`docker compose -f docker-compose.prod.yml pull`
 seguito da `up -d`). Impostare `SENECA_IMAGE_TAG=vX.Y.Z` per tenere o ripristinare
 una versione precisa. L'immagine espone nei metadati il tag della release dati
 incorporata. La chiave CARTO resta una variabile d'ambiente a runtime.
+Il rollback all'immagine `v0.1.1` richiede anche `SURE_VARIANT=v3` e
+`SURE_BACKEND=python`, coerenti con il modello contenuto in quella versione.
 
 I file LFS rimangono nella cronologia Git e sullo storage remoto, anche se non
 sono più nella versione corrente di `main`: questa migrazione non recupera la

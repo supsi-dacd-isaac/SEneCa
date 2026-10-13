@@ -94,6 +94,11 @@ smoke-test on a temporary port, and retain the previous image tag/digest for
 rollback. Restore that tag to revert both application code and its pinned
 dataset.
 
+For the previous `v0.1.1` image, also restore its model selection:
+`SENECA_IMAGE_TAG=v0.1.1 SURE_VARIANT=v3 SURE_BACKEND=python docker compose -f docker-compose.prod.yml up -d`.
+Current images require v4; the variant override exists to make old-image
+rollback explicit, not to run the production Julia backend against v3.
+
 ## Implementation status
 
 - Elettra infrastructure and existing data-v1.0.0 archive verified.
