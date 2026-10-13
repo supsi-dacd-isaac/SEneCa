@@ -31,7 +31,9 @@ with (root/'resources.jsonl').open('w', buffering=1) as out:
         time.sleep(5)
 PY
 monitor=$!
-git -c safe.directory=/app rev-parse HEAD > "$root/source-commit"
+# The checkout is a worktree; its .git link is outside the container mount.
+# Resolve HEAD on the host and pass the full commit explicitly.
+printf '%s\n' "${SURE_SOURCE_COMMIT:?Pass the host checkout commit}" > "$root/source-commit"
 if [ -d /app/sure_julia/generated ]; then
     mv /app/sure_julia/generated "$root/previous-generated"
 fi
