@@ -61,6 +61,12 @@ validation. The 50 existing LHS samples (seed 20261004) are retained verbatim.
 Resume requires identical build, code, parameter and sample identities and
 verified completed-output checksums. No failed scenario is dropped.
 
+The existing GMD definition excludes negative weights. The batch permits this
+only for 2050 residuals within the same numerical tolerance of zero, records
+their count and mass per scenario, and rejects significant negative weights.
+The base has 120 such residuals in `Annual archetypes`, with minimum about
+`-8.94e-16` in both Python and Julia. Raw simulation arrays are never modified.
+
 The batch stages nine application Parquets plus provenance separately from
 the installed dataset. The seven Vensim reference/input archives remain
 historical files from `data-v1.0.0`. `data-v1.1.0` adds complete effective

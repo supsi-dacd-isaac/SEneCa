@@ -108,6 +108,14 @@ class ProductionTests(unittest.TestCase):
         arrays["weight"].flat[-1] = -1
         with self.assertRaises(ValueError):
             gmd(arrays, spec, export)
+        arrays["weight"].flat[-1] = -1e-15
+        audit = []
+        actual = gmd(arrays, spec, export, audit)["gmd"]
+        v, w = values[:-1], weights[:-1]
+        expected = np.sum(w[:, None]*w[None, :]*abs(v[:, None]-v[None, :]))/(2*w.sum()**2)
+        self.assertAlmostEqual(actual, expected, places=12)
+        self.assertEqual(audit[0]["excluded_cells"], 1)
+        self.assertEqual(arrays["weight"].flat[-1], -1e-15)
 
 
 if __name__ == "__main__":

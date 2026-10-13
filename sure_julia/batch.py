@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import time
+import traceback
 
 import numpy as np
 import pandas as pd
@@ -52,8 +53,10 @@ def jobs():
     return list(result.values())
 
 
-def gmd(arrays, specs, export):
-    # Fail before the legacy GMD helper can discard nonfinite or negative weights.
+def gmd(arrays, specs, export, audit=None):
+    # Preserve the existing GMD definition, which excludes negative weights.
+    # Only residuals indistinguishable from zero under the accepted numerical
+    # tolerance may be excluded. Keep the original simulation arrays intact.
     from pv_batteries.gmd import compute_gmd_from_spec
     values = {}
     for name in {s[k] for s in specs.values() for k in ("weight", "value")}:
@@ -66,8 +69,17 @@ def gmd(arrays, specs, export):
     for spec in specs.values():
         if set(values[spec["weight"]]) != set(values[spec["value"]]):
             raise ValueError("GMD coordinates differ")
-        if any(v < 0 for v in values[spec["weight"]].values()):
-            raise ValueError("Negative GMD weights")
+    for name in {s["weight"] for s in specs.values()}:
+        series = arrays[name]
+        final = series[-1]
+        tolerance = 1e-10*np.maximum(1., np.abs(series).max(axis=0)) + 1e-8*np.abs(final)
+        if np.any(final < -tolerance):
+            raise ValueError(f"GMD weights below numerical zero: {name}; minimum={final.min()}")
+        negative = final[final < 0]
+        if negative.size and audit is not None:
+            audit.append({"variable": name, "year": 2050, "excluded_cells": int(negative.size),
+                          "minimum": float(negative.min()), "negative_mass": float(negative.sum()),
+                          "rule": "Existing GMD definition excludes negative weights; numerical-zero tolerance verified"})
     result = compute_gmd_from_spec(values, specs)
     if not all(np.isfinite(v) for v in result.values()):
         raise ValueError("Invalid GMD")
@@ -112,7 +124,7 @@ def initialize(directory, affinity=None):
     ENGINE.run_arrays()
 
 
-def execute(job):
+def _execute(job):
     started = time.perf_counter()
     arrays = ENGINE.run_arrays(job["parameters"], job["outputs"])
     if ENGINE.last_timing["compilation_seconds"] != 0:
@@ -121,14 +133,14 @@ def execute(job):
     for name in sorted(arrays):
         value_hash.update(name.encode())
         value_hash.update(arrays[name].astype("<f8", copy=False).tobytes(order="C"))
-    paths = []
+    paths, gmd_audit = [], []
     for dest in job["destinations"]:
         section = dest["section"]
         cfg = CONFIGS[section]
         inputs = dest["inputs"]
         target = TARGET / "parts" / section
         if section == "exploratory":
-            kpis = gmd(arrays, cfg.GMD_SPEC, EXPORT)
+            kpis = gmd(arrays, cfg.GMD_SPEC, EXPORT, gmd_audit)
             kpis.update({k: float(arrays[n][-1].sum()) for k, n in cfg.SCALAR_OUTPUTS.items()})
             kpis["cantonal_spend"] = float(arrays[cfg.CANTONAL_FUNDS_VAR][YEARS.index(cfg.CANTONAL_SPEND_START):].sum())
             frame = pd.DataFrame([{"policy_id": dest["policy_id"], "sample_id": dest["sample_id"], **inputs, **kpis, "completed": 1.0}])
@@ -145,17 +157,26 @@ def execute(job):
             path = target / f"{job['id']}.parquet"
             if getattr(cfg, "GMD_VARS", []):
                 gmd_path = TARGET / "parts" / f"{section}_gmd" / f"{job['id']}.parquet"
-                atomic_parquet(pd.DataFrame([{**inputs, **gmd(arrays, cfg.GMD_SPEC, EXPORT), "year": 2050}]), gmd_path)
+                atomic_parquet(pd.DataFrame([{**inputs, **gmd(arrays, cfg.GMD_SPEC, EXPORT, gmd_audit), "year": 2050}]), gmd_path)
                 paths.append(gmd_path)
         if not np.isfinite(frame.select_dtypes(include="number").to_numpy()).all():
             raise ValueError("Nonfinite release data")
         atomic_parquet(frame, path)
         paths.append(path)
-    report = {"parameters": job["parameters"], "destinations": job["destinations"], "value_sha256": value_hash.hexdigest(),
-              "timing": ENGINE.last_timing, "elapsed_seconds": time.perf_counter()-started,
+    report = {"status": "complete", "parameters": job["parameters"], "destinations": job["destinations"], "value_sha256": value_hash.hexdigest(),
+              "timing": ENGINE.last_timing, "elapsed_seconds": time.perf_counter()-started, "gmd_weight_audit": gmd_audit,
               "files": {str(p.relative_to(TARGET)): digest(p) for p in paths}}
     dump(TARGET / "completed" / f"{job['id']}.json", report)
+    (TARGET / "failed" / f"{job['id']}.json").unlink(missing_ok=True)
     return job["id"], report["elapsed_seconds"]
+
+
+def execute(job):
+    try:
+        return _execute(job)
+    except Exception:
+        dump(TARGET / "failed" / f"{job['id']}.json", {**job, "status": "failed", "error": traceback.format_exc()})
+        raise
 
 
 def consolidate(directory, planned):
@@ -175,6 +196,7 @@ def consolidate(directory, planned):
                 raise ValueError("Completed output checksum differs")
         provenance.append({"scenario_id": job["id"], "parameters_json": __import__("json").dumps(job["parameters"], sort_keys=True),
                            "destinations_json": __import__("json").dumps(job["destinations"], sort_keys=True),
+                           "gmd_weight_audit_json": __import__("json").dumps(report["gmd_weight_audit"], sort_keys=True),
                            "output_sha256": report["value_sha256"], "seconds": report["elapsed_seconds"], "backend": "julia"})
     for section, filename in destinations.items():
         files = sorted((directory / "parts" / section).glob("*.parquet"))
@@ -276,10 +298,14 @@ def main():
         with concurrent.futures.ProcessPoolExecutor(args.workers, mp_context=context, initializer=initialize,
                                                     initargs=(str(args.directory), affinity)) as pool:
             futures = [pool.submit(execute, job) for job in pending]
-            for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
-                key, seconds = future.result()
-                dump(args.directory / "progress.json", {"done": len(planned)-len(pending)+i, "total": len(planned), "seconds": time.perf_counter()-started})
-                print(i, "/", len(pending), key[:12], round(seconds, 2), flush=True)
+            try:
+                for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
+                    key, seconds = future.result()
+                    dump(args.directory / "progress.json", {"done": len(planned)-len(pending)+i, "total": len(planned), "seconds": time.perf_counter()-started})
+                    print(i, "/", len(pending), key[:12], round(seconds, 2), flush=True)
+            except Exception:
+                pool.shutdown(wait=True, cancel_futures=True)
+                raise
     if not args.pilot:
         consolidate(args.directory, planned)
     dump(args.directory / "summary.json", {"complete": True, "scenarios": len(planned), "seconds": time.perf_counter()-started, "workers": args.workers})
