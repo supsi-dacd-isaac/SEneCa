@@ -66,6 +66,7 @@ class StockLimitsTests(unittest.TestCase):
         after=s+incoming-out
         self.assertGreaterEqual(float(after.min()),-1e-12)
         self.assertAlmostEqual(float(after.sum()),float(s.sum()-demo.sum()),places=11)
+        return env
 
     def test_competing_transfers_cannot_overdraw_the_source(self):
         values=np.zeros((1,2,5,1,2,2))
@@ -80,6 +81,16 @@ class StockLimitsTests(unittest.TestCase):
 
     def test_empty_stocks_and_negative_demands_stay_finite_and_empty(self):
         self.synthetic(np.zeros((1,2,5,1,2,2)),renovation=-20.,demolition=-10.,pv=-3.)
+
+    def test_vanishing_eligible_pool_does_not_change_other_renovations(self):
+        # A 1e-17 residual in a depleted PVno category must not alter a
+        # macroscopic renovation of PVyes buildings in the same archetype.
+        for residual in (0.,1e-17,1e-8):
+            values=np.zeros((1,2,5,1,2,2))
+            values[0,:,0,0,0,0]=[80.,20.]
+            values[0,0,0,0,1,1]=residual
+            env=self.synthetic(values,renovation=20.)
+            self.assertAlmostEqual(float(env['res_verylow_low_renovation']().sum()),20.,places=12)
 
     def test_requested_multi_clause_definitions_are_preserved(self):
         root=Path(__file__).parents[1]

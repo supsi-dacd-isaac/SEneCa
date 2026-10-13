@@ -74,10 +74,9 @@ def equations():
         py_h = f"bounded_housing_total().sel(Performance='{perf}', drop=True)"
         py_r = identifier(demand) + "()"
         if perf == "VeryLow":
-            d, p = "Bounded demolition demand[District,Type]", "Bounded PVno pool[District,VeryLow,Type]"
-            safe_h = f"IF THEN ELSE({h}>0,{h},1)"
-            mdl = "MIN(" + mdl_limit(f"MAX(0,MIN({h},{coarse}))/TIME STEP", f"{r}+{d}") + "," + mdl_limit(f"{p}/TIME STEP", f"{d}+{r}*{p}/{safe_h}") + ")"
-            py = f"h = {py_h}\np = bounded_pvno_pool().sel(Performance='VeryLow', drop=True)\nr = {py_r}\nd = bounded_demolition_demand()\nreturn np.minimum(_sure_flow_limit(np.maximum(np.minimum(h,res_verylow_buildings()),0.0)/time_step(),r+d), _sure_flow_limit(p/time_step(),d+r*p/xr.where(h>0,h,1.0)))"
+            d = "Bounded demolition demand[District,Type]"
+            mdl = mdl_limit(f"MAX(0,MIN({h},{coarse}))/TIME STEP", f"{r}+{d}")
+            py = f"h = {py_h}\nr = {py_r}\nd = bounded_demolition_demand()\nreturn _sure_flow_limit(np.maximum(np.minimum(h,res_verylow_buildings()),0.0)/time_step(),r+d)"
         else:
             mdl = mdl_limit(f"MAX(0,MIN({h},{coarse}))/TIME STEP", r)
             py = f"return _sure_flow_limit(np.maximum(np.minimum({py_h},res_{perf.lower()}_buildings()),0.0)/time_step(),{py_r})"
@@ -87,8 +86,8 @@ def equations():
                 f"return np.maximum(requested_{identifier(name)}(),0.0)*{identifier(factor)}()",
                 f"MAX(0,{ref('Requested '+name,D2)})*{ref(factor,D2)}")
     add("Res VeryLow demolition", D2,
-        "return bounded_demolition_demand()*bounded_demographic_factor_verylow()",
-        "Bounded demolition demand[District,Type]*Bounded demographic factor VeryLow[District,Type]")
+        "h = bounded_housing_total().sel(Performance='VeryLow',drop=True)\np = bounded_pvno_pool().sel(Performance='VeryLow',drop=True)\nf = bounded_demographic_factor_verylow()\nr = bounded_renovation_demand_verylow()*f\nreturn np.minimum(bounded_demolition_demand()*f,np.maximum(p/time_step()-r*p/xr.where(h>0,h,1.0),0.0))",
+        "MIN(Bounded demolition demand[District,Type]*Bounded demographic factor VeryLow[District,Type], MAX(0,Bounded PVno pool[District,VeryLow,Type]/TIME STEP-Bounded renovation demand VeryLow[District,Type]*Bounded demographic factor VeryLow[District,Type]*Bounded PVno pool[District,VeryLow,Type]/IF THEN ELSE(Bounded housing total[District,VeryLow,Type]>0,Bounded housing total[District,VeryLow,Type],1)))")
     add("Share HS by archetype", D6,
         "h = bounded_housing_total()\nreturn (bounded_housing_stock()/xr.where(h>0,h,1.0)).transpose('District','HS','Performance','Type','PVpanel','Battery')",
         f"{stock}/IF THEN ELSE({total}>0,{total},1)")

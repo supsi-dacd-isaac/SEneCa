@@ -171,7 +171,10 @@ scenario in the acceptance suite.
 
 Demolition retains its original eligibility (VeryLow, PVno, Bno), but its
 distribution uses the actual eligible source stock. Demolition and renovation
-reserve stock first. Heating replacement and PV adoption share the remainder
+share the available demographic budget; demolition is additionally capped by
+the eligible pool remaining after its proportional renovation withdrawals.
+An empty or near-empty eligible pool therefore cannot suppress renovation of
+other buildings. Heating replacement and PV adoption share the remainder
 proportionally. Negative requested adoption transfers become zero; the sum of
 accepted withdrawals cannot exceed the available source stock per time step.
 The matching destination and cost equations use these same accepted flows.
