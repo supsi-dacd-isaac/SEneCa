@@ -81,7 +81,7 @@ def transform(source, names, defaults):
     kernels = replace_once(kernels, "function initial_state()", "function initial_state(parameters::SUREParameters=DEFAULT_PARAMETERS)")
     kernels, count = re.subn(r"SenecaContext\((u|Float64\[\]), (t|initial_time), (false|true), (\d+)\)",
                              r"SenecaContext(\1, \2, \3, \4, parameters)", kernels)
-    if count != 5:
+    if count != 4:
         raise ValueError(f"Unexpected context construction count: {count}")
     # Remove eager base initialization and the global ODEProblem. Every call
     # owns its initial state, scratch delay buffer, caches and ODEProblem.
@@ -99,4 +99,3 @@ function run_model(parameters::SUREParameters=DEFAULT_PARAMETERS; u0=initial_sta
 end
 '''
     return parameter_block + "# Simulation control\n" + prefix + kernels + run + "const _dim_labels = " + metadata, fields
-

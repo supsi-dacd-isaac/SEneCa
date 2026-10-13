@@ -10,7 +10,6 @@ import hashlib
 import importlib
 import json
 import sys
-import threading
 from pathlib import Path
 
 import pandas as pd
@@ -26,7 +25,7 @@ import pysd_explore_config as cfg  # noqa: E402
 importlib.reload(cfg)  # evita config stale se Streamlit tiene sys.modules
 import sure_paths as paths  # noqa: E402
 import sure_pysd as sp  # noqa: E402
-importlib.reload(sp)
+import sure_backend as backend
 import elettricita_config as elec_cfg  # noqa: E402
 import explore_results_charts as erc  # noqa: E402
 import section_ui_hourly as _sui_h  # noqa: E402
@@ -70,9 +69,9 @@ YEARS = range(2011, 2051)
 
 
 def _params_fingerprint(params: dict[str, float]) -> str:
-    blob = json.dumps({k: round(float(v), 8) for k, v in sorted(params.items())},
-                      sort_keys=True)
-    return hashlib.md5(blob.encode()).hexdigest()
+    from sure_julia.common import identity
+    from sure_julia.catalog import parameters
+    return identity(parameters(params))
 
 
 # =============================================================
@@ -83,44 +82,25 @@ def default_variant() -> str:
     return paths.variant()
 
 
-@st.cache_resource(show_spinner="Caricamento e potatura del modello PySD (una tantum)...")
-def get_engine(variant: str, _version: str = ENGINE_CACHE_VERSION):
-    paths.set_variant(variant)
-    if not paths.pysd_py().exists():
-        raise FileNotFoundError(
-            f"Modello PySD tradotto non trovato: {paths.pysd_py()}. "
-            "Esegui la pipeline di traduzione prima di avviare l'app."
-        )
-    model = sp.load_model(prune=True)
-    const = sp.build_constant_params(model)
-    return {"model": model, "const": const, "lock": threading.Lock()}
+@st.cache_resource(show_spinner="Caricamento del modello...", max_entries=2)
+def get_engine(engine_id: str):
+    return backend.load_model()
 
 
-@st.cache_data(show_spinner=False)
-def run_live(variant: str, params_fp: str, params_json: str, _engine) -> pd.DataFrame:
-    params = json.loads(params_json)
-    with _engine["lock"]:
-        df = sp.run_scenario(
-            _engine["model"],
-            scenario_inputs=params,
-            const_params=_engine["const"],
-            timestamps=YEARS,
-            flatten=True,
-        )
-    df.index = pd.Index(df.index, name="Time")
-    return df
+@st.cache_data(show_spinner=False, max_entries=64)
+def run_live(engine_id: str, params_fp: str, params_json: str, _engine) -> pd.DataFrame:
+    return _engine.run(json.loads(params_json), outputs=sp.OUTPUTS, flatten=True)
 
 
 def get_scenario(ui: dict[str, float], variant: str) -> tuple[pd.DataFrame, str]:
-    pysd_params = cfg.ui_to_pysd_params(ui)
-
-    with st.spinner(
-        "Simulazione PySD live (può richiedere alcuni minuti con tutti gli output "
-        "Risultati)..."
-    ):
-        fp = _params_fingerprint(pysd_params)
-        df = run_live(variant, fp, json.dumps(pysd_params, sort_keys=True),
-                      get_engine(variant))
+    if variant != "v4":
+        raise ValueError("Il backend di produzione richiede SURE v4")
+    from sure_julia.catalog import parameters
+    params = parameters(cfg.ui_to_pysd_params(ui))
+    engine_id = backend.engine_identity()
+    with st.spinner("Simulazione in corso..."):
+        df = run_live(engine_id, _params_fingerprint(params),
+                      json.dumps(params, sort_keys=True, allow_nan=False), get_engine(engine_id))
     return df, "live"
 
 
@@ -136,8 +116,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
     n_tot = len(cfg.ALL_INPUTS)
     st.sidebar.caption(
         f"Sezioni allineate alle pagine Simulazioni SEneCa. "
-        f"**{n_ok}/{n_tot}** leve applicate 1:1 come costanti in "
-        f"`{paths.pysd_py().name}`."
+        f"**{n_ok}/{n_tot}** leve applicate al modello SURE v4."
     )
     ui: dict[str, float] = {}
 
