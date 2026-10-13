@@ -1,14 +1,17 @@
 """Production contracts independent of a Julia installation."""
 import itertools
 import os
+from pathlib import Path
+import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
 import numpy as np
 
 from sure_julia.catalog import defaults, inventory, outputs, parameters
-from sure_julia.common import identity
-from sure_julia.runtime import frame_from_arrays
+from sure_julia.common import digest, dump, identity
+from sure_julia.runtime import JuliaBackend, frame_from_arrays
 from sure_julia.translator.builder_patch import component_cells, _rectangles
 from sure_julia.validation import compare
 
@@ -61,6 +64,34 @@ class ProductionTests(unittest.TestCase):
         with patch.dict(os.environ, {"SURE_BACKEND": "unknown"}):
             with self.assertRaises(ValueError):
                 backend_name()
+
+    def test_unresponsive_worker_is_reaped_after_timeout(self):
+        # A real subprocess exercises pipe ownership and timeout cleanup without
+        # requiring Julia or an expensive model compilation in unit tests.
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            model = directory / "model.jl"
+            model.write_text("")
+            dump(directory / "build.json", {"complete": True, "model": model.name,
+                                           "artifacts": {model.name: digest(model)}})
+            dump(directory / "export.json", [{"name": "X", "dims": [], "coords": {}}])
+            worker = directory / "worker"
+            worker.write_text(f"#!{sys.executable}\nimport time\nprint('{{\"ready\": true}}', flush=True)\ninput()\ntime.sleep(60)\n")
+            worker.chmod(0o700)
+            engine = JuliaBackend(directory, timeout=2)
+            try:
+                with patch.dict(os.environ, {"SURE_JULIA_BIN": str(worker)}):
+                    engine._start()
+                    process = engine.process
+                    engine.timeout = .05
+                    with self.assertRaises(TimeoutError):
+                        engine.run_arrays()
+                    self.assertIsNone(engine.process)
+                    self.assertIsNotNone(process.poll())
+                    self.assertTrue(process.stdin.closed)
+                    self.assertTrue(process.stdout.closed)
+            finally:
+                engine.close()
 
 
 if __name__ == "__main__":
