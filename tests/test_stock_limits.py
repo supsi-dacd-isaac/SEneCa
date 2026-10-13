@@ -110,4 +110,42 @@ class StockLimitsTests(unittest.TestCase):
         self.assertIn('Building demolition by archetype[District,HS,VeryLow,Type,PVno,Bno]',generated)
 
 
+class PhysicalGateTests(unittest.TestCase):
+    def arrays(self):
+        from sure_julia.physical import OUTPUTS
+        a={n:np.zeros((40,1,2,1,1,2,2)) for n in OUTPUTS}
+        a['Heating Solution'][:]=10.
+        a['Annual archetypes']=a['Heating Solution'].sum(axis=6)
+        a['Total Res buildings']=a['Heating Solution'].sum(axis=(2,5,6))
+        return a
+
+    def test_unchanged_population_and_fixed_input_offset_pass(self):
+        from sure_julia.physical import check
+        a=self.arrays()
+        a['Total Res buildings']+=.001
+        self.assertTrue(check(a)['pass'])
+
+    def test_missing_nonfinite_and_negative_states_fail(self):
+        from sure_julia.physical import check
+        a=self.arrays()
+        del a['Annual archetypes']
+        self.assertFalse(check(a)['pass'])
+        for value in (np.nan,-1.):
+            a=self.arrays()
+            a['Heating Solution'][10,0,0,0,0,0,0]=value
+            self.assertFalse(check(a)['pass'])
+
+    def test_unpaired_transfer_and_drifting_population_fail(self):
+        from sure_julia.physical import check
+        for source,gate in [('Consumers leaving HS for old age','heating_transfer'),
+                            ('Buildings HS Renovation From','renovation_transfer'),
+                            ('Consumers adopting PV no','pv_transfer')]:
+            a=self.arrays()
+            a[source][10,0,0,0,0,0,0]=1.
+            self.assertFalse(check(a)['checks'][gate]['pass'])
+        a=self.arrays()
+        a['Total Res buildings'][10:]+=1.
+        self.assertFalse(check(a)['checks']['fine_coarse_changes']['pass'])
+
+
 if __name__=='__main__':unittest.main()
