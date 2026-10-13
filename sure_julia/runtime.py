@@ -62,8 +62,9 @@ class JuliaBackend:
             self.close()
             raise TimeoutError(f"Julia request exceeded {self.timeout} seconds") from None
         if value is None:
+            diagnostic = self.log_path
             self.close()
-            raise RuntimeError("Julia worker exited; inspect its diagnostic log")
+            raise RuntimeError(f"Julia worker exited; diagnostic log: {diagnostic}")
         if isinstance(value, Exception):
             self.close()
             raise value
@@ -138,15 +139,21 @@ class JuliaBackend:
     def close(self):
         process, self.process = self.process, None
         if process is not None:
+            if process.stdin:
+                try:
+                    process.stdin.close()
+                except BrokenPipeError:
+                    pass
             if process.poll() is None:
-                process.terminate()
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait()
-            if process.stdin:
-                process.stdin.close()
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
             if process.stdout:
                 process.stdout.close()
         if self.log is not None:

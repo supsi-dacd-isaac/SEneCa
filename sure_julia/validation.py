@@ -4,6 +4,7 @@ import concurrent.futures
 import itertools
 import multiprocessing
 import os
+import re
 from pathlib import Path
 import time
 import traceback
@@ -80,6 +81,29 @@ def energy(arrays):
     return {"pass": not bool(bad.any()), "failures": int(bad.sum()), "max_abs": float(error.max())}
 
 
+def warning_review(messages, translation, variables):
+    def interpolation_key(message):
+        if "Data value missing or non-valid" not in message or "filled with the interpolation method" not in message:
+            return None
+        filename = re.search(r"File name:\s*'([^']+)'", message)
+        cell = re.search(r"Reference cell:\s*'([^']+)'", message)
+        if filename and cell:
+            return (message.splitlines()[0].removeprefix("_ext_data_"), Path(filename[1]).name, cell[1])
+    known = {interpolation_key(w["message"]) for w in messages} - {None}
+    names = {v["python_name"] for v in variables.values()}
+    blocking = []
+    for warning in messages:
+        message = warning["message"]
+        acceptable = (interpolation_key(message) is not None or message == "Replacing a variable by a constant value."
+                      or message == "chardet.universaldetector is deprecated, import UniversalDetector from chardet or chardet.detector instead"
+                      or (message.startswith("_ext_data_") and message.splitlines()[0].removeprefix("_ext_data_") in names
+                          and message.endswith("extrapolating data above the maximum value of the time")))
+        if not acceptable:
+            blocking.append(warning)
+    blocking.extend(w for w in translation if interpolation_key(w["message"]) not in known)
+    return {"pass": not blocking, "blocking": blocking, "python_count": len(messages), "translation_count": len(translation)}
+
+
 def initialize(directory, affinity):
     global PYTHON, JULIA, TARGET
     if affinity is not None:
@@ -106,7 +130,8 @@ def check(job):
         result = compare(a, b, JULIA.export)
         report.update(comparison=result, python_energy=energy(a), julia_energy=energy(b),
                       python_timing=PYTHON.last_timing, julia_timing=JULIA.last_timing)
-        report["pass"] = result["pass"] and report["python_energy"]["pass"] and report["julia_energy"]["pass"]
+        report["warnings"] = warning_review(PYTHON.warnings, read(JULIA.directory / "warnings.json"), PYTHON.variables)
+        report["pass"] = result["pass"] and report["python_energy"]["pass"] and report["julia_energy"]["pass"] and report["warnings"]["pass"]
         if name == "base" or not report["pass"]:
             target.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(target / "python.npz", **a)
@@ -120,12 +145,44 @@ def check(job):
     return name, report["pass"]
 
 
+def repeat_checks(directory):
+    from .python_backend import PythonBackend
+    from .runtime import JuliaBackend
+    selected = cases()
+    results = {}
+    for kind, factory in [("python", PythonBackend), ("julia", JuliaBackend)]:
+        engine = factory()
+        try:
+            first = engine.run_arrays(selected["base"])
+            engine.run_arrays(selected["high"])
+            repeat = engine.run_arrays(selected["base"])
+            result = {"base_high_base_exact": all(np.array_equal(first[n], repeat[n]) for n in first)}
+            if kind == "julia":
+                result["warm_no_compilation"] = engine.last_timing["compilation_seconds"] == 0
+                engine.close()
+                fresh = factory()
+                try:
+                    other = fresh.run_arrays(selected["base"])
+                    result["fresh_exact"] = all(np.array_equal(first[n], other[n]) for n in first)
+                finally:
+                    fresh.close()
+            results[kind] = result
+        finally:
+            engine.close()
+    dump(Path(directory) / "repeats.json", {"pass": all(all(r.values()) for r in results.values()), "results": results})
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--cases", nargs="+")
+    parser.add_argument("--targeted", type=Path)
+    parser.add_argument("--repeats", action="store_true")
     args = parser.parse_args()
+    if args.repeats:
+        repeat_checks(args.directory)
+        return
     all_cases = cases()
     selected = {n: all_cases[n] for n in args.cases} if args.cases else all_cases
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "cases": selected,
@@ -143,7 +200,10 @@ def main():
         with concurrent.futures.ProcessPoolExecutor(args.workers, mp_context=context, initializer=initialize,
                                                     initargs=(str(args.directory), affinity)) as pool:
             results = dict(pool.map(check, selected.items()))
-    dump(args.directory / "summary.json", {"pass": all(results.values()), "cases": results, "identity": identity(stamp)})
+    targeted = read(args.targeted / "summary.json") if args.targeted else {"pass": False}
+    complete = set(selected) == set(all_cases) and targeted["pass"]
+    dump(args.directory / "summary.json", {"pass": all(results.values()), "complete_suite": complete, "targeted": targeted,
+                                           "cases": results, "identity": identity(stamp)})
     if not all(results.values()):
         raise SystemExit(1)
 

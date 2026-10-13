@@ -34,7 +34,12 @@ class PythonBackend:
         self.variables, self.dimensions = inventory()
 
     def _record(self, caught):
-        self.warnings.extend({"category": w.category.__name__, "message": str(w.message)} for w in caught)
+        known = {(w["category"], w["message"]) for w in self.warnings}
+        for w in caught:
+            key = (w.category.__name__, str(w.message))
+            if key not in known:
+                self.warnings.append({"category": key[0], "message": key[1]})
+                known.add(key)
 
     def run(self, scenario=None, outputs=None, flatten=True):
         import sure_pysd as sp

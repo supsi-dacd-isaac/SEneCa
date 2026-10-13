@@ -62,7 +62,7 @@ def main():
             subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "benchmarks/julia-repro" / test),
                             str(target if name in {"indexing", "external"} else target / manifest),
                             str(target / "result.json")], stdout=log, stderr=subprocess.STDOUT, check=True)
-        results[name] = read(target / "result.json")
+        results[name] = read(target / ("results.json" if name in {"indexing", "external"} else "result.json"))
     with (directory / "allocation.log").open("w") as log:
         subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "benchmarks/sure-v4/test_allocation.jl"),
                         str(directory / "allocation-fixtures.json")], stdout=log, stderr=subprocess.STDOUT, check=True)

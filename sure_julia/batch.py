@@ -200,8 +200,10 @@ def main():
     parser.add_argument("--validation", type=Path, required=True)
     args = parser.parse_args()
     certificate = read(args.validation / "summary.json")
-    if not certificate["pass"]:
+    if not certificate["pass"] or not certificate.get("complete_suite"):
         raise ValueError("Validation must pass before regeneration")
+    if not read(args.validation / "repeats.json")["pass"]:
+        raise ValueError("State isolation checks must pass before regeneration")
     if read(args.validation / "manifest.json")["build"] != digest(ROOT / "sure_julia/generated/build.json"):
         raise ValueError("Validation belongs to another build")
     planned = jobs()
