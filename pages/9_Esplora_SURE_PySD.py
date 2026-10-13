@@ -94,8 +94,8 @@ def run_live(engine_id: str, params_fp: str, params_json: str, _engine) -> pd.Da
 
 
 def get_scenario(ui: dict[str, float], variant: str) -> tuple[pd.DataFrame, str]:
-    if variant != "v4":
-        raise ValueError("Il backend di produzione richiede SURE v4")
+    if variant != "v5":
+        raise ValueError("Il backend di produzione richiede SURE v5")
     from sure_julia.catalog import parameters
     params = parameters(cfg.ui_to_pysd_params(ui))
     engine_id = backend.engine_identity()
@@ -117,7 +117,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
     n_tot = len(cfg.ALL_INPUTS)
     st.sidebar.caption(
         f"Sezioni allineate alle pagine Simulazioni SEneCa. "
-        f"**{n_ok}/{n_tot}** leve applicate al modello SURE v4."
+        f"**{n_ok}/{n_tot}** leve applicate al modello SURE v5."
     )
     ui: dict[str, float] = {}
 

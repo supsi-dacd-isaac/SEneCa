@@ -10,7 +10,7 @@ from unittest.mock import patch
 import numpy as np
 
 from sure_julia.catalog import defaults, inventory, outputs, parameters
-from sure_julia.common import digest, dump, identity
+from sure_julia.common import MODEL_REVISION, digest, dump, identity
 from sure_julia.runtime import JuliaBackend, frame_from_arrays
 from sure_julia.translator.builder_patch import component_cells, _rectangles
 from sure_julia.validation import compare
@@ -84,7 +84,7 @@ class ProductionTests(unittest.TestCase):
             directory = Path(temporary)
             model = directory / "model.jl"
             model.write_text("")
-            dump(directory / "build.json", {"complete": True, "model": model.name,
+            dump(directory / "build.json", {"complete": True, "model": model.name, "model_revision": MODEL_REVISION,
                                            "artifacts": {model.name: digest(model)}})
             dump(directory / "export.json", [{"name": "X", "dims": [], "coords": {}}])
             worker = directory / "worker"

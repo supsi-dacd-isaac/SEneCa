@@ -1,4 +1,4 @@
-# SURE v4 production backend
+# SURE v5 production backend
 
 Implementation branch: `julia-production`, based on main
 `17db1f4245c6bb0e8ef41a4cac5e8d3a6817cac6`; the validated experiments were
@@ -8,8 +8,8 @@ are excluded from the application image.
 ## Execution contract
 
 `SURE_BACKEND=julia` is the application default; `SURE_BACKEND=python`
-selects the independent PySD 3.14.3 implementation. Both use SURE v4 with
-the versioned `nonnegative-flows-1` equation correction,
+selects the independent PySD 3.14.3 implementation. Both use the upstream v5
+equations from commit `bf39813` without the provisional v4 stock-flow patch,
 calibrated constants, synchronous pre-step DELAY FIXED inputs, Float64 and
 fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
@@ -86,7 +86,7 @@ parameters and build provenance; `v0.2.0` pins that immutable data release.
 
 Build and numerically smoke-test both Linux AMD64 and ARM64 images. Run
 `python -m sure_julia.smoke /tmp/smoke --ui` inside each image. The check runs
-base/high in both engines and submits a real simulation through Streamlit
+base/high and the negative-stock regression case in both engines and submits a real simulation through Streamlit
 AppTest. Release publication additionally requires the full Elettra suite
 and serial/parallel pilot comparison. Use a versioned image on the Mac,
 smoke-test on a temporary port, and retain the previous image tag/digest for
@@ -95,7 +95,7 @@ dataset.
 
 For the previous `v0.1.1` image, also restore its model selection:
 `SENECA_IMAGE_TAG=v0.1.1 SURE_VARIANT=v3 SURE_BACKEND=python docker compose -f docker-compose.prod.yml up -d`.
-Current images require v4; the variant override exists to make old-image
+Current images require v5; the variant override exists to make old-image
 rollback explicit, not to run the production Julia backend against v3.
 
 ## Historical validation of the original, unbounded v4
@@ -159,9 +159,9 @@ the equations and requires a new numerical reference and regenerated dataset.
 The user authorized this correction before release. The data release remains
 a draft until the corrected model passes validation and full regeneration.
 
-## Conservative stock-flow correction
+## Superseded provisional stock-flow correction
 
-`sure_julia/stock_limits.py` generates equivalent Python and Vensim equations
+`benchmarks/sure-production/legacy_stock_limits.py` generated equivalent Python and Vensim equations
 from the unchanged original sources. The corrected Vensim copy is translated
 to Julia; there are no manual edits to generated Julia. The build identifies
 the revision and checksums the correction source. The original adverse case,
@@ -185,4 +185,24 @@ This is a model-policy change, not a numerical-equivalence fix for Vensim.
 Python and Julia must agree on the corrected equations. Native Vensim behavior
 has not been verified for this revision. Initial Python tests of base, high
 and the adverse case pass nonnegativity and all transfer/population balances;
-full cross-engine validation and regeneration are still required.
+the three cross-engine cases subsequently passed. The wider run was interrupted
+after 160 successful cases when the owner confirmed the original negative
+stocks in native Vensim and supplied a corrected source. These experimental
+equations are retained for investigation only and are not used by production.
+
+## Current upstream v5
+
+Commit `bf39813` supplies the updated `Vensim/SURE.mdl`, its translated
+`SURE_pysd_v5.mdl`/`.py`, CSV inputs and calibrated constants. CSV contents and
+calibration values match v4. Demolition is now distributed across every PV and
+battery configuration within VeryLow buildings. Old-age heating replacement
+is capped by the source stock remaining after demolition, renovation and PV
+adoption. The annual levy also uses nonnegative net purchased electricity.
+
+The production adapters consume these equations directly. The builder no longer
+applies the provisional correction. All 40 scenario inputs remain explicit,
+so changed defaults saved inside the source cannot silently change a run.
+The profile is `sure-v5-bf39813`; older generated profiles are rejected.
+The new source equations have synthetic regression tests and retain every
+physical/numerical release gate. Prior v4 validation certificates and data
+cannot certify this version; v5 requires its own full suite and regeneration.

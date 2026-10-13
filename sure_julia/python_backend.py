@@ -2,16 +2,12 @@
 import threading
 import time
 import warnings
-import shutil
-import tempfile
-from pathlib import Path
 
 import numpy as np
 
 from .catalog import defaults, inventory, outputs as all_outputs, parameters
-from .common import ROOT, YEARS, digest, identity, read
+from .common import ROOT, YEARS, MODEL_PY, MODEL_VARIANT, MODEL_REVISION, model_sources, identity, read
 from .synchronous_delays import install
-from .stock_limits import REVISION, python_source
 from .physical import OUTPUTS as PHYSICAL_OUTPUTS, check as physical_check
 
 
@@ -24,26 +20,19 @@ class PythonBackend:
         import sure_pysd as sp
         if pysd.__version__ != "3.14.3":
             raise ValueError("Python backend requires PySD 3.14.3")
-        sure_paths.set_variant("v4")
+        sure_paths.set_variant(MODEL_VARIANT)
         self.outputs = list(outputs or all_outputs())
-        self.reference_directory = tempfile.TemporaryDirectory(prefix="sure-python-")
-        reference = Path(self.reference_directory.name)
-        source = reference / "SURE_pysd_v4.py"
-        source.write_text(python_source((ROOT / "Vensim/SURE_pysd_v4.py").read_text()))
-        for path in (ROOT / "Vensim").glob("*_pysd_v4.csv"):
-            shutil.copy2(path, reference / path.name)
         self.lock = threading.Lock()
         self.warnings = []
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            self.model = sp.load_model(prune=True, model_path=source,
+            self.model = sp.load_model(prune=True, model_path=MODEL_PY,
                                        outputs=list(dict.fromkeys(self.outputs+PHYSICAL_OUTPUTS)) + ['"'+n+'"' if n.startswith("Provvedimento") else n for n in defaults()])
             self.constants = sp.build_constant_params(self.model)
             install(self.model)
         self._record(caught)
-        self.identity = identity({"backend": "python", "model": digest(ROOT / "Vensim/SURE_pysd_v4.py"),
-                                  "model_revision": REVISION, "correction": digest(ROOT / "sure_julia/stock_limits.py"),
-                                  "calibration": digest(ROOT / "constants_ref_v4.pkl"), "data": read(ROOT / "data-release.json")})
+        self.identity = identity({"backend": "python", "sources": model_sources(),
+                                  "model_revision": MODEL_REVISION, "data": read(ROOT / "data-release.json")})
         self.variables, self.dimensions = inventory()
 
     def _record(self, caught):
@@ -102,4 +91,4 @@ class PythonBackend:
         return result
 
     def close(self):
-        self.reference_directory.cleanup()
+        pass

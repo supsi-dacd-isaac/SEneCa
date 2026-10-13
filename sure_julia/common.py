@@ -6,6 +6,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
+MODEL_VARIANT = "v5"
+MODEL_REVISION = "sure-v5-bf39813"
+MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
+MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
+CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"
+
+
+def model_sources():
+    return {str(p.relative_to(ROOT)): digest(p) for p in
+            [MODEL_PY, MODEL_MDL, CALIBRATION, *sorted((ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.csv"))]}
 
 
 def read(path):

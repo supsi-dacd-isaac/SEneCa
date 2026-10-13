@@ -13,9 +13,8 @@ from pathlib import Path
 import numpy as np
 
 from .catalog import closure, defaults, inventory, outputs
-from .common import CONFIG, ROOT, digest, dump, read
+from .common import CONFIG, ROOT, MODEL_VARIANT, MODEL_REVISION, MODEL_PY, MODEL_MDL, CALIBRATION, digest, dump, read
 from .translator.parameterize import CONTROLS, replace_once, resolve_name, transform
-from .stock_limits import REVISION, REQUESTED, equations, vensim_source
 
 
 def build(target):
@@ -33,7 +32,7 @@ def build(target):
         raise ValueError("Translator checkout must be clean")
     variables, dimensions = inventory()
     requested = outputs()
-    with (ROOT / "constants_ref_v4.pkl").open("rb") as stream:
+    with CALIBRATION.open("rb") as stream:
         calibrated = pickle.load(stream)
     scenario = defaults()
     params = {resolve_name(name, variables): spec for name, spec in calibrated.items()}
@@ -43,9 +42,9 @@ def build(target):
     stateful_patch.configure_delay_update_policy({})
     policy = read(Path(__file__).with_name("translation-policy.json"))["reduction_policy"]
     policy = {**policy, "entries": [e for e in policy["entries"] if e["component"] not in hotpaths]}
-    modified = {e.name for e in equations()}
-    policy["entries"] = [{**e, "component": "Requested " + e["component"]} if e["component"] in REQUESTED else e
-                         for e in policy["entries"] if e["component"] not in modified or e["component"] in REQUESTED]
+    # v5 distributes demolition over all PV/battery categories directly;
+    # the former PV/battery SUM site no longer exists in its source equation.
+    policy["entries"] = [e for e in policy["entries"] if e["component"] != "Building demolition by archetype"]
     reduction_policy.configure(policy)
     original = JuliaSectionBuilder._process_element
     applied = set()
@@ -66,18 +65,16 @@ def build(target):
         applied.add(elem.name)
         return []
 
-    sources = [ROOT / "constants_ref_v4.pkl", ROOT / "Vensim/SURE_pysd_v4.py", ROOT / "sure_julia/stock_limits.py"]
-    for path in (ROOT / "Vensim").glob("*_pysd_v4.*"):
+    sources = [CALIBRATION, MODEL_PY, ROOT / "Vensim/SURE.mdl"]
+    for path in (ROOT / "Vensim").glob(f"*_pysd_{MODEL_VARIANT}.*"):
         if path.suffix in {".csv", ".mdl"}:
             shutil.copy2(path, target / path.name)
             sources.append(path)
-    mdl = target / "SURE_pysd_v4.mdl"
-    mdl.write_text(vensim_source(mdl.read_text(encoding="latin-1")), encoding="latin-1")
     JuliaSectionBuilder._process_element = process
     try:
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            parsed = VensimFile(target / "SURE_pysd_v4.mdl", encoding="latin-1")
+            parsed = VensimFile(target / MODEL_MDL.name, encoding="latin-1")
             parsed.parse()
             abstract = parsed.get_abstract_model()
             retained = closure(variables, requested) | set(params) | {"INITIAL TIME", "FINAL TIME", "TIME STEP", "SAVEPER"}
@@ -109,7 +106,7 @@ def build(target):
             export.append({"name": name, "julia_name": key, "dims": dims, "coords": {d: dimensions[d] for d in dims}})
         dump(target / "export.json", export)
         metadata = {"complete": True, "validated": False, "model": model.name, "parameters": fields, "defaults": scenario,
-                    "model_revision": REVISION,
+                    "model_revision": MODEL_REVISION,
                     "sources": {str(p.relative_to(ROOT)): digest(p) for p in sources},
                     "implementation": {str(p.relative_to(ROOT)): digest(p) for p in Path(__file__).parent.rglob("*")
                                        if p.is_file() and p.suffix in {".py", ".jl", ".toml", ".lock", ".json"} and target not in p.parents},

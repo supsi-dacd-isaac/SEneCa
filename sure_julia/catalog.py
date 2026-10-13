@@ -3,7 +3,7 @@ import ast
 import math
 from pathlib import Path
 
-from .common import ROOT, read
+from .common import ROOT, MODEL_PY, read
 
 
 def defaults():
@@ -36,8 +36,7 @@ def parameters(values=None):
 
 
 def inventory():
-    from .stock_limits import python_source
-    tree = ast.parse(python_source((ROOT / "Vensim/SURE_pysd_v4.py").read_text()))
+    tree = ast.parse(MODEL_PY.read_text())
     variables, dimensions = {}, {}
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "_subscript_dict" for t in node.targets):
