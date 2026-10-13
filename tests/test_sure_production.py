@@ -93,6 +93,22 @@ class ProductionTests(unittest.TestCase):
             finally:
                 engine.close()
 
+    def test_batch_gmd_preserves_labels_and_rejects_invalid_weights(self):
+        from sure_julia.batch import gmd
+        dims = [f"D{i}" for i in range(6)]
+        coords = {d: ["second", "first"] for d in dims}
+        export = {name: {"dims": dims, "coords": coords} for name in ("value", "weight")}
+        values = np.arange(64, dtype=float)
+        weights = np.arange(1, 65, dtype=float)
+        arrays = {"value": np.broadcast_to(values.reshape((2,)*6), (40,)+(2,)*6).copy(),
+                  "weight": np.broadcast_to(weights.reshape((2,)*6), (40,)+(2,)*6).copy()}
+        spec = {"gmd": {"value": "value", "weight": "weight"}}
+        expected = np.sum(weights[:, None]*weights[None, :]*abs(values[:, None]-values[None, :]))/(2*weights.sum()**2)
+        self.assertAlmostEqual(gmd(arrays, spec, export)["gmd"], expected, places=12)
+        arrays["weight"].flat[-1] = -1
+        with self.assertRaises(ValueError):
+            gmd(arrays, spec, export)
+
 
 if __name__ == "__main__":
     unittest.main()

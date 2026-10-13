@@ -102,6 +102,8 @@ def initialize(directory, affinity=None):
     global ENGINE, TARGET, EXPORT, CONFIGS
     if affinity is not None:
         os.sched_setaffinity(0, {affinity.get()})
+    pa.set_cpu_count(1)
+    pa.set_io_thread_count(1)
     TARGET = Path(directory)
     ENGINE = JuliaBackend(timeout=900)
     EXPORT = {s["name"]: s for s in ENGINE.export}
@@ -245,7 +247,9 @@ def main():
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "jobs": planned,
              "validation_certificate_sha256": digest(args.validation / "certificate.json"),
              "sample_sha256": digest(ROOT / "precomputed/exploratory/uncertainty_samples.parquet"),
-             "code": {p.name: digest(p) for p in Path(__file__).parent.glob("*.py")}}
+             "code": {str(p.relative_to(ROOT)): digest(p) for p in
+                      [*Path(__file__).parent.glob("*.py"), *(ROOT / "pv_batteries").glob("*config.py"),
+                       ROOT / "pv_batteries/gmd.py", ROOT / "pysd_explore_config.py"]}}
     args.directory.mkdir(parents=True, exist_ok=True)
     manifest = args.directory / "manifest.json"
     if manifest.exists() and read(manifest) != stamp:

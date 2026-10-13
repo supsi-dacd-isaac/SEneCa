@@ -7,7 +7,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from pv_batteries_config import GMD_SPEC
+if __package__:
+    from .pv_batteries_config import GMD_SPEC
+else:  # Historical command-line scripts import gmd from their own directory.
+    from pv_batteries_config import GMD_SPEC
 
 
 def weighted_gmd_fast(values, weights):
