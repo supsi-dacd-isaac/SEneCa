@@ -8,7 +8,7 @@ from .batch import configs, gmd
 from .common import ROOT, dump, read
 from .python_backend import PythonBackend
 from .runtime import JuliaBackend
-from .validation import compare, energy, warning_review
+from .validation import compare, energy, warning_review, negative_stock_regression
 
 
 def main():
@@ -18,7 +18,8 @@ def main():
     args = parser.parse_args()
     from pysd_explore_config import ALL_INPUTS
     py, jl = PythonBackend(), JuliaBackend(timeout=900)
-    cases = {"base": defaults(), "high": parameters({i.name: float(max(i.values)) for i in ALL_INPUTS})}
+    cases = {"base": defaults(), "high": parameters({i.name: float(max(i.values)) for i in ALL_INPUTS}),
+             "regression_negative_stock": negative_stock_regression()}
     reports = {}
     try:
         for name, params in cases.items():

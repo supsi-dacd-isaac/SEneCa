@@ -16,13 +16,17 @@ from .catalog import defaults, parameters
 from .common import ROOT, YEARS, digest, dump, identity, read
 
 
+def negative_stock_regression():
+    return parameters({"PV rebate cantonal": 0.2, "FiT": 0.1, "Battery Rebate": 0.5, "PV rebate federal": 0.4})
+
+
 def cases():
     from pysd_explore_config import ALL_INPUTS
     from pv_batteries import exploratory_config as exp
     base = defaults()
     result = {"base": base}
     # Worst negative dwelling weight in the original 8,171-scenario batch.
-    result["regression_negative_stock"] = parameters({"PV rebate cantonal": 0.2, "FiT": 0.1, "Battery Rebate": 0.5, "PV rebate federal": 0.4})
+    result["regression_negative_stock"] = negative_stock_regression()
     for name, select in [("low", min), ("mid", lambda v: sorted(v)[len(v)//2]), ("high", max)]:
         result[name] = parameters({i.name: float(select(i.values)) for i in ALL_INPUTS})
     for run in read(ROOT / "Vensim_test_runs/inputs.json")["runs"]:
