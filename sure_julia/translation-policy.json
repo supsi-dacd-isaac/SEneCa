@@ -67,7 +67,7 @@
         "id": "032998e45dabceef3eac04d02621f6287de9bb5b06f3d3679032da417aa19b0c",
         "component": "Owners adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -261,7 +261,7 @@
         "id": "0b73c9945de97d1df853e141d36227f5ead692daa33dae8d4bd0dc5eb73f8440",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -406,7 +406,7 @@
         "id": "10efe6a4fa9c17ae938e9405c41bb36ec3089439ab68f6c9159cf60fe9855621",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -442,7 +442,7 @@
         "id": "118e0a76e0ec0e61bb23838f16df165f84a9bfa26d3609645f8f8e9d31216093",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -508,7 +508,7 @@
         "id": "13cccdf38755c1a819724ce8465e65d1e697d7c70c0305fd37ad4efaa41d31fe",
         "component": "Renters adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -591,7 +591,7 @@
         "id": "185e50843043e89c1ad5f9a1c28f3ff9b5b3a3e94e43b5594e8ea3fcb2d26ef4",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -743,7 +743,7 @@
         "id": "23aee0b8e246019fee67a1fede694ae6c7b71fd72b30a1974f9e8d7d342c9675",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -830,7 +830,7 @@
         "id": "27b323b5bb2942d725bc71a982673330644364784f7b01e079a4593a9b00ea37",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -879,7 +879,7 @@
         "id": "2a68813a2ffbf5b39f168124f800e097af9b1ce3ef9b9a96fbe1f0b74bcb4917",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -928,7 +928,7 @@
         "id": "2c13c108219d714e8829cf48f39b145f1b74f9925af850c752557e4790a3d2ee",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -1022,7 +1022,7 @@
         "id": "2feebaca03db5dbf54012017001ca210431671f3172e6551339e9f97fe41a8c4",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -1039,7 +1039,7 @@
         "id": "307534b29e7d159b90a685a1e834e9de0fcd8f11366aa7e0036ed3c6b5cda817",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -1317,7 +1317,7 @@
         "id": "37052fa2667ab13f9e054743b012912151431604f8b91d9876106852c0a4d627",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -1332,7 +1332,7 @@
         "id": "378992253d013703926e272128b9328a8cf7772c5e32c42b0541ad90b26eb009",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -1349,7 +1349,7 @@
         "id": "39ff40721ab2b951ecccac5234ecc3bd1576af12e89f029c8fd1b1dee6cbafd8",
         "component": "Owners adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -1366,7 +1366,7 @@
         "id": "3a59f3279bd2a05c4fe7cde00a7acd0eac08503bfd8cb0f9d611c064f614b3aa",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -1506,7 +1506,7 @@
         "id": "42ec10ebf9d9e1a70e4b2ad80b65bed052e657281909941ba4f696e2999d9506",
         "component": "Renters adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -1536,7 +1536,7 @@
         "id": "433a07977c8df564f47fc47b4da868de4abde01c45cd0b34dcf6d353743d9f83",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -1691,7 +1691,7 @@
         "id": "4862543032698bbcafd61bb53d56a9a85ab00cec26dad92a4a823cd1a347feb0",
         "component": "Owners adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -1827,7 +1827,7 @@
         "id": "4e4c814b4503d394cc053f678b78b60b0f850668f1cf22034cacb830508132fb",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -1940,7 +1940,7 @@
         "id": "523ab57bcf948e0dfc144f4ee5b4f2544c06ebd15c4bf8bff58e4452179e171d",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -2016,7 +2016,7 @@
         "id": "54c1a0e779fa81b4dd4cacdc9ac9a43d97cdfe37a14045140cc789d9a595df91",
         "component": "Owners adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -2227,7 +2227,7 @@
         "id": "5cc85e50e488c57ab489b46157b673afc8006f09ba223886137d0c12bccd915a",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -2257,7 +2257,7 @@
         "id": "5d5da8791447480132bf5ec8a74c749cf9ea8b06bd1be1baa31ffc8b88d1a459",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -2491,7 +2491,7 @@
         "id": "6c0c6f6b773495836eba5e87cb6b6776d2caeb68076db35757a0cdaafdfcf5a7",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -2508,7 +2508,7 @@
         "id": "6ca4170eb0f4840ec9443ed43de47fe7ea6e85555fa9364b87a79b43d677079b",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[2].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -2726,7 +2726,7 @@
         "id": "73d8e9988c8bb9891757acf86ed6e3eacbe39180f1f8d2246a4a64da04226591",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -2875,7 +2875,7 @@
         "id": "7c839c6a400a68f80cc1f16d5f6a13f7e10fef20ae47e8f411e162096b5a4faf",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -2945,7 +2945,7 @@
         "id": "7eac1377d9fad277526334c66aed95cfe72cbf1eb723eec425832f27fe68e67e",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -2962,7 +2962,7 @@
         "id": "7f9e558932aff98522ab16669ec22cd55f6412a20d84d5cc4086bdfa451f5df0",
         "component": "Renters adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[2].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -3444,7 +3444,7 @@
         "id": "8dff86c8838c67603e2d4fc17d6ee42f46144c71a054585a048a3d974786ac16",
         "component": "Owners adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -3499,7 +3499,7 @@
         "id": "8f64154972ad34277ed3ffcb8fb122bde441bc5f0208c731418d40a27ec58631",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -3650,7 +3650,7 @@
         "id": "96baa39caadb703a609a0d41ab856953a633dd90d759b8a939a7f0c5483418ea",
         "component": "Renters adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -3769,7 +3769,7 @@
         "id": "99cf5ff05fbf30c7bd919564b51fc054d40839da10f044baab83c3472b45c780",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -3835,7 +3835,7 @@
         "id": "9d7a267c8c8209b8ef3425f6ced7dc7ddf29fad07bc58d39468ab08441f48fdc",
         "component": "Renters adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -4077,7 +4077,7 @@
         "id": "a82d546c16f58502ecfc6c4ade6cc693a465ee9076c355a6c6712f21ae6be934",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -4248,7 +4248,7 @@
         "id": "ad621a20f2ba71742360a874e2fcf5cb43bc374046ce027da38621f1f40f417a",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -4263,7 +4263,7 @@
         "id": "ae8837d72a0cde2ab72c6a6fc732e02bbea928b1da6a9d68476f132f32b23bf0",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -4401,7 +4401,7 @@
         "id": "b41d2baa3cb9790d7a8ac6824624837e3715335ab74d15a2e4846cd3cf04e2ce",
         "component": "Renters adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -4433,7 +4433,7 @@
         "id": "b65f4f3c970c8e3d074834687fff9bbf05c6042eee095c7a6d3a41b39f97b081",
         "component": "Owners adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[2].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -4790,7 +4790,7 @@
         "id": "bf807c81ec4880804ccd7abd71583bc49f6defa7d1ccb78889390133f12d0ee2",
         "component": "Renters adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -4809,7 +4809,7 @@
         "id": "c1d91f320e7724d92b7db1de6e6318f25bfc70b08b9f49c0041ea48b08fefef1",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -4843,7 +4843,7 @@
         "id": "c352df92d0ebcd281198875b7706b3f1dc90b1263535f7bfea8af1d8959c02ce",
         "component": "Owners adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -4888,7 +4888,7 @@
         "id": "c5d7d53b871ecb9ce03a9f64675ef9838dd538e0eeecef723187031b66389fc2",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -5002,7 +5002,7 @@
         "id": "c86420e7cb4c13b62f147959b94a4eaf93316daec8f5734fedd8fde5cdf49cb9",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -5182,7 +5182,7 @@
         "id": "cb69be62acfb3c7f30dfde4cad41c68319de7f52d1d2ddc5a7a30d639d0e857e",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -5283,7 +5283,7 @@
         "id": "cdbb3ec6bdbd7d0721b19cd8a4474aa4f73930113154c0ef60ac059b8f342e21",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -5317,7 +5317,7 @@
         "id": "ce4c0d3c7b6da0b1ccc104f06d70ccaf13c002e29cd2c50964d36de863e6bca7",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -5500,7 +5500,7 @@
         "id": "d89eda88f53fc17f1cbd794a0a4d4e9b1a7d8f3df4d42ae4164b71b02af0b33d",
         "component": "Owners adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -5519,7 +5519,7 @@
         "id": "d9def7308745ab29e23bd8fe076b07580fe8374b903f432de37c61ad2545e742",
         "component": "Renters adopting PV",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[1].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -5538,7 +5538,7 @@
         "id": "d9e8fb8d9b4a897ad903887d06e909eed5fde23090683978f485fb876535b757",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
         "plan": {
           "reduced_order": [
             "Battery"
@@ -5619,7 +5619,7 @@
         "id": "dc61c4e07f792b86239456817e5ece4b2554e5ec5ab06527115fe16c938b0535",
         "component": "Renters adopting RCP",
         "vensim_component_index": 1,
-        "vensim_ast_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",
@@ -5744,7 +5744,7 @@
         "id": "e191d80a7878ecc5c35a56def305ada4aa179577cdda649c85d61455d09a9fa5",
         "component": "Renters adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -6112,7 +6112,7 @@
         "id": "f60bc4957070cda6f65b560b5d40fc6ab92deddb38d7282a5e3eef530c9337a9",
         "component": "Owners adopting RCPv",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -6210,7 +6210,7 @@
         "id": "fadbe7f541b3610588a57fe7d67b9aa1cbb02f973c5c0cef0ed549484c7686d1",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[2].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
         "plan": {
           "reduced_order": [
             "PVpanel",
@@ -6227,7 +6227,7 @@
         "id": "fbe3b49a366131393c04fc913d17ccbb95c597997761ecf0dd7e88cae96ffbe9",
         "component": "Owners adopting PV",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+        "vensim_ast_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
         "plan": {
           "reduced_order": [
             "HS",

@@ -1,0 +1,397 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "component": "Owners adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[2].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[2].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[2].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[0].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 1,
+      "old_path": "ast.arguments[1].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[1].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting RCP",
+      "component_index": 1,
+      "old_path": "ast.arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[2].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'MFH', 'PVyes', 'Battery!'])),))"
+    },
+    {
+      "component": "Renters adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[2].arguments[1].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting RCPv",
+      "component_index": 0,
+      "old_path": "ast.arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[0].arguments[2].arguments[0].arguments[0].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[2].arguments[0]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[2].arguments[0]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS', 'Performance', 'Type', 'PVpanel!', 'Battery!'])),))"
+    },
+    {
+      "component": "Owners adopting PV",
+      "component_index": 0,
+      "old_path": "ast.arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "new_path": "ast.arguments[0].arguments[1].arguments[1].arguments[0].arguments[1].arguments[2]",
+      "sum_ast": "CallStructure(function=ReferenceStructure(reference='sum', subscripts=None), arguments=(ReferenceStructure(reference='heating_solution', subscripts=SubscriptsReferenceStructure(subscripts=['District', 'HS!', 'Performance!', 'Type', 'PVyes', 'Battery!'])),))"
+    }
+  ]
+}
