@@ -28,7 +28,7 @@ def parameters(values=None):
         raise ValueError("Nonfinite scenario parameter")
     from pysd_explore_config import ALL_INPUTS
     for spec in ALL_INPUTS:
-        if (spec.binary or spec.choice_labels) and result[spec.name] not in spec.values:
+        if (spec.binary or spec.choice_labels or spec.name.startswith("Provvedimento ")) and result[spec.name] not in spec.values:
             raise ValueError(f"Invalid categorical parameter: {spec.name}")
     if result["Exploratory analysis"] not in (0, 1) or result["Cantonal PV support"] not in (0, 1):
         raise ValueError("Invalid exploratory switch")
