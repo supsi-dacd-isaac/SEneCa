@@ -1,10 +1,2 @@
-pandas>=2.0
-openpyxl>=3.1
-jupyter>=1.0
-ipykernel>=6.0
-streamlit>=1.40
-python-dotenv>=1.0
-geopandas>=0.14
-pyogrio>=0.7
-pysd>=3.14
-xarray>=2023.1
+# Locked application and Python reference environment.
+-r sure_julia/python.lock

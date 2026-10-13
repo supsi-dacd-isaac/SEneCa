@@ -113,6 +113,8 @@ def initialize(directory, affinity=None):
 def execute(job):
     started = time.perf_counter()
     arrays = ENGINE.run_arrays(job["parameters"], job["outputs"])
+    if ENGINE.last_timing["compilation_seconds"] != 0:
+        raise RuntimeError("Unexpected compilation after worker warm-up")
     value_hash = hashlib.sha256()
     for name in sorted(arrays):
         value_hash.update(name.encode())
@@ -197,6 +199,25 @@ def consolidate(directory, planned):
         "reference": "SURE v4; synchronous DELAY FIXED; exact allocation",
         "native_vensim_equivalent": False,
         "legacy_vensim_files": "Historical input/reference archives retained from data-v1.0.0; not Julia outputs"})
+
+
+def compare_pilots(serial, parallel, output):
+    serial, parallel = Path(serial), Path(parallel)
+    left, right = read(serial / "manifest.json"), read(parallel / "manifest.json")
+    if left != right or len(left["jobs"]) != 100:
+        raise ValueError("Pilot configurations differ")
+    rows = []
+    for job in left["jobs"]:
+        a = read(serial / "completed" / f"{job['id']}.json")
+        b = read(parallel / "completed" / f"{job['id']}.json")
+        rows.append({"scenario_id": job["id"], "pass": a["value_sha256"] == b["value_sha256"],
+                     "serial_seconds": a["elapsed_seconds"], "parallel_seconds": b["elapsed_seconds"]})
+    summary = {"pass": all(r["pass"] for r in rows), "rows": rows,
+               "serial": read(serial / "summary.json"), "parallel": read(parallel / "summary.json")}
+    dump(output, summary)
+    if not summary["pass"]:
+        raise ValueError("Parallel pilot changed results")
+    return summary
 
 
 def main():
