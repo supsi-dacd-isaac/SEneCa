@@ -1,5 +1,5 @@
 {
-  "revision": "sure-v6-pv-budget-1",
+  "revision": "sure-v6-pv-budget-2",
   "sources": {
     "Vensim/SURE_pysd_v6.mdl": "6368b0b42601986c489d5c937b3c20dc071fa8d2f40c40bb94b82aae6b6a2c1f",
     "Vensim/SURE.mdl": "4f54641e40b08c09369184be7c2fb8ee270221c7e9a8487af7f402cef5b969a5"
@@ -7,13 +7,13 @@
   "equations": {
     "Available PV adoption": "MAX(0, Heating Solution[District,HS,Performance,Type,PVno,Bno]/TIME STEP - MAX(0, Building demolition by archetype[District,HS,Performance,Type,PVno,Bno]) - MAX(0, Buildings HS Renovation From[District,HS,Performance,Type,PVno,Bno]))",
     "Total PV request": "MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type])",
-    "PV availability factor": "IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, MIN(1, Available PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1)), 1)",
-    "Owners adopting PV": "MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]",
-    "Owners adopting RCP": "MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]",
-    "Owners adopting RCPv": "MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]",
-    "Renters adopting PV": "MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]",
-    "Renters adopting RCP": "MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]",
-    "Renters adopting RCPv": "MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]"
+    "Accepted PV adoption": "MIN(Available PV adoption[District,HS,Performance,Type], Total PV request[District,HS,Performance,Type])",
+    "Owners adopting PV": "MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Owners adopting RCP": "MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Owners adopting RCPv": "MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting PV": "MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting RCP": "MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting RCPv": "MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))"
   },
   "native_engine_checked": false,
   "python_translation_warnings": [
@@ -458,8 +458,8 @@
     "Renters adopting RCPv": 1
   },
   "artifacts": {
-    "Vensim/SURE_pysd_v6_pvbounded.mdl": "b69aca4f9fab2bc73a1c316eb8bf46a6eba020347b24eafd5484b127ba71859d",
-    "Vensim/SURE_pysd_v6_pvbounded.py": "68e2a17d27e961832c36dec663336c928001a24c69756d033af0c4eb64fcf47a",
-    "Vensim/SURE_v6_pvbounded.mdl": "bcff41e8d3c712ada8f2c617c6a2d86d703867140df763ec8061c9e1c31eb59e"
+    "Vensim/SURE_pysd_v6_pvbounded.mdl": "0fdf527cdb345e9843ead7ab9a652339b9b9b21316b2c3cd66ef43b54cd3da44",
+    "Vensim/SURE_pysd_v6_pvbounded.py": "bb56f9a38519b94f5bb935a5274eceaeb72e8e6637c585bce554719ad0bfa54e",
+    "Vensim/SURE_v6_pvbounded.mdl": "99bfde1afcb230950aeb2985000e80b9b867fa11214035923847c591e82854ef"
   }
 }

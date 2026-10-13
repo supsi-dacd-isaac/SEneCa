@@ -9,7 +9,7 @@ are excluded from the application image.
 
 `SURE_BACKEND=julia` is the application default; `SURE_BACKEND=python`
 selects the independent PySD 3.14.3 implementation. Both use the v6 equations
-from commit `9080f62` plus the shared PV source budget `sure-v6-pv-budget-1`,
+from commit `9080f62` plus the shared PV source budget `sure-v6-pv-budget-2`,
 calibrated constants, synchronous pre-step DELAY FIXED inputs, Float64 and
 fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
@@ -20,7 +20,7 @@ review the corrected native model in Vensim first. The data pin remains
 `data-v1.0.0`; newly generated datasets are candidates, not published releases.
 See [the native handoff](../benchmarks/sure-production/PV_BUDGET_VENSIM.md).
 
-`python -m sure_julia.pv_budget` generates both corrected MDL copies and the
+`PYTHONHASHSEED=0 python -m sure_julia.pv_budget` generates both corrected MDL copies and the
 Python reference. `--check` regenerates in a temporary directory and verifies
 all artifacts. The six original requests (ten clauses, including EXCEPT) are
 preserved under `Requested ...`; one common proportional factor caps their

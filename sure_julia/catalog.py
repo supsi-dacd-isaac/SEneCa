@@ -62,7 +62,7 @@ def outputs():
              "Hourly imported electricity", "PHS hourly supply", "Hour factor PHS consumption",
              "Seasonal PHS monthly demand", "Seasonal PHS monthly production",
              "Seasonal PHS hourly demand", "Seasonal PHS hourly production"]
-    pv_diagnostics = FLOWS + ["Requested " + n for n in FLOWS] + ["Available PV adoption", "Total PV request", "PV availability factor"]
+    pv_diagnostics = FLOWS + ["Requested " + n for n in FLOWS] + ["Available PV adoption", "Total PV request", "Accepted PV adoption"]
     return list(dict.fromkeys(list(OUTPUTS) + policy["diagnostics"] + policy["native_outputs"] + extra + PHYSICAL_OUTPUTS + pv_diagnostics
                 + list(pv.GMD_VARS) + list(ris.GMD_VARS) + list(exp.GMD_VARS)
                 + list(exp.SCALAR_OUTPUTS.values()) + [exp.CANTONAL_FUNDS_VAR]))

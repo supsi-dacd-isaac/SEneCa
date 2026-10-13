@@ -1,0 +1,235 @@
+{
+  "revision": "sure-v6-pv-budget-1",
+  "source_commit": "86c79bd913adcd4b7f6602f88db438a5874edf0a",
+  "run": "/ssd2/elettra/seneca-runs/pv-budget-002",
+  "scenario": "high",
+  "failed_comparisons": [
+    {
+      "variable": "PV availability factor",
+      "pass": false,
+      "cells": 52800,
+      "failures": 13,
+      "max_abs": 1.0,
+      "year": 2038,
+      "coordinates": {
+        "District": "Leventina",
+        "HS": "ElectricHeater",
+        "Performance": "VeryLow",
+        "Type": "DFH"
+      },
+      "python": 1.0,
+      "julia": 0.0,
+      "tolerance": 1.01e-08
+    }
+  ],
+  "passing_outputs": 136,
+  "python_physical": {
+    "pass": true,
+    "checks": {
+      "nonnegative:Heating Solution": {
+        "pass": true,
+        "minimum": -6.938893903907228e-18,
+        "failures": 0
+      },
+      "nonnegative:Annual archetypes": {
+        "pass": true,
+        "minimum": -1.3877787807814457e-17,
+        "failures": 0
+      },
+      "nonnegative:Total Res buildings": {
+        "pass": true,
+        "minimum": 0.0639102,
+        "failures": 0
+      },
+      "nonnegative:Building demolition by archetype": {
+        "pass": true,
+        "minimum": -1.269881545738439e-19,
+        "failures": 0
+      },
+      "nonnegative:Buildings HS Renovation From": {
+        "pass": true,
+        "minimum": -1.804131730760821e-19,
+        "failures": 0
+      },
+      "nonnegative:Buildings HS Renovation To": {
+        "pass": true,
+        "minimum": -1.2653828314804369e-19,
+        "failures": 0
+      },
+      "nonnegative:Consumers leaving HS for old age": {
+        "pass": true,
+        "minimum": -6.938893903907228e-18,
+        "failures": 0
+      },
+      "nonnegative:Buildings adopting HS for old age": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting PV no": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting PV yes with battery": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting RCPv yes with battery": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "pv_source_budget": {
+        "pass": true,
+        "failures": 0,
+        "max_excess": 0.0
+      },
+      "annual_euler": {
+        "pass": true,
+        "max_abs": 9.094947017729282e-13,
+        "failures": 0
+      },
+      "heating_transfer": {
+        "pass": true,
+        "max_abs": 1.7053025658242404e-13,
+        "failures": 0
+      },
+      "renovation_transfer": {
+        "pass": true,
+        "max_abs": 5.684341886080802e-14,
+        "failures": 0
+      },
+      "pv_transfer": {
+        "pass": true,
+        "max_abs": 5.684341886080802e-14,
+        "failures": 0
+      },
+      "fine_coarse_changes": {
+        "pass": true,
+        "max_abs": 3.637978807091713e-12,
+        "failures": 0
+      },
+      "external_balance": {
+        "pass": true,
+        "max_abs": 1.4551915228366852e-11,
+        "failures": 0
+      }
+    },
+    "initial_fine_coarse_max_abs": 0.008775999999897977
+  },
+  "julia_physical": {
+    "pass": true,
+    "checks": {
+      "nonnegative:Heating Solution": {
+        "pass": true,
+        "minimum": -2.220446049250313e-16,
+        "failures": 0
+      },
+      "nonnegative:Annual archetypes": {
+        "pass": true,
+        "minimum": -4.440892098500626e-16,
+        "failures": 0
+      },
+      "nonnegative:Total Res buildings": {
+        "pass": true,
+        "minimum": 0.0639102,
+        "failures": 0
+      },
+      "nonnegative:Building demolition by archetype": {
+        "pass": true,
+        "minimum": -3.027362585972066e-18,
+        "failures": 0
+      },
+      "nonnegative:Buildings HS Renovation From": {
+        "pass": true,
+        "minimum": -5.897517544966566e-18,
+        "failures": 0
+      },
+      "nonnegative:Buildings HS Renovation To": {
+        "pass": true,
+        "minimum": -4.157623235333791e-18,
+        "failures": 0
+      },
+      "nonnegative:Consumers leaving HS for old age": {
+        "pass": true,
+        "minimum": -1.6556453439514343e-16,
+        "failures": 0
+      },
+      "nonnegative:Buildings adopting HS for old age": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting PV no": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting PV yes with battery": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "nonnegative:Consumers adopting RCPv yes with battery": {
+        "pass": true,
+        "minimum": 0.0,
+        "failures": 0
+      },
+      "pv_source_budget": {
+        "pass": true,
+        "failures": 0,
+        "max_excess": 0.0
+      },
+      "annual_euler": {
+        "pass": true,
+        "max_abs": 9.094947017729282e-13,
+        "failures": 0
+      },
+      "heating_transfer": {
+        "pass": true,
+        "max_abs": 1.7053025658242404e-13,
+        "failures": 0
+      },
+      "renovation_transfer": {
+        "pass": true,
+        "max_abs": 5.684341886080802e-14,
+        "failures": 0
+      },
+      "pv_transfer": {
+        "pass": true,
+        "max_abs": 5.684341886080802e-14,
+        "failures": 0
+      },
+      "fine_coarse_changes": {
+        "pass": true,
+        "max_abs": 3.637978807091713e-12,
+        "failures": 0
+      },
+      "external_balance": {
+        "pass": true,
+        "max_abs": 1.4551915228366852e-11,
+        "failures": 0
+      }
+    },
+    "initial_fine_coarse_max_abs": 0.008775999999897977
+  },
+  "python_energy": {
+    "pass": true,
+    "failures": 0,
+    "max_abs": 1.6653345369377348e-16
+  },
+  "julia_energy": {
+    "pass": true,
+    "failures": 0,
+    "max_abs": 1.6653345369377348e-16
+  },
+  "diagnosis": {
+    "budget_in_all_failed_cells_both_engines": 0.0,
+    "accepted_flows_in_all_failed_cells_both_engines": 0.0,
+    "largest_requested_value_in_failed_cells": 7.913772849823715e-18,
+    "cause": "The arbitrary factor=1 convention at zero demand is discontinuous. Roundoff creates tiny positive requests in only one engine, yielding factor=0 with an empty budget. All accepted flows and physical gates pass.",
+    "revision_2": "Replace the standalone factor with Accepted PV adoption = MIN(Available PV adoption, Total PV request). Each accepted flow is its nonnegative request times accepted total / protected total request. No thresholds change and no output is excluded."
+  }
+}

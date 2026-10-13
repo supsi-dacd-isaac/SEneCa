@@ -18,7 +18,7 @@ from pathlib import Path
 
 from .common import ROOT, digest, dump
 
-REVISION = "sure-v6-pv-budget-1"
+REVISION = "sure-v6-pv-budget-2"
 FLOWS = [f"{owner} adopting {kind}" for owner in ("Owners", "Renters")
          for kind in ("PV", "RCP", "RCPv")]
 DIMS = "[District,HS,Performance,Type]"
@@ -34,11 +34,13 @@ def equations():
                  f" - MAX(0, Buildings HS Renovation From{SOURCE_DIMS}))")
     demand = " + ".join(f"MAX(0, Requested {name}{DIMS})" for name in FLOWS)
     total, budget = "Total PV request" + DIMS, "Available PV adoption" + DIMS
+    # Export the continuous accepted amount, not a discontinuous 0/0 factor.
     # Both branches may be evaluated for arrays; keep the denominator nonzero.
-    factor = f"IF THEN ELSE({total}>0, MIN(1, {budget}/IF THEN ELSE({total}>0, {total}, 1)), 1)"
+    accepted = "Accepted PV adoption" + DIMS
+    factor = f"({accepted}/IF THEN ELSE({total}>0, {total}, 1))"
     return {"Available PV adoption": available, "Total PV request": demand,
-            "PV availability factor": factor,
-            **{name: f"MAX(0, Requested {name}{DIMS}) * PV availability factor{DIMS}" for name in FLOWS}}
+            "Accepted PV adoption": f"MIN({budget}, {total})",
+            **{name: f"MAX(0, Requested {name}{DIMS}) * {factor}" for name in FLOWS}}
 
 
 def corrected_source(source):
@@ -60,8 +62,7 @@ def corrected_source(source):
         raise ValueError(f"Unexpected v6 adoption clauses: {dict(counts)}")
     additions = []
     for name, expression in equations().items():
-        unit = "Dmnl" if name == "PV availability factor" else "building/year"
-        additions.append(f"\n{name}{DIMS} =\n\t{expression}\n~ {unit}\n~ {REVISION}: shared PV source budget.\n|")
+        additions.append(f"\n{name}{DIMS} =\n\t{expression}\n~ building/year\n~ {REVISION}: shared PV source budget.\n|")
     return "|".join(blocks[:-1]) + "|\n" + "\n".join(additions) + blocks[-1] + marker + trailer, originals
 
 

@@ -45956,7 +45956,7 @@ def emissions_per_capacity_installed():
 )
 def available_pv_adoption():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
     return np.maximum(
         0,
@@ -45994,7 +45994,7 @@ def available_pv_adoption():
 )
 def total_pv_request():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
     return (
         np.maximum(0, requested_owners_adopting_pv())
@@ -46007,48 +46007,18 @@ def total_pv_request():
 
 
 @component.add(
-    name="PV availability factor",
-    units="Dmnl",
+    name="Accepted PV adoption",
+    units="building/year",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"total_pv_request": 3, "available_pv_adoption": 1},
+    depends_on={"available_pv_adoption": 1, "total_pv_request": 1},
 )
-def pv_availability_factor():
+def accepted_pv_adoption():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return if_then_else(
-        total_pv_request() > 0,
-        lambda: np.minimum(
-            1,
-            available_pv_adoption()
-            / if_then_else(
-                total_pv_request() > 0,
-                lambda: total_pv_request(),
-                lambda: xr.DataArray(
-                    1,
-                    {
-                        "District": _subscript_dict["District"],
-                        "HS": _subscript_dict["HS"],
-                        "Performance": _subscript_dict["Performance"],
-                        "Type": _subscript_dict["Type"],
-                    },
-                    ["District", "HS", "Performance", "Type"],
-                ),
-            ),
-        ),
-        lambda: xr.DataArray(
-            1,
-            {
-                "District": _subscript_dict["District"],
-                "HS": _subscript_dict["HS"],
-                "Performance": _subscript_dict["Performance"],
-                "Type": _subscript_dict["Type"],
-            },
-            ["District", "HS", "Performance", "Type"],
-        ),
-    )
+    return np.minimum(available_pv_adoption(), total_pv_request())
 
 
 @component.add(
@@ -46057,13 +46027,33 @@ def pv_availability_factor():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_owners_adopting_pv": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_owners_adopting_pv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def owners_adopting_pv():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_owners_adopting_pv()) * pv_availability_factor()
+    return np.maximum(0, requested_owners_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
 
 
 @component.add(
@@ -46072,13 +46062,33 @@ def owners_adopting_pv():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_owners_adopting_rcp": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_owners_adopting_rcp": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def owners_adopting_rcp():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_owners_adopting_rcp()) * pv_availability_factor()
+    return np.maximum(0, requested_owners_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
 
 
 @component.add(
@@ -46087,13 +46097,33 @@ def owners_adopting_rcp():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_owners_adopting_rcpv": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_owners_adopting_rcpv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def owners_adopting_rcpv():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_owners_adopting_rcpv()) * pv_availability_factor()
+    return np.maximum(0, requested_owners_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
 
 
 @component.add(
@@ -46102,13 +46132,33 @@ def owners_adopting_rcpv():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_renters_adopting_pv": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_renters_adopting_pv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def renters_adopting_pv():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_renters_adopting_pv()) * pv_availability_factor()
+    return np.maximum(0, requested_renters_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
 
 
 @component.add(
@@ -46117,13 +46167,33 @@ def renters_adopting_pv():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_renters_adopting_rcp": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_renters_adopting_rcp": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def renters_adopting_rcp():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_renters_adopting_rcp()) * pv_availability_factor()
+    return np.maximum(0, requested_renters_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
 
 
 @component.add(
@@ -46132,10 +46202,30 @@ def renters_adopting_rcp():
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"requested_renters_adopting_rcpv": 1, "pv_availability_factor": 1},
+    depends_on={
+        "requested_renters_adopting_rcpv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
 )
 def renters_adopting_rcpv():
     """
-    sure-v6-pv-budget-1: shared PV source budget.
+    sure-v6-pv-budget-2: shared PV source budget.
     """
-    return np.maximum(0, requested_renters_adopting_rcpv()) * pv_availability_factor()
+    return np.maximum(0, requested_renters_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )

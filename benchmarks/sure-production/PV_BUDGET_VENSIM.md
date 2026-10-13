@@ -1,6 +1,6 @@
 # Verifica nativa della correzione PV della v6
 
-Branch: `julia-production`. Revisione del modello: `sure-v6-pv-budget-1`.
+Branch: `julia-production`. Revisione del modello: `sure-v6-pv-budget-2`.
 **Release e deploy sospesi fino alla verifica del collega in Vensim.**
 
 ## Sorgente da aprire
@@ -15,6 +15,8 @@ versione con dati CSV predisposta per PySD. Python e Julia partono da questo
 file. `sure_julia/pv-budget.json` registra equazioni, checksum, avvisi Python
 classificati e verifica di conservazione delle equazioni non modificate.
 Lo sketch originale è conservato; i nuovi ausiliari non sono disegnati.
+Il diff di sola revisione `pv-budget-native.diff` mostra tutte le differenze
+rispetto al sorgente originale; aprire il `.mdl` completo per eseguire il modello.
 
 ## Equazioni e priorità
 
@@ -23,7 +25,8 @@ clausole specifiche per MFH e le esclusioni, diventano `Requested ...`.
 Le definizioni con i nomi originali restituiscono:
 
 ```
-MAX(0, Requested <flusso>) * PV availability factor
+MAX(0, Requested <flusso>) *
+    (Accepted PV adoption / IF THEN ELSE(Total PV request > 0, Total PV request, 1))
 ```
 
 Per ogni District × HS × Performance × Type:
@@ -34,11 +37,13 @@ Available PV adoption = MAX(0,
     - MAX(0, Building demolition by archetype[...,PVno,Bno])
     - MAX(0, Buildings HS Renovation From[...,PVno,Bno]))
 Total PV request = somma delle sei richieste non negative
-PV availability factor = MIN(1, Available PV adoption / Total PV request)
+Accepted PV adoption = MIN(Available PV adoption, Total PV request)
 ```
 
-Quando la richiesta totale è zero, il fattore vale 1; la divisione usa un
-denominatore protetto anche per i motori che valutano entrambi i rami.
+Quando la richiesta totale è zero, tutte le adozioni accettate sono zero;
+la divisione usa un denominatore protetto anche per i motori che valutano
+entrambi i rami. Si esporta la quantità accettata, continua anche vicino a
+zero: un fattore adimensionale isolato sarebbe invece indefinito in 0/0.
 La priorità resta demolizioni/risanamenti, poi PV, poi sostituzioni del
 riscaldamento per vecchiaia. Le entrate simultanee non finanziano ulteriori
 adozioni nello stesso passo. Tutte le destinazioni, gli stock di proprietà
@@ -60,8 +65,8 @@ Restano invariati allocatori, ritardi e le altre correzioni della v6.
    i 318 casi della suite. Ripetere base in un nuovo processo e la sequenza
    base → high → base. Gli input completi e gli export richiesti sono nel
    pacchetto di consegna generato dopo la validazione Python–Julia.
-5. Esportare tutti gli anni e tutte le coordinate degli output applicativi,
-   dei diagnostici e dei 15 ausiliari/flussì PV del pacchetto. Non limitarsi
+5. Esportare tutti gli anni e tutte le coordinate dei 137 output del pacchetto,
+   compresi i diagnostici e i 15 ausiliari/flussi PV. Non limitarsi
    agli aggregati. Conservare valori grezzi Float32/Float64 e precisione del
    motore, senza arrotondare piccole popolazioni a zero.
 6. Verificare non negatività, budget PV, bilanci dei trasferimenti e Euler.
@@ -76,3 +81,20 @@ Restano invariati allocatori, ritardi e le altre correzioni della v6.
    nativa sulla sola base di bilanci aggregati o della corrispondenza dei sorgenti.
 
 Nessun motore Vensim è stato eseguito per preparare questa correzione.
+
+## Pacchetto di consegna
+
+Dopo la certificazione Python–Julia, eseguire nel container:
+
+```sh
+python scripts/prepare_vensim_pv_handoff.py /runs/pv-budget-003/validation /runs/pv-budget-003/native-handoff
+```
+
+Il pacchetto contiene input completi per tutti i 318 casi, costanti calibrate
+in JSON con dimensioni/coordinate, schema dei 137 output e riferimenti grezzi
+Julia per i quattro casi iniziali, oltre al riferimento Python della base.
+Gli array NPZ hanno il tempo come primo asse; gli altri assi e le etichette
+sono elencati in `export.json`. I rapporti dei 318 confronti sono inclusi;
+per un confronto numerico nativo sugli altri casi, conservarne gli export
+completi: i riferimenti possono essere rigenerati su Elettra con gli input
+congelati. I file esterni nativi della v6 vanno forniti dal collega.

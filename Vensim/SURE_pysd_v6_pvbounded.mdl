@@ -14041,55 +14041,55 @@ TIME STEP  = 1
 Available PV adoption[District,HS,Performance,Type] =
 	MAX(0, Heating Solution[District,HS,Performance,Type,PVno,Bno]/TIME STEP - MAX(0, Building demolition by archetype[District,HS,Performance,Type,PVno,Bno]) - MAX(0, Buildings HS Renovation From[District,HS,Performance,Type,PVno,Bno]))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Total PV request[District,HS,Performance,Type] =
 	MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type])
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
-PV availability factor[District,HS,Performance,Type] =
-	IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, MIN(1, Available PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1)), 1)
-~ Dmnl
-~ sure-v6-pv-budget-1: shared PV source budget.
+Accepted PV adoption[District,HS,Performance,Type] =
+	MIN(Available PV adoption[District,HS,Performance,Type], Total PV request[District,HS,Performance,Type])
+~ building/year
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Owners adopting PV[District,HS,Performance,Type] =
-	MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Owners adopting RCP[District,HS,Performance,Type] =
-	MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Owners adopting RCPv[District,HS,Performance,Type] =
-	MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Renters adopting PV[District,HS,Performance,Type] =
-	MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Renters adopting RCP[District,HS,Performance,Type] =
-	MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 Renters adopting RCPv[District,HS,Performance,Type] =
-	MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * PV availability factor[District,HS,Performance,Type]
+	MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
 ~ building/year
-~ sure-v6-pv-budget-1: shared PV source budget.
+~ sure-v6-pv-budget-2: shared PV source budget.
 |
 
 \\\---/// Sketch information - do not modify anything except names

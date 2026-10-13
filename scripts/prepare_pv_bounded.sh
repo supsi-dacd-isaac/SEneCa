@@ -70,4 +70,6 @@ echo full-regeneration > "$root/stage"
 python -u -m sure_julia.batch "$root/full" --workers 32 --validation "$root/validation" > "$root/full.log" 2>&1
 echo final-audit > "$root/stage"
 python scripts/verify_production_data.py "$root/full" "$root/data-audit.json" --resources "$root/resources.jsonl" > "$root/data-audit.log" 2>&1
+echo native-handoff > "$root/stage"
+python scripts/prepare_vensim_pv_handoff.py "$root/validation" "$root/native-handoff" > "$root/native-handoff.log" 2>&1
 echo awaiting-native-vensim-review > "$root/stage"

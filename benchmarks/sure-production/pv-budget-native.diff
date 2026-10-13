@@ -1,0 +1,124 @@
+--- Vensim/SURE.mdl (upstream v6)
++++ Vensim/SURE_v6_pvbounded.mdl (candidate)
+@@ -1,7 +1,7 @@
+ {UTF-8}
+-Owners adopting RCP[District,HS,Performance,Type] :EXCEPT:    [District,HS,Performance\
++Requested Owners adopting RCP[District,HS,Performance,Type] :EXCEPT:    [District,HS,Performance\
+ 		,MFH]=
+ 	0 ~~|
+-Owners adopting RCP[District,HS,Performance,MFH]=
++Requested Owners adopting RCP[District,HS,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2018 , 0 , 
+ 	
+@@ -36,5 +36,5 @@
+ 	~		|
+ 
+-Owners adopting PV[District,HS,Performance,Type] :EXCEPT:                 [District,HS\
++Requested Owners adopting PV[District,HS,Performance,Type] :EXCEPT:                 [District,HS\
+ 		,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2025 , 
+@@ -71,5 +71,5 @@
+ 		[District,HS!,Performance!,Type,PVyes,Battery!]) ) * Probability adoption PV Owners\
+ 		[District,HS,Performance,Type] * ( Energy Community scenario - 1 ) ) , 0 ) ~~|
+-Owners adopting PV[District,HS,Performance,MFH]=
++Requested Owners adopting PV[District,HS,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2018 , 
+ 	
+@@ -127,8 +127,8 @@
+ 	~		|
+ 
+-Renters adopting RCP[District,HS,Performance,Type] :EXCEPT:        [District,HS,Performance\
++Requested Renters adopting RCP[District,HS,Performance,Type] :EXCEPT:        [District,HS,Performance\
+ 		,MFH]=
+ 	0 ~~|
+-Renters adopting RCP[District,HS,Performance,MFH]=
++Requested Renters adopting RCP[District,HS,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2018 , 0 , 
+ 	
+@@ -193,5 +193,5 @@
+ 	~		|
+ 
+-Renters adopting PV[District,HS,Performance,Type] :EXCEPT:                [District,HS\
++Requested Renters adopting PV[District,HS,Performance,Type] :EXCEPT:                [District,HS\
+ 		,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2025 , 
+@@ -229,5 +229,5 @@
+ 	Probability adoption PV Renters[District,HS,Performance,Type] * ( Energy Community scenario\
+ 		 - 1 ) ) , 0 ) ~~|
+-Renters adopting PV[District,HS,Performance,MFH]=
++Requested Renters adopting PV[District,HS,Performance,MFH]=
+ 	MAX( IF THEN ELSE( Time < 2018 , 
+ 	
+@@ -11085,5 +11085,5 @@
+ 	|
+ 
+-Owners adopting RCPv[District,HS,Performance,Type]=
++Requested Owners adopting RCPv[District,HS,Performance,Type]=
+ 	MAX( IF THEN ELSE( Time < 2025 , 0 , 
+ 	
+@@ -11099,5 +11099,5 @@
+ 	~		|
+ 
+-Renters adopting RCPv[District,HS,Performance,Type]=
++Requested Renters adopting RCPv[District,HS,Performance,Type]=
+ 	MAX( IF THEN ELSE( Time < 2025 , 0 , 
+ 	
+@@ -12776,4 +12776,58 @@
+ 	~	The time step for the simulation.
+ 	|
++
++Available PV adoption[District,HS,Performance,Type] =
++	MAX(0, Heating Solution[District,HS,Performance,Type,PVno,Bno]/TIME STEP - MAX(0, Building demolition by archetype[District,HS,Performance,Type,PVno,Bno]) - MAX(0, Buildings HS Renovation From[District,HS,Performance,Type,PVno,Bno]))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Total PV request[District,HS,Performance,Type] =
++	MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type])
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Accepted PV adoption[District,HS,Performance,Type] =
++	MIN(Available PV adoption[District,HS,Performance,Type], Total PV request[District,HS,Performance,Type])
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Owners adopting PV[District,HS,Performance,Type] =
++	MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Owners adopting RCP[District,HS,Performance,Type] =
++	MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Owners adopting RCPv[District,HS,Performance,Type] =
++	MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Renters adopting PV[District,HS,Performance,Type] =
++	MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Renters adopting RCP[District,HS,Performance,Type] =
++	MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
++
++Renters adopting RCPv[District,HS,Performance,Type] =
++	MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))
++~ building/year
++~ sure-v6-pv-budget-2: shared PV source budget.
++|
+ 
+ \\\---/// Sketch information - do not modify anything except names

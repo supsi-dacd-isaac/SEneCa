@@ -46,11 +46,12 @@ class StockLimitsTests(unittest.TestCase):
                 env["requested_" + name.lower().replace(" ", "_")] = lambda value=value: xr.full_like(available, value)
             total = source_function("total_pv_request", env)()
             env["total_pv_request"] = lambda: total
-            factor = source_function("pv_availability_factor", env)()
-            env["pv_availability_factor"] = lambda: factor
+            accepted_total = source_function("accepted_pv_adoption", env)()
+            env["accepted_pv_adoption"] = lambda: accepted_total
             accepted = [source_function(name.lower().replace(" ", "_"), env)() for name in FLOWS]
             expected = np.minimum(available, sum(max(0., d) for d in demands))
             np.testing.assert_allclose(sum(accepted), expected, rtol=1e-15, atol=1e-15)
+            np.testing.assert_array_equal(accepted_total, expected)
             self.assertTrue(all(bool((a >= 0).all()) for a in accepted))
             if sum(demands) > 0:
                 for a, demand in zip(accepted, demands):
