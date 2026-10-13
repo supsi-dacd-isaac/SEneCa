@@ -20,6 +20,11 @@ in `sure_julia/`. Production translation supports the audited SURE profile,
 not arbitrary Vensim models. No Vensim DLL is needed. Equivalence with the
 native Vensim engine has not been achieved and is not claimed.
 
+Application images precompile dependency caches with `JULIA_CPU_TARGET=generic`
+so the cache can move between processors of the same architecture. This affects
+on-disk package images, not the model's in-memory JIT; see the
+[Julia 1.10 documentation](https://docs.julialang.org/en/v1.10.0/manual/environment-variables/#JULIA_CPU_TARGET).
+
 The Julia process loads one generated model and accepts complete sets of
 40 parameters. Each request owns its initial state, delay buffers and caches.
 Results preserve the explicit dimension labels in `export.json`. The Python

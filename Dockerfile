@@ -20,7 +20,7 @@ ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS
 WORKDIR /app
 
 FROM runtime AS model-builder
-ENV JULIA_DEPOT_PATH=/opt/julia-depot
+ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic
 COPY sure_julia/julia/Project.toml sure_julia/julia/Manifest.toml /opt/julia-env/
 RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 COPY . /app
@@ -29,7 +29,7 @@ RUN python scripts/data_release.py verify && /opt/translator/bin/python -m sure_
 FROM runtime AS application
 ARG CODE_VERSION=dev
 ARG DATA_RELEASE_TAG=unknown
-ENV JULIA_DEPOT_PATH=/opt/julia-depot PYTHONPATH=/app SURE_BACKEND=julia STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
+ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic PYTHONPATH=/app SURE_BACKEND=julia STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
 COPY --from=model-builder /opt/julia-depot /opt/julia-depot
 COPY --from=model-builder /app /app
 RUN rm -rf /opt/pysd /opt/translator && python scripts/data_release.py verify
