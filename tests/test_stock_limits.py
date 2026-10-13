@@ -85,6 +85,19 @@ class StockLimitsTests(unittest.TestCase):
         root=Path(__file__).parents[1]
         source=(root/'Vensim/SURE_pysd_v4.mdl').read_text(encoding='latin-1')
         generated=vensim_source(source)
+        marker='\\\\\\---///'
+        self.assertEqual(source.partition(marker)[2],generated.partition(marker)[2])
+        # The real parser must see every new equation before the sketch.
+        import tempfile
+        from pysd.translators.vensim.vensim_file import VensimFile
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'corrected.mdl'
+            path.write_text(generated,encoding='latin-1')
+            parsed=VensimFile(path,encoding='latin-1')
+            parsed.parse()
+            names={e.name for s in parsed.get_abstract_model().sections for e in s.elements}
+            self.assertTrue({e.name for e in equations()} <= names)
+            self.assertTrue({'Requested '+n for n in REQUESTED} <= names)
         # Compare complete defining clauses, including selectors and EXCEPT;
         # references to the same name inside other equations are irrelevant.
         for name in REQUESTED:

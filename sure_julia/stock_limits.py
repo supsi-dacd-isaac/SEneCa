@@ -162,11 +162,16 @@ def python_source(source):
 
 
 def vensim_source(source):
+    # Sketch/settings records also contain pipes (for example font settings).
+    # Never split those as equations or append equations after the sketch.
+    model, marker, trailer = source.partition("\\\\\\---///")
+    if not marker:
+        raise ValueError('Expected Vensim sketch boundary')
     specs = equations()
     replaced = {e.name for e in specs}
     found = {name: 0 for name in replaced}
     additions, kept = [], []
-    for block in source.split('|'):
+    for block in model.split('|'):
         match = re.match(r'\s*([^\[=]+?)(?:\[|=)', block)
         name = match.group(1).strip() if match else None
         if name in replaced:
@@ -182,4 +187,4 @@ def vensim_source(source):
         body = eq.vensim.removeprefix('@CLAUSES@') if eq.vensim.startswith('@CLAUSES@') else ref(eq.name,eq.dims)+' = '+eq.vensim
         additions.append('\n'+body+'\n~\n~ SURE '+REVISION+'\n')
     # Insert before the preserved sketch/settings trailer, after all equations.
-    return '|'.join(kept[:-1]) + '|\n' + '|\n'.join(additions) + '|\n' + kept[-1]
+    return '|'.join(kept[:-1]) + '|\n' + '|\n'.join(additions) + '|\n' + kept[-1] + marker + trailer
