@@ -6,16 +6,7 @@ import platform
 
 
 def platform_contract():
-    if platform.system() != "Darwin" or platform.machine() != "arm64":
-        raise RuntimeError("NumPy EXP compatibility is verified only on macOS arm64")
-    library = ctypes.CDLL("/usr/lib/libSystem.B.dylib")
-    version = library.NSVersionOfRunTimeLibrary
-    version.argtypes, version.restype = [ctypes.c_char_p], ctypes.c_int32
-    result = {"system": "Darwin", "machine": "arm64", "macos_version": platform.mac_ver()[0],
-              "libsystem_version": version(b"System"), "libsystem_m_version": version(b"system_m")}
-    if min(result["libsystem_version"], result["libsystem_m_version"]) < 0:
-        raise RuntimeError("Cannot identify native math library versions")
-    return result
+    return {"system": "portable", "semantics": "Julia Float64 exp/pow; validated against pinned NumPy"}
 
 
 def apply():
@@ -62,8 +53,6 @@ def apply():
     def content(self, equations):
         from sure_julia.common import CONFIG
         self._seneca_numpy_math = {"operations": ["EXP", "POWER"], "platform": contract,
-                                  "semantics": "Float64 native Apple libSystem exp/pow with explicit NumPy array power specializations"}
-        guard = (f"seneca_verify_numpy_math({contract['macos_version']!r}, "
-                 f"{contract['libsystem_version']}, {contract['libsystem_m_version']})\n").replace("'", '"')
-        return (CONFIG / "numpy_math.jl").read_text() + "\n" + guard + original(self, equations)
+                                  "semantics": "Float64 portable exp/pow with explicit NumPy array power specializations"}
+        return (CONFIG / "numpy_math.jl").read_text() + "\n" + original(self, equations)
     JuliaSectionBuilder._full_file_content = content

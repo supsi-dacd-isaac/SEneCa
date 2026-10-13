@@ -1,4 +1,4 @@
-"""Experiment-only patches for the pinned Julia builder.
+"""SURE production patches for the pinned Julia builder.
 
 No installed application package is edited. Fail on unresolved semantics rather
 than accepting the upstream broadcast/zero fallbacks.
@@ -267,7 +267,7 @@ def apply():
     stateful_patch.apply()
     indexing_patch.apply()
     ode_patch.apply()
-    hotpath_patch.apply()
+    # v4 uses the original equations, without the v3 normalization shortcut.
     numpy_math_patch.apply()
     lookup_patch.apply()
     JuliaSectionBuilder._seneca_patches_applied = True
