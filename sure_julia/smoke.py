@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from .catalog import defaults, parameters
+from .batch import configs, gmd
 from .common import ROOT, dump, read
 from .python_backend import PythonBackend
 from .runtime import JuliaBackend
@@ -25,8 +26,19 @@ def main():
             reports[name] = {"comparison": compare(a, b, jl.export), "python_energy": energy(a), "julia_energy": energy(b),
                              "warnings": warning_review(py.warnings, read(jl.directory / "warnings.json"), py.variables),
                              "timing": jl.last_timing}
+            metrics = []
+            export = {v["name"]: v for v in jl.export}
+            for section, cfg in configs().items():
+                if not getattr(cfg, "GMD_SPEC", None):
+                    continue
+                audit_a, audit_b = [], []
+                left, right = gmd(a, cfg.GMD_SPEC, export, audit_a), gmd(b, cfg.GMD_SPEC, export, audit_b)
+                metrics.append({"section": section, "python": left, "julia": right,
+                                "python_weight_audit": audit_a, "julia_weight_audit": audit_b,
+                                "pass": all(abs(left[k]-right[k]) <= 1e-10*max(1, abs(left[k]))+1e-8*abs(left[k]) for k in left)})
+            reports[name]["gmd"] = {"pass": all(r["pass"] for r in metrics), "rows": metrics}
             dump(args.directory / f"{name}.json", reports[name])
-            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "warnings")):
+            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "warnings", "gmd")):
                 raise RuntimeError(f"Numerical smoke failed: {name}")
     finally:
         py.close()

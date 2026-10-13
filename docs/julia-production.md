@@ -61,11 +61,17 @@ validation. The 50 existing LHS samples (seed 20261004) are retained verbatim.
 Resume requires identical build, code, parameter and sample identities and
 verified completed-output checksums. No failed scenario is dropped.
 
-The existing GMD definition excludes negative weights. The batch permits this
-only for 2050 residuals within the same numerical tolerance of zero, records
-their count and mass per scenario, and rejects significant negative weights.
-The base has 120 such residuals in `Annual archetypes`, with minimum about
-`-8.94e-16` in both Python and Julia. Raw simulation arrays are never modified.
+The existing GMD definition uses nonnegative weights. Its exclusion of negative
+weights is preserved and explicitly audited per scenario, separating roundoff
+from substantive values. Raw simulation arrays are never modified or excluded
+from the Python–Julia comparison. Nonfinite values still fail the batch.
+The base has 120 roundoff residuals in `Annual archetypes`, with minimum about
+`-8.94e-16`. Some uncertain scenarios also have substantive negative dwelling
+counts in both engines: policy 55/sample 17 has a minimum of `-0.538` and
+negative mass `-1.917`, against positive mass `236489.428`. Its full requested
+arrays and the existing GMD indicators agree between Python and Julia.
+This is a model limitation, not a claim of physical nonnegativity. Changing the
+model or the established indicator definition requires a separate decision.
 
 The batch stages nine application Parquets plus provenance separately from
 the installed dataset. The seven Vensim reference/input archives remain

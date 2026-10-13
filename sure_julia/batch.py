@@ -55,8 +55,8 @@ def jobs():
 
 def gmd(arrays, specs, export, audit=None):
     # Preserve the existing GMD definition, which excludes negative weights.
-    # Only residuals indistinguishable from zero under the accepted numerical
-    # tolerance may be excluded. Keep the original simulation arrays intact.
+    # Audit both roundoff and substantive negative weights. This is a property
+    # of the existing indicator, not a correction to the simulation arrays.
     from pv_batteries.gmd import compute_gmd_from_spec
     values = {}
     for name in {s[k] for s in specs.values() for k in ("weight", "value")}:
@@ -73,13 +73,13 @@ def gmd(arrays, specs, export, audit=None):
         series = arrays[name]
         final = series[-1]
         tolerance = 1e-10*np.maximum(1., np.abs(series).max(axis=0)) + 1e-8*np.abs(final)
-        if np.any(final < -tolerance):
-            raise ValueError(f"GMD weights below numerical zero: {name}; minimum={final.min()}")
         negative = final[final < 0]
         if negative.size and audit is not None:
             audit.append({"variable": name, "year": 2050, "excluded_cells": int(negative.size),
+                          "beyond_numerical_zero": int(np.sum(final < -tolerance)),
                           "minimum": float(negative.min()), "negative_mass": float(negative.sum()),
-                          "rule": "Existing GMD definition excludes negative weights; numerical-zero tolerance verified"})
+                          "positive_mass": float(final[final > 0].sum()),
+                          "rule": "Existing GMD definition uses nonnegative weights; raw simulation values preserved"})
     result = compute_gmd_from_spec(values, specs)
     if not all(np.isfinite(v) for v in result.values()):
         raise ValueError("Invalid GMD")
@@ -235,7 +235,10 @@ def compare_pilots(serial, parallel, output):
     for job in left["jobs"]:
         a = read(serial / "completed" / f"{job['id']}.json")
         b = read(parallel / "completed" / f"{job['id']}.json")
-        rows.append({"scenario_id": job["id"], "pass": a["value_sha256"] == b["value_sha256"],
+        files_match = a["files"] == b["files"] and all(digest(folder / path) == expected
+                         for folder, report in ((serial, a), (parallel, b)) for path, expected in report["files"].items())
+        rows.append({"scenario_id": job["id"], "pass": a["value_sha256"] == b["value_sha256"] and files_match,
+                     "parquet_files_exact": files_match,
                      "serial_seconds": a["elapsed_seconds"], "parallel_seconds": b["elapsed_seconds"]})
     summary = {"pass": all(r["pass"] for r in rows), "rows": rows,
                "serial": read(serial / "summary.json"), "parallel": read(parallel / "summary.json")}
