@@ -35,3 +35,20 @@ Those final release checks remain required when the new data pin is ready.
 
 Full local evidence: `dist/policy-mix-100-20261014/startup-check/`.
 Elettra evidence: `/ssd2/elettra/seneca-runs/startup-check-20261014/`.
+
+## Progress feedback
+
+Commit `3463988` adds optional progress events around the unchanged model call
+and after each annual result extraction. A second AMD64 check exercised 45
+updates, both with and without callbacks, on the same persistent worker.
+Base and high frames were exactly equal with feedback enabled; base → high →
+base remained exact, and all subsequent requests recorded zero compilation.
+The AppTest simulation completed in 14.13 seconds in this run; the initial
+warm-up took 118.37 seconds. Load was lower than during the preceding test,
+so these measurements do not isolate the progress feature's timing overhead.
+
+A real browser displayed “Simulazione 2011–2050 (fase 2/4)” with the progress
+bar, then replaced it with complete results. The same worker PID was retained.
+Six additional tests cover event counters, request isolation, cancellation,
+absolute timeout enforcement and cache hits without stale progress replay.
+Evidence: `dist/policy-mix-100-20261014/progress-check/`, including screenshots.
