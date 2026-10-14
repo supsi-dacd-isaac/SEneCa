@@ -359,9 +359,6 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
     _init_weights()
     w = _current_weights()
     ranked = expl.score_policy_mixes(scaled, w)
-    complete = ranked[ranked["n_samples"] >= cfg.N_SAMPLES]
-    if not complete.empty:
-        ranked = complete
     if ranked.empty:
         st.error("Impossibile calcolare lo score con i dati disponibili.")
         return
@@ -373,7 +370,6 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
         st.segmented_control(
             "Modalità di assegnazione",
             options=[MODE_RELATIVE, MODE_ABSOLUTE],
-            default=MODE_RELATIVE,
             key=WEIGHT_MODE_KEY,
             on_change=_on_mode_change,
             help=(
