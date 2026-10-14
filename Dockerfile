@@ -23,16 +23,22 @@ FROM runtime AS model-builder
 ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic
 COPY sure_julia/julia/Project.toml sure_julia/julia/Manifest.toml /opt/julia-env/
 RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-COPY . /app
-RUN python scripts/data_release.py verify && python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated && python scripts/verify_julia_release.py
+# Only model-generation inputs invalidate translation. Page, asset and workflow
+# edits belong to the application layer below.
+COPY sure_julia /app/sure_julia
+COPY Vensim /app/Vensim
+COPY pv_batteries/__init__.py pv_batteries/*_config.py /app/pv_batteries/
+COPY constants_ref_v6.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py /app/
+RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 
 FROM runtime AS application
 ARG CODE_VERSION=dev
 ARG DATA_RELEASE_TAG=unknown
 ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic PYTHONPATH=/app SURE_BACKEND=julia STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
 COPY --from=model-builder /opt/julia-depot /opt/julia-depot
-COPY --from=model-builder /app /app
-RUN rm -rf /opt/pysd /opt/translator && python scripts/data_release.py verify
+COPY . /app
+COPY --from=model-builder /app/sure_julia/generated /app/sure_julia/generated
+RUN rm -rf /opt/pysd /opt/translator && python scripts/data_release.py verify && python scripts/verify_julia_release.py
 LABEL org.opencontainers.image.source="https://github.com/supsi-dacd-isaac/SEneCa" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${CODE_VERSION}" \
