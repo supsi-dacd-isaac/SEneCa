@@ -101,6 +101,28 @@ tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
+### Controlli PR e pubblicazione
+
+Le PR eseguono i test unitari e dell'interfaccia con Python e dati bloccati,
+senza costruire le immagini o compilare Julia. Un nuovo push annulla il
+controllo della versione precedente della stessa PR.
+
+Le release codice costruiscono e verificano le immagini AMD64 e ARM64 una sola
+volta, inclusi confronto numerico Python–Julia, invarianti fisici, interfaccia
+e avvio reale del server. Vengono pubblicate esattamente le immagini verificate.
+Per modifiche a modello, runtime, dipendenze o Docker, eseguire anche il workflow
+`Build and publish SEneCa image` manualmente sul branch prima del merge:
+
+```bash
+gh workflow run docker-release.yml --ref NOME_BRANCH
+```
+
+Questo controllo manuale non pubblica immagini. La cache delle dipendenze e del
+modello è condivisa su GHCR per architettura; soltanto release e controlli su
+`main` possono aggiornarla. Il primo ciclo deve popolarla; i successivi la
+riutilizzano. Le pagine dell'app vengono copiate dopo la traduzione, così una
+modifica a una pagina non invalida la costruzione del modello.
+
 ### Mappa CARTO
 
 La mappa nella pagina "Approccio System Dynamics" usa una chiave CARTO
