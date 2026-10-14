@@ -191,6 +191,7 @@ class PhysicalGateTests(unittest.TestCase):
         import json
         from sure_julia import validation
         from sure_julia.physical import PhysicalInvariantError
+        from pv_batteries.exploratory_config import KPI_ORDER
         a = self.arrays()
         a["Heating Solution"][10, 0, 0, 0, 0, 0, 0] = -1.
         report = check(a)
@@ -205,10 +206,17 @@ class PhysicalGateTests(unittest.TestCase):
                                     last_timing={}, directory=directory,
                                     export=[{"name": n, "dims": [], "coords": {}} for n in a])
             with patch.multiple(validation, create=True, PYTHON=python, JULIA=julia, TARGET=directory), \
-                    patch.object(validation, "energy", return_value={"pass": True}):
+                    patch.object(validation, "energy", return_value={"pass": True}), \
+                    patch("sure_julia.batch.exploratory_indicators",
+                          return_value={name: 1. for name in KPI_ORDER}):
+                # This fixture contains only physical states. Make every
+                # unrelated gate pass so the real physical check alone must
+                # reject otherwise identical engine results.
                 self.assertEqual(validation.check(("invalid", {})), ("invalid", False))
             saved = json.loads((directory / "invalid/report.json").read_text())
+            self.assertNotIn("error", saved)
             self.assertTrue(saved["comparison"]["pass"])
+            self.assertTrue(saved["derived_kpis"]["pass"])
             self.assertFalse(saved["pass"])
             self.assertFalse(saved["python_physical"]["pass"])
             self.assertFalse(saved["julia_physical"]["pass"])

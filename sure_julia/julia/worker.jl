@@ -6,7 +6,14 @@ Threads.nthreads() == 1 || error("One Julia thread per worker required")
 Base.cumulative_compile_timing(true)
 seconds_since(start) = (time_ns() - start) / 1e9
 
-function execute(model, catalog, job)
+function progress(protocol, job, phase; completed=0, total=1, year=0)
+    get(job, :progress, false) || return
+    println(protocol, JSON3.write(Dict{String,Any}("event" => "progress", "id" => job.id,
+        "phase" => phase, "completed" => completed, "total" => total, "year" => year)))
+    flush(protocol)
+end
+
+function execute(model, catalog, job, protocol)
     started = time_ns()
     compile_before = first(Base.cumulative_compile_time_ns())
     parameters = Base.invokelatest(model.parameters_from_dict, job.parameters)
@@ -14,10 +21,12 @@ function execute(model, catalog, job)
     length(unique(wanted)) == length(wanted) || error("Duplicate outputs")
     requested = [only(filter(x -> x.name == name, catalog)) for name in wanted]
     names = String[String(x.julia_name) for x in requested]
+    progress(protocol, job, "initialize")
     start = time_ns()
     initial = Base.invokelatest(model.initial_state, parameters)
     initialize_seconds = seconds_since(start)
     before = copy(initial)
+    progress(protocol, job, "integrate")
     start = time_ns()
     solution = Base.invokelatest(model.run_model, parameters; u0=initial)
     solve_seconds = seconds_since(start)
@@ -27,9 +36,10 @@ function execute(model, catalog, job)
     target = String(job.directory)
     isdir(target) || error("Missing private result directory")
     streams = [open(joinpath(target, "v$(lpad(i-1, 4, '0')).bin"), "w") for i in eachindex(requested)]
+    progress(protocol, job, "extract"; total=length(solution.t))
     start = time_ns()
     try
-        for (t, state) in zip(solution.t, solution.u)
+        for (step, (t, state)) in enumerate(zip(solution.t, solution.u))
             observed = Base.invokelatest(model.observe, state, t, names; parameters=parameters)
             for (i, item) in enumerate(requested)
                 value = observed[String(item.julia_name)]
@@ -46,6 +56,7 @@ function execute(model, catalog, job)
                     write(streams[i], buffer)
                 end
             end
+            progress(protocol, job, "extract"; completed=step, total=length(solution.t), year=Int(t))
         end
     finally
         foreach(close, streams)
@@ -59,6 +70,7 @@ function execute(model, catalog, job)
 end
 
 function main(model_file, export_file)
+    protocol = stdout  # Retain the JSON channel inside redirect_stdout(stderr).
     started = time_ns()
     model = Module(:SURESession)
     catalog = JSON3.read(read(export_file, String))
@@ -74,7 +86,7 @@ function main(model_file, export_file)
         job = JSON3.read(line)
         try
             result = redirect_stdout(stderr) do
-                execute(model, catalog, job)
+                execute(model, catalog, job, protocol)
             end
             println(JSON3.write(result))
         catch error

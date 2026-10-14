@@ -36,19 +36,19 @@ def jobs():
     for section, cfg in configs().items():
         if section == "exploratory":
             samples = pd.read_parquet(cfg.SAMPLES_PATH)
-            if len(samples) != 50:
-                raise ValueError("Expected the original fifty uncertainty samples")
+            cfg.validate_samples(samples)
             for pid, policy in enumerate(cfg.all_policy_combos()):
                 for sid, sample in enumerate(samples[cfg.UNCERTAINTY_ORDER].to_dict("records")):
                     add({**policy, **sample, cfg.EXPLORATORY_SWITCH: 1},
                         {"section": section, "policy_id": pid, "sample_id": sid, "inputs": policy},
-                        list(dict.fromkeys(list(cfg.GMD_VARS) + list(cfg.SCALAR_OUTPUTS.values()) + [cfg.CANTONAL_FUNDS_VAR])))
+                        list(dict.fromkeys(list(cfg.GMD_VARS) + list(cfg.SCALAR_OUTPUTS.values())
+                                          + [cfg.CANTONAL_FUNDS_VAR, cfg.SC_NUMERATOR, cfg.SC_DENOMINATOR])))
         else:
             for values in itertools.product(*(cfg.INPUT_GRID[n] for n in cfg.INPUT_ORDER)):
                 inputs = dict(zip(cfg.INPUT_ORDER, map(float, values)))
                 add(inputs, {"section": section, "inputs": inputs},
                     list(dict.fromkeys(list(cfg.OUTPUT_BASES) + list(getattr(cfg, "GMD_VARS", [])))))
-    if sum(len(j["destinations"]) for j in result.values()) != 8179:
+    if sum(len(j["destinations"]) for j in result.values()) != 14579:
         raise ValueError("Scenario grid changed; reapprove coverage")
     return list(result.values())
 
@@ -93,6 +93,19 @@ def atomic_parquet(frame, target):
     temp = target.with_suffix(".tmp")
     frame.to_parquet(temp, index=False)
     temp.replace(target)
+
+
+def exploratory_indicators(arrays, export, audit=None):
+    from pv_batteries import exploratory_config as cfg
+    from pv_batteries.exploratory_kpis import pv_self_coverage
+    kpis = gmd(arrays, cfg.GMD_SPEC, export, audit)
+    kpis.update({k: float(arrays[n][-1].sum()) for k, n in cfg.SCALAR_OUTPUTS.items()})
+    kpis["cantonal_spend"] = float(arrays[cfg.CANTONAL_FUNDS_VAR][YEARS.index(cfg.CANTONAL_SPEND_START):].sum())
+    if export[cfg.SC_NUMERATOR]["dims"] != [] or export[cfg.SC_DENOMINATOR]["dims"] != ["District"]:
+        raise ValueError("Unexpected self-coverage coordinates")
+    ratio, numerator, denominator = pv_self_coverage(arrays[cfg.SC_NUMERATOR][-1], arrays[cfg.SC_DENOMINATOR][-1])
+    kpis.update(pv_self_coverage=ratio, pv_self_consumed_gwh=numerator, electricity_demand_gwh=denominator)
+    return kpis
 
 
 def hourly(arrays, names, export):
@@ -144,9 +157,7 @@ def _execute(job):
         inputs = dest["inputs"]
         target = TARGET / "parts" / section
         if section == "exploratory":
-            kpis = gmd(arrays, cfg.GMD_SPEC, EXPORT, gmd_audit)
-            kpis.update({k: float(arrays[n][-1].sum()) for k, n in cfg.SCALAR_OUTPUTS.items()})
-            kpis["cantonal_spend"] = float(arrays[cfg.CANTONAL_FUNDS_VAR][YEARS.index(cfg.CANTONAL_SPEND_START):].sum())
+            kpis = exploratory_indicators(arrays, EXPORT, gmd_audit)
             frame = pd.DataFrame([{"policy_id": dest["policy_id"], "sample_id": dest["sample_id"], **inputs, **kpis, "completed": 1.0}])
             path = target / f"{job['id']}.parquet"
         elif section == "elettricita":
@@ -273,14 +284,21 @@ def main():
     if read(args.validation / "manifest.json")["build"] != digest(ROOT / "sure_julia/generated/build.json"):
         raise ValueError("Validation belongs to another build")
     planned = jobs()
+    from pv_batteries import exploratory_config as exp
     if args.pilot:
         planned = [planned[i] for i in np.linspace(0, len(planned)-1, 100, dtype=int)]
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "jobs": planned,
+             "exploratory_design": {"n_samples": exp.N_SAMPLES, "seed": exp.SAMPLE_SEED,
+                 "sampling": "Latin hypercube, uniform marginals; same sample set for each policy mix",
+                 "policy_grid": exp.POLICY_GRID, "uncertainty_bounds": exp.UNCERTAINTY_BOUNDS,
+                 "kpis": exp.KPI_SPEC, "sc_formula": "Total PV electricity SC / (SUM(Total annual demand Districts) / 1e6)",
+                 "sc_year": exp.FINAL_YEAR, "sc_storage_unit": "fraction",
+                 "workbook_sha256": digest(ROOT / "Input and Output Streamlit.xlsx")},
              "validation_certificate_sha256": digest(args.validation / "certificate.json"),
              "sample_sha256": digest(ROOT / "precomputed/exploratory/uncertainty_samples.parquet"),
              "code": {str(p.relative_to(ROOT)): digest(p) for p in
                       [*Path(__file__).parent.glob("*.py"), *(ROOT / "pv_batteries").glob("*config.py"),
-                       ROOT / "pv_batteries/gmd.py", ROOT / "pysd_explore_config.py"]}}
+                       ROOT / "pv_batteries/gmd.py", ROOT / "pv_batteries/exploratory_kpis.py", ROOT / "pysd_explore_config.py"]}}
     args.directory.mkdir(parents=True, exist_ok=True)
     manifest = args.directory / "manifest.json"
     if manifest.exists() and read(manifest) != stamp:

@@ -26,6 +26,7 @@ importlib.reload(cfg)  # evita config stale se Streamlit tiene sys.modules
 import sure_paths as paths  # noqa: E402
 import sure_pysd as sp  # noqa: E402
 import sure_backend as backend
+from sure_live import get_engine, run_with_progress
 import elettricita_config as elec_cfg  # noqa: E402
 import explore_results_charts as erc  # noqa: E402
 import section_ui_hourly as _sui_h  # noqa: E402
@@ -82,26 +83,26 @@ def default_variant() -> str:
     return paths.variant()
 
 
-@st.cache_resource(show_spinner="Caricamento del modello...", max_entries=1,
-                   on_release=lambda engine: engine.close())
-def get_engine(engine_id: str):
-    return backend.load_model()
-
-
 @st.cache_data(show_spinner=False, max_entries=64)
-def run_live(engine_id: str, params_fp: str, params_json: str, _engine) -> pd.DataFrame:
-    return _engine.run(json.loads(params_json), outputs=sp.OUTPUTS, flatten=True)
+def run_live(engine_id: str, params_fp: str, params_json: str, _engine, _on_progress=None) -> pd.DataFrame:
+    options = {"on_progress": _on_progress} if _engine.backend == "julia" else {}
+    return _engine.run(json.loads(params_json), outputs=sp.OUTPUTS, flatten=True, **options)
 
 
-def get_scenario(ui: dict[str, float], variant: str) -> tuple[pd.DataFrame, str]:
+def get_scenario(ui: dict[str, float], variant: str, title="Scenario") -> tuple[pd.DataFrame, str]:
     if variant != "v6":
         raise ValueError("Il backend di produzione richiede SURE v6")
     from sure_julia.catalog import parameters
     params = parameters(cfg.ui_to_pysd_params(ui))
     engine_id = backend.engine_identity()
-    with st.spinner("Simulazione in corso..."):
-        df = run_live(engine_id, _params_fingerprint(params),
-                      json.dumps(params, sort_keys=True, allow_nan=False), get_engine(engine_id))
+    if backend.backend_name() == "julia":
+        df = run_with_progress(lambda update: run_live(
+            engine_id, _params_fingerprint(params), json.dumps(params, sort_keys=True, allow_nan=False),
+            get_engine(engine_id), update), title)
+    else:
+        with st.spinner("Simulazione in corso..."):
+            df = run_live(engine_id, _params_fingerprint(params),
+                          json.dumps(params, sort_keys=True, allow_nan=False), get_engine(engine_id))
     return df, "live"
 
 
@@ -303,16 +304,15 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 st.title("Simulazione in tempo reale")
 st.caption(
     f"Simulazione live con {len(sp.OUTPUTS)} output Risultati "
-    "(PV / Risanamento / Veicoli / Elettricità). "
-    "La prima simulazione richiede anche la preparazione del motore."
+    "(PV / Risanamento / Veicoli / Elettricità)."
 )
 
 ui, run_clicked, variant = render_sidebar()
 
 if run_clicked:
     base_ui = cfg.base_ui_values()
-    user_df, src_user = get_scenario(ui, variant)
-    base_df, src_base = get_scenario(base_ui, variant)
+    user_df, src_user = get_scenario(ui, variant, "Scenario scelto")
+    base_df, src_base = get_scenario(base_ui, variant, "Scenario base")
     st.session_state["exp_user_df"] = user_df
     st.session_state["exp_base_df"] = base_df
     st.session_state["exp_ui"] = ui

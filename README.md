@@ -9,11 +9,13 @@ bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 Il modello è sviluppato in Vensim e tradotto con
 [PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
 simulazioni live di SURE v6 con Julia; il backend Python resta selezionabile.
-La release `v0.2.0` usa il modello corretto `sure-v6-pv-budget-2` e i dati
-`data-v1.1.0`: 8.171 simulazioni distinte coprono 8.179 configurazioni.
+La release `v0.3.0` usa il modello corretto `sure-v6-pv-budget-2` e i dati
+`data-v1.2.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
+incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
 Il limite condiviso delle adozioni FV impedisce di prelevare edifici oltre
 la disponibilità della categoria di origine. Validazione e provenienza sono
-descritte nel [rapporto del modello corretto](benchmarks/sure-production/PV_BUDGET_RESULTS.md).
+descritte nel [rapporto del modello corretto](benchmarks/sure-production/PV_BUDGET_RESULTS.md)
+e nel [rapporto dei 100 campioni](benchmarks/sure-production/POLICY_MIX_RESULTS.md).
 
 ## Riconoscimenti
 
@@ -52,7 +54,7 @@ pip install -r requirements.txt
 ## Avvio della webapp
 
 ```bash
-SURE_BACKEND=python streamlit run app.py
+SURE_BACKEND=python streamlit run server.py
 ```
 
 Questo comando usa l'ambiente Python installato sopra. Per Julia usare
@@ -67,7 +69,7 @@ La cartella di progetto deve essere sul `PYTHONPATH`; da Windows PowerShell:
 ```powershell
 $env:PYTHONPATH = $PWD
 $env:SURE_BACKEND = "python"
-.venv\Scripts\python.exe -m streamlit run app.py
+.venv\Scripts\python.exe -m streamlit run server.py
 ```
 
 Se il download dei dati fallisce o un checksum non corrisponde, l'avvio va
@@ -93,9 +95,9 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.2.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.3.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 usa v6.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 e v0.3.0 usano v6.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
@@ -125,8 +127,23 @@ Le quattro pagine di risultati (`PV e Batterie`, `Riscaldamento e Risanamento`,
 `Veicoli`, `Elettricita'`) servono all'istante combinazioni gia' simulate: si
 scelgono le leve di policy con gli slider e il confronto con lo scenario Base e'
 immediato. `Simulazione in tempo reale` lancia invece una simulazione live su
-tutte le leve disponibili. Julia prepara il modello al primo utilizzo e
-riusa il codice compilato per gli scenari successivi.
+tutte le leve disponibili. All'avvio del server Julia esegue una simulazione
+di riscaldamento, prima che l'app accetti connessioni. Lo stesso processo
+rimane disponibile alle sessioni degli utenti e riusa il codice compilato;
+ogni scenario ricostruisce gli stati iniziali. Il costo iniziale di compilazione
+si paga quindi al riavvio del servizio. Un errore nel riscaldamento interrompe
+l'avvio, senza passare automaticamente a Python. Il controllo di salute diventa
+disponibile solo dopo questa preparazione (il container concede fino a cinque
+minuti di avvio). Usare `server.py` anche fuori da Docker; `app.py` resta lo
+script dell'interfaccia e, avviato direttamente, carica il worker alla prima richiesta.
+
+La simulazione live mostra le fasi di preparazione, calcolo, estrazione e
+verifica dei risultati. La barra segnala le fasi effettive, senza stimare il
+tempo rimanente. La pagina `Policy mix e incertezza` confronta 128 mix su 100
+campioni comuni: tutti i nove KPI sono disponibili nei grafici e nella
+classifica pesata. Il nuovo KPI mostra la domanda elettrica coperta dal FV
+autoconsumato al 2050. Definizioni e campionamento sono descritti nella
+[guida dedicata](docs/policy-mix-100.md).
 
 ## Rigenerare gli store pre-calcolati
 

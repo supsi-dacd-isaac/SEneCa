@@ -16,6 +16,9 @@ and never silently retried with Python. Switching the live backend does not
 replace the precomputed dataset.
 
 Release `v0.2.0` pins `data-v1.1.0`, generated from the corrected model.
+Release `v0.3.0` pins `data-v1.2.0`: 100 uncertainty samples per policy mix,
+nine indicators and the same numerical model. See the
+[completed generation report](../benchmarks/sure-production/POLICY_MIX_RESULTS.md).
 On 2026-10-14 the owner authorized data/code publication and deployment,
 including Elettra production, after reporting positive initial native Vensim
 tests. Complete native equivalence is not certified: detailed native results
@@ -32,19 +35,28 @@ The original v6 files, lifetime fallback and equipped-building demolition
 equations are preserved. Existing PySD self-reference and allocation fixes
 are applied automatically, with their hashes recorded.
 
-On Elettra, `sh scripts/prepare_pv_bounded.sh <new-run-id>` runs all gates,
-the serial/parallel pilots, all 8,171 unique simulations and the final data
-audit. It has no publication, merge or deployment step. Its final status is
-`awaiting-native-vensim-review`.
+The policy-mix update uses `sh scripts/prepare_policy_mix.sh <new-run-id>`:
+418 validation cases, serial/parallel pilots, 14,571 unique simulations and
+the final data audit. It has no publication, merge or deployment step. Its
+final status is `ready-for-release`. See the
+[100-sample procedure](policy-mix-100.md) for the input specification and
+sample identity. To reproduce the earlier 8,171-simulation release, check out
+`v0.2.0` and use its `prepare_pv_bounded.sh` and pinned 50-sample dataset.
 
 Launch from the Elettra host (choose an unused run ID). Pass the commit from
 the host because the worktree's Git administration directory is not mounted
 inside the container:
 
 ```sh
-task_source_commit=$(git -C /ssd2/elettra/seneca-julia-production rev-parse HEAD)
-docker exec -d -e SURE_SOURCE_COMMIT="$task_source_commit" seneca-julia-dev sh -c \
-  'cd /app && sh scripts/prepare_pv_bounded.sh pv-budget-004 > /runs/pv-budget-004-launch.log 2>&1'
+task_source_commit=$(git -C /ssd2/elettra/seneca-policy-mix-100 rev-parse HEAD)
+docker run -d --init --name seneca-policy-mix-100-new \
+  --cpuset-cpus=0-31 --memory=128g --memory-swap=128g \
+  -e SURE_SOURCE_COMMIT="$task_source_commit" \
+  -v /ssd2/elettra/seneca-policy-mix-100:/app \
+  -v /ssd2/elettra/seneca-runtime:/runtime \
+  -v /ssd2/elettra/seneca-runs:/runs \
+  seneca-julia-runtime:production sh -c \
+  'cd /app && sh scripts/prepare_policy_mix.sh policy-mix-100-new > /runs/policy-mix-100-new-launch.log 2>&1'
 ```
 
 Progress, exit status and memory samples are written under `/runs/<run-id>`.
@@ -61,6 +73,26 @@ so the cache can move between processors of the same architecture. This affects
 on-disk package images, not the model's in-memory JIT; see the
 [Julia 1.10 documentation](https://docs.julialang.org/en/v1.10.0/manual/environment-variables/#JULIA_CPU_TARGET).
 
+From v0.3.0 the application starts through `streamlit run server.py`.
+Its ASGI lifespan warms the shared live engine with a complete base simulation
+before the server accepts requests or reports health. `sure_live.get_engine`
+owns that single cached process, also imported by the live page; the warm-up
+result is discarded, while the compiled code stays resident. Shutdown closes
+the worker, and a failed warm-up aborts startup. The Python backend is still
+explicitly selectable and does not launch Julia. Every service restart pays
+the compilation cost once; a worker restarted after a crash must also compile
+again. Image checks prove that the first UI simulation reuses the warmed PID
+and records zero compilation time.
+
+The live page displays progress for initialization, integration, result
+extraction and validation. Annual updates describe extraction of the 2011–2050
+outputs; the integration phase is reported as a whole. The bar measures four
+completed phases, not elapsed time or a predicted finish time. Optional JSON
+events travel on the worker's existing request channel, are tied to the request
+ID and share the original absolute timeout. They do not modify the generated
+model, solver or delay callbacks. Cached results do not replay old progress
+messages, and errors clear the transient bar. Startup warms this event path too.
+
 The Julia process loads one generated model and accepts complete sets of
 40 parameters. Each request owns its initial state, delay buffers and caches.
 Results preserve the explicit dimension labels in `export.json`. The Python
@@ -70,17 +102,20 @@ directory. Model and data identity are part of the bounded web result cache.
 
 ## Elettra
 
-The worktree is `/ssd2/elettra/seneca-julia-production`, with runtime/depot in
-`/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
-The original clone in `/home/elettra/projects/SEneCa` remains on its branch.
+The current worktree is `/ssd2/elettra/seneca-policy-mix-100`, with runtime/depot
+in `/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
+The earlier model worktree is `/ssd2/elettra/seneca-julia-production`;
+`/home/elettra/projects/SEneCa` manages the production deployment on `main`.
 Use 32 separate workers, CPU affinity `0-31` (one thread per physical core),
 128 GiB memory, and one Julia/BLAS/OpenMP thread per worker. Launch the batch
 in a detached Docker container so it does not depend on an SSH connection.
 
-Inside the pinned runtime, with the repository at `/app` and results at `/runs`:
+The gated script above also installs and validates the deterministic 100-sample
+design before validation. After that preparation, the individual commands
+inside the pinned runtime, with the repository at `/app` and results at `/runs`,
+are:
 
 ```sh
-python scripts/data_release.py fetch
 julia --startup-file=no --project=sure_julia/julia -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 python -m sure_julia.targeted /runs/targeted
@@ -93,12 +128,13 @@ python -c 'from sure_julia.batch import compare_pilots; compare_pilots("/runs/pi
 python -m sure_julia.batch /runs/full --workers 32 --validation /runs/validation
 ```
 
-There are 318 validation cases and 8,179 dataset configurations, deduplicated
-to 8,171 simulations. Every result cell uses
+There are 418 validation cases and 14,579 dataset configurations, deduplicated
+to 14,571 simulations. Every result cell uses
 `abs(Julia-Python) <= 1e-10*max(1,S) + 1e-8*abs(Python)`, where S is the
 maximum absolute Python value over time for that element. Discrete values,
 labels and years are exact. Unsupported warnings and invalid values fail
-validation. The 50 existing LHS samples (seed 20261004) are retained verbatim.
+validation. The 100 LHS samples (seed 20261004) replace the former 50-sample
+design; all 128 policy mixes use the same 100 uncertainty draws.
 The translated build manifest remains immutable; validation is recorded in a
 separate certificate, checked before any regeneration starts.
 Resume requires identical build, code, parameter and sample identities and

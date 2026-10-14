@@ -13,6 +13,8 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sure_julia.common import ROOT, MODEL_REVISION, YEARS, digest, dump, read
+from pv_batteries import exploratory_config as exp
+from pv_batteries.exploratory import validate_kpi_store
 
 
 ROWS = {
@@ -21,15 +23,14 @@ ROWS = {
     "precomputed/veicoli_scenarios.parquet": 5760,
     "precomputed/elettricita_hourly.parquet": 40919040,
     "precomputed/elettricita_combo_index.parquet": 96,
-    "precomputed/exploratory_kpis.parquet": 6400,
+    "precomputed/exploratory_kpis.parquet": 12800,
     "precomputed/pv_batteries_gmd.parquet": 324,
     "precomputed/risanamento_gmd.parquet": 1215,
-    "precomputed/exploratory/uncertainty_samples.parquet": 50,
-    "provenance/scenarios.parquet": 8171,
+    "precomputed/exploratory/uncertainty_samples.parquet": 100,
+    "provenance/scenarios.parquet": 14571,
 }
 CONFIGURATIONS = {"pv_batteries": 324, "risanamento": 1215,
-                  "veicoli": 144, "elettricita": 96, "exploratory": 6400}
-SAMPLE_SHA256 = "9217a6efd03d54a4cb67dee893bd6e911761a24d1e39976d88a62f13132a3f70"
+                  "veicoli": 144, "elettricita": 96, "exploratory": 12800}
 
 
 def require(condition, message):
@@ -41,7 +42,7 @@ def verify(directory, resources=None):
     directory = Path(directory)
     release = directory / "release"
     summary, manifest = read(directory / "summary.json"), read(directory / "manifest.json")
-    require(summary["complete"] and summary["scenarios"] == 8171, "Incomplete dataset")
+    require(summary["complete"] and summary["scenarios"] == 14571, "Incomplete dataset")
     require(not list((directory / "failed").glob("*.json")), "Failed scenarios remain")
     provenance_build = read(release / "provenance/build.json")
     require(provenance_build["model"].get("model_revision") == MODEL_REVISION, "Wrong model revision")
@@ -56,7 +57,10 @@ def verify(directory, resources=None):
         require(reader.metadata.num_rows == expected, f"Incomplete rows: {name}")
         previous = ROOT / name
         if previous.exists():
-            require(set(pq.read_schema(previous).names) == set(reader.schema_arrow.names), f"Application columns differ: {name}")
+            expected_columns = set(pq.read_schema(previous).names)
+            if name == "precomputed/exploratory_kpis.parquet":
+                expected_columns |= {"pv_self_coverage", "pv_self_consumed_gwh", "electricity_demand_gwh"}
+            require(expected_columns == set(reader.schema_arrow.names), f"Application columns differ: {name}")
         for batch in reader.iter_batches(batch_size=65536):
             for field, column in zip(batch.schema, batch.columns):
                 require(column.null_count == 0, f"Missing values: {name}/{field.name}")
@@ -64,10 +68,13 @@ def verify(directory, resources=None):
                     require(field.type == pa.float64(), f"Float64 required: {name}/{field.name}")
                     require(np.isfinite(column.to_numpy()).all(), f"Nonfinite values: {name}/{field.name}")
         files[name] = {"rows": expected, "bytes": path.stat().st_size, "sha256": digest(path)}
-    require(files["precomputed/exploratory/uncertainty_samples.parquet"]["sha256"] == SAMPLE_SHA256 == manifest["sample_sha256"], "Uncertainty samples changed")
+    require(files["precomputed/exploratory/uncertainty_samples.parquet"]["sha256"] == digest(exp.SAMPLES_PATH) == manifest["sample_sha256"], "Uncertainty samples changed")
+    exp.validate_samples(pq.read_table(release / "precomputed/exploratory/uncertainty_samples.parquet").to_pandas())
+    exploratory = pq.read_table(release / "precomputed/exploratory_kpis.parquet").to_pandas()
+    validate_kpi_store(exploratory)
     rows = pq.read_table(release / "provenance/scenarios.parquet").to_pylist()
     by_id = {row["scenario_id"]: row for row in rows}
-    require(len(by_id) == 8171 == len(manifest["jobs"]), "Duplicate/missing scenarios")
+    require(len(by_id) == 14571 == len(manifest["jobs"]), "Duplicate/missing scenarios")
     require(set(by_id) == {job["id"] for job in manifest["jobs"]}, "Scenario coverage differs")
     times, negative, minimum = [], 0, 0.0
     destinations = collections.Counter()

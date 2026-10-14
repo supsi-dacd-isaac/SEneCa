@@ -28,3 +28,4 @@ Vensim/_backup_retranslate_*/
 _retranslate_*.log
 _coherence_*.log
 sure_julia/generated/
+provenance/
