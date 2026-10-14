@@ -1,0 +1,118 @@
+{
+  "model_revision": "sure-v6-pv-budget-2",
+  "pass": true,
+  "scenarios": 8171,
+  "pipeline_source_commit": "7ac1aab1b68f3b793b1ae0b1d49c19fe1c62fcdc",
+  "build_sha256": "44d1fd3177b6c28df053c71bcad7edbecd50903092b2cf87cb0ba622b1c6b8c0",
+  "data_audit_sha256": "fa59840353f7ae8e3bfb267f52734c2910decdc8656e965fcb496a7130090fb8",
+  "checks": {
+    "nonnegative:Heating Solution": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -7.105427357601002e-15,
+      "minimum_scenario": "0d8f8575b2d02e5883b106bc2af08faa0a26b5c4c60d2b7c7c0d9e091b11c2ee"
+    },
+    "nonnegative:Annual archetypes": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -3.232969447708456e-14,
+      "minimum_scenario": "81ffb04628b275a6aa1f6924ec20954ee23e05225569a1231e5575befbb75cf4"
+    },
+    "nonnegative:Total Res buildings": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": 0.0639102,
+      "minimum_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "nonnegative:Building demolition by archetype": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -1.0359780487076985e-16,
+      "minimum_scenario": "88cc7be724d0abbf083cbae6acbfbfc7e31e3d1acb6bc6f1df4326fa2501233d"
+    },
+    "nonnegative:Buildings HS Renovation From": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -1.3364294458321387e-16,
+      "minimum_scenario": "b2cb4aae02a28c85c2bb93b6317b4ae620463ee807fc7d73345cf99981d958fb"
+    },
+    "nonnegative:Buildings HS Renovation To": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -1.2782981635250053e-16,
+      "minimum_scenario": "b2cb4aae02a28c85c2bb93b6317b4ae620463ee807fc7d73345cf99981d958fb"
+    },
+    "nonnegative:Consumers leaving HS for old age": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": -5.919312244525617e-15,
+      "minimum_scenario": "2c62728a9a54f63539cd0f78d3864fef12601ffc5c6c689a20b3c6b2027168be"
+    },
+    "nonnegative:Buildings adopting HS for old age": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": 0.0,
+      "minimum_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "nonnegative:Consumers adopting PV no": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": 0.0,
+      "minimum_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "nonnegative:Consumers adopting PV yes with battery": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": 0.0,
+      "minimum_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "nonnegative:Consumers adopting RCPv yes with battery": {
+      "scenarios": 8171,
+      "failures": 0,
+      "minimum": 0.0,
+      "minimum_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "pv_source_budget": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_excess": 9.860761315262648e-32,
+      "max_excess_scenario": "9a7c8e1c4f05f509d6134a0152f3e3f4a45c83e343754ecb5d6a051d3f569c48"
+    },
+    "annual_euler": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 9.094947017729282e-13,
+      "max_abs_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "heating_transfer": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 2.8421709430404007e-13,
+      "max_abs_scenario": "0e8b38b1b9384d09dc73bb95ddab71f7b1b4081bdc88b36dcfc58761f9ceceb1"
+    },
+    "renovation_transfer": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 5.684341886080802e-14,
+      "max_abs_scenario": "000260658c6b27139004088e8c21d79a5e54d39725895f82c3a0cecbd2186c43"
+    },
+    "pv_transfer": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 1.1368683772161603e-13,
+      "max_abs_scenario": "2ce7dae0cd518190f1d145145746555ba6bc522cfc369263609601bd88a10288"
+    },
+    "fine_coarse_changes": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 1.2732925824820995e-11,
+      "max_abs_scenario": "0c643fcd988109fff23994a5abe726d45a67f5554c0e810efb1c0dd484ed286a"
+    },
+    "external_balance": {
+      "scenarios": 8171,
+      "failures": 0,
+      "max_abs": 2.9103830456733704e-11,
+      "max_abs_scenario": "529a1684ccb19f157f0939220b47b08f054a23ae3e27c6c4e99d7c5553f53a13"
+    }
+  }
+}

@@ -52,16 +52,48 @@ quantità accettata `MIN(disponibilità, richiesta totale)` e ripartisce tale
 quantità proporzionalmente. La diagnosi originale è conservata in
 `pv-budget-revision-1-diagnosis.json`. Non sono state allargate le tolleranze.
 
-## Preparazione dei dati e arresto prima del rilascio
+## Dati candidati completati e arresto prima del rilascio
 
 Esecuzione Elettra: `/ssd2/elettra/seneca-runs/pv-budget-003`.
-Validazione, isolamento e piloti sono terminati. Sono in corso le 8.171
-simulazioni distinte che coprono 8.179 configurazioni. Il container è
-limitato a 32 core e 128 GiB. La stima dal pilota è 70–90 minuti per il batch,
-seguiti dall'audit e dalla creazione del pacchetto nativo.
+Le **8.171 simulazioni distinte**, che coprono **8.179 configurazioni**, sono
+terminate senza errori. Il batch, inclusi avvio, riscaldamento e
+consolidamento, ha impiegato **4.367,69 s (72 minuti e 48 secondi)** con 32
+worker. Il picco campionato di memoria del container è stato **43,21 GiB**,
+entro il limite di 128 GiB. Nessuna compilazione dopo il riscaldamento.
 
-La procedura si arresta dopo l'audit dei dati e la preparazione del pacchetto
-per il collega, con stato `awaiting-native-vensim-review`. **Nessuna release,
+L'audit finale è superato: nove Parquet applicativi, provenienza di tutti gli
+8.171 scenari, parametri completi, anni, schemi, Float64, assenza di valori
+mancanti/non finiti e checksum verificati. La copertura comprende 324
+configurazioni FV/batterie, 1.215 risanamento, 144 veicoli, 96 elettricità e
+6.400 esplorative. I 50 campioni d'incertezza originali sono invariati.
+
+Tutti gli scenari superano i controlli fisici. Nessun peso GMD finale è negativo
+oltre l'errore numerico: il minimo al 2050 è circa `-1,62e-14`; 2.436 scenari
+presentano soltanto residui di arrotondamento. La definizione GMD preesistente
+esclude quei pesi negativi e li registra nell'audit; i valori grezzi della
+simulazione non vengono modificati. Il rapporto con tempi e checksum è
+`pv-budget-data-audit-20261014.json`.
+`pv-budget-full-physical-20261014.json` riporta gli estremi dei 18 controlli
+sull'intero batch e gli identificativi degli scenari corrispondenti. Su tutti
+gli anni, i minimi sono `-7,11e-15` per Heating Solution e `-3,23e-14` per
+Annual archetypes; tutti i controlli rimangono entro le tolleranze originali.
+
+I dati candidati si trovano su Elettra in
+`/ssd2/elettra/seneca-runs/pv-budget-003/full/release/`. Il nome della
+directory è quello di staging del generatore: non è una release pubblicata.
+
+La procedura è terminata con codice 0 e stato `awaiting-native-vensim-review`.
+Il pacchetto del collega è
+`/ssd2/elettra/seneca-runs/pv-budget-003/native-handoff.zip` (136.953.160 byte),
+SHA256 `c67f8bc4e6d543840efaa8f016a064e2729acf04a6d2f2736d7aea4ac858c287`.
+Contiene sorgente corretto, input completi, calibrazione, schema degli output,
+rapporti e riferimenti numerici per le prove iniziali. I file esterni nativi
+della v6 rimangono quelli in possesso del collega.
+La copia locale in `dist/julia-production/pv-budget/native-handoff.zip` ha
+lo stesso checksum; verificati tutti i 659 file elencati nel manifest.
+L'esito è conservato in `pv-budget-handoff-20261014.json`.
+
+**Nessuna release,
 merge o deploy autorizzati prima della verifica nativa Vensim.** Il pin
 applicativo dei dati resta `data-v1.0.0`. Le istruzioni del collega sono in
 `PV_BUDGET_VENSIM.md`; l'equivalenza con il motore Vensim non è dichiarata.
