@@ -106,6 +106,8 @@ def _init_weights() -> None:
     even = 1.0 / len(cfg.KPI_ORDER)
     for key in cfg.KPI_ORDER:
         st.session_state.setdefault(f"{WEIGHT_PREFIX}{key}", _round_weight(even))
+    if _is_relative() and abs(sum(_raw_weights().values()) - 1.) > 1e-12:
+        _store_weights(_as_relative(_raw_weights(), cfg.KPI_ORDER[0]))
 
 
 def _is_relative() -> bool:
@@ -542,7 +544,6 @@ try:
 except ValueError as error:
     st.error(f"Dataset dell'analisi esplorativa non valido: {error}")
     st.stop()
-expected = cfg.n_policy_mixes() * cfg.N_SAMPLES
 if df.empty:
     st.warning(
         "Il dataset dell'analisi esplorativa non è disponibile."

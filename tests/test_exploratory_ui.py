@@ -35,6 +35,7 @@ class ExploratoryUITests(unittest.TestCase):
             app.run()
             self.assertFalse(app.exception)
             self.assertEqual(len(app.slider), 9)
+            self.assertAlmostEqual(sum(slider.value for slider in app.slider), 1.)
             app.slider(key='expl_w_pv_self_coverage').set_value(1.).run()
             self.assertFalse(app.exception)
             self.assertFalse(app.error)
