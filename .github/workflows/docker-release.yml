@@ -69,13 +69,18 @@ jobs:
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_stock_limits.py -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_chart_transitions.py -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p 'test_exploratory*.py' -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_startup.py -v
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
           mkdir -p smoke-results
           docker run --rm -v "$PWD/smoke-results:/results" --entrypoint python seneca:smoke -u -m sure_julia.smoke /results --ui
           docker run -d --name seneca-smoke -p 127.0.0.1:18501:8501 seneca:smoke
           trap 'docker rm -f seneca-smoke >/dev/null 2>&1 || true' EXIT
-          for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then exit 0; fi
+          for attempt in {1..300}; do
+            if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then
+              docker logs seneca-smoke > smoke-results/server-startup.log 2>&1
+              grep -q 'Julia worker ready:' smoke-results/server-startup.log
+              exit 0
+            fi
             sleep 2
           done
           docker logs seneca-smoke

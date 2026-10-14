@@ -38,4 +38,5 @@ LABEL org.opencontainers.image.source="https://github.com/supsi-dacd-isaac/SEneC
       org.opencontainers.image.version="${CODE_VERSION}" \
       ch.supsi.seneca.data-release="${DATA_RELEASE_TAG}"
 EXPOSE 8501
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+HEALTHCHECK --interval=15s --timeout=5s --start-period=300s --retries=3 CMD curl --fail --silent http://127.0.0.1:8501/_stcore/health || exit 1
+CMD ["streamlit", "run", "server.py", "--server.port=8501", "--server.address=0.0.0.0"]

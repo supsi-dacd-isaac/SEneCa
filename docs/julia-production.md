@@ -61,6 +61,17 @@ so the cache can move between processors of the same architecture. This affects
 on-disk package images, not the model's in-memory JIT; see the
 [Julia 1.10 documentation](https://docs.julialang.org/en/v1.10.0/manual/environment-variables/#JULIA_CPU_TARGET).
 
+The next application release starts through `streamlit run server.py`.
+Its ASGI lifespan warms the shared live engine with a complete base simulation
+before the server accepts requests or reports health. `sure_live.get_engine`
+owns that single cached process, also imported by the live page; the warm-up
+result is discarded, while the compiled code stays resident. Shutdown closes
+the worker, and a failed warm-up aborts startup. The Python backend is still
+explicitly selectable and does not launch Julia. Every service restart pays
+the compilation cost once; a worker restarted after a crash must also compile
+again. Image checks prove that the first UI simulation reuses the warmed PID
+and records zero compilation time.
+
 The Julia process loads one generated model and accepts complete sets of
 40 parameters. Each request owns its initial state, delay buffers and caches.
 Results preserve the explicit dimension labels in `export.json`. The Python

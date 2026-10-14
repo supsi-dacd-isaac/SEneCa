@@ -26,6 +26,7 @@ importlib.reload(cfg)  # evita config stale se Streamlit tiene sys.modules
 import sure_paths as paths  # noqa: E402
 import sure_pysd as sp  # noqa: E402
 import sure_backend as backend
+from sure_live import get_engine
 import elettricita_config as elec_cfg  # noqa: E402
 import explore_results_charts as erc  # noqa: E402
 import section_ui_hourly as _sui_h  # noqa: E402
@@ -80,12 +81,6 @@ def _params_fingerprint(params: dict[str, float]) -> str:
 def default_variant() -> str:
     """Traduzione piu' recente: le precedenti restano in Vensim/ solo per confronto."""
     return paths.variant()
-
-
-@st.cache_resource(show_spinner="Caricamento del modello...", max_entries=1,
-                   on_release=lambda engine: engine.close())
-def get_engine(engine_id: str):
-    return backend.load_model()
 
 
 @st.cache_data(show_spinner=False, max_entries=64)

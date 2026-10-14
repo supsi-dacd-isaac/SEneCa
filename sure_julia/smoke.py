@@ -50,7 +50,12 @@ def main():
         jl.close()
     if args.ui:
         from streamlit.testing.v1 import AppTest
+        import sure_backend as backend
+        from sure_live import get_engine
         os.environ["SURE_BACKEND"] = "julia"
+        # Use the same cached factory as server lifespan and the live page.
+        live = get_engine(backend.engine_identity())
+        warmup = dict(live.warmup)
         app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=900).run()
         app.switch_page("pages/5_Analisi_Esplorativa.py").run()
         if app.exception or app.error or len(app.dataframe[0].value) != 9:
@@ -66,6 +71,15 @@ def main():
         button.click().run(timeout=900)
         if app.exception or "exp_user_df" not in app.session_state:
             raise RuntimeError(f"Live UI failed: {app.exception}")
+        startup = {"warmup": warmup, "first_user_request": dict(live.last_timing),
+                   "same_engine": get_engine(backend.engine_identity()) is live,
+                   "same_worker": live.process.pid == warmup["worker_pid"],
+                   "no_compilation": live.last_timing["compilation_seconds"] == 0,
+                   "request_executed": live.request_id > 1}
+        startup["pass"] = all(startup[k] for k in ("same_engine", "same_worker", "no_compilation", "request_executed"))
+        dump(args.directory / "startup.json", startup)
+        if not startup["pass"]:
+            raise RuntimeError("Live UI did not reuse the precompiled worker")
         import streamlit as st
         st.cache_resource.clear()
     dump(args.directory / "summary.json", {"pass": True, "cases": list(cases), "ui": args.ui,

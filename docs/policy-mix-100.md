@@ -64,3 +64,11 @@ necessarie per pubblicare. I risultati e i log rimangono sotto
 Sono previste `data-v1.2.0` e `v0.3.0`. Prima del deploy, le immagini AMD64 e
 ARM64 devono superare i confronti numerici, i test della pagina e una
 simulazione reale. Conservare l'immagine `v0.2.0` per il rollback.
+
+La stessa release anticipa la compilazione Julia all'avvio del server.
+`streamlit run server.py` esegue una simulazione completa prima di accettare
+sessioni e richieste di salute. La pagina live usa la stessa risorsa globale,
+con richieste serializzate e reset degli stati per ciascuno scenario. I test
+verificano un unico worker per sessioni concorrenti, chiusura e propagazione
+degli errori, avvio senza browser e riuso del processo senza compilazione alla
+prima simulazione dell'utente, su entrambe le architetture delle immagini.

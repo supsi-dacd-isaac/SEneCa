@@ -52,7 +52,7 @@ pip install -r requirements.txt
 ## Avvio della webapp
 
 ```bash
-SURE_BACKEND=python streamlit run app.py
+SURE_BACKEND=python streamlit run server.py
 ```
 
 Questo comando usa l'ambiente Python installato sopra. Per Julia usare
@@ -67,7 +67,7 @@ La cartella di progetto deve essere sul `PYTHONPATH`; da Windows PowerShell:
 ```powershell
 $env:PYTHONPATH = $PWD
 $env:SURE_BACKEND = "python"
-.venv\Scripts\python.exe -m streamlit run app.py
+.venv\Scripts\python.exe -m streamlit run server.py
 ```
 
 Se il download dei dati fallisce o un checksum non corrisponde, l'avvio va
@@ -125,8 +125,15 @@ Le quattro pagine di risultati (`PV e Batterie`, `Riscaldamento e Risanamento`,
 `Veicoli`, `Elettricita'`) servono all'istante combinazioni gia' simulate: si
 scelgono le leve di policy con gli slider e il confronto con lo scenario Base e'
 immediato. `Simulazione in tempo reale` lancia invece una simulazione live su
-tutte le leve disponibili. Julia prepara il modello al primo utilizzo e
-riusa il codice compilato per gli scenari successivi.
+tutte le leve disponibili. All'avvio del server Julia esegue una simulazione
+di riscaldamento, prima che l'app accetti connessioni. Lo stesso processo
+rimane disponibile alle sessioni degli utenti e riusa il codice compilato;
+ogni scenario ricostruisce gli stati iniziali. Il costo iniziale di compilazione
+si paga quindi al riavvio del servizio. Un errore nel riscaldamento interrompe
+l'avvio, senza passare automaticamente a Python. Il controllo di salute diventa
+disponibile solo dopo questa preparazione (il container concede fino a cinque
+minuti di avvio). Usare `server.py` anche fuori da Docker; `app.py` resta lo
+script dell'interfaccia e, avviato direttamente, carica il worker alla prima richiesta.
 
 ## Rigenerare gli store pre-calcolati
 
