@@ -72,3 +72,9 @@ con richieste serializzate e reset degli stati per ciascuno scenario. I test
 verificano un unico worker per sessioni concorrenti, chiusura e propagazione
 degli errori, avvio senza browser e riuso del processo senza compilazione alla
 prima simulazione dell'utente, su entrambe le architetture delle immagini.
+
+La pagina live mostra inoltre l'avanzamento per fasi effettive: preparazione,
+simulazione, estrazione e verifica. Nella fase di estrazione segnala l'anno
+elaborato; non stima il tempo rimanente e non indica l'avanzamento annuale del
+solutore. I messaggi sono opzionali e non modificano modello, stati o risultati.
+Il batch a 32 processi continua sul proprio checkout congelato.

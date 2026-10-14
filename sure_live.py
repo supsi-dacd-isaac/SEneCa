@@ -1,6 +1,7 @@
 """One shared live engine, warmed before the server accepts user sessions."""
 import logging
 import time
+from contextvars import copy_context
 
 import streamlit as st
 
@@ -22,7 +23,7 @@ def get_engine(engine_id: str):
             # Exercise the complete live path, including initialization, annual
             # integration, physical checks and labelled output extraction. The
             # next request resets the model and keeps this compiled process.
-            engine.run(outputs=OUTPUTS, flatten=True)
+            engine.run(outputs=OUTPUTS, flatten=True, on_progress=lambda event: None)
             engine.warmup = {"seconds": time.perf_counter()-started,
                              "worker_pid": engine.process.pid,
                              "timing": dict(engine.last_timing)}
@@ -33,3 +34,16 @@ def get_engine(engine_id: str):
     except BaseException:
         engine.close()
         raise
+
+
+def run_with_progress(operation, scenario="Scenario"):
+    """Keep transient UI updates outside the cached result's replay context."""
+    from sure_julia.progress import label
+    bar = st.progress(0., text=f"{scenario}: in attesa della simulazione…")
+    context = copy_context()
+    def update(event):
+        bar.progress(event["value"], text=f"{scenario}: {label(event)}")
+    try:
+        return operation(lambda event: context.run(update, event))
+    finally:
+        bar.empty()

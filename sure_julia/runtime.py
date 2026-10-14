@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 import numpy as np
@@ -57,9 +58,9 @@ class JuliaBackend:
         self.last_timing = None
         atexit.register(self.close)
 
-    def _receive(self):
+    def _receive(self, timeout=None):
         try:
-            value = self.messages.get(timeout=self.timeout)
+            value = self.messages.get(timeout=self.timeout if timeout is None else max(0., timeout))
         except queue.Empty:
             self.close()
             raise TimeoutError(f"Julia request exceeded {self.timeout} seconds") from None
@@ -100,7 +101,7 @@ class JuliaBackend:
             raise RuntimeError(f"Julia initialization failed: {ready}")
         self.load_timing = ready
 
-    def run_arrays(self, scenario=None, outputs=None):
+    def run_arrays(self, scenario=None, outputs=None, *, on_progress=None):
         params = parameters(scenario)
         catalog = {v["name"]: v for v in self.export}
         names = list(outputs or catalog)
@@ -112,19 +113,44 @@ class JuliaBackend:
         with self.lock, tempfile.TemporaryDirectory(prefix="sure-result-") as temporary:
             self._start()
             self.request_id += 1
-            job = {"id": self.request_id, "parameters": params, "outputs": names, "directory": temporary}
+            job = {"id": self.request_id, "parameters": params, "outputs": names, "directory": temporary,
+                   "progress": on_progress is not None}
             try:
                 self.process.stdin.write(json.dumps(job, allow_nan=False) + "\n")
                 self.process.stdin.flush()
             except (BrokenPipeError, OSError):
                 self.close()
                 raise RuntimeError("Julia worker exited before accepting request") from None
-            result = self._receive()
+            deadline = time.monotonic() + self.timeout
+            previous = -1.
+            try:
+                while True:
+                    remaining = deadline-time.monotonic()
+                    if remaining <= 0:
+                        raise TimeoutError(f"Julia request exceeded {self.timeout} seconds")
+                    result = self._receive(remaining)
+                    if result.get("id") != self.request_id:
+                        raise RuntimeError("Julia returned a different request identifier")
+                    if result.get("event") != "progress":
+                        break
+                    from .progress import worker_event
+                    update = worker_event(result)
+                    if on_progress is None or update["value"] < previous:
+                        raise RuntimeError("Unexpected Julia progress event")
+                    previous = update["value"]
+                    on_progress(update)
+            except BaseException:
+                # Never leave unread responses behind after cancellation or a
+                # callback failure: the next request must start a clean worker.
+                self.close()
+                raise
             if result.get("id") != self.request_id or not result.get("ok"):
                 self.close()
                 raise RuntimeError(f"Julia simulation failed: {result}")
             if result["years"] != YEARS:
                 raise ValueError("Julia returned incomplete years")
+            if on_progress:
+                on_progress({"phase": "check", "value": .75})
             arrays = {}
             for i, name in enumerate(names):
                 item = catalog[name]
@@ -138,10 +164,12 @@ class JuliaBackend:
             self.last_physical = check(arrays)
             if not self.last_physical["pass"]:
                 raise PhysicalInvariantError(self.last_physical, arrays)
+            if on_progress:
+                on_progress({"phase": "complete", "value": 1.})
             return {name: arrays[name] for name in requested}
 
-    def run(self, scenario=None, outputs=None, flatten=True):
-        arrays = self.run_arrays(scenario, outputs)
+    def run(self, scenario=None, outputs=None, flatten=True, *, on_progress=None):
+        arrays = self.run_arrays(scenario, outputs, on_progress=on_progress)
         catalog = {v["name"]: v for v in self.export}
         return frame_from_arrays(arrays, [catalog[n] for n in arrays], flatten=flatten)
 

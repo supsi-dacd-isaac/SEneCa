@@ -70,6 +70,7 @@ jobs:
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_chart_transitions.py -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p 'test_exploratory*.py' -v
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_startup.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_progress.py -v
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
           mkdir -p smoke-results
           docker run --rm -v "$PWD/smoke-results:/results" --entrypoint python seneca:smoke -u -m sure_julia.smoke /results --ui

@@ -72,6 +72,15 @@ the compilation cost once; a worker restarted after a crash must also compile
 again. Image checks prove that the first UI simulation reuses the warmed PID
 and records zero compilation time.
 
+The live page displays progress for initialization, integration, result
+extraction and validation. Annual updates describe extraction of the 2011–2050
+outputs; the integration phase is reported as a whole. The bar measures four
+completed phases, not elapsed time or a predicted finish time. Optional JSON
+events travel on the worker's existing request channel, are tied to the request
+ID and share the original absolute timeout. They do not modify the generated
+model, solver or delay callbacks. Cached results do not replay old progress
+messages, and errors clear the transient bar. Startup warms this event path too.
+
 The Julia process loads one generated model and accepts complete sets of
 40 parameters. Each request owns its initial state, delay buffers and caches.
 Results preserve the explicit dimension labels in `export.json`. The Python

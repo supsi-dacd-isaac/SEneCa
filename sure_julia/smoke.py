@@ -21,9 +21,12 @@ def main():
     cases = {"base": defaults(), "high": parameters({i.name: float(max(i.values)) for i in ALL_INPUTS}),
              "regression_negative_stock": negative_stock_regression()}
     reports = {}
+    progress_reference = {}
     try:
         for name, params in cases.items():
             a, b = py.run_arrays(params), jl.run_arrays(params)
+            if name in {"base", "high"}:
+                progress_reference[name] = b
             reports[name] = {"comparison": compare(a, b, jl.export), "python_energy": energy(a), "julia_energy": energy(b),
                              "python_physical": py.last_physical, "julia_physical": jl.last_physical,
                              "warnings": warning_review(py.warnings, read(jl.directory / "warnings.json"), py.variables),
@@ -45,6 +48,21 @@ def main():
             dump(args.directory / f"{name}.json", reports[name])
             if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings", "gmd", "exploratory_kpis")):
                 raise RuntimeError(f"Numerical smoke failed: {name}")
+        progress_report = {}
+        for name in ("base", "high"):
+            events = []
+            candidate = jl.run_arrays(cases[name], on_progress=events.append)
+            result = compare(progress_reference[name], candidate, jl.export, exact=True)
+            years = [e["year"] for e in events if e.get("year")]
+            checks = {"exact_results": result["pass"], "complete_events": len(events) == 45 and years == list(range(2011,2051)),
+                      "monotone": [e["value"] for e in events] == sorted(e["value"] for e in events),
+                      "complete": events[-1] == {"phase":"complete", "value":1.}}
+            if name == "high":
+                checks["no_compilation_after_progress_warmup"] = jl.last_timing["compilation_seconds"] == 0
+            progress_report[name] = {"checks":checks, "events":events, "timing":dict(jl.last_timing)}
+            if not all(checks.values()):
+                raise RuntimeError(f"Progress altered the simulation: {name}")
+        dump(args.directory / "progress.json", {"pass":True, "cases":progress_report})
     finally:
         py.close()
         jl.close()
