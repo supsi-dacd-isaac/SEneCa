@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent
@@ -17,6 +18,24 @@ from pv_batteries import elettricita_config as elec_cfg  # noqa: E402
 from pv_batteries import pv_batteries_config as pv_cfg  # noqa: E402
 from pv_batteries import risanamento_config as ris_cfg  # noqa: E402
 from pv_batteries import veicoli_config as vei_cfg  # noqa: E402
+
+
+# Model units; these steps apply only to live controls, not the released grids.
+LIVE_SLIDER_STEPS = {
+    "PV rebate cantonal": 0.01,
+    "FiT": 0.001,  # 0.1 Rp/kWh in the interface.
+    "Battery Rebate": 0.01,
+    "PV rebate federal": 0.01,
+    "Grant share HP": 0.01,
+    "Grant share PelletBoiler": 0.01,
+    "Grant share DH": 0.01,
+    "Retrofit incentive input": 1.0,
+    "CO2 tax": 1.0,
+    "EV charger incentive input": 50.0,
+    "CO2 coefficient ICE": 0.05,
+    "EV annual cost reduction input": 0.001,
+    "ICE fuel price input": 0.01,
+}
 
 
 @dataclass(frozen=True)
@@ -33,6 +52,18 @@ class ExploreInput:
     choice_labels: dict[float, str] | None = None
     note: str = ""
     scale: float = 1.0
+    live_step: float | None = None
+
+    @property
+    def live_values(self) -> list[float]:
+        """Fine live choices, preserving model units and categorical domains."""
+        if self.live_step is None or self.binary or self.choice_labels:
+            return self.values
+        start, end, step = (Decimal(str(v)) for v in
+                            (min(self.values), max(self.values), self.live_step))
+        if step <= 0 or (end - start) % step:
+            raise ValueError(f"Invalid live slider step for {self.name}")
+        return [float(start + n * step) for n in range(int((end - start) / step) + 1)]
 
 
 def _default(cfg, name: str) -> float:
@@ -54,6 +85,7 @@ def _inp(cfg, name: str, *, binary: bool = False, choice_labels=None,
         choice_labels=choice_labels,
         note=note or m.get("help", ""),
         scale=float(m.get("scale", 1) or 1),
+        live_step=LIVE_SLIDER_STEPS.get(name),
     )
 
 
