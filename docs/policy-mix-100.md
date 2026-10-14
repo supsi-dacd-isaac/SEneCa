@@ -61,7 +61,14 @@ fisici e l'assenza di compilazioni dopo il riscaldamento sono condizioni
 necessarie per pubblicare. I risultati e i log rimangono sotto
 `/ssd2/elettra/seneca-runs/<run-id>`.
 
-Sono previste `data-v1.2.0` e `v0.3.0`. Prima del deploy, le immagini AMD64 e
+Il run `policy-mix-100-002`, dal commit `bef0f55`, ha completato tutte le
+14.571 simulazioni e l'audit il 14 ottobre 2026. I 418 confronti e il confronto
+esatto seriale/parallelo sono passati. I sette Parquet delle altre sezioni
+sono byte-identici a `data-v1.1.0`; equazioni, input e calibrazione restano
+invariati. Tempi, checksum e copertura sono nel
+[rapporto completo](../benchmarks/sure-production/POLICY_MIX_RESULTS.md).
+
+Le versioni sono `data-v1.2.0` e `v0.3.0`. Prima del deploy, le immagini AMD64 e
 ARM64 devono superare i confronti numerici, i test della pagina e una
 simulazione reale. Conservare l'immagine `v0.2.0` per il rollback.
 

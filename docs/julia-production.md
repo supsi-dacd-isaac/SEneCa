@@ -16,6 +16,9 @@ and never silently retried with Python. Switching the live backend does not
 replace the precomputed dataset.
 
 Release `v0.2.0` pins `data-v1.1.0`, generated from the corrected model.
+Release `v0.3.0` pins `data-v1.2.0`: 100 uncertainty samples per policy mix,
+nine indicators and the same numerical model. See the
+[completed generation report](../benchmarks/sure-production/POLICY_MIX_RESULTS.md).
 On 2026-10-14 the owner authorized data/code publication and deployment,
 including Elettra production, after reporting positive initial native Vensim
 tests. Complete native equivalence is not certified: detailed native results
@@ -70,7 +73,7 @@ so the cache can move between processors of the same architecture. This affects
 on-disk package images, not the model's in-memory JIT; see the
 [Julia 1.10 documentation](https://docs.julialang.org/en/v1.10.0/manual/environment-variables/#JULIA_CPU_TARGET).
 
-The next application release starts through `streamlit run server.py`.
+From v0.3.0 the application starts through `streamlit run server.py`.
 Its ASGI lifespan warms the shared live engine with a complete base simulation
 before the server accepts requests or reports health. `sure_live.get_engine`
 owns that single cached process, also imported by the live page; the warm-up
