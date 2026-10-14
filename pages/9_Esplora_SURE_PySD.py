@@ -109,6 +109,18 @@ def get_scenario(ui: dict[str, float], variant: str, title="Scenario") -> tuple[
 # =============================================================
 # SIDEBAR
 # =============================================================
+def reset_policy_inputs() -> None:
+    """Reset before widgets are instantiated on the next rerun."""
+    for inp in cfg.ALL_INPUTS:
+        key = f"exp_{inp.name}"
+        if inp.choice_labels and inp.default in inp.choice_labels:
+            st.session_state[key] = inp.choice_labels[inp.default]
+        elif inp.binary:
+            st.session_state[key] = "Sì" if inp.default else "No"
+        else:
+            st.session_state[key] = inp.default
+
+
 def render_sidebar() -> tuple[dict[str, float], bool, str]:
     variant = default_variant()
     paths.set_variant(variant)
@@ -137,8 +149,8 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                             label,
                             options=[inp.choice_labels[v] for v in inp.values
                                      if v in inp.choice_labels],
-                            index=list(inp.values).index(inp.default)
-                            if inp.default in inp.values else 0,
+                            index=None if key in st.session_state else
+                            (list(inp.values).index(inp.default) if inp.default in inp.values else 0),
                             disabled=True,
                             help=help_txt or "Non disponibile in PySD",
                             key=key,
@@ -146,7 +158,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                     elif inp.binary:
                         st.radio(
                             label, ("No", "Sì"),
-                            index=int(inp.default),
+                            index=None if key in st.session_state else int(inp.default),
                             horizontal=True,
                             disabled=True,
                             help=help_txt or "Non disponibile in PySD",
@@ -156,8 +168,8 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         scale = inp.scale
                         st.select_slider(
                             label,
-                            options=inp.values,
-                            value=inp.default,
+                            options=inp.live_values,
+                            value=None if key in st.session_state else inp.default,
                             format_func=lambda x, scale=scale: f"{x * scale:g}",
                             disabled=True,
                             help=help_txt or "Non disponibile in PySD",
@@ -175,14 +187,14 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         inp.default, labels[0] if labels else "")
                     idx = labels.index(default_label) if default_label in labels else 0
                     chosen = st.selectbox(
-                        label, options=labels, index=idx,
+                        label, options=labels, index=None if key in st.session_state else idx,
                         help=help_txt, key=key,
                     )
                     ui[inp.name] = float(inv[chosen])
                 elif inp.binary:
                     choice = st.radio(
                         label, ("No", "Sì"),
-                        index=int(inp.default),
+                        index=None if key in st.session_state else int(inp.default),
                         horizontal=True,
                         help=help_txt, key=key,
                     )
@@ -191,22 +203,13 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                     scale = inp.scale
                     ui[inp.name] = float(st.select_slider(
                         label,
-                        options=inp.values,
-                        value=inp.default,
+                        options=inp.live_values,
+                        value=None if key in st.session_state else inp.default,
                         format_func=lambda x, scale=scale: f"{x * scale:g}",
                         help=help_txt, key=key,
                     ))
 
-    if st.sidebar.button("Ripristina scenario base", width="stretch"):
-        for inp in cfg.ALL_INPUTS:
-            key = f"exp_{inp.name}"
-            if inp.choice_labels and inp.default in inp.choice_labels:
-                st.session_state[key] = inp.choice_labels[inp.default]
-            elif inp.binary:
-                st.session_state[key] = "Sì" if inp.default else "No"
-            else:
-                st.session_state[key] = inp.default
-        st.rerun()
+    st.sidebar.button("Ripristina scenario base", width="stretch", on_click=reset_policy_inputs)
 
     run_clicked = st.sidebar.button(
         "Simula e confronta vs base", type="primary", width="stretch",
