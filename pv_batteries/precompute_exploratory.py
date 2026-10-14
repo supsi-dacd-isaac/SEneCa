@@ -1,7 +1,7 @@
-"""Pre-calcolo delle 6400 simulazioni policy × incertezza.
+"""Pre-calcolo nativo Vensim delle 12800 simulazioni policy × incertezza.
 
-128 policy mix × 50 campioni LHS dei 17 parametri incerti. Per ogni run
-salva solo i KPI richiesti (tre GMD al 2050 + 5 indicatori scalari).
+128 policy mix × 100 campioni LHS dei 17 parametri incerti. Per ogni run
+salva nove KPI e le due componenti della copertura FV al 2050.
 
 Esempi:
     .\\.venv\\Scripts\\python.exe pv_batteries\\precompute_exploratory.py --probe
@@ -34,8 +34,9 @@ from exploratory_config import (  # noqa: E402
     CANTONAL_FUNDS_VAR, CANTONAL_SPEND_START, CONSOLIDATED_KPIS,
     EXPLORATORY_SWITCH, FINAL_YEAR, GMD_SPEC, GMD_VARS, KPI_ORDER, N_SAMPLES,
     POLICY_ORDER, RUN_NAME, SAMPLES_PATH, SCALAR_OUTPUTS, STORE_DIR, VPMX,
-    YEARS, all_policy_combos, load_or_create_samples, n_policy_mixes,
+    YEARS, SC_NUMERATOR, SC_DENOMINATOR, all_policy_combos, load_or_create_samples, n_policy_mixes,
 )
+from pv_batteries.exploratory_kpis import pv_self_coverage
 from gmd import compute_gmd_from_spec  # noqa: E402
 from vensim_runner import VensimModel  # noqa: E402
 
@@ -92,7 +93,7 @@ def _save_part(worker_id: int, df: pd.DataFrame) -> None:
 
 def _build_expand_cache(model: VensimModel) -> dict[str, list[str]]:
     cache: dict[str, list[str]] = {}
-    for base in list(SCALAR_OUTPUTS.values()) + [CANTONAL_FUNDS_VAR] + list(GMD_VARS):
+    for base in list(SCALAR_OUTPUTS.values()) + [CANTONAL_FUNDS_VAR, SC_NUMERATOR, SC_DENOMINATOR] + list(GMD_VARS):
         cache[base] = model.expand_var(base)
     return cache
 
@@ -175,7 +176,13 @@ def _extract_kpis(model: VensimModel, expand_cache: dict[str, list[str]]) -> dic
         scalars["cantonal_spend"] = float(sum(funds[yr] for yr in years))
         completed = True
 
-    out = {**gmd, **scalars, "completed": float(completed)}
+    ratio, numerator, denominator = pv_self_coverage(
+        _read_val(model, expand_cache[SC_NUMERATOR][0]),
+        [_read_val(model, full) for full in expand_cache[SC_DENOMINATOR]],
+    )
+    out = {**gmd, **scalars, "pv_self_coverage": ratio,
+           "pv_self_consumed_gwh": numerator, "electricity_demand_gwh": denominator,
+           "completed": float(completed)}
     return out
 
 
@@ -296,7 +303,7 @@ def run_worker(args: argparse.Namespace) -> None:
     expand = _build_expand_cache(model)
     lst = work / "expl_save.lst"
     lst.write_text(
-        "\n".join(list(SCALAR_OUTPUTS.values()) + [CANTONAL_FUNDS_VAR] + list(GMD_VARS))
+        "\n".join(list(SCALAR_OUTPUTS.values()) + [CANTONAL_FUNDS_VAR, SC_NUMERATOR, SC_DENOMINATOR] + list(GMD_VARS))
         + "\n",
         encoding="ascii",
     )

@@ -1,7 +1,7 @@
 """Configurazione dell'analisi esplorativa policy × incertezza.
 
 Sorgente: foglio "Exploratory analysis" di Input and Output Streamlit.xlsx.
-7 leve a 2 livelli -> 128 policy mix; 17 parametri incerti campionati 50 volte.
+7 leve a 2 livelli -> 128 policy mix; 17 parametri incerti campionati 100 volte.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ RUN_NAME = "expl"
 YEARS = range(2011, 2051)
 FINAL_YEAR = 2050
 CANTONAL_SPEND_START = 2025
-N_SAMPLES = 50
+N_SAMPLES = 100
 SAMPLE_SEED = 20261004
 
 # Interruttore del modello: attiva Cantonal PV support / Renewable heating
@@ -181,6 +181,15 @@ KPI_SPEC: dict[str, dict] = {
         "help": "Somma 2025–2050 dei fondi cantonali per riscaldamento e "
                 "risanamento, al netto dei fondi federali della tassa CO₂.",
     },
+    "pv_self_coverage": {
+        "label": "Domanda coperta dal FV autoconsumato",
+        "unit": "%",
+        "higher_is_better": True,
+        "help": "Quota della domanda elettrica totale coperta dal FV autoconsumato "
+                "nel 2050. Rapporto tra Total PV electricity SC (GWh) e la somma "
+                "di Total annual demand Districts (kWh), convertita in GWh. "
+                "Non è la quota autoconsumata della produzione FV.",
+    },
 }
 KPI_ORDER = list(KPI_SPEC.keys())
 
@@ -191,6 +200,8 @@ SCALAR_OUTPUTS = {
     "co2_cum": "Cumulative CO2 emissions",
 }
 CANTONAL_FUNDS_VAR = "Annual cantonal funds needed"
+SC_NUMERATOR = "Total PV electricity SC"
+SC_DENOMINATOR = "Total annual demand Districts"
 
 GMD_SPEC = {
     "gmd_levy": {
@@ -223,7 +234,13 @@ def latin_hypercube(n_samples: int, n_dims: int, rng: np.random.Generator) -> np
 def build_uncertainty_samples(
     n_samples: int = N_SAMPLES, seed: int = SAMPLE_SEED,
 ) -> pd.DataFrame:
-    """50 combinazioni fisse, una per riga, uniforme (LHS) su min–max."""
+    """Campioni riproducibili, uno per riga, uniforme (LHS) su min–max.
+
+    Cambiare la numerosità rigenera l'intero disegno LHS: i 100 casi non
+    sono un'aggiunta ai 50 dello snapshot storico data-v1.1.0.
+    """
+    if n_samples < 1:
+        raise ValueError("At least one uncertainty sample is required")
     rng = np.random.default_rng(seed)
     u = latin_hypercube(n_samples, len(UNCERTAINTY_ORDER), rng)
     data: dict[str, np.ndarray] = {"sample_id": np.arange(n_samples, dtype=int)}
@@ -233,13 +250,20 @@ def build_uncertainty_samples(
     return pd.DataFrame(data)
 
 
+def validate_samples(df: pd.DataFrame) -> None:
+    """Reject stale, reordered or altered draws instead of reusing them silently."""
+    expected = build_uncertainty_samples()
+    if list(df.columns) != list(expected.columns) or not df.equals(expected):
+        raise ValueError(f"Expected the reproducible {N_SAMPLES}-sample LHS with seed {SAMPLE_SEED}")
+
+
 def load_or_create_samples(path: Path | None = None) -> pd.DataFrame:
     """Carica il campione persistito, o lo crea una tantum."""
     path = path or SAMPLES_PATH
     if path.exists():
         df = pd.read_parquet(path)
-        if len(df) == N_SAMPLES and all(c in df.columns for c in UNCERTAINTY_ORDER):
-            return df
+        validate_samples(df)
+        return df
     path.parent.mkdir(parents=True, exist_ok=True)
     df = build_uncertainty_samples()
     df.to_parquet(path, index=False)

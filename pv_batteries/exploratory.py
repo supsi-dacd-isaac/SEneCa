@@ -4,7 +4,32 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from exploratory_config import KPI_ORDER, KPI_SPEC, POLICY_ORDER
+from pv_batteries.exploratory_config import KPI_ORDER, KPI_SPEC, POLICY_ORDER, N_SAMPLES, all_policy_combos
+
+
+def validate_kpi_store(df: pd.DataFrame) -> None:
+    """Require the entire policy × sample grid before comparing policy mixes."""
+    required = {"policy_id", "sample_id", "completed", *KPI_ORDER, *POLICY_ORDER,
+                "pv_self_consumed_gwh", "electricity_demand_gwh"}
+    if missing := required - set(df.columns):
+        raise ValueError(f"Indicatori mancanti: {', '.join(sorted(missing))}")
+    combos = all_policy_combos()
+    expected = pd.MultiIndex.from_product([range(len(combos)), range(N_SAMPLES)])
+    actual = pd.MultiIndex.from_frame(df[["policy_id", "sample_id"]])
+    if len(df) != len(expected) or actual.has_duplicates or len(expected.difference(actual)):
+        raise ValueError(f"Sono richieste {len(expected)} combinazioni distinte di policy e incertezza")
+    if not np.isfinite(df[list(required)].to_numpy(dtype=float)).all() or not (df["completed"] == 1).all():
+        raise ValueError("Il dataset contiene risultati mancanti, non finiti o incompleti")
+    for pid, group in df.groupby("policy_id"):
+        if not (group[POLICY_ORDER].to_numpy() == np.array([combos[int(pid)][n] for n in POLICY_ORDER])).all():
+            raise ValueError(f"Parametri del policy mix {pid} non coerenti")
+    demand = df["electricity_demand_gwh"].to_numpy()
+    numerator = df["pv_self_consumed_gwh"].to_numpy()
+    if np.any(demand <= 0) or np.any(numerator < 0):
+        raise ValueError("Domanda o autoconsumo non validi")
+    ratio = df["pv_self_coverage"].to_numpy()
+    if not np.array_equal(ratio, numerator / demand) or np.any((ratio < 0) | (ratio > 1 + 1e-10)):
+        raise ValueError("La copertura FV non coincide con il rapporto tra autoconsumo e domanda")
 
 
 def scale_kpis(df: pd.DataFrame) -> pd.DataFrame:
@@ -33,17 +58,19 @@ def score_policy_mixes(
 ) -> pd.DataFrame:
     """Score di ogni policy mix: media pesata dei KPI, media sugli scenari.
 
-    Gli scenari di incertezza hanno tutti lo stesso peso. Righe con KPI
-    mancanti vengono escluse dalla media del mix.
+    Gli scenari di incertezza hanno tutti lo stesso peso. Valori mancanti
+    interrompono il confronto, senza selezionare solo i casi favorevoli.
     """
     w = np.array([float(weights[k]) for k in KPI_ORDER], dtype=float)
     w_sum = w.sum()
-    if w_sum <= 0:
+    if not np.isfinite(w).all() or np.any(w < 0) or w_sum <= 0:
         raise ValueError("I pesi dei KPI devono sommare a un valore positivo.")
     w = w / w_sum
 
     cols = [f"{k}_s" for k in KPI_ORDER]
-    work = scaled.dropna(subset=cols, how="any").copy()
+    if not np.isfinite(scaled[cols].to_numpy(dtype=float)).all():
+        raise ValueError("Missing or nonfinite normalized indicators")
+    work = scaled.copy()
     work["sim_score"] = work[cols].to_numpy(dtype=float) @ w
 
     rows = []

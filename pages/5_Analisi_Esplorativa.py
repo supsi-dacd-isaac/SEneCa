@@ -1,6 +1,6 @@
 """Pagina Streamlit — Analisi esplorativa policy × incertezza.
 
-I 6400 scenari sono pre-calcolati. L'utente assegna pesi ai KPI (somma = 1);
+I 12800 scenari sono pre-calcolati. L'utente assegna pesi ai KPI (somma = 1);
 la pagina ricalcola lo score di ogni policy mix e mostra i 5 migliori.
 """
 from __future__ import annotations
@@ -42,33 +42,18 @@ SUBPAGES = [SUBPAGE_INSPECT, SUBPAGE_RANK]
 SUBPAGE_KEY = "expl_subpage"
 
 
-@st.cache_data(show_spinner="Caricamento delle 6400 simulazioni...")
-def _load_kpis(path: str) -> pd.DataFrame:
-    return pd.read_parquet(path)
-
-
-@st.cache_data(show_spinner="Caricamento simulazioni parziali...")
-def _load_rows(row_dir: str, signature: tuple) -> pd.DataFrame:
-    files = sorted(Path(row_dir).glob("w*.parquet"))
-    if not files:
-        return pd.DataFrame()
-    return pd.concat([pd.read_parquet(fp) for fp in files], ignore_index=True)
+@st.cache_data(show_spinner="Caricamento delle simulazioni...", max_entries=2)
+def _load_kpis(path: str, signature: tuple) -> pd.DataFrame:
+    frame = pd.read_parquet(path)
+    expl.validate_kpi_store(frame)
+    return frame
 
 
 def _load_store() -> pd.DataFrame:
     if cfg.CONSOLIDATED_KPIS.exists():
-        return _load_kpis(str(cfg.CONSOLIDATED_KPIS))
-    part_dir = cfg.STORE_DIR / "parts"
-    if not part_dir.exists():
-        return pd.DataFrame()
-    files = list(part_dir.glob("w*.parquet"))
-    if not files:
-        return pd.DataFrame()
-    signature = tuple(
-        (fp.name, int(fp.stat().st_mtime), int(fp.stat().st_size))
-        for fp in sorted(files)
-    )
-    return _load_rows(str(part_dir), signature)
+        stat = cfg.CONSOLIDATED_KPIS.stat()
+        return _load_kpis(str(cfg.CONSOLIDATED_KPIS), (stat.st_mtime_ns, stat.st_size))
+    return pd.DataFrame()
 
 
 def _round_weight(value: float) -> float:
@@ -272,6 +257,7 @@ RADAR_LABELS = {
     "net_consumption": "Consumo\nnetto",
     "co2_cum": "Emissioni\nCO₂",
     "cantonal_spend": "Spesa\ncantonale",
+    "pv_self_coverage": "Copertura\nFV autoconsumato",
 }
 
 
@@ -344,6 +330,19 @@ def _render_inspect_mix(scaled: pd.DataFrame) -> None:
             chart_key="expl_policy_boxplot",
             height=520,
         )
+    st.subheader("Valori degli indicatori")
+    st.caption("Mediana e intervallo P10–P90 sui 100 scenari. Gli indicatori annuali si riferiscono al 2050; "
+               "emissioni e spesa cantonale sono cumulati secondo le definizioni riportate sotto.")
+    rows = []
+    for key in cfg.KPI_ORDER:
+        spec = cfg.KPI_SPEC[key]
+        values = subset[key] * (100 if spec["unit"] == "%" else 1)
+        p10, median, p90 = values.quantile([.1, .5, .9])
+        rows.append({"Indicatore": spec["label"], "Unità": spec["unit"],
+                     "P10": p10, "Mediana": median, "P90": p90})
+    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch",
+                 column_config={name: st.column_config.NumberColumn(format="%.3f")
+                                for name in ("P10", "Mediana", "P90")})
 
 
 def _render_best_mixes(scaled: pd.DataFrame) -> None:
@@ -398,14 +397,14 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
             st.markdown(
                 "Per ogni simulazione il vettore dei KPI scalati viene moltiplicato "
                 "per i pesi. Lo **score di un policy mix** è la media di questi "
-                "valori sui 50 scenari di incertezza, tutti con lo stesso peso:"
+                f"valori sui {cfg.N_SAMPLES} scenari di incertezza, tutti con lo stesso peso:"
             )
             st.latex(
                 r"\mathrm{score}_p = \frac{1}{S}\sum_{s=1}^{S}\sum_{k} "
                 r"w_k\,\tilde{x}_{p,s,k}"
             )
             st.markdown(
-                r"dove $S=50$. Nello score i pesi sono riportati a somma 1. "
+                f"dove $S={cfg.N_SAMPLES}$. Nello score i pesi sono riportati a somma 1. "
                 "I cinque mix con score più alto compaiono a destra e sotto."
             )
         sub_left, sub_right = st.columns(2)
@@ -436,7 +435,7 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
         st.subheader(f"Profilo dei {TOP_N} mix migliori")
         st.caption(
             "Ogni asse è un KPI scalato (1 = migliore). I poligoni usano la "
-            "media dei 50 scenari di incertezza."
+            f"media dei {cfg.N_SAMPLES} scenari di incertezza."
         )
         _top_radar(top)
 
@@ -461,6 +460,11 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
             ["Rank", "score", "score_std", "n_samples"]
             + [cfg.POLICY_META[n]["label"] for n in cfg.POLICY_ORDER]
         )
+        for key in cfg.KPI_ORDER:
+            spec = cfg.KPI_SPEC[key]
+            label = f"{spec['label']} ({spec['unit']})"
+            show[label] = show[key] * (100 if spec["unit"] == "%" else 1)
+            keep.append(label)
         pretty = show[keep].rename(columns={
             "score": "Score", "score_std": "σ score", "n_samples": "N scenari",
         })
@@ -511,15 +515,17 @@ with col_unc.container(border=True):
     st.markdown(
         "Costi, domanda, tassi e vita utile delle tecnologie non sono noti "
         "con certezza. Lo stesso ventaglio di futuri plausibili viene "
-        "applicato a **ogni** mix, così il confronto resta equo."
+        "applicato a **ogni** mix, così il confronto resta equo. "
+        "Sono **100 campioni** di **17 parametri**, con distribuzioni uniformi "
+        "nei rispettivi limiti e campionamento Latin hypercube riproducibile."
     )
 with col_kpi.container(border=True):
     st.markdown("#### :material/analytics: Indicatori")
     st.markdown(
         "Per ogni combinazione di policy mix e scenario di incertezza "
-        "si calcolano **8 KPI**: costi (famiglia e spesa cantonale), "
+        "si calcolano **9 KPI**: costi (famiglia e spesa cantonale), "
         "**equità distributiva** (levy, tassa CO₂, costo) ed **emissioni**, "
-        "        insieme a produzione PV e consumo netto."
+        "insieme a produzione PV, consumo netto e domanda coperta dal FV autoconsumato."
     )
 
 st.session_state.setdefault(SUBPAGE_KEY, SUBPAGES[0])
@@ -531,31 +537,25 @@ choice = st.segmented_control(
 )
 active = choice or SUBPAGES[0]
 
-df = _load_store()
+try:
+    df = _load_store()
+except ValueError as error:
+    st.error(f"Dataset dell'analisi esplorativa non valido: {error}")
+    st.stop()
 expected = cfg.n_policy_mixes() * cfg.N_SAMPLES
 if df.empty:
     st.warning(
-        "Store dell'analisi esplorativa non trovato. Esegui "
-        "`pv_batteries/precompute_exploratory.py` per popolare le 6400 simulazioni."
+        "Il dataset dell'analisi esplorativa non è disponibile."
     )
     st.stop()
-if len(df) < expected:
-    st.info(
-        f"Pre-calcolo in corso o incompleto: {len(df)}/{expected} simulazioni "
-        "disponibili. Il ranking usa solo i mix già completi."
-    )
-    if st.button("Ricarica risultati"):
-        st.cache_data.clear()
-        st.rerun()
-
-usable = df.dropna(subset=cfg.KPI_ORDER, how="any")
-if usable.empty:
-    st.error("Nessuna simulazione completa nello store.")
-    st.stop()
-
-scaled = expl.scale_kpis(usable)
+st.caption(f"{len(df):,} simulazioni · {cfg.n_policy_mixes()} policy mix × {cfg.N_SAMPLES} scenari di incertezza".replace(",", "."))
+scaled = expl.scale_kpis(df)
 
 if active == SUBPAGE_INSPECT:
     _render_inspect_mix(scaled)
 else:
     _render_best_mixes(scaled)
+
+with st.expander("Definizioni degli indicatori"):
+    for key in cfg.KPI_ORDER:
+        st.markdown(f"**{cfg.KPI_SPEC[key]['label']}**: {cfg.KPI_SPEC[key]['help']}")

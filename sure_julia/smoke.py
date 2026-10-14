@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from .catalog import defaults, parameters
-from .batch import configs, gmd
+from .batch import configs, gmd, exploratory_indicators
 from .common import ROOT, dump, read
 from .python_backend import PythonBackend
 from .runtime import JuliaBackend
@@ -39,8 +39,11 @@ def main():
                                 "python_weight_audit": audit_a, "julia_weight_audit": audit_b,
                                 "pass": all(abs(left[k]-right[k]) <= 1e-10*max(1, abs(left[k]))+1e-8*abs(left[k]) for k in left)})
             reports[name]["gmd"] = {"pass": all(r["pass"] for r in metrics), "rows": metrics}
+            left, right = exploratory_indicators(a, export), exploratory_indicators(b, export)
+            reports[name]["exploratory_kpis"] = {"python": left, "julia": right,
+                "pass": all(abs(left[k]-right[k]) <= 1e-10*max(1, abs(left[k]))+1e-8*abs(left[k]) for k in left)}
             dump(args.directory / f"{name}.json", reports[name])
-            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings", "gmd")):
+            if not all(reports[name][key]["pass"] for key in ("comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings", "gmd", "exploratory_kpis")):
                 raise RuntimeError(f"Numerical smoke failed: {name}")
     finally:
         py.close()
@@ -49,6 +52,13 @@ def main():
         from streamlit.testing.v1 import AppTest
         os.environ["SURE_BACKEND"] = "julia"
         app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=900).run()
+        app.switch_page("pages/5_Analisi_Esplorativa.py").run()
+        if app.exception or app.error or len(app.dataframe[0].value) != 9:
+            raise RuntimeError(f"Policy mix UI failed: {app.exception}; {app.error}")
+        app.session_state['expl_subpage'] = 'Migliori policy mix'
+        app.run()
+        if app.exception or app.error or len(app.slider) != 9:
+            raise RuntimeError(f"Policy mix ranking failed: {app.exception}; {app.error}")
         app.switch_page("pages/9_Esplora_SURE_PySD.py").run()
         if app.exception:
             raise RuntimeError(str(app.exception))

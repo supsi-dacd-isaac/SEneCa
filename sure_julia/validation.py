@@ -41,8 +41,7 @@ def cases():
         for j, value in enumerate(bounds):
             result[f"uncertainty_{i:02d}_{j}"] = parameters({name: value, exp.EXPLORATORY_SWITCH: 1})
     samples = pd.read_parquet(exp.SAMPLES_PATH)
-    if len(samples) != 50 or not set(exp.UNCERTAINTY_ORDER) <= set(samples):
-        raise ValueError("Unexpected uncertainty samples")
+    exp.validate_samples(samples)
     for which, select in [("min", min), ("max", max)]:
         policy = {k: select(v) for k, v in exp.POLICY_GRID.items()}
         for i, sample in enumerate(samples[exp.UNCERTAINTY_ORDER].to_dict("records")):
@@ -143,12 +142,20 @@ def check(job):
         a = run(PYTHON)
         b = run(JULIA)
         result = compare(a, b, JULIA.export)
+        from .batch import exploratory_indicators
+        export = {spec["name"]: spec for spec in JULIA.export}
+        kpi_python = exploratory_indicators(a, export)
+        kpi_julia = exploratory_indicators(b, export)
+        kpi_rows = [{"kpi": key, "python": value, "julia": kpi_julia[key],
+                     "pass": abs(kpi_julia[key] - value) <= 1e-10 * max(1., abs(value)) + 1e-8 * abs(value)}
+                    for key, value in kpi_python.items()]
+        report["derived_kpis"] = {"pass": all(row["pass"] for row in kpi_rows), "rows": kpi_rows}
         from .physical import check as physical_check
         report.update(comparison=result, python_energy=energy(a), julia_energy=energy(b),
                       python_physical=physical_check(a), julia_physical=physical_check(b),
                       python_timing=PYTHON.last_timing, julia_timing=JULIA.last_timing)
         report["warnings"] = warning_review(PYTHON.warnings, read(JULIA.directory / "warnings.json"), PYTHON.variables)
-        report["pass"] = all(report[k]["pass"] for k in ["comparison", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings"])
+        report["pass"] = all(report[k]["pass"] for k in ["comparison", "derived_kpis", "python_energy", "julia_energy", "python_physical", "julia_physical", "warnings"])
         if name == "base" or not report["pass"]:
             target.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(target / "python.npz", **a)

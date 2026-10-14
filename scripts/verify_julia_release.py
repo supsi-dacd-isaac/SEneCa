@@ -1,6 +1,9 @@
 """Ensure a release image uses the model that generated its pinned dataset."""
 import json
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 
 def verify(root):
@@ -21,6 +24,11 @@ def verify(root):
     for path in ("sure_julia/julia/Manifest.toml", "sure_julia/julia/Project.toml", "sure_julia/python.lock"):
         if actual["implementation"][path] != expected["implementation"][path]:
             raise ValueError(f"Runtime dependency lock differs from data generation: {path}")
+    import pandas as pd
+    from pv_batteries.exploratory import validate_kpi_store
+    from pv_batteries.exploratory_config import validate_samples
+    validate_samples(pd.read_parquet(root / 'precomputed/exploratory/uncertainty_samples.parquet'))
+    validate_kpi_store(pd.read_parquet(root / 'precomputed/exploratory_kpis.parquet'))
 
 
 if __name__ == "__main__":
