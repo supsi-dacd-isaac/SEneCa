@@ -19,12 +19,23 @@ Sorgente v6 di partenza: `9080f62`. Il sorgente originale è conservato.
 - Linux AMD64 e ARM64: simulazioni base/high/regressione e interfaccia
   Streamlit superate. Il codice Julia generato ha lo stesso checksum sulle
   due architetture. Nessuna immagine pubblicata.
+- Isolamento superato: base → high → base identico, processi nuovi identici,
+  confronto con la potatura applicativa identico, richieste concorrenti
+  isolate e recupero esatto dopo l'arresto del worker. Nessuna compilazione
+  dopo il riscaldamento.
+- Piloti seriale/parallelo: 100/100 scenari identici nei valori e nei file
+  Parquet. Totale seriale 1.281,98 s; totale parallelo 211,26 s, entrambi
+  inclusivi di avvio e riscaldamento. A caldo, mediana per scenario 11,51 s
+  in seriale (integrazione 8,67 s, estrazione 2,75 s) e 15,45 s con 32
+  processi concorrenti. Sono carichi del batch, non misure della latenza web.
 
 Il rapporto completo è `pv-budget-validation-20261014.json`; il riepilogo
 delle architetture è `pv-budget-architecture-ci-20261014.json`. La traccia
 `pv-budget-base-trace-20261014.json` riporta tutti i 40 input e tutti gli anni
 per la cella originariamente problematica: con disponibilità zero dal 2038,
 il flusso accettato e lo stock restano esattamente zero fino al 2050.
+`pv-budget-pilot-20261014.json` conserva tempi, intervalli, memoria per
+worker e identità delle prove di isolamento e della certificazione.
 
 ## Correzione e riproducibilità
 
@@ -44,9 +55,10 @@ quantità proporzionalmente. La diagnosi originale è conservata in
 ## Preparazione dei dati e arresto prima del rilascio
 
 Esecuzione Elettra: `/ssd2/elettra/seneca-runs/pv-budget-003`.
-Al momento di questo rapporto sono in corso le prove di isolamento; seguono
-i due lotti pilota da 100 scenari e le 8.171 simulazioni distinte che coprono
-8.179 configurazioni. Il container è limitato a 32 core e 128 GiB.
+Validazione, isolamento e piloti sono terminati. Sono in corso le 8.171
+simulazioni distinte che coprono 8.179 configurazioni. Il container è
+limitato a 32 core e 128 GiB. La stima dal pilota è 70–90 minuti per il batch,
+seguiti dall'audit e dalla creazione del pacchetto nativo.
 
 La procedura si arresta dopo l'audit dei dati e la preparazione del pacchetto
 per il collega, con stato `awaiting-native-vensim-review`. **Nessuna release,

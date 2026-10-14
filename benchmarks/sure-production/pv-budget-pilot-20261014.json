@@ -1,0 +1,62 @@
+{
+  "model_revision": "sure-v6-pv-budget-2",
+  "serial_parallel_exact": true,
+  "cases": 100,
+  "comparison_sha256": "68d5e53fd0b80c67d935605ecfd9571f658f1255fd8e0f0039f536eaef58e26d",
+  "isolation": {
+    "pass": true,
+    "results": {
+      "python": {
+        "base_high_base_exact": true,
+        "fresh_process_exact": true,
+        "app_pruning_exact": true
+      },
+      "julia": {
+        "base_high_base_exact": true,
+        "warm_no_compilation": true,
+        "concurrent_isolation": true,
+        "crash_recovery_exact": true,
+        "fresh_exact": true
+      }
+    }
+  },
+  "certificate_sha256": "da856d3ec7e40c2f2fbb37caec4b8fc09ea8f4dff3fb40aaf2d3396ff47e8a06",
+  "pilots": {
+    "parallel": {
+      "summary": {
+        "complete": true,
+        "scenarios": 100,
+        "seconds": 211.26146204955876,
+        "workers": 32
+      },
+      "scenario_wall_seconds": {
+        "median": 15.445347436703742,
+        "mean": 15.699804573301225,
+        "min": 12.307864857837558,
+        "max": 23.768642742186785
+      },
+      "median_integration_seconds": 11.4526403015,
+      "median_extraction_seconds": 3.661287349,
+      "max_compilation_after_warmup_seconds": 0.0,
+      "max_worker_rss_bytes": 1561780224
+    },
+    "serial": {
+      "summary": {
+        "complete": true,
+        "scenarios": 100,
+        "seconds": 1281.9815853554755,
+        "workers": 1
+      },
+      "scenario_wall_seconds": {
+        "median": 11.513372881338,
+        "mean": 11.660933002494275,
+        "min": 11.007092276588082,
+        "max": 14.226038612425327
+      },
+      "median_integration_seconds": 8.6721766435,
+      "median_extraction_seconds": 2.7501839515000004,
+      "max_compilation_after_warmup_seconds": 0.0,
+      "max_worker_rss_bytes": 1446019072
+    }
+  }
+}

@@ -91,6 +91,11 @@ segnalare questo caso esplicitamente: l'eventuale ricostruzione annuale deve
 essere motivata dalla relativa equazione. Non estendere automaticamente altre
 serie incomplete e non scartare celle o anni mancanti.
 
+I dati iniziali hanno già un piccolo scarto tra popolazione dettagliata e
+aggregata (massimo circa 0,008776 edifici nel riferimento Python). Il controllo
+richiede che questo scarto iniziale resti invariato: non normalizzare gli
+input né confondere lo scarto preesistente con una perdita nei trasferimenti.
+
 ## Pacchetto di consegna
 
 Dopo la certificazione Python–Julia, eseguire nel container:

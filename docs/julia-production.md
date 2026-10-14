@@ -34,6 +34,19 @@ the serial/parallel pilots, all 8,171 unique simulations and the final data
 audit. It has no publication, merge or deployment step. Its final status is
 `awaiting-native-vensim-review`.
 
+Launch from the Elettra host (choose an unused run ID). Pass the commit from
+the host because the worktree's Git administration directory is not mounted
+inside the container:
+
+```sh
+task_source_commit=$(git -C /ssd2/elettra/seneca-julia-production rev-parse HEAD)
+docker exec -d -e SURE_SOURCE_COMMIT="$task_source_commit" seneca-julia-dev sh -c \
+  'cd /app && sh scripts/prepare_pv_bounded.sh pv-budget-004 > /runs/pv-budget-004-launch.log 2>&1'
+```
+
+Progress, exit status and memory samples are written under `/runs/<run-id>`.
+A new directory is required; a failed gate stops all subsequent phases.
+
 Julia 1.10.12, Python 3.11.8, the translator revision and companion PySD.jl
 revision are pinned by `deploy/Dockerfile.julia-runtime`; package locks live
 in `sure_julia/`. Production translation supports the audited SURE profile,
