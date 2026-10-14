@@ -93,7 +93,9 @@ La copia locale in `dist/julia-production/pv-budget/native-handoff.zip` ha
 lo stesso checksum; verificati tutti i 659 file elencati nel manifest.
 L'esito è conservato in `pv-budget-handoff-20261014.json`.
 
-**Nessuna release,
-merge o deploy autorizzati prima della verifica nativa Vensim.** Il pin
-applicativo dei dati resta `data-v1.0.0`. Le istruzioni del collega sono in
-`PV_BUDGET_VENSIM.md`; l'equivalenza con il motore Vensim non è dichiarata.
+La preparazione si era fermata prima di release, merge e deploy. Il
+2026-10-14 il responsabile ha riferito primi test Vensim senza problemi e ha
+autorizzato la pubblicazione di `data-v1.1.0`, `v0.2.0` e il deploy anche in
+produzione su Elettra. Non sono ancora disponibili rapporti nativi completi:
+l'equivalenza con il motore Vensim non è dichiarata. Le istruzioni per
+proseguire il confronto sono in `PV_BUDGET_VENSIM.md`.

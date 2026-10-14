@@ -1,7 +1,9 @@
 # Verifica nativa della correzione PV della v6
 
 Branch: `julia-production`. Revisione del modello: `sure-v6-pv-budget-2`.
-**Release e deploy sospesi fino alla verifica del collega in Vensim.**
+Il 2026-10-14 il responsabile ha autorizzato release e deploy dopo aver
+riferito primi test nativi senza problemi. La suite nativa completa qui
+descritta resta una verifica separata; l'equivalenza Vensim non è certificata.
 
 ## Sorgente da aprire
 

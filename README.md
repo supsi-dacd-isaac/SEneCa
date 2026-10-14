@@ -9,6 +9,11 @@ bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 Il modello è sviluppato in Vensim e tradotto con
 [PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
 simulazioni live di SURE v6 con Julia; il backend Python resta selezionabile.
+La release `v0.2.0` usa il modello corretto `sure-v6-pv-budget-2` e i dati
+`data-v1.1.0`: 8.171 simulazioni distinte coprono 8.179 configurazioni.
+Il limite condiviso delle adozioni FV impedisce di prelevare edifici oltre
+la disponibilità della categoria di origine. Validazione e provenienza sono
+descritte nel [rapporto del modello corretto](benchmarks/sure-production/PV_BUDGET_RESULTS.md).
 
 ## Riconoscimenti
 

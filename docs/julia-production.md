@@ -15,9 +15,12 @@ fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
 replace the precomputed dataset.
 
-The current scope stops **before release and deployment**. The colleague must
-review the corrected native model in Vensim first. The data pin remains
-`data-v1.0.0`; newly generated datasets are candidates, not published releases.
+Release `v0.2.0` pins `data-v1.1.0`, generated from the corrected model.
+On 2026-10-14 the owner authorized data/code publication and deployment,
+including Elettra production, after reporting positive initial native Vensim
+tests. Complete native equivalence is not certified: detailed native results
+for the full suite have not been supplied. The release criteria are the
+completed Python–Julia validation, physical checks and audited regeneration.
 See [the native handoff](../benchmarks/sure-production/PV_BUDGET_VENSIM.md).
 
 `PYTHONHASHSEED=0 python -m sure_julia.pv_budget` generates both corrected MDL copies and the
@@ -249,7 +252,7 @@ Regeneration and release remain blocked. Failed arrays are saved for diagnosis
 without weakening the physical gate. The v5 targeted translator suite passes;
 neither the full v5 suite nor a replacement dataset is certified.
 
-## Current upstream v6
+## Historical upstream v6 before the shared PV budget
 
 Commit `9080f62` adds nonnegative requests for all six PV/RCP/RCPv adoption
 flows and demolition withdrawals from the six owner/renter equipped-building
@@ -258,9 +261,9 @@ uses 1,000,000 years instead of one year. CSV inputs and calibrated constants
 are byte-identical to v5. Saved scenario defaults are still overridden by
 all 40 explicit application parameters.
 
-The production profile is `sure-v6-9080f62`. Prior certificates cannot certify
-this revision. No new dataset or code release is authorized by a historical
-passing result.
+That unbounded profile was `sure-v6-9080f62`; the current production profile
+is `sure-v6-pv-budget-2`. The following failures describe the upstream model
+before the shared PV budget and do not describe the corrected release.
 
 The first three cases agree numerically in Python and Julia, and high and the
 adverse case now pass physically. Base still withdraws a small positive PV

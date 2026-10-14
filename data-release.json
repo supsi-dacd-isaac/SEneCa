@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "supsi-dacd-isaac/SEneCa",
-  "tag": "data-v1.0.0",
-  "asset": "seneca-data-v1.0.0.tar.gz",
-  "sha256": "90e6aabfcd8c8966c12e7b4826d5a274043aacc86bb2bbbc31a8871809133298"
+  "tag": "data-v1.1.0",
+  "asset": "seneca-data-v1.1.0.tar.gz",
+  "sha256": "81c529fa5ed38f00b01ec138baa65d68aac1ef58b0dfcbd986ac82f472006084"
 }
