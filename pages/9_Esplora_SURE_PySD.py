@@ -298,8 +298,7 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 st.title("Simulazione in tempo reale")
 st.caption(
     f"Simulazione live con {len(sp.OUTPUTS)} output Risultati "
-    "(PV / Risanamento / Veicoli / Elettricità). "
-    "La prima simulazione richiede anche la preparazione del motore."
+    "(PV / Risanamento / Veicoli / Elettricità)."
 )
 
 ui, run_clicked, variant = render_sidebar()
