@@ -46,8 +46,14 @@ DATA_PATHS = (
     "precomputed/risanamento_scenarios.parquet",
     "precomputed/veicoli_scenarios.parquet",
 )
+PROVENANCE_PATHS = ("provenance/scenarios.parquet", "provenance/build.json")
 TAG_RE = re.compile(r"data-v[0-9]+\.[0-9]+\.[0-9]+\Z")
 SHA_RE = re.compile(r"[0-9a-f]{64}\Z")
+
+
+def data_paths(tag: str) -> tuple[str, ...]:
+    """Keep the immutable v1.0.0 archive readable; later releases add provenance."""
+    return DATA_PATHS if tag == "data-v1.0.0" else DATA_PATHS + PROVENANCE_PATHS
 
 
 def sha256_file(path: Path) -> str:
@@ -94,7 +100,7 @@ def package_data(root: Path, output: Path, tag: str, source_commit: str) -> dict
         raise ValueError("Il tag dati deve avere forma data-vX.Y.Z")
     if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
         raise ValueError("source_commit deve essere un commit SHA completo")
-    files = [_validate_source(root, relative) for relative in DATA_PATHS]
+    files = [_validate_source(root, relative) for relative in data_paths(tag)]
     manifest = {"schema": 1, "tag": tag, "source_commit": source_commit, "files": files}
     manifest_bytes = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode()
     output.mkdir(parents=True, exist_ok=True)
@@ -141,13 +147,14 @@ def _check_manifest(manifest: dict, pin: dict, members: list[tarfile.TarInfo]) -
     if manifest.get("schema") != 1 or manifest.get("tag") != pin["tag"]:
         raise ValueError("Manifest della release dati non corrispondente al pin")
     records = manifest.get("files")
-    if not isinstance(records, list) or len(records) != len(DATA_PATHS):
+    expected_paths = data_paths(pin["tag"])
+    if not isinstance(records, list) or len(records) != len(expected_paths):
         raise ValueError("Elenco file nel manifest incompleto")
     paths = [item.get("path") for item in records if isinstance(item, dict)]
-    if len(paths) != len(DATA_PATHS) or set(paths) != set(DATA_PATHS) or len(set(paths)) != len(paths):
+    if len(paths) != len(expected_paths) or set(paths) != set(expected_paths) or len(set(paths)) != len(paths):
         raise ValueError("Elenco file nel manifest diverso da quello atteso")
     by_name = {member.name: member for member in members}
-    if len(by_name) != len(members) or set(by_name) != {"manifest.json", *DATA_PATHS}:
+    if len(by_name) != len(members) or set(by_name) != {"manifest.json", *expected_paths}:
         raise ValueError("Archivio con percorsi duplicati, mancanti o inattesi")
     if any(not member.isfile() for member in members):
         raise ValueError("L'archivio contiene link o file non regolari")
@@ -216,7 +223,8 @@ def verify_installed(destination: Path, pin: dict) -> None:
     if installed.get("tag") != pin["tag"] or installed.get("sha256") != pin["sha256"]:
         raise ValueError("Dati locali diversi dalla release pinata: esegui fetch")
     records = installed.get("files", [])
-    if len(records) != len(DATA_PATHS) or {item.get("path") for item in records} != set(DATA_PATHS):
+    expected_paths = data_paths(pin["tag"])
+    if len(records) != len(expected_paths) or {item.get("path") for item in records} != set(expected_paths):
         raise ValueError("Manifest locale incompleto")
     for item in records:
         path = destination / item["path"]

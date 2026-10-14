@@ -1,0 +1,465 @@
+{
+  "revision": "sure-v6-pv-budget-2",
+  "sources": {
+    "Vensim/SURE_pysd_v6.mdl": "6368b0b42601986c489d5c937b3c20dc071fa8d2f40c40bb94b82aae6b6a2c1f",
+    "Vensim/SURE.mdl": "4f54641e40b08c09369184be7c2fb8ee270221c7e9a8487af7f402cef5b969a5"
+  },
+  "equations": {
+    "Available PV adoption": "MAX(0, Heating Solution[District,HS,Performance,Type,PVno,Bno]/TIME STEP - MAX(0, Building demolition by archetype[District,HS,Performance,Type,PVno,Bno]) - MAX(0, Buildings HS Renovation From[District,HS,Performance,Type,PVno,Bno]))",
+    "Total PV request": "MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) + MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type])",
+    "Accepted PV adoption": "MIN(Available PV adoption[District,HS,Performance,Type], Total PV request[District,HS,Performance,Type])",
+    "Owners adopting PV": "MAX(0, Requested Owners adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Owners adopting RCP": "MAX(0, Requested Owners adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Owners adopting RCPv": "MAX(0, Requested Owners adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting PV": "MAX(0, Requested Renters adopting PV[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting RCP": "MAX(0, Requested Renters adopting RCP[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))",
+    "Renters adopting RCPv": "MAX(0, Requested Renters adopting RCPv[District,HS,Performance,Type]) * (Accepted PV adoption[District,HS,Performance,Type]/IF THEN ELSE(Total PV request[District,HS,Performance,Type]>0, Total PV request[District,HS,Performance,Type], 1))"
+  },
+  "native_engine_checked": false,
+  "python_translation_warnings": [
+    {
+      "category": "UserWarning",
+      "message": "Variable '\"Initial grant < 15 kW\"' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable '\"Initial grant > 15 kW\"' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable '\"Investment grant per kW < 15 kW\"' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable '\"Investment grant per kW > 15 kW\"' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoption Battery Type' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions DH from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions GasST from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions HPST from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions HeatPump from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions OilST from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions Pellet from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Adoptions WoodST from OS by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Annual CO2 tax archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Annual PV CAPEX' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Annual fuel cost archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Annualised HS CAPEX average' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Building construction by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Building demolition by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Buildings HS Renovation From' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Buildings HS Renovation To' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Buildings construction with battery' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'CAPEX retrofit cost' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'CO2 coefficient' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'CO2eq per km vehicle' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Carrier used cost per kWh' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Coeff High' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Coeff Low' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Coeff Moderate' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Coeff VeryLow' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Consumers adopting PV no' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Consumers adopting PV yes with battery' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Consumers adopting PV yes' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Consumers adopting RCPv yes with battery' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Consumers adopting RCPv yes' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Cost per km fuel' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Dummy HS' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Efficiency' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Grant absolute' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Ground High exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Ground Low exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Ground Moderate exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'HS Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'HT cumulative cost change' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Historical carrier cost' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Hourly exported electricity' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'House Value coefficient HT' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Hydro additional hourly supply winter' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Hydro decrese hourly supply summer' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Incentive per Tech by archetype' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Incentives by archetype from OS' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Incentives by archetype renovation' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Infrastructure Utility' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Initial Heating Solution battery' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Investment cost HS noST' is defined with different subtypes: 'Normal, with Lookup'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Lifetime' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS no incentives noDH noGas' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS no incentives noDH' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS no incentives noGas' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS noDH noGas' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS noDH' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Market Share HS noGas' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Requested Owners adopting RCP' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Requested Renters adopting RCP' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Res total construction by Perf Type District' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Residential electricity cons DHW per building' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Residential electricity cons SH per building' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit High MFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit High SFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit Low MFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit Low SFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit Moderate MFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Retrofit Moderate SFH Log Likelihood' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Roof High exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Roof Low exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Roof Moderate exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Vehicle electric consumption per km factor change' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Vehicle fuel consumption per km factor change' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Vehicle range factor change' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Wall High exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Wall Low exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    },
+    {
+      "category": "UserWarning",
+      "message": "Variable 'Wall Moderate exp' is defined with different types: 'Auxiliary, Constant'. This may cause bugs when trying to change its value or applying other methods from the pysd.py_backend.model.Model class. Running the model without modifying this variable should not cause any bug.",
+      "classification": "Unchanged v6 mixed-clause metadata warning; full simulation validation required"
+    }
+  ],
+  "python_compatibility_fixes": {
+    "fix_selfref_sure.py": "bee4ad9bd96593895c30538af72fe1e59fd97762f2be2d3c0cf5c64fa31adce1",
+    "fix_allocate_sure.py": "383c08b66397ebaa3530664364c373e5068453831371774fc9e110a5fe324c06"
+  },
+  "python_compatibility_log": [
+    "Fix self-ref su SURE_pysd_v6_pvbounded.py",
+    "Funzioni auto-referenziali corrette: 16",
+    "   building_construction_by_archetype",
+    "   historical_energy_price",
+    "   coeff_high",
+    "   coeff_moderate",
+    "   ground_moderate_scaled",
+    "   roof_moderate_scaled",
+    "   wall_moderate_scaled",
+    "   coeff_low",
+    "   coeff_verylow",
+    "   grid_charge",
+    "   total_annual_grid_upgrading_cost_by_dso",
+    "   dso_charge",
+    "   initial_dso_expenses",
+    "   ground_high_scaled",
+    "   roof_high_scaled",
+    "   wall_high_scaled",
+    "SURE_pysd_v6_pvbounded.py: ALLOCATE AVAILABLE allineato a Vensim (clip + merito rettangolare)."
+  ],
+  "unchanged_python_components": 1543,
+  "renamed_request_clauses": {
+    "Owners adopting RCP": 2,
+    "Owners adopting PV": 2,
+    "Renters adopting RCP": 2,
+    "Renters adopting PV": 2,
+    "Owners adopting RCPv": 1,
+    "Renters adopting RCPv": 1
+  },
+  "artifacts": {
+    "Vensim/SURE_pysd_v6_pvbounded.mdl": "0fdf527cdb345e9843ead7ab9a652339b9b9b21316b2c3cd66ef43b54cd3da44",
+    "Vensim/SURE_pysd_v6_pvbounded.py": "bb56f9a38519b94f5bb935a5274eceaeb72e8e6637c585bce554719ad0bfa54e",
+    "Vensim/SURE_v6_pvbounded.mdl": "99bfde1afcb230950aeb2985000e80b9b867fa11214035923847c591e82854ef"
+  }
+}

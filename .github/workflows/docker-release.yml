@@ -2,6 +2,8 @@ name: Build and publish SEneCa image
 
 "on":
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   release:
     types: [published]
 
@@ -9,111 +11,118 @@ permissions:
   contents: read
 
 jobs:
-  docker:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'release' &&
-       startsWith(github.event.release.tag_name, 'v') &&
-       !github.event.release.prerelease)
-    runs-on: ubuntu-latest
+  build:
+    if: github.event_name != 'release' || (startsWith(github.event.release.tag_name, 'v') && !github.event.release.prerelease)
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
     permissions:
       contents: read
       packages: write
     env:
       IMAGE: ghcr.io/supsi-dacd-isaac/seneca
     steps:
-      - name: Check out the exact released code without Git LFS
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
           fetch-depth: 0
           lfs: false
-
-      - name: Validate code version and data pin
-        id: versions
+      - name: Validate release identity
+        id: version
         shell: bash
         run: |
-          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
-            [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
-              echo "Release code tag must be vX.Y.Z" >&2
-              exit 1
-            }
-            git merge-base --is-ancestor HEAD origin/main || {
-              echo "Release commit must be on main" >&2
-              exit 1
-            }
-            echo "code_version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_EVENT_NAME}" == release ]]; then
+            [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+            git merge-base --is-ancestor HEAD origin/main
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           else
-            echo "code_version=dry-run" >> "$GITHUB_OUTPUT"
+            echo "tag=check-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
           fi
-          echo "data_tag=$(python3 -c 'import json; print(json.load(open("data-release.json"))["tag"])')" >> "$GITHUB_OUTPUT"
-
-      - name: Test data-release tooling
-        run: python3 -m unittest discover -s tests -p test_data_release.py -v
-
-      - name: Fetch and verify pinned data release
+          echo "data=$(python3 -c 'import json; print(json.load(open("data-release.json"))["tag"])')" >> "$GITHUB_OUTPUT"
+      - name: Fetch and verify pinned data
         run: |
           python3 scripts/data_release.py fetch
           python3 scripts/data_release.py verify
-
-      - name: Set up QEMU for ARM64
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
-
-      - name: Build and smoke-test AMD64 before publishing
-        shell: bash
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - name: Build native image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          load: true
+          tags: seneca:smoke
+          cache-from: type=gha,scope=sure-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=sure-${{ matrix.arch }}
+          build-args: |
+            CODE_VERSION=${{ steps.version.outputs.tag }}
+            DATA_RELEASE_TAG=${{ steps.version.outputs.data }}
+      - name: Unit tests and numerical simulation through the app
         run: |
-          docker buildx build --platform linux/amd64 --load \
-            --build-arg "CODE_VERSION=${{ steps.versions.outputs.code_version }}" \
-            --build-arg "DATA_RELEASE_TAG=${{ steps.versions.outputs.data_tag }}" \
-            -t seneca:smoke .
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover \
-            -s tests -p test_chart_transitions.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_data_release.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_sure_production.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_stock_limits.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_chart_transitions.py -v
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
-          docker run --rm --entrypoint python seneca:smoke -c \
-            'from pathlib import Path; import pyarrow.parquet as pq; files=list(Path("precomputed").rglob("*.parquet")); assert len(files)==9; assert all(pq.ParquetFile(f).metadata.num_rows > 0 for f in files)'
+          mkdir -p smoke-results
+          docker run --rm -v "$PWD/smoke-results:/results" --entrypoint python seneca:smoke -u -m sure_julia.smoke /results --ui
           docker run -d --name seneca-smoke -p 127.0.0.1:18501:8501 seneca:smoke
           trap 'docker rm -f seneca-smoke >/dev/null 2>&1 || true' EXIT
           for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then
-              exit 0
-            fi
-            echo "Waiting for Streamlit health ($attempt/30)"
+            if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then exit 0; fi
             sleep 2
           done
           docker logs seneca-smoke
-          echo "Streamlit health check failed" >&2
           exit 1
-
-      - name: Log in to GitHub Container Registry
+      - name: Upload numerical results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: smoke-${{ matrix.arch }}
+          path: smoke-results
+          if-no-files-found: ignore
+      - name: Log in to registry
         if: github.event_name == 'release'
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Refuse to overwrite an existing version tag
+      - name: Push tested architecture image
         if: github.event_name == 'release'
-        shell: bash
         run: |
-          if docker manifest inspect "${IMAGE}:${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            echo "Image tag already exists: ${IMAGE}:${GITHUB_REF_NAME}" >&2
+          tag="${IMAGE}:${{ steps.version.outputs.tag }}-${{ matrix.arch }}"
+          if docker manifest inspect "$tag" >/dev/null 2>&1; then
+            echo "Refusing to overwrite $tag" >&2
             exit 1
           fi
-
-      - name: Build both architectures and publish stable release
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+          docker tag seneca:smoke "$tag"
+          docker push "$tag"
+  publish:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    env:
+      IMAGE: ghcr.io/supsi-dacd-isaac/seneca
+    steps:
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name == 'release' }}
-          tags: |
-            ${{ env.IMAGE }}:${{ steps.versions.outputs.code_version }}
-            ${{ env.IMAGE }}:latest
-          build-args: |
-            CODE_VERSION=${{ steps.versions.outputs.code_version }}
-            DATA_RELEASE_TAG=${{ steps.versions.outputs.data_tag }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish immutable version and latest
+        run: |
+          if docker manifest inspect "${IMAGE}:${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Refusing to overwrite released version" >&2
+            exit 1
+          fi
+          docker buildx imagetools create --tag "${IMAGE}:${GITHUB_REF_NAME}" --tag "${IMAGE}:latest" \
+            "${IMAGE}:${GITHUB_REF_NAME}-amd64" "${IMAGE}:${GITHUB_REF_NAME}-arm64"

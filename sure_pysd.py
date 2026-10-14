@@ -116,7 +116,7 @@ SCENARIO_INPUTS = [
 ]
 
 
-def _output_closure_vars(model):
+def _output_closure_vars(model, outputs=None):
     """Chiusura non-stateful completa delle dipendenze degli OUTPUT (py names).
 
     select_submodel tiene poi solo gli stateful raggiungibili da questi.
@@ -129,7 +129,7 @@ def _output_closure_vars(model):
     def is_special(k):
         return k == "time" or k.startswith("__")
 
-    seen, stack = set(), [getkv(o, ns)[1] for o in OUTPUTS]
+    seen, stack = set(), [getkv(o, ns)[1] for o in (OUTPUTS if outputs is None else outputs)]
     while stack:
         e = stack.pop()
         if e is None or e in seen:
@@ -146,14 +146,14 @@ def _output_closure_vars(model):
     return [e for e in seen if not e.startswith("_")]
 
 
-def load_model(prune=True):
+def load_model(prune=True, outputs=None, model_path=None):
     import pysd
-    py = paths.pysd_py()
+    py = Path(model_path) if model_path is not None else paths.pysd_py()
     print(f"Caricamento modello {py.name} ...")
     model = pysd.load(str(py))
     if prune:
         n_before = len(model._dynamicstateful_elements)
-        cvars = _output_closure_vars(model)
+        cvars = _output_closure_vars(model, outputs)
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
             model.select_submodel(vars=cvars)

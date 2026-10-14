@@ -9,6 +9,11 @@ dimensione e SHA-256 di ciascun file. La prima release è
 [`data-v1.0.0`](https://github.com/supsi-dacd-isaac/SEneCa/releases/tag/data-v1.0.0),
 preparata riusando i file esistenti senza rigenerarli.
 
+Dalla release `data-v1.1.0` sono richiesti anche
+`provenance/scenarios.parquet` e `provenance/build.json`: registrano i 40
+parametri effettivi, il modello, i checksum e le evidenze della validazione.
+I sette binari Vensim restano archivi storici, distinti dai nuovi output Julia.
+
 Il download non richiede Git LFS o Vensim:
 
 ```bash
@@ -26,29 +31,28 @@ dall'asset dati allegato alla release.
 
 1. Partire da un checkout aggiornato, eseguire `fetch` per recuperare il
    precedente snapshot e sostituire solo i file che devono cambiare. Per
-   **rigenerare** risultati o binari Vensim occorre una macchina con Vensim DSS;
-   su una macchina senza Vensim si possono soltanto riusare o caricare output
-   già prodotti altrove. Verificare la correttezza scientifica dei nuovi output
-   prima di pubblicarli.
+   rigenerare gli output Julia seguire la [procedura validata](julia-production.md).
+   Vensim DSS serve per rigenerare i riferimenti nativi Vensim. Verificare la
+   correttezza scientifica dei nuovi output prima di pubblicarli.
 2. Installare `requirements.txt` e preparare un tag dati mai usato, per esempio:
 
    ```bash
-   python scripts/data_release.py pack --tag data-v1.0.1 --source-commit "$(git rev-parse HEAD)"
+   python scripts/data_release.py pack --tag data-v1.1.0 --source-commit "$(git rev-parse HEAD)"
    ```
 
-   `pack` richiede tutti i 16 file, rifiuta puntatori LFS e Parquet vuoti o
+   `pack` richiede tutti i 18 file (16 per lo snapshot storico `data-v1.0.0`), rifiuta puntatori LFS e Parquet vuoti o
    illeggibili, e produce in `dist/data-release/` l'archivio, `SHA256SUMS.txt`
    e un nuovo `data-release.json`. I percorsi dei file rimangono quelli attesi
    dal codice; se cambiano, aggiornare e testare insieme il tool e l'app.
 3. Pubblicare gli asset sullo **stesso repository**, con un tag dati nuovo:
 
    ```bash
-   gh release create data-v1.0.1 \
-     dist/data-release/seneca-data-v1.0.1.tar.gz \
+   gh release create data-v1.1.0 \
+     dist/data-release/seneca-data-v1.1.0.tar.gz \
      dist/data-release/SHA256SUMS.txt \
      --target "$(git rev-parse HEAD)" \
-     --title "SEneCa data v1.0.1" \
-     --notes "Snapshot dati v1.0.1; licenza MIT. Usare l'asset, non l'archivio sorgente automatico."
+     --title "SEneCa data v1.1.0" \
+     --notes-file dist/data-release/release-notes.md
    ```
 
    Riportare nelle note la provenienza degli output, le modifiche e il commit
@@ -68,6 +72,8 @@ default. Il deploy è manuale (`docker compose -f docker-compose.prod.yml pull`
 seguito da `up -d`). Impostare `SENECA_IMAGE_TAG=vX.Y.Z` per tenere o ripristinare
 una versione precisa. L'immagine espone nei metadati il tag della release dati
 incorporata. La chiave CARTO resta una variabile d'ambiente a runtime.
+Il rollback all'immagine `v0.1.1` richiede anche `SURE_VARIANT=v3` e
+`SURE_BACKEND=python`, coerenti con il modello contenuto in quella versione.
 
 I file LFS rimangono nella cronologia Git e sullo storage remoto, anche se non
 sono più nella versione corrente di `main`: questa migrazione non recupera la

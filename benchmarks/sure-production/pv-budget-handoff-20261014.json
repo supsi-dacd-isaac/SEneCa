@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "archive_sha256": "c67f8bc4e6d543840efaa8f016a064e2729acf04a6d2f2736d7aea4ac858c287",
+  "bytes": 136953160,
+  "verified_files": 659,
+  "native_verified": false,
+  "scenario_count": 318,
+  "parameters_per_scenario": 40,
+  "calibrated_components": 31,
+  "raw_reference_cases": [
+    "base",
+    "high",
+    "regression_negative_stock",
+    "sample_min_12"
+  ],
+  "native_model_sha256": "99bfde1afcb230950aeb2985000e80b9b867fa11214035923847c591e82854ef"
+}
