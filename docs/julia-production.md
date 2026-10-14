@@ -32,19 +32,28 @@ The original v6 files, lifetime fallback and equipped-building demolition
 equations are preserved. Existing PySD self-reference and allocation fixes
 are applied automatically, with their hashes recorded.
 
-On Elettra, `sh scripts/prepare_pv_bounded.sh <new-run-id>` runs all gates,
-the serial/parallel pilots, all 8,171 unique simulations and the final data
-audit. It has no publication, merge or deployment step. Its final status is
-`awaiting-native-vensim-review`.
+The policy-mix update uses `sh scripts/prepare_policy_mix.sh <new-run-id>`:
+418 validation cases, serial/parallel pilots, 14,571 unique simulations and
+the final data audit. It has no publication, merge or deployment step. Its
+final status is `ready-for-release`. See the
+[100-sample procedure](policy-mix-100.md) for the input specification and
+sample identity. To reproduce the earlier 8,171-simulation release, check out
+`v0.2.0` and use its `prepare_pv_bounded.sh` and pinned 50-sample dataset.
 
 Launch from the Elettra host (choose an unused run ID). Pass the commit from
 the host because the worktree's Git administration directory is not mounted
 inside the container:
 
 ```sh
-task_source_commit=$(git -C /ssd2/elettra/seneca-julia-production rev-parse HEAD)
-docker exec -d -e SURE_SOURCE_COMMIT="$task_source_commit" seneca-julia-dev sh -c \
-  'cd /app && sh scripts/prepare_pv_bounded.sh pv-budget-004 > /runs/pv-budget-004-launch.log 2>&1'
+task_source_commit=$(git -C /ssd2/elettra/seneca-policy-mix-100 rev-parse HEAD)
+docker run -d --init --name seneca-policy-mix-100-new \
+  --cpuset-cpus=0-31 --memory=128g --memory-swap=128g \
+  -e SURE_SOURCE_COMMIT="$task_source_commit" \
+  -v /ssd2/elettra/seneca-policy-mix-100:/app \
+  -v /ssd2/elettra/seneca-runtime:/runtime \
+  -v /ssd2/elettra/seneca-runs:/runs \
+  seneca-julia-runtime:production sh -c \
+  'cd /app && sh scripts/prepare_policy_mix.sh policy-mix-100-new > /runs/policy-mix-100-new-launch.log 2>&1'
 ```
 
 Progress, exit status and memory samples are written under `/runs/<run-id>`.
@@ -90,17 +99,20 @@ directory. Model and data identity are part of the bounded web result cache.
 
 ## Elettra
 
-The worktree is `/ssd2/elettra/seneca-julia-production`, with runtime/depot in
-`/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
-The original clone in `/home/elettra/projects/SEneCa` remains on its branch.
+The current worktree is `/ssd2/elettra/seneca-policy-mix-100`, with runtime/depot
+in `/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
+The earlier model worktree is `/ssd2/elettra/seneca-julia-production`;
+`/home/elettra/projects/SEneCa` manages the production deployment on `main`.
 Use 32 separate workers, CPU affinity `0-31` (one thread per physical core),
 128 GiB memory, and one Julia/BLAS/OpenMP thread per worker. Launch the batch
 in a detached Docker container so it does not depend on an SSH connection.
 
-Inside the pinned runtime, with the repository at `/app` and results at `/runs`:
+The gated script above also installs and validates the deterministic 100-sample
+design before validation. After that preparation, the individual commands
+inside the pinned runtime, with the repository at `/app` and results at `/runs`,
+are:
 
 ```sh
-python scripts/data_release.py fetch
 julia --startup-file=no --project=sure_julia/julia -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 python -m sure_julia.targeted /runs/targeted
@@ -113,12 +125,13 @@ python -c 'from sure_julia.batch import compare_pilots; compare_pilots("/runs/pi
 python -m sure_julia.batch /runs/full --workers 32 --validation /runs/validation
 ```
 
-There are 318 validation cases and 8,179 dataset configurations, deduplicated
-to 8,171 simulations. Every result cell uses
+There are 418 validation cases and 14,579 dataset configurations, deduplicated
+to 14,571 simulations. Every result cell uses
 `abs(Julia-Python) <= 1e-10*max(1,S) + 1e-8*abs(Python)`, where S is the
 maximum absolute Python value over time for that element. Discrete values,
 labels and years are exact. Unsupported warnings and invalid values fail
-validation. The 50 existing LHS samples (seed 20261004) are retained verbatim.
+validation. The 100 LHS samples (seed 20261004) replace the former 50-sample
+design; all 128 policy mixes use the same 100 uncertainty draws.
 The translated build manifest remains immutable; validation is recorded in a
 separate certificate, checked before any regeneration starts.
 Resume requires identical build, code, parameter and sample identities and
