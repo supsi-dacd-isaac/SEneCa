@@ -88,9 +88,11 @@ jobs:
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_progress.py -v
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
           mkdir -p smoke-results
-          docker run --rm -v "$PWD/smoke-results:/results" --entrypoint python seneca:smoke -u -m sure_julia.smoke /results --ui
+          # Warm the independent HTTP server while numerical/UI checks run.
+          # Both checks must still succeed before this image can be published.
           docker run -d --name seneca-smoke -p 127.0.0.1:18501:8501 seneca:smoke
           trap 'docker rm -f seneca-smoke >/dev/null 2>&1 || true' EXIT
+          docker run --rm -v "$PWD/smoke-results:/results" --entrypoint python seneca:smoke -u -m sure_julia.smoke /results --ui
           for ((attempt=0; attempt<300; attempt++)); do
             if curl --fail --silent http://127.0.0.1:18501/_stcore/health; then
               docker logs seneca-smoke > smoke-results/server-startup.log 2>&1
