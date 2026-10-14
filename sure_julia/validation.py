@@ -86,6 +86,18 @@ def energy(arrays):
     return {"pass": not bool(bad.any()), "failures": int(bad.sum()), "max_abs": float(error.max())}
 
 
+def compare_kpis(reference, candidate):
+    """Return JSON-safe results even when derived indicators use NumPy scalars."""
+    if set(reference) != set(candidate):
+        return {"pass": False, "reason": "KPI sets differ"}
+    rows = []
+    for key, value in reference.items():
+        a, b = float(value), float(candidate[key])
+        passed = np.isfinite(a) and np.isfinite(b) and abs(b-a) <= 1e-10 * max(1., abs(a)) + 1e-8 * abs(a)
+        rows.append({"kpi": key, "python": a, "julia": b, "pass": bool(passed)})
+    return {"pass": bool(rows) and all(row["pass"] for row in rows), "rows": rows}
+
+
 def warning_review(messages, translation, variables):
     def interpolation_key(message):
         if "Data value missing or non-valid" not in message or "filled with the interpolation method" not in message:
@@ -146,10 +158,7 @@ def check(job):
         export = {spec["name"]: spec for spec in JULIA.export}
         kpi_python = exploratory_indicators(a, export)
         kpi_julia = exploratory_indicators(b, export)
-        kpi_rows = [{"kpi": key, "python": value, "julia": kpi_julia[key],
-                     "pass": abs(kpi_julia[key] - value) <= 1e-10 * max(1., abs(value)) + 1e-8 * abs(value)}
-                    for key, value in kpi_python.items()]
-        report["derived_kpis"] = {"pass": all(row["pass"] for row in kpi_rows), "rows": kpi_rows}
+        report["derived_kpis"] = compare_kpis(kpi_python, kpi_julia)
         from .physical import check as physical_check
         report.update(comparison=result, python_energy=energy(a), julia_energy=energy(b),
                       python_physical=physical_check(a), julia_physical=physical_check(b),

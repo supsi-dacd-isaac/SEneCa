@@ -26,6 +26,15 @@ def synthetic_store():
 
 
 class ExploratoryTests(unittest.TestCase):
+    def test_numpy_kpi_comparisons_can_be_saved_as_strict_json(self):
+        import json
+        from sure_julia.validation import compare_kpis
+        reference = {'gmd': np.float64(.25), 'coverage': .5}
+        report = compare_kpis(reference, reference)
+        self.assertTrue(json.loads(json.dumps(report, allow_nan=False))['pass'])
+        self.assertFalse(compare_kpis(reference, {**reference, 'gmd': np.float64(.3)})['pass'])
+        self.assertFalse(compare_kpis(reference, {'gmd': .25})['pass'])
+
     def test_inputs_match_the_workbook(self):
         workbook = openpyxl.load_workbook(cfg.ROOT / 'Input and Output Streamlit.xlsx', read_only=True, data_only=True)
         try:
