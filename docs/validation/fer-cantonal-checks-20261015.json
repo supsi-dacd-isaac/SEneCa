@@ -1,0 +1,273 @@
+{
+  "baseline_commit": "3017fe41dc10107ee40a29908d07feb572f4de73",
+  "status": "native_candidate_awaiting_recalibration",
+  "pysd_version": "3.14.3",
+  "full_sure_simulations_run": false,
+  "native_vensim_execution": false,
+  "source_checks": {
+    "SURE.mdl": {
+      "before_sha256": "4f54641e40b08c09369184be7c2fb8ee270221c7e9a8487af7f402cef5b969a5",
+      "after_sha256": "24f8a520dac243e3f501dfa21f56db44bcc459143f54b87495728d2923311569",
+      "unchanged_remainder_sha256": "a37cabfda60b1543d13c7e6141caf5d19a9341fca0d66d20a038da798ad27354",
+      "only_equations_changed": [
+        "PV cantonal subsidy",
+        "PV cantonal subsidy 30 - 100 kW check",
+        "PV cantonal subsidy > 100 kW check"
+      ],
+      "units_unchanged": true,
+      "post_2026_branches_byte_identical": true,
+      "full_source_parse_pass": true
+    },
+    "SURE_v6_pvbounded.mdl": {
+      "before_sha256": "99bfde1afcb230950aeb2985000e80b9b867fa11214035923847c591e82854ef",
+      "after_sha256": "5c767d377d616ea3c305a7751b7a559d58088d3e7607b4959aafd6f1bb5555c6",
+      "unchanged_remainder_sha256": "b1af0b776345396f4b82ee59dcd51edc29763799106c14b5a089a7386ceabe85",
+      "only_equations_changed": [
+        "PV cantonal subsidy",
+        "PV cantonal subsidy 30 - 100 kW check",
+        "PV cantonal subsidy > 100 kW check"
+      ],
+      "units_unchanged": true,
+      "post_2026_branches_byte_identical": true,
+      "full_source_parse_pass": true
+    }
+  },
+  "controlled_ru_cases": [
+    {
+      "year": 2020,
+      "power_kw": 20,
+      "ru_chf": 6000,
+      "before_chf": 2000.0,
+      "after_chf": 2000.0
+    },
+    {
+      "year": 2020,
+      "power_kw": 30,
+      "ru_chf": 9000,
+      "before_chf": 3000.0,
+      "after_chf": 3000.0
+    },
+    {
+      "year": 2020,
+      "power_kw": 60,
+      "ru_chf": 18000,
+      "before_chf": 6000.0,
+      "after_chf": 6000.0
+    },
+    {
+      "year": 2020,
+      "power_kw": 100,
+      "ru_chf": 30000,
+      "before_chf": 10000.0,
+      "after_chf": 10000.0
+    },
+    {
+      "year": 2021,
+      "power_kw": 20,
+      "ru_chf": 6000,
+      "before_chf": 3000.0,
+      "after_chf": 2000.0
+    },
+    {
+      "year": 2021,
+      "power_kw": 30,
+      "ru_chf": 9000,
+      "before_chf": 4500.0,
+      "after_chf": 3000.0
+    },
+    {
+      "year": 2021,
+      "power_kw": 60,
+      "ru_chf": 18000,
+      "before_chf": 7500.0,
+      "after_chf": 6000.0
+    },
+    {
+      "year": 2021,
+      "power_kw": 100,
+      "ru_chf": 30000,
+      "before_chf": 13500.0,
+      "after_chf": 10000.0
+    },
+    {
+      "year": 2022,
+      "power_kw": 20,
+      "ru_chf": 6000,
+      "before_chf": 3000.0,
+      "after_chf": 3000.0
+    },
+    {
+      "year": 2022,
+      "power_kw": 30,
+      "ru_chf": 9000,
+      "before_chf": 4500.0,
+      "after_chf": 4500.0
+    },
+    {
+      "year": 2022,
+      "power_kw": 60,
+      "ru_chf": 18000,
+      "before_chf": 7500.0,
+      "after_chf": 7500.0
+    },
+    {
+      "year": 2022,
+      "power_kw": 100,
+      "ru_chf": 30000,
+      "before_chf": 13500.0,
+      "after_chf": 11500.0
+    },
+    {
+      "year": 2025,
+      "power_kw": 20,
+      "ru_chf": 6000,
+      "before_chf": 3000.0,
+      "after_chf": 3000.0
+    },
+    {
+      "year": 2025,
+      "power_kw": 30,
+      "ru_chf": 9000,
+      "before_chf": 4500.0,
+      "after_chf": 4500.0
+    },
+    {
+      "year": 2025,
+      "power_kw": 60,
+      "ru_chf": 18000,
+      "before_chf": 7500.0,
+      "after_chf": 7500.0
+    },
+    {
+      "year": 2025,
+      "power_kw": 100,
+      "ru_chf": 30000,
+      "before_chf": 13500.0,
+      "after_chf": 11500.0
+    }
+  ],
+  "existing_model_ru_cases": [
+    {
+      "year": 2021,
+      "power_kw": 20,
+      "category": "residential",
+      "fixed_grant_chf": 770.0,
+      "rate_chf_per_kw": 420.0,
+      "ru_chf": 9170.0,
+      "before_chf": 4585.0,
+      "after_chf": 3056.6666666666665
+    },
+    {
+      "year": 2021,
+      "power_kw": 30,
+      "category": "residential",
+      "fixed_grant_chf": 770.0,
+      "rate_chf_per_kw": 420.0,
+      "ru_chf": 13370.0,
+      "before_chf": 6685.0,
+      "after_chf": 4456.666666666667
+    },
+    {
+      "year": 2021,
+      "power_kw": 52,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 770.0,
+      "rate_chf_per_kw": 320.0,
+      "ru_chf": 17410.0,
+      "before_chf": 7030.961538461538,
+      "after_chf": 5803.333333333333
+    },
+    {
+      "year": 2021,
+      "power_kw": 60,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 770.0,
+      "rate_chf_per_kw": 320.0,
+      "ru_chf": 19970.0,
+      "before_chf": 8320.833333333334,
+      "after_chf": 6656.666666666667
+    },
+    {
+      "year": 2021,
+      "power_kw": 100,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 770.0,
+      "rate_chf_per_kw": 320.0,
+      "ru_chf": 32770.0,
+      "before_chf": 14746.5,
+      "after_chf": 10923.333333333334
+    },
+    {
+      "year": 2021,
+      "power_kw": 300,
+      "category": "> 100 kW",
+      "fixed_grant_chf": 700.0,
+      "rate_chf_per_kw": 290.0,
+      "ru_chf": 87700.0,
+      "before_chf": 42388.333333333336,
+      "after_chf": 29233.333333333332
+    },
+    {
+      "year": 2022,
+      "power_kw": 20,
+      "category": "residential",
+      "fixed_grant_chf": 385.0,
+      "rate_chf_per_kw": 420.0,
+      "ru_chf": 8785.0,
+      "before_chf": 4392.5,
+      "after_chf": 4392.5
+    },
+    {
+      "year": 2022,
+      "power_kw": 30,
+      "category": "residential",
+      "fixed_grant_chf": 385.0,
+      "rate_chf_per_kw": 420.0,
+      "ru_chf": 12985.0,
+      "before_chf": 6492.5,
+      "after_chf": 6492.5
+    },
+    {
+      "year": 2022,
+      "power_kw": 52,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 385.0,
+      "rate_chf_per_kw": 330.0,
+      "ru_chf": 17545.0,
+      "before_chf": 7085.4807692307695,
+      "after_chf": 7535.352564102564
+    },
+    {
+      "year": 2022,
+      "power_kw": 60,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 385.0,
+      "rate_chf_per_kw": 330.0,
+      "ru_chf": 20185.0,
+      "before_chf": 8410.416666666666,
+      "after_chf": 8410.416666666666
+    },
+    {
+      "year": 2022,
+      "power_kw": 100,
+      "category": "30 - 100 kW",
+      "fixed_grant_chf": 385.0,
+      "rate_chf_per_kw": 330.0,
+      "ru_chf": 33385.0,
+      "before_chf": 15023.25,
+      "after_chf": 12797.583333333334
+    },
+    {
+      "year": 2022,
+      "power_kw": 300,
+      "category": "> 100 kW",
+      "fixed_grant_chf": 350.0,
+      "rate_chf_per_kw": 270.0,
+      "ru_chf": 81350.0,
+      "before_chf": 39319.166666666664,
+      "after_chf": 28472.5
+    }
+  ],
+  "shared_pv_adoption_budget_preserved": true,
+  "unchanged_numerical_comparisons": 507
+}
