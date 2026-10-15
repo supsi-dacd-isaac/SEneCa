@@ -312,9 +312,13 @@ def render_explanation(meta: dict, explanations: dict[str, tuple[str, str]]) -> 
             st.markdown(body)
 
 
-def render_section(df, outputs, final_year, *, df_base=None, explanations=None):
+def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
+                   calibration_technology=None):
     """Disegna lineplot (kind=line, line_composite) e barplot (kind=bar) in griglia."""
     explanations = explanations or {}
+    if calibration_technology:
+        from chart_views import render_calibration_reference
+        render_calibration_reference(calibration_technology, key="ris_calibration")
     line_outs = [o for o in outputs if o["kind"] in ("line", "line_composite")]
     bar_outs = [o for o in outputs if o["kind"] == "bar"]
     # I due titoli servono solo a separare i blocchi: con un blocco solo sono rumore.

@@ -179,11 +179,18 @@ def render_annual_supplier_line(
         st.info(f"Nessun dato annuale per {meta['desc']}")
         return
 
+    from chart_views import temporal_controls, transform_series
+    start = int(annual.index.min())
+    mode, unit, note = temporal_controls({"time_basis": "flow", "unit": meta["unit"]},
+                                       f"{meta['base']}_annual_supplier", start)
+    annual = transform_series(annual, "flow", mode)
+    if mode == "cumulative":
+        title = title.replace("totale annuo", f"cumulato dal {start}")
     st.markdown(
-        f"**{title}** ({meta['unit']}) — "
+        f"**{title}** ({unit}) — "
         f"{int(cfg.YEARS.start)}-{cfg.FINAL_YEAR}"
     )
-    st.caption("Somma di tutte le ore e mesi dell'anno.")
+    st.caption(note or "Somma di tutte le ore e mesi dell'anno.")
 
     if meta.get("annual_echarts"):
         years = [int(y) for y in annual.index.tolist()]
@@ -199,11 +206,12 @@ def render_annual_supplier_line(
                 ),
                 cfg,
             )
+            annual_base = transform_series(annual_base, "flow", mode).reindex(annual.index)
             compare = _compare_from_pivot(annual_base, list(series.keys()))
         options = build_line_options(
             years,
             series,
-            unit=meta["unit"],
+            unit=unit,
             data_zoom=meta.get("annual_data_zoom", False),
             compare=compare,
         )

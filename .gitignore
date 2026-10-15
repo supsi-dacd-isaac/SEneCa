@@ -1,5 +1,7 @@
 # Ambiente virtuale locale
 .venv/
+.DS_Store
+.agents/
 dist/
 .data-release-installed.json
 
@@ -27,5 +29,7 @@ Vensim/_backup_retranslate_*/
 # Log della ritraduzione / validazione
 _retranslate_*.log
 _coherence_*.log
+coherence_report*.csv
+constants_mismatch*.csv
 sure_julia/generated/
 provenance/

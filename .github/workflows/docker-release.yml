@@ -79,13 +79,8 @@ jobs:
             DATA_RELEASE_TAG=${{ steps.version.outputs.data }}
       - name: Unit tests and numerical simulation through the app
         run: |
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_data_release.py -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_sure_production.py -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_stock_limits.py -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_chart_transitions.py -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p 'test_exploratory*.py' -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_startup.py -v
-          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -p test_live_progress.py -v
+          docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -v
+          docker run --rm --entrypoint julia seneca:smoke --startup-file=no --project=/app/sure_julia/julia tests/parametric_api.jl /app/sure_julia/generated
           docker run --rm --entrypoint python seneca:smoke scripts/data_release.py verify
           mkdir -p smoke-results
           # Warm the independent HTTP server while numerical/UI checks run.

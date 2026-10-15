@@ -93,6 +93,8 @@ OUTPUTS = [
      ]},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Consumi annuali per vettore",
+     "cumulative_title": "Consumi cumulati per vettore",
+     "time_basis": "flow",
      "legend": "bottom", "y_min": 0,
      "series": [
          {"label": "Olio", "bases": ["Annual consumption Oil"]},
@@ -109,6 +111,8 @@ OUTPUTS = [
      "legend": "bottom"},
     {"kind": "line_composite", "unit": "Mio CHF",
      "title": "Incentivi e fondi cantonali",
+     "cumulative_title": "Incentivi e fondi cantonali cumulati",
+     "time_basis": "flow",
      "explain": "incentivi", "legend": "bottom",
      "series": [
          {"label": "Risanamento", "bases": ["Annual incentives Renovation"]},

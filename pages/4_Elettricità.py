@@ -51,8 +51,8 @@ st.title("Elettricità")
 keys = _combo_keys(cfg.SECTION)
 if not keys and not cfg.CONSOLIDATED_HOURLY.exists():
     st.warning(
-        "Nessuno scenario pre-calcolato. Esegui "
-        "`pv_batteries/precompute_elettricita.py` per popolare lo store."
+        "Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release."
     )
     st.stop()
 

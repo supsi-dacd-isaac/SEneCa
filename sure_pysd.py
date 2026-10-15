@@ -92,6 +92,16 @@ def _collect_results_output_bases() -> list[str]:
 # Output di interesse = chart Risultati annuali + extra Esplora
 OUTPUTS = _collect_results_output_bases()
 
+# Gli output GMD sono già esportabili dal modello Julia di produzione.
+# Separare la richiesta live conserva il catalogo e gli artefatti del batch.
+def _live_output_bases():
+    from pv_batteries_config import GMD_VARS as pv_gmd
+    from risanamento_config import GMD_VARS as ris_gmd
+    return list(dict.fromkeys(OUTPUTS + list(pv_gmd) + list(ris_gmd)))
+
+
+LIVE_OUTPUTS = _live_output_bases()
+
 # Leve scenario allineate alle pagine Risultati (esclusi da constants_ref)
 SCENARIO_INPUTS = [
     "PV rebate cantonal",
@@ -236,9 +246,8 @@ def build_params(model, pv=0.0, fit=0.0, ec=0.0, const_params=None,
 def model_output_columns(model, cols):
     """Tiene solo gli output presenti nella traduzione PySD caricata.
 
-    Le pagine Risultati girano su Vensim e possono chiedere variabili aggiunte
-    al modello dopo l'ultima traduzione: senza questo filtro `model.run` alza
-    KeyError e si perdono anche tutti gli altri output.
+    Supporta le richieste esplicite degli strumenti di preparazione.
+    I backend dell’app verificano separatamente il contratto completo degli output.
     """
     from pysd.py_backend.utils import (
         get_key_and_value_by_insensitive_key_or_value as getkv)
@@ -284,23 +293,3 @@ def run_scenario(model, pv=0.0, fit=0.0, ec=0.0, const_params=None,
         df = model.run(**kwargs)
     df.index = np.asarray(df.index, dtype=float)
     return df
-
-
-if __name__ == "__main__":
-    import time
-
-    t0 = time.perf_counter()
-    model = load_model(prune=True)
-    print(f"load+prune: {time.perf_counter() - t0:.1f}s")
-
-    const = build_constant_params(model)
-    print(f"costanti calibrate iniettate: {len(const)}")
-
-    for hz in (2012, 2015):
-        t = time.perf_counter()
-        df = run_scenario(model, 0.0, 0.0, 0.0, const,
-                          timestamps=range(2011, hz + 1))
-        dt = time.perf_counter() - t
-        print(f"run 2011-{hz} ({hz-2011} step): {dt:.1f}s")
-    print("\nUltima riga:")
-    print(df.tail(1).T)

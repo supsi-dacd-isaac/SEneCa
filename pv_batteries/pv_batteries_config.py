@@ -100,14 +100,19 @@ INPUT_META = {
 OUTPUTS = [
     {"base": "PV residential power by Type", "kind": "line", "unit": "MW",
      "title": "Potenza PV residenziale per tipo",
+     "time_basis": "stock", "stock_label": "Potenza totale installata",
+     "annual_label": "Nuova potenza installata nell’anno",
      "type_order": BUILDING_TYPE_ORDER},
     {"kind": "line_composite", "unit": "kW",
      "title": "Potenza PV non residenziale",
+     "time_basis": "stock", "stock_label": "Potenza totale installata",
+     "annual_label": "Nuova potenza installata nell’anno",
+     "history": "pv_capacity",
+     "history_note": "Storico da PVinput.csv (2011–2024), disponibile per 30–100 e >100 kW. "
+                     "La classe <30 kW non ha una serie storica separata.",
      "series": [
-         {"label": "< 100 kW", "bases": [
-             '"Capacity PV < 30 kW total"',
-             '"Capacity PV 30 - 100 kW total"',
-         ]},
+         {"label": "< 30 kW", "bases": ['"Capacity PV < 30 kW total"']},
+         {"label": "30–100 kW", "bases": ['"Capacity PV 30 - 100 kW total"']},
          {"label": "> 100 kW", "bases": ['"Capacity PV > 100 kW total"']},
      ]},
     {"base": "Share of buildings with PV by Type", "kind": "bar", "year": 2050,
@@ -120,9 +125,11 @@ OUTPUTS = [
      "echarts": True, "scale": 100, "district_order": DISTRICT_ORDER, "y_max": 100},
     {"base": "Battery residential Type", "kind": "line", "unit": "MWh",
      "title": "Capacita' batterie residenziale per tipo",
+     "time_basis": "stock",
      "type_order": BUILDING_TYPE_ORDER},
     {"kind": "line_composite", "unit": "MWh",
      "title": "Capacita' batterie non residenziale",
+     "time_basis": "stock",
      "series": [
          {"label": "< 100 kW", "bases": ['"Total Battery capacity < 100 kW"']},
          {"label": "> 100 kW", "bases": ['"Total Battery capacity > 100 kW"']},
@@ -157,6 +164,8 @@ OUTPUTS = [
     {"base": "Annual grid upgrading cost District", "kind": "line",
      "unit": "Mio CHF", "scale": 1e-6,
      "title": "Costi di rinforzo rete per distretto",
+     "cumulative_title": "Investimenti cumulati di rinforzo rete per distretto",
+     "time_basis": "flow",
      "desc": "Investimento annuo per potenziare la rete a bassa tensione",
      "district_order": DISTRICT_ORDER, "tooltip_decimals": 2,
      "legend": "bottom", "height": 430},
@@ -168,6 +177,10 @@ OUTPUTS = [
      "tooltip_decimals": 3},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Energia PV annuale",
+     "cumulative_title": "Energia PV cumulata",
+     "time_basis": "flow", "history": "pv_production",
+     "history_note": "Produzione FV storica cantonale in GWh, disponibile fino al 2023. "
+                     "Non sono disponibili serie storiche separate per autoconsumo e immissione in rete.",
      "desc": "Totale energia prodotta, iniettata in rete e autoconsumata",
      "height": 450,
      "series": [

@@ -2,7 +2,7 @@
 from copy import deepcopy
 import unittest
 
-from scripts.julia_repro.reduction_policy import calendar_plan
+from sure_julia.translator.reduction_policy import calendar_plan
 
 
 def records():

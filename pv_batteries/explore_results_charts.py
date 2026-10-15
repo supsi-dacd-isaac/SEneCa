@@ -342,6 +342,10 @@ def render_pv_topic_sections(
     for i, group in enumerate(groups):
         if title := group.get("title"):
             st.subheader(title)
+        technology = {"Adozione fotovoltaico": "Fotovoltaico", "Adozione batterie": "Accumulatori"}.get(group.get("title"))
+        if technology:
+            from chart_views import render_calibration_reference
+            render_calibration_reference(technology, key=f"pv_{i}_{technology}")
 
         column_rows = group.get("column_rows") or (
             [group["columns"]] if group.get("columns") else []
@@ -370,6 +374,7 @@ def render_risanamento_section(
 ) -> None:
     render_section(
         df, outputs, final_year, df_base=df_base, explanations=explanations,
+        calibration_technology="Pompe di calore",
     )
 
 
@@ -444,7 +449,7 @@ def render_elettricita_from_pysd(
 ) -> None:
     """Render sezione Elettricità da DataFrame wide PySD (stessi chart Risultati)."""
     import elettricita_config as elec_cfg
-    from section_ui_hourly import render_electricity_section
+    from section_ui_hourly import render_electricity_section, render_hourly_summary_metrics
 
     if not df_has_elec_columns(df_wide):
         st.warning(
@@ -457,6 +462,13 @@ def render_elettricita_from_pysd(
     long_base = None
     if df_base_wide is not None and df_has_elec_columns(df_base_wide):
         long_base = pysd_wide_to_hourly_long(df_base_wide, elec_cfg.OUTPUT_BASES)
+
+    st.subheader(f"Indicatori principali ({elec_cfg.FINAL_YEAR})")
+    with st.expander("Cosa misurano questi indicatori"):
+        st.markdown(elec_cfg.KPI_EXPLANATION)
+    render_hourly_summary_metrics(elec_cfg.SUMMARY_METRICS, long_df,
+                                 year=elec_cfg.FINAL_YEAR, df_base=long_base)
+    st.divider()
 
     render_electricity_section(
         long_df, elec_cfg, values=None, df_base=long_base,

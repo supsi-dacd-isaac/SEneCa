@@ -1,6 +1,5 @@
 """Run the retained small-model regression fixtures against production patches."""
 import argparse
-import importlib
 from pathlib import Path
 import subprocess
 import sys
@@ -10,13 +9,9 @@ from .common import CONFIG, ROOT, digest, dump, read
 
 def prepare(directory, julia):
     if julia:
-        # Reuse audited fixture inputs, but translate with production code only.
-        for name in ("builder_patch", "external_patch", "stateful_patch", "indexing_patch", "ode_patch",
-                     "hotpath_patch", "numpy_math_patch", "lookup_patch", "reduction_policy"):
-            sys.modules[f"scripts.julia_repro.{name}"] = importlib.import_module(f"sure_julia.translator.{name}")
         from .translator.builder_patch import apply
         apply()
-    from scripts.julia_repro import fixtures, indexing_fixtures, external_fixtures, stateful_fixtures, semantic_fixtures
+    from model_checks import fixtures, indexing_fixtures, external_fixtures, stateful_fixtures, semantic_fixtures
     if julia:
         fixtures.prepare(directory)
         if not read(directory / "fixtures/translation.json")["pass"]:
@@ -28,11 +23,7 @@ def prepare(directory, julia):
         fixtures.allocation_cases(directory / "fixtures/allocation.json")
         indexing_fixtures.oracle(directory / "indexing")
         external_fixtures.oracle(directory / "external")
-        source = directory / "source"
-        source.mkdir(exist_ok=True)
-        if not (source / "Vensim").exists():
-            (source / "Vensim").symlink_to(ROOT / "Vensim", target_is_directory=True)
-        from scripts.sure_v4.fixtures import prepare as allocate
+        from model_checks.allocation_fixtures import prepare as allocate
         allocate(directory)
     stateful_fixtures.prepare(directory / "stateful", reference=not julia)
     semantic_fixtures.prepare(directory / "semantics", reference=not julia)
@@ -59,12 +50,12 @@ def main():
                                  ("semantics", "test_stateful_models.jl", "models.json")]:
         target = directory / name
         with (target / "julia.log").open("w") as log:
-            subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "benchmarks/julia-repro" / test),
+            subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "model_checks/julia" / test),
                             str(target if name in {"indexing", "external"} else target / manifest),
                             str(target / "result.json")], stdout=log, stderr=subprocess.STDOUT, check=True)
         results[name] = read(target / ("results.json" if name in {"indexing", "external"} else "result.json"))
     with (directory / "allocation.log").open("w") as log:
-        subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "benchmarks/sure-v4/test_allocation.jl"),
+        subprocess.run(["julia", "--startup-file=no", f"--project={CONFIG}", str(ROOT / "model_checks/julia/test_allocation.jl"),
                         str(directory / "allocation-fixtures.json")], stdout=log, stderr=subprocess.STDOUT, check=True)
     results["allocation"] = read(directory / "allocation-result.json")
     report = {"pass": all(v["pass"] for v in results.values()), "results": results,

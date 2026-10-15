@@ -78,10 +78,6 @@ logs/
 *.tmp
 *.temp
 
-# Historical experiments are retained in Git, never shipped to the app.
-benchmarks/
-scripts/julia_repro/
-scripts/julia_parametric/
-scripts/sure_v4/
+# Documentation evidence and local generated models are not runtime inputs.
+docs/validation/
 sure_julia/generated/
-Vensim_test_runs/

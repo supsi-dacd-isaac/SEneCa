@@ -3,12 +3,12 @@ using Test, JSON3
 
 directory = abspath(only(ARGS))
 model = Module(:ParametricContract)
-Base.include(model, joinpath(directory, "SURE_parametric.jl"))
-values = Dict(String(k) => Float64(v) for (k, v) in JSON3.read(read(joinpath(directory, "model.json"), String)).defaults)
+Base.include(model, joinpath(directory, "SURE.jl"))
+values = Dict(String(k) => Float64(v) for (k, v) in JSON3.read(read(joinpath(directory, "build.json"), String)).defaults)
 
 @testset "SURE parameter API" begin
     parameters = model.parameters_from_dict(values)
-    @test length(fieldnames(typeof(parameters))) == 20
+    @test length(fieldnames(typeof(parameters))) == 40
     @test all(==(Float64), fieldtypes(typeof(parameters)))
     @test parameters == model.DEFAULT_PARAMETERS
     @test model.parameters_from_dict(Dict(reverse(collect(values)))) == parameters

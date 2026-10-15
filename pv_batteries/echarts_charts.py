@@ -44,9 +44,19 @@ def _to_float_list(values) -> list[float | None]:
 _BASE_LINE_STYLE = {"type": "dashed", "opacity": 0.75, "width": 2}
 _BASE_ITEM_STYLE = {"opacity": 0.75}
 
-# Voci che stanno su una riga di legenda in un grafico a mezza pagina, con
-# etichette lunghe quanto i nomi dei distretti.
-_LEGEND_ITEMS_PER_ROW = 4
+def place_line_legend(options: dict) -> None:
+    """Legenda sempre sotto, con spazio separato per asse x e zoom."""
+    labels = [series["name"] for series in options["series"]]
+    zoom = bool(options.get("dataZoom"))
+    options["legend"] = {
+        "show": len(labels) > 1,
+        "top": "auto", "bottom": "9%" if zoom else 0,
+        "left": 0, "right": 0,
+        "type": "scroll" if len(labels) > 4 else "plain",
+        "data": labels,
+    }
+    # Esplicitare anche top azzera il vecchio layout durante le transizioni.
+    options.setdefault("grid", {}).update(top=60, bottom="23%" if zoom else "15%")
 
 
 def build_line_options(
@@ -58,7 +68,6 @@ def build_line_options(
     compare: dict[str, list[float | None]] | None = None,
     data_zoom: bool = False,
     area: bool = False,
-    legend_position: str = "auto",
     y_min: float | None = None,
 ) -> dict:
     """Opzioni ECharts multi-serie (smooth, legenda, toolbox)."""
@@ -93,22 +102,6 @@ def build_line_options(
                 "data": compare[label],
             })
 
-    full_legend = [s["name"] for s in echarts_series]
-    # Con molte serie (es. gli 8 distretti) la legenda in basso va a capo su piu'
-    # righe e copre l'asse x: di norma la si sposta sopra il grafico, a meno che
-    # il grafico non chieda esplicitamente di tenerla sotto la figura.
-    crowded = len(full_legend) > 4
-    legend_on_top = crowded and legend_position != "bottom"
-    if data_zoom:
-        grid_bottom = "23%"
-        legend_bottom = "9%"
-    elif compare:
-        grid_bottom = "15%"
-        legend_bottom = 0
-    else:
-        grid_bottom = "12%"
-        legend_bottom = 0
-
     options: dict = {
         "toolbox": {
             "feature": {
@@ -127,31 +120,8 @@ def build_line_options(
         "yAxis": {"type": "value", "name": unit, **(
             {} if y_min is None else {"min": y_min}
         )},
-        "grid": {"bottom": grid_bottom},
         "series": echarts_series,
     }
-    if len(full_legend) == 1:
-        # Una sola serie: la legenda ripeterebbe il titolo del grafico.
-        options["legend"] = {"show": False}
-    elif legend_on_top:
-        options["legend"] = {
-            "top": 0, "type": "scroll", "data": full_legend,
-            "padding": [0, 40],
-        }
-        options["grid"] = {"top": "18%", "bottom": grid_bottom if data_zoom else "8%"}
-    elif crowded:
-        # Legenda sotto la figura: va riservato lo spazio delle righe su cui
-        # andra' a capo, altrimenti finisce sopra l'asse x. Oltre le tre righe
-        # il grafico resterebbe schiacciato, quindi si passa alla versione
-        # sfogliabile, che occupa una riga sola.
-        rows = math.ceil(len(full_legend) / _LEGEND_ITEMS_PER_ROW)
-        options["legend"] = {"bottom": 0, "data": full_legend}
-        if rows > 3:
-            options["legend"]["type"] = "scroll"
-            rows = 1
-        options["grid"] = {"bottom": f"{12 + 7 * rows}%"}
-    else:
-        options["legend"] = {"bottom": legend_bottom, "data": full_legend}
     if data_zoom:
         options["dataZoom"] = [
             {"type": "inside", "xAxisIndex": 0},
@@ -162,6 +132,7 @@ def build_line_options(
                 "height": 22,
             },
         ]
+    place_line_legend(options)
     return options
 
 
@@ -282,6 +253,7 @@ def build_radar_options(
     finite = [p for p in pcts if p is not None]
     upper = max(120.0, max(finite) * 1.1) if finite else 120.0
     axis_max = float(int(upper / 10) * 10 + 10)
+    axis_min = min(0., math.floor(min(finite, default=0.) / 10.) * 10.)
 
     return {
         "toolbox": {
@@ -295,7 +267,7 @@ def build_radar_options(
         "legend": {"bottom": 0, "data": [series_label, base_label]},
         "radar": {
             "indicator": [
-                {"name": label, "min": 0, "max": axis_max} for label in labels
+                {"name": label, "min": axis_min, "max": axis_max} for label in labels
             ],
             "radius": "62%",
             "center": ["50%", "48%"],
@@ -577,7 +549,7 @@ def _series_from_composite(df: pd.DataFrame, meta: dict) -> dict[str, list[float
         for base in spec["bases"]:
             cols.extend(match_cols(df, base))
         if cols:
-            series[spec["label"]] = _to_float_list(df[cols].sum(axis=1).tolist())
+            series[spec["label"]] = _to_float_list(df[cols].sum(axis=1, min_count=len(cols)).tolist())
     return series
 
 
@@ -594,33 +566,52 @@ def _render_echarts_series(
     if not series:
         st.info(f"Nessun dato per '{title}'.")
         return
-    years = [int(y) for y in df.index.tolist()]
+    from chart_views import (add_historical_options, historical_series,
+                             temporal_controls, transform_series)
+    key = chart_key or _chart_key(meta)
+    frame = pd.DataFrame(series, index=df.index.astype(int)).sort_index()
+    start = meta.get("start_year", int(frame.index.min()))
+    frame = frame.loc[frame.index >= start]
+    mode, unit, note = temporal_controls(meta, key, start)
+    frame = transform_series(frame, meta.get("time_basis"), mode)
+    years = [int(y) for y in frame.index]
+    series = {c: _to_float_list(frame[c]) for c in frame}
     series_order = meta.get("type_order")
     if meta.get("kind") == "line_composite":
         series_order = [spec["label"] for spec in meta["series"]]
     compare_raw = compare_fn(df_base, meta) if df_base is not None and compare_fn else None
-    compare = (
-        {k: v for k, v in compare_raw.items() if k in series}
-        if compare_raw else None
-    )
-    if compare == {}:
-        compare = None
-    if start_year := meta.get("start_year"):
-        cut = next((i for i, y in enumerate(years) if y >= start_year), len(years))
-        years = years[cut:]
-        series = {k: v[cut:] for k, v in series.items()}
-        if compare:
-            compare = {k: v[cut:] for k, v in compare.items()}
+    compare = None
+    if compare_raw:
+        base_frame = pd.DataFrame(compare_raw, index=df_base.index.astype(int)).sort_index()
+        base_frame = base_frame.loc[base_frame.index >= start]
+        base_frame = transform_series(base_frame, meta.get("time_basis"), mode).reindex(years)
+        compare = {c: _to_float_list(base_frame[c]) for c in base_frame if c in series}
     options = build_line_options(
         years,
         series,
-        unit=meta["unit"],
+        unit=unit,
         series_order=series_order,
         compare=compare,
-        legend_position=meta.get("legend", "auto"),
         y_min=meta.get("y_min"),
     )
-    render_chart_header(title, meta["unit"], meta.get("desc"))
+    if source := meta.get("history"):
+        if st.checkbox("Mostra dati storici di calibrazione", key=f"{key}_history"):
+            historical = historical_series(source)
+            historical = historical.loc[historical.index >= start]
+            historical = transform_series(historical, meta.get("time_basis"), mode).reindex(years)
+            net = meta.get("time_basis") == "stock" and mode == "annual"
+            add_historical_options(options, historical, net_change=net)
+            st.caption(meta["history_note"])
+            if net:
+                st.caption("Per lo storico, la differenza fra anni misura l’incremento netto "
+                           "di potenza; non separa installazioni e dismissioni.")
+    suffix = " — cumulato" if mode == "cumulative" else (
+        " — " + meta.get("annual_label", "variazione annua").lower()
+        if mode == "annual" else "")
+    display_title = meta.get("cumulative_title", title + suffix) if mode == "cumulative" else title + suffix
+    render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
+    if note:
+        st.caption(note)
     render_echarts(
         options,
         chart_key=chart_key or _chart_key(meta),
