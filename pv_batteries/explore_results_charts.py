@@ -160,7 +160,7 @@ def render_chart(
 
 
 LEVY_SHARED = """
-Il supplemento non è un parametro esogeno: il modello lo **ricalcola** in modo
+Il supplemento in bolletta non è un parametro esogeno: il modello lo **ricalcola** in modo
 che il gettito copra esattamente gli incentivi erogati, con la formula
 `supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.
 Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.
@@ -234,11 +234,11 @@ distretti.
 
 EXPLANATIONS = {
     "levy_federal": (
-        "Come viene calcolato il supplemento federale",
+        "Come viene calcolato il supplemento federale in bolletta",
         LEVY_SHARED + LEVY_FEDERAL,
     ),
     "levy_cantonal": (
-        "Come viene calcolato il supplemento cantonale",
+        "Come viene calcolato il supplemento cantonale in bolletta",
         LEVY_SHARED + LEVY_CANTONAL,
     ),
     "prezzo": ("Da cosa è composto il prezzo", PRICE_EXPLANATION),

@@ -20,7 +20,7 @@ for p in (str(ROOT), str(PVBAT)):
         sys.path.insert(0, p)
 
 import exploratory_config as cfg  # noqa: E402
-from pv_batteries.policy_labels import control_label
+from pv_batteries.policy_labels import BILL_SURCHARGE_EQUITY_RADAR_LABEL, control_label
 importlib.reload(cfg)
 import exploratory as expl  # noqa: E402
 importlib.reload(expl)
@@ -235,7 +235,7 @@ def _composition_chart(top: pd.DataFrame) -> None:
 
 
 RADAR_LABELS = {
-    "gmd_levy": "Equità\nlevy",
+    "gmd_levy": BILL_SURCHARGE_EQUITY_RADAR_LABEL,
     "gmd_tax": "Equità\ntassa CO₂",
     "gmd_cost": "Equità\ncosto",
     "avg_cost": "Costo\nfamiglia",
@@ -514,7 +514,7 @@ with col_kpi.container(border=True):
     st.markdown(
         "Per ogni combinazione di policy mix e scenario di incertezza "
         "si calcolano **9 KPI**: costi (famiglia e spesa cantonale), "
-        "**equità distributiva** (levy, tassa CO₂, costo) ed **emissioni**, "
+        "**equità distributiva** (supplemento in bolletta, tassa CO₂, costo) ed **emissioni**, "
         "insieme a produzione PV, consumo netto e domanda coperta dal PV autoconsumato."
     )
 

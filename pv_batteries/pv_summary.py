@@ -4,6 +4,10 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from pv_batteries.policy_labels import (
+    BILL_SURCHARGE_EQUITY_HELP, BILL_SURCHARGE_EQUITY_LABEL,
+    BILL_SURCHARGE_EQUITY_RADAR_LABEL,
+)
 from pv_batteries_config import FINAL_YEAR
 from explore_results_charts import _LEGACY_PV_CAPACITY_BASES
 from gmd import scale_gmd_equity
@@ -114,7 +118,7 @@ def render_summary_metrics(
          bat_base, "normal"),
         ("Costo medio annuale", _fmt_metric(cost, "CHF"), cost,
          cost_base, "inverse"),
-        ("Equità levy (GMD)", fmt_scaled_gmd(gmd_levy), gmd_levy,
+        (BILL_SURCHARGE_EQUITY_LABEL, fmt_scaled_gmd(gmd_levy), gmd_levy,
          gmd_levy_base, "normal"),
         ("Equità costo (GMD)", fmt_scaled_gmd(gmd_cost), gmd_cost,
          gmd_cost_base, "normal"),
@@ -125,7 +129,9 @@ def render_summary_metrics(
             cols, row, strict=True,
         ):
             delta, delta_color = metric_delta_vs_base(value, value_base, color)
-            if "Equità" in label:
+            if label == BILL_SURCHARGE_EQUITY_LABEL:
+                help_text = BILL_SURCHARGE_EQUITY_HELP + " " + GMD_DISPLAY_CAPTION
+            elif "Equità" in label:
                 help_text = GMD_DISPLAY_CAPTION
             elif label == "Costo medio annuale":
                 help_text = (
@@ -136,14 +142,17 @@ def render_summary_metrics(
             else:
                 help_text = None
             with col:
-                with st.container(border=True):
+                with st.container(border=True, height="stretch"):
+                    # Native Markdown wraps longer indicator names without truncation.
+                    st.markdown(label, help=help_text)
                     st.metric(
                         label, display, delta=delta, delta_color=delta_color,
-                        help=help_text,
+                        label_visibility="collapsed",
                     )
 
     render_kpi_radar(
-        [(label, value, value_base) for label, _, value, value_base, _ in items],
+        [(BILL_SURCHARGE_EQUITY_RADAR_LABEL if label == BILL_SURCHARGE_EQUITY_LABEL else label,
+          value, value_base) for label, _, value, value_base, _ in items],
         chart_key="kpi_radar_pv",
     )
 
@@ -173,8 +182,10 @@ $$\\mathrm{{GMD}} = \\frac{{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}}{{2\\,W^2}}$
 Vale zero quando tutti gli archetipi sopportano esattamente lo stesso onere, e cresce
 via via che le situazioni divergono.
 
-- **Equità levy** — la grandezza $x$ è il saldo fra supplementi pagati e incentivi
-  ricevuti da ciascun archetipo. Risponde alla domanda: chi finanzia gli incentivi e
+- **{BILL_SURCHARGE_EQUITY_LABEL}** — il supplemento sulla bolletta elettrica finanzia
+  gli incentivi e gli altri oneri rappresentati nel modello. La grandezza $x$ è il
+  saldo cumulato fra supplementi pagati e incentivi PV ricevuti da ciascun archetipo.
+  Risponde alla domanda: chi finanzia gli incentivi e
   chi invece li incassa?
 - **Equità costo** — la grandezza $x$ è il costo annuo totale per energia e risanamento
   di ciascun archetipo.
@@ -187,4 +198,3 @@ scenari, non una misura assoluta di equità: un valore di 0.5 significa "a metà
 fra lo scenario migliore e quello peggiore", e i valori cambierebbero se si cambiasse
 la griglia degli scenari.
 """
-
