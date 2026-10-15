@@ -6,7 +6,7 @@ Tutti gli artefatti generati sono suffissati dalla variante scelta (vedi
 `sure_paths.py`), cosi' una nuova traduzione non sovrascrive quella esistente:
 
     --variant ""    -> Vensim/SURE_pysd.mdl,    SURE_pysd.py,    constants_ref.pkl
-    --variant v2    -> Vensim/SURE_pysd_v2.mdl, SURE_pysd_v2.py, constants_ref_v2.pkl
+    --variant candidate    -> Vensim/SURE_pysd_candidate.mdl, SURE_pysd_candidate.py, constants_ref_candidate.pkl
 
 Passi (ordine obbligatorio)
 ---------------------------
@@ -17,15 +17,15 @@ Passi (ordine obbligatorio)
   4b. fix_allocate_sure.py     # ALLOCATE AVAILABLE: richieste negative -> 0
   5. extract_constants_sure.py # costanti calibrate da SURE.vpmx -> constants_ref<sfx>.pkl
   6. (opz.) patch_hotpaths_sure.py
-  7. validate_coherence_sure.py --variant <sfx>
+  7. Generare il modello corretto e validarlo: docs/julia-production.md
 
 Uso
 ---
   # Diagnosi / presenza delle leve nei file di una variante
-  .\\.venv\\Scripts\\python.exe retranslate_sure_pipeline.py --check --variant v2
+  .\\.venv\\Scripts\\python.exe retranslate_sure_pipeline.py --check --variant candidate
 
   # Ritraduzione completa in una nuova variante (non tocca i file esistenti)
-  .\\.venv\\Scripts\\python.exe retranslate_sure_pipeline.py --run --variant v2
+  .\\.venv\\Scripts\\python.exe retranslate_sure_pipeline.py --run --variant candidate
 """
 from __future__ import annotations
 
@@ -165,8 +165,8 @@ def run_steps(skip_export=False):
                              + (f" Ripristina da {bak}" if bak else ""))
     print("\n=== Pipeline completata. Controllo namespace: ===\n")
     print_check()
-    print(f"\nProssimo passo: python validate_coherence_sure.py "
-          f"--variant {paths.variant() or ''}".rstrip())
+    print("\nQuesta pipeline prepara solo il sorgente upstream. "
+          "Per il modello corretto e la validazione: docs/julia-production.md")
 
 
 def main():

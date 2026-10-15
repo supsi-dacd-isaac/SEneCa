@@ -1,6 +1,6 @@
 """Pagina Streamlit - Sezione "PV e Batterie decentralizzate".
 
-Serve all'istante le 486 combinazioni pre-calcolate (precompute_pv_batteries.py):
+Serve all'istante le 324 combinazioni pre-calcolate del modello corretto:
 6 slider discreti -> traiettorie/valori 2050 degli output + misure di equity GMD.
 """
 from __future__ import annotations
@@ -77,8 +77,8 @@ gmd_store = _gmd("pv_batteries")
 
 if not store:
     st.warning(
-        "Nessuno scenario pre-calcolato trovato. Esegui "
-        "`pv_batteries/precompute_pv_batteries.py` per popolare lo store."
+        "Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release."
     )
     st.stop()
 

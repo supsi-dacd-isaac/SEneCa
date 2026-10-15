@@ -80,7 +80,7 @@ def _params_fingerprint(params: dict[str, float]) -> str:
 # ENGINE
 # =============================================================
 def default_variant() -> str:
-    """Traduzione piu' recente: le precedenti restano in Vensim/ solo per confronto."""
+    """Base supportata v6; le simulazioni usano il modello corretto pvbounded."""
     return paths.variant()
 
 

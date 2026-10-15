@@ -14,8 +14,8 @@ La release `v0.3.0` usa il modello corretto `sure-v6-pv-budget-2` e i dati
 incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
 Il limite condiviso delle adozioni FV impedisce di prelevare edifici oltre
 la disponibilità della categoria di origine. Validazione e provenienza sono
-descritte nel [rapporto del modello corretto](benchmarks/sure-production/PV_BUDGET_RESULTS.md)
-e nel [rapporto dei 100 campioni](benchmarks/sure-production/POLICY_MIX_RESULTS.md).
+descritte nel [rapporto del modello corretto](docs/validation/PV_BUDGET_RESULTS.md)
+e nel [rapporto dei 100 campioni](docs/validation/POLICY_MIX_RESULTS.md).
 
 ## Riconoscimenti
 
@@ -160,10 +160,12 @@ pagina: limita il suo utilizzo nel pannello CARTO.
 | Percorso | Contenuto |
 | --- | --- |
 | `app.py`, `pages/` | Router multipagina e le sette pagine Streamlit |
-| `pv_batteries/` | Renderer, configurazioni di sezione e script di pre-calcolo |
+| `pv_batteries/` | Renderer, configurazioni e lettura degli store |
 | `precomputed/` | Store Parquet installati dalla release dati pinata |
 | `sure_julia/` | Traduttore SURE, runtime persistente, validazione e batch |
-| `Vensim/` | Modello `.mdl`, traduzione PySD e input binari dalla release dati |
+| `Vensim/` | Modello corretto, sorgenti upstream necessari alla verifica e input |
+| `model_checks/`, `tests/` | Casi sintetici e test del modello e dell’app attuali |
+| `docs/validation/` | Prove della correzione FV e della generazione dei dati |
 | `content/system_dynamics/` | Testi, immagini e dati della pagina divulgativa |
 
 ## Le pagine
@@ -196,27 +198,30 @@ Il batch di produzione usa 32 processi Julia persistenti, con validazione
 Python–Julia obbligatoria e checkpoint verificati. Seguire la
 [procedura di rigenerazione](docs/julia-production.md).
 
-Gli script storici per il motore Vensim richiedono invece Vensim DSS:
+Gli esperimenti e i generatori Vensim delle vecchie versioni sono recuperabili
+nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
+
+## Sorgenti del modello e manutenzione
+
+Il modello eseguito è `SURE_pysd_v6_pvbounded`, con revisione
+`sure-v6-pv-budget-2`. I sorgenti `SURE.mdl`, `SURE_pysd_v6.mdl` e
+`SURE_pysd_v6.py` rimangono come input e riferimento per la generazione e
+la verifica della correzione; non sono modelli alternativi da eseguire nell’app.
+I loro checksum fanno parte della provenienza della release dati.
+
+La correzione riproducibile si genera e si controlla con:
 
 ```bash
-python pv_batteries/precompute_pv_batteries.py
-python pv_batteries/precompute_risanamento.py
-python pv_batteries/precompute_veicoli.py
-python pv_batteries/precompute_elettricita.py
+PYTHONHASHSEED=0 python -m sure_julia.pv_budget --check
 ```
 
-## Ritradurre il modello da Vensim a PySD
+La pipeline `retranslate_sure_pipeline.py` e i relativi script preparano un
+nuovo sorgente upstream da Vensim: non producono da soli un modello validato
+per l’app. Una modifica alle equazioni richiede la procedura completa nella
+[guida Julia](docs/julia-production.md), inclusa la rigenerazione dei dati.
+Senza `SURE_VARIANT` viene selezionata la base supportata `v6`.
 
-La pipeline applica al modello le patch necessarie a PySD, lo traduce, corregge
-autoriferimenti e allocazioni, ed estrae le costanti di riferimento:
-
-```bash
-python retranslate_sure_pipeline.py --variant v3
-python validate_coherence_sure.py --variant v3
-```
-
-Ogni traduzione vive in una **variante** identificata da un suffisso
-(`SURE_pysd_v2.py`, `constants_ref_v2.pkl`, ...), cosi' che piu' versioni
-convivano nella stessa cartella. Senza la variabile d'ambiente `SURE_VARIANT` il
-codice risolve automaticamente sulla traduzione piu' recente presente in
-`Vensim/`.
+La [mappa del repository](docs/repository-inventory.md) distingue file necessari,
+strumenti di manutenzione e materiale storico rimosso. Le vecchie versioni e
+le diagnosi restano recuperabili in Git; non vengono mescolate con il modello
+supportato nel checkout corrente.

@@ -29,7 +29,7 @@ def cases():
     result["regression_negative_stock"] = negative_stock_regression()
     for name, select in [("low", min), ("mid", lambda v: sorted(v)[len(v)//2]), ("high", max)]:
         result[name] = parameters({i.name: float(select(i.values)) for i in ALL_INPUTS})
-    for run in read(ROOT / "Vensim_test_runs/inputs.json")["runs"]:
+    for run in read(ROOT / "model_checks/native_scenarios.json")["runs"]:
         result[run["id"]] = parameters(run["inputs"])
     for i, spec in enumerate(ALL_INPUTS):
         values = spec.values if spec.binary or spec.choice_labels else [min(spec.values), max(spec.values)]

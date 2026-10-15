@@ -1,6 +1,6 @@
 """Pagina Streamlit - Sezione "Riscaldamento e Risanamento".
 
-Serve all'istante le 1215 combinazioni pre-calcolate (precompute_risanamento.py):
+Serve all'istante le 1215 combinazioni pre-calcolate del modello corretto:
 6 slider discreti -> traiettorie/valori 2050 degli output + equity CO2 tax (GMD).
 """
 from __future__ import annotations
@@ -72,8 +72,8 @@ gmd_store = _gmd(cfg.SECTION)
 
 if not store:
     st.warning(
-        "Nessuno scenario pre-calcolato trovato. Esegui "
-        "`pv_batteries/precompute_risanamento.py` per popolare lo store."
+        "Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release."
     )
     st.stop()
 

@@ -1,9 +1,10 @@
 # SURE v6 production backend
 
-Implementation branch: `julia-production`, based on main
-`17db1f4245c6bb0e8ef41a4cac5e8d3a6817cac6`; the validated experiments were
-merged in `962b774`. Historical experiments remain under `benchmarks/` and
-are excluded from the application image.
+The supported model is `sure-v6-pv-budget-2`. Its retained validation evidence
+is under `docs/validation/`; small-model regression fixtures are under
+`model_checks/`. Obsolete models and experiment runners are available in
+the Git history at `v0.3.1`, not in the current checkout. See the
+[repository inventory](repository-inventory.md).
 
 ## Execution contract
 
@@ -18,13 +19,13 @@ replace the precomputed dataset.
 Release `v0.2.0` pins `data-v1.1.0`, generated from the corrected model.
 Release `v0.3.0` pins `data-v1.2.0`: 100 uncertainty samples per policy mix,
 nine indicators and the same numerical model. See the
-[completed generation report](../benchmarks/sure-production/POLICY_MIX_RESULTS.md).
+[completed generation report](validation/POLICY_MIX_RESULTS.md).
 On 2026-10-14 the owner authorized data/code publication and deployment,
 including Elettra production, after reporting positive initial native Vensim
 tests. Complete native equivalence is not certified: detailed native results
 for the full suite have not been supplied. The release criteria are the
 completed Python–Julia validation, physical checks and audited regeneration.
-See [the native handoff](../benchmarks/sure-production/PV_BUDGET_VENSIM.md).
+See [the native handoff](validation/PV_BUDGET_VENSIM.md).
 
 `PYTHONHASHSEED=0 python -m sure_julia.pv_budget` generates both corrected MDL copies and the
 Python reference. `--check` regenerates in a temporary directory and verifies
@@ -169,152 +170,16 @@ For the previous `v0.1.1` image, also restore its model selection:
 Current images require v6; the variant override exists to make old-image
 rollback explicit, not to run the production Julia backend against v3.
 
-## Historical validation of the original, unbounded v4
+## Historical investigations
 
-The following results predate the authorized stock correction. They remain a
-baseline only and cannot certify the corrected model or its data release.
+The v2–v5 models, the unbounded-stock investigations and the superseded
+experimental correction are retained in the
+[v0.3.1 archive](https://github.com/supsi-dacd-isaac/SEneCa/tree/v0.3.1/benchmarks).
+They are not supported simulation alternatives. Current validation uses the
+fixtures in `model_checks/` and production translator helpers directly, including
+the allocation oracle extracted from `SURE_pysd_v6_pvbounded.py`.
 
-- Elettra infrastructure and existing data-v1.0.0 archive verified.
-- Linux runtime built; portable model translated with 121 exports and 40 parameters.
-- First base comparison passed: 5,689,080 cells and energy conservation.
-- Full Linux AMD64 suite passed: all 317 cases, each comparing 5,689,080 cells
-  across 121 application and diagnostic outputs. Targeted tests also passed.
-- State isolation and crash recovery passed, including exact fresh-process
-  repeats and zero compilation when changing scenario after warm-up.
-- Native AMD64 and ARM64 images passed base/high, GMD and Streamlit checks.
-- All 100 pilot scenarios produced identical numeric hashes and Parquet files
-  in serial and parallel. Total time: 1,087.15 seconds in serial and 195.27
-  seconds with 32 workers, including startup. Warm parallel scenarios averaged
-  13.07 seconds. Serial warm scenarios had median 9.58 seconds and range
-  8.71–11.15 seconds, with output sets specific to each section.
-- A separate single-core check of the actual 52-output live backend measured
-  9.70 seconds median over five warm base runs (9.17–9.88 seconds), 10.71 seconds
-  for high and 111.52 seconds for the first cold base request, including loading.
-  These times include dataframe extraction but exclude Streamlit rendering,
-  network and cache hits. No compilation occurred on any warm request.
-- Full regeneration completed on 2026-10-13 at 14:38 CEST: 8,171 simulations
-  representing 8,179 configurations, no failures, 3,622.90 seconds including
-  consolidation. No worker compiled additional code after warm-up. Sampled
-  peak container memory was 39,199,764,480 bytes (36.51 GiB), below 128 GiB.
-- Final artifact verification passed: expected row counts and columns, no
-  missing or nonfinite numeric values, Float64 outputs, all 40 parameters
-  recorded per scenario and the original uncertainty sample checksum intact.
-- The full GMD audit records substantive negative weights in 2,186 scenarios;
-  the smallest weight is -688.6002. The established exclusion rule is preserved
-  and every affected scenario is identified in the provenance table. A further
-  direct check of the worst case (PV/battery policy, 29 arrays) passed against
-  Python, including the GMD indicators; the negative states are shared.
-- Generation source commit: `170fe746fe5fbe6f52228f7061910374edc4e6c9`.
-  Numerical evidence is attached to the draft `data-v1.1.0` and must be replaced
-  with evidence for the corrected model before publication.
-
-## Nonnegative-stock investigation before publication
-
-The 10 archived Vensim runs and the additional native base diagnostics do not
-export `Annual archetypes`, `Heating Solution` or `Cumulative archetype HH`.
-They therefore cannot establish whether those native states are negative.
-Python–Julia agreement alone is not evidence of native Vensim behavior.
-
-Tracing the most negative final-weight scenario in the Python reference finds
-its first stock value below -1e-6 in 2038. The affected coordinate is Lugano,
-ElectricHeater, VeryLow, SFH, PVno, Bno. At 2037 the stock is 3.880072355 buildings,
-with zero inflow and net outflow 4.461664451 buildings/year. Annual Euler produces
--0.581592096 in 2038. The previous outflow combines old-age replacement
-3.866225796, demolition 0.587843719, renovation 0.068483297 and a negative PV
-adoption flow -0.060888360. The full Euler identity closes within 4.55e-13.
-
-A stock clamp alone would change population balances. A model correction must
-address signed adoption flows and combined withdrawals, and apply each corrected
-transfer consistently at its source and destination. Such a correction changes
-the equations and requires a new numerical reference and regenerated dataset.
-The user authorized this correction before release. The data release remains
-a draft until the corrected model passes validation and full regeneration.
-
-## Superseded provisional stock-flow correction
-
-`benchmarks/sure-production/legacy_stock_limits.py` generated equivalent Python and Vensim equations
-from the unchanged original sources. The corrected Vensim copy is translated
-to Julia; there are no manual edits to generated Julia. The build identifies
-the revision and checksums the correction source. The original adverse case,
-including all 40 inputs, is in
-`benchmarks/sure-production/vensim-negative-case.json` and is now a regression
-scenario in the acceptance suite.
-
-Demolition retains its original eligibility (VeryLow, PVno, Bno), but its
-distribution uses the actual eligible source stock. Demolition and renovation
-share the available demographic budget; demolition is additionally capped by
-the eligible pool remaining after its proportional renovation withdrawals.
-An empty or near-empty eligible pool therefore cannot suppress renovation of
-other buildings. Heating replacement and PV adoption share the remainder
-proportionally. Negative requested adoption transfers become zero; the sum of
-accepted withdrawals cannot exceed the available source stock per time step.
-The matching destination and cost equations use these same accepted flows.
-Integrated states are never clamped. Historical net construction inputs, which
-can be slightly negative, remain unchanged.
-
-This is a model-policy change, not a numerical-equivalence fix for Vensim.
-Python and Julia must agree on the corrected equations. Native Vensim behavior
-has not been verified for this revision. Initial Python tests of base, high
-and the adverse case pass nonnegativity and all transfer/population balances;
-the three cross-engine cases subsequently passed. The wider run was interrupted
-after 160 successful cases when the owner confirmed the original negative
-stocks in native Vensim and supplied a corrected source. These experimental
-equations are retained for investigation only and are not used by production.
-
-## Historical upstream v5
-
-Commit `bf39813` supplies the updated `Vensim/SURE.mdl`, its translated
-`SURE_pysd_v5.mdl`/`.py`, CSV inputs and calibrated constants. CSV contents and
-calibration values match v4. Demolition is now distributed across every PV and
-battery configuration within VeryLow buildings. Old-age heating replacement
-is capped by the source stock remaining after demolition, renovation and PV
-adoption. The annual levy also uses nonnegative net purchased electricity.
-
-The production adapters consume these equations directly. The builder no longer
-applies the provisional correction. All 40 scenario inputs remain explicit,
-so changed defaults saved inside the source cannot silently change a run.
-The profile is `sure-v5-bf39813`; older generated profiles are rejected.
-The new source equations have synthetic regression tests and retain every
-physical/numerical release gate. Prior v4 validation certificates and data
-cannot certify this version; v5 requires its own full suite and regeneration.
-
-The first v5 check on Elettra compares base, high and the original adverse
-scenario. All 17,086,920 Python–Julia values pass the numerical tolerance,
-but all three cases fail housing-stock nonnegativity in both engines.
-Negative PV adoption inflows can still drive a positive stock below zero;
-the first exact transition and all 40 inputs are recorded in
-[`benchmarks/sure-production/V5_RESULTS.md`](../benchmarks/sure-production/V5_RESULTS.md).
-Regeneration and release remain blocked. Failed arrays are saved for diagnosis
-without weakening the physical gate. The v5 targeted translator suite passes;
-neither the full v5 suite nor a replacement dataset is certified.
-
-## Historical upstream v6 before the shared PV budget
-
-Commit `9080f62` adds nonnegative requests for all six PV/RCP/RCPv adoption
-flows and demolition withdrawals from the six owner/renter equipped-building
-stocks. When HS substitutions are at most 0.001, the equivalent lifetime now
-uses 1,000,000 years instead of one year. CSV inputs and calibrated constants
-are byte-identical to v5. Saved scenario defaults are still overridden by
-all 40 explicit application parameters.
-
-That unbounded profile was `sure-v6-9080f62`; the current production profile
-is `sure-v6-pv-budget-2`. The following failures describe the upstream model
-before the shared PV budget and do not describe the corrected release.
-
-The first three cases agree numerically in Python and Julia, and high and the
-adverse case now pass physically. Base still withdraws a small positive PV
-adoption flow from an empty stock. The minimum heating stock is -2.6024e-6.
-The gated regeneration has stopped. The separate 318-case diagnostic suite is
-complete: all 1,811,213,520 Python–Julia values pass comparison, while 169 cases
-pass physical acceptance and 149 fail. The worst heating stock and archetype
-weight are -3.4654e-5 in uncertainty sample `sample_min_12`. Energy and population
-balances pass throughout. Two fresh base runs are bit-for-bit identical in
-each engine. Both native architecture CI builds stop on the same base physical
-failure before completing numerical/UI smoke. No certificate has been issued.
-See [`V6_RESULTS.md`](../benchmarks/sure-production/V6_RESULTS.md) for the exact
-transition and complete parameters.
-
-After a future full regeneration passes, audit the packaged inputs with:
+To audit a newly regenerated dataset:
 
 ```sh
 python scripts/verify_production_data.py /runs/full /runs/release-verification.json --resources /runs/resources.jsonl

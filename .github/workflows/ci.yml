@@ -38,12 +38,4 @@ jobs:
           python scripts/data_release.py verify
       - name: Unit and interface tests
         run: |
-          python -m unittest discover -s tests -p test_data_release.py -v
-          python -m unittest discover -s tests -p test_sure_production.py -v
-          python -m unittest discover -s tests -p test_stock_limits.py -v
-          python -m unittest discover -s tests -p test_chart_transitions.py -v
-          python -m unittest discover -s tests -p test_chart_views.py -v
-          python -m unittest discover -s tests -p 'test_exploratory*.py' -v
-          python -m unittest discover -s tests -p test_live_startup.py -v
-          python -m unittest discover -s tests -p test_live_progress.py -v
-          python -m unittest discover -s tests -p test_live_summary.py -v
+          python -m unittest discover -s tests -v

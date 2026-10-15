@@ -39,8 +39,8 @@ st.title("Veicoli")
 store = _traj(cfg.SECTION)
 if not store:
     st.warning(
-        "Nessuno scenario pre-calcolato. Esegui "
-        "`pv_batteries/precompute_veicoli.py` per popolare lo store."
+        "Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release."
     )
     st.stop()
 

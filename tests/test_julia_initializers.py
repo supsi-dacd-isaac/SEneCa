@@ -2,7 +2,7 @@
 import itertools
 import unittest
 
-from scripts.julia_repro.ode_patch import _initial_template, _stock_initializer
+from sure_julia.translator.ode_patch import _initial_template, _stock_initializer
 
 
 def cells(shape):
