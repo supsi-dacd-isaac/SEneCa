@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pv_batteries.policy_labels import input_metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 VPMX = ROOT / "Vensim" / "SURE.vpmx"
 STORE_DIR = ROOT / "precomputed" / "veicoli"
@@ -45,35 +47,7 @@ BASE_SCENARIO: dict[str, float] = {
     "ICE fuel price input": 2.0,
 }
 
-INPUT_META = {
-    "EV charger incentive input": {"label": "Incentivo colonnina EV", "unit": "CHF"},
-    "CO2 coefficient ICE": {
-        "label": "Coefficiente tassa ICE",
-        "unit": "-",
-        "help": (
-            "Coefficiente che serve a determinare la tassa di circolazione "
-            "per i veicoli a combustione interna (ICE), attualmente pari a circa 2."
-        ),
-    },
-    "EV annual cost reduction input": {
-        "label": "Riduzione annuale costo EV",
-        "unit": "-",
-        "help": (
-            "Assunzione sulla riduzione annuale, in percentuale, del costo di "
-            "investimento per i veicoli elettrici. Il valore è una frazione: "
-            "0.01 corrisponde all'1%."
-        ),
-    },
-    "ICE fuel price input": {
-        "label": "Prezzo carburante ICE",
-        "unit": "CHF/l",
-        "help": (
-            "In queste simulazioni si assume, per semplicità, che questo sia "
-            "il prezzo di entrambi i carburanti (diesel e benzina) per i "
-            "veicoli a combustione interna (ICE)."
-        ),
-    },
-}
+INPUT_META = input_metadata(INPUT_ORDER)
 
 OUTPUTS = [
     {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli",

@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pv_batteries.policy_labels import input_metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 VPMX = ROOT / "Vensim" / "SURE.vpmx"
 STORE_DIR = ROOT / "precomputed" / "risanamento"
@@ -43,40 +45,12 @@ BASE_SCENARIO: dict[str, float] = {
     "MuKEn scenario": 1.0,
 }
 
-_REBATE_HELP = "Frazione del costo di investimento rimborsata."
-_RETROFIT_HELP = (
-    "Incentivi per metro quadro di elemento strutturale risanato."
-)
-
-INPUT_META = {
-    "Grant share HP": {
-        "label": "Rimborso pompe di calore",
-        "unit": "-",
-        "help": _REBATE_HELP,
-    },
-    "Grant share PelletBoiler": {
-        "label": "Rimborso stufe a legna",
-        "unit": "-",
-        "help": _REBATE_HELP,
-    },
-    "Grant share DH": {
-        "label": "Rimborso rete termica",
-        "unit": "-",
-        "help": _REBATE_HELP,
-    },
-    "Retrofit incentive input": {
-        "label": "Incentivo risanamento",
-        "unit": "CHF/m2",
-        "help": _RETROFIT_HELP,
-    },
-    "CO2 tax": {"label": "Tassa CO2", "unit": "CHF/tonCO2"},
-    "MuKEn scenario": {"label": "Regolamentazione riscaldamento", "unit": "-"},
-}
+INPUT_META = input_metadata(INPUT_ORDER)
 
 MUKEN_LABELS: dict[float, str] = {
-    0.0: "Nessuna",
-    1.0: "MoPEc 2014",
-    2.0: "MoPEc 2025",
+    0.0: "Nessuno",
+    1.0: "MoPEC 2014",
+    2.0: "MoPEC 2025",
 }
 MUKEN_LABEL_TO_VALUE: dict[str, float] = {label: val for val, label in MUKEN_LABELS.items()}
 
@@ -142,11 +116,11 @@ INCENTIVES_EXPLANATION = """
 ### 💰 Quali incentivi vengono pagati
 
 - 🧱 **Risanamento** — l'incentivo è versato sui metri quadrati che passano a una classe
-  di efficienza superiore, con importi crescenti a seconda del livello raggiunto. Lo slider *Incentivo risanamento* fissa il valore
+  di efficienza superiore, con importi crescenti a seconda del livello raggiunto. Lo slider *Contributo base al risanamento dell’involucro* fissa il valore
   specifico in CHF/m².
 - 🔥 **Riscaldamento** — l'incentivo copre una frazione del costo di ogni impianto
   sostituito: pompe di calore, caldaie a pellet o legna e collettori solari. Caldaie a
-  olio, a gas e riscaldamenti elettrici **non ricevono nulla**, per cui alzare i rimborsi
+  olio, a gas e riscaldamenti elettrici **non ricevono nulla**, per cui alzare i contributi
   agisce solo sulla velocità di sostituzione.
 
 ### 🏦 Chi paga: fondi cantonali e fondi federali
