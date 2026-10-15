@@ -83,10 +83,10 @@ with st.sidebar:
         opts = cfg.INPUT_GRID[name]
         label = control_label(meta)
         if name == "MuKEn scenario":
-            val = _render_muken_input(label, default=opts[0])
+            val = _render_muken_input(label, default=cfg.BASE_SCENARIO[name])
         else:
             val = st.select_slider(
-                label, options=opts, value=opts[0],
+                label, options=opts, value=cfg.BASE_SCENARIO[name],
                 format_func=lambda x, meta=meta: format_value(meta, x, with_unit=False),
                 help=meta.get("help") or None,
             )

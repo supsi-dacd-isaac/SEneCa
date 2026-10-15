@@ -92,12 +92,12 @@ with st.sidebar:
         label = control_label(meta)
         if name in BINARY_INPUTS:
             val = _render_binary_input(
-                label, default=opts[0], help=meta.get("help") or None,
+                label, default=BASE_SCENARIO[name], help=meta.get("help") or None,
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
             val = st.select_slider(
-                label, options=opts, value=opts[0],
+                label, options=opts, value=BASE_SCENARIO[name],
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
                 help=meta.get("help") or None,
             )
