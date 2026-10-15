@@ -186,7 +186,7 @@ def input_metadata(names):
 def control_label(meta, *, with_unit=True):
     label = meta.get("control_label", meta["label"])
     unit = meta.get("unit", "-")
-    return f"{label} ({unit})" if with_unit and unit != "-" else label
+    return f"{label} [{unit}]" if with_unit and unit != "-" else label
 
 
 def format_value(meta, value, *, with_unit=True):

@@ -142,7 +142,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                 help_txt = inp.note or None
                 label = inp.control_label or inp.label
                 if inp.unit:
-                    label = f"{label} ({inp.unit})" if inp.unit != "-" else label
+                    label = f"{label} [{inp.unit}]" if inp.unit != "-" else label
 
                 if not inp.supported:
                     if inp.choice_labels:
