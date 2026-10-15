@@ -6,7 +6,7 @@ from contextvars import copy_context
 import streamlit as st
 
 import sure_backend as backend
-from sure_pysd import OUTPUTS
+from sure_pysd import LIVE_OUTPUTS as OUTPUTS
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

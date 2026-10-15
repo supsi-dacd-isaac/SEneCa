@@ -17,6 +17,6 @@ HOUR_FACTORS_CSV = ROOT / "Vensim" / "Input Hour Factors.csv"
 # pagine successive.
 SIM_ADOPTIONS_CSV = PLOTS_DATA / "calibration_sim_adoptions_v3.csv"
 
-IMAGE_WORKSHOP = IMAGES / "Image_1.PNG"
+IMAGE_WORKSHOP = IMAGES / "Image_1.png"
 IMAGE_CLD = IMAGES / "Image_5.png"
 IMAGE_ARCHITECTURE = IMAGES / "Image_3.png"

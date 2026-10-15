@@ -78,6 +78,29 @@ aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
 
 ## Docker
 
+Per provare le modifiche dell'interfaccia con il runtime Julia e i dati della
+release `v0.3.1`, senza ricompilare il modello:
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+L'app è disponibile su `http://localhost:8502` (solo sul computer locale).
+`SENECA_LOCAL_PORT` cambia la porta. Il container `seneca-streamlit-local`
+legge le pagine, i renderer e i contenuti dal checkout corrente, in sola
+lettura; le equazioni, il modello Julia compilato e i dati restano quelli
+dell'immagine. Questa modalità serve per modifiche all'interfaccia: per
+cambiamenti alle equazioni o alle dipendenze usare la build completa sotto.
+
+Le pagine live e precalcolate condividono KPI e radar; gli indici di equità
+live usano gli stessi limiti di riferimento dei precalcolati. I grafici
+compatibili permettono di scegliere valori annui/cumulati e mostrare i dati
+storici. Per la potenza FV, il punto annuo `t` rappresenta l'incremento da
+`t` a `t+1`: il 2050 resta senza incremento perché manca il punto 2051.
+I cumulati di flussi sommano gli anni visibili, incluso quello indicato;
+non sostituiscono gli stock del modello né i KPI esistenti. Le adozioni
+storiche in numero di edifici hanno un confronto dedicato, separato dai MW.
+
 Per lo sviluppo locale, dopo `python scripts/data_release.py fetch`, il Compose
 principale costruisce l'immagine dal codice corrente:
 

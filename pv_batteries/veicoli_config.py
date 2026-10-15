@@ -78,12 +78,18 @@ INPUT_META = {
 OUTPUTS = [
     {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli",
      "title": "Immatricolazioni annue per tipo",
+     "cumulative_title": "Immatricolazioni cumulate per tipo",
+     "time_basis": "flow", "history": "vehicle_adoptions",
+     "history_note": "Immatricolazioni storiche da EVinput.csv, 2011–2024. "
+                     "Il cumulato somma le immatricolazioni dal 2011; non è il parco circolante.",
      "legend": "bottom"},
     {"base": "Vehicles by type", "kind": "line", "unit": "veicoli",
      "title": "Parco veicoli per tipo",
      "legend": "bottom"},
     {"base": "Annual CO2 emissions vehicles flow", "kind": "line", "unit": "MtonCO2",
      "title": "Emissioni annuali CO2",
+     "cumulative_title": "Emissioni cumulate CO2",
+     "time_basis": "flow",
      # Prima del 2026 la serie riflette la sola inizializzazione del modello.
      "start_year": 2026, "legend": "bottom"},
     {"base": "EV by district", "kind": "bar", "year": 2050, "unit": "veicoli",

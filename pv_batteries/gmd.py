@@ -71,6 +71,37 @@ def compute_gmd_measures(values_2050: dict[str, dict[str, float]]) -> dict[str, 
     return compute_gmd_from_spec(values_2050, GMD_SPEC)
 
 
+def gmd_from_frame(df, spec_map: dict[str, dict], year: int = 2050) -> dict[str, float]:
+    """Stesso GMD del batch, allineando gli archetipi degli output live wide."""
+    if year not in df.index:
+        raise ValueError(f"Risultati GMD assenti per il {year}")
+    values = {}
+    for name in {s[k] for s in spec_map.values() for k in ("value", "weight")}:
+        prefix = name + "["
+        values[name] = {
+            c[len(prefix):-1]: float(df.loc[year, c])
+            for c in df.columns if c.startswith(prefix)
+        }
+        if not values[name] or not all(np.isfinite(list(values[name].values()))):
+            raise ValueError(f"Output GMD mancante o non finito: {name}")
+    for spec in spec_map.values():
+        if values[spec["value"]].keys() != values[spec["weight"]].keys():
+            raise ValueError("Archetipi GMD non allineati fra valori e pesi")
+    # Stessa tolleranza del batch: escludere soltanto i residui numerici
+    # negativi, senza nascondere pesi sostanzialmente negativi.
+    for name in {s["weight"] for s in spec_map.values()}:
+        columns = [c for c in df if c.startswith(name + "[")]
+        series = df.loc[df.index <= year, columns].to_numpy()
+        final = df.loc[year, columns].to_numpy()
+        tolerance = 1e-10 * np.maximum(1., np.abs(series).max(axis=0)) + 1e-8 * np.abs(final)
+        if np.any(final < -tolerance):
+            raise ValueError(f"Pesi GMD negativi: {name}")
+    result = compute_gmd_from_spec(values, spec_map)
+    if not all(np.isfinite(list(result.values()))):
+        raise ValueError("GMD non finito: verificare i pesi degli archetipi")
+    return result
+
+
 def gmd_bounds(gmd_store: dict[str, dict], measure: str) -> tuple[float, float]:
     """Min/max GMD grezzo per una misura, su tutte le combo dello store."""
     vals = [

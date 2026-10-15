@@ -156,6 +156,7 @@ st.divider()
 render_section(
     df, cfg.OUTPUTS, cfg.FINAL_YEAR,
     df_base=df_base, explanations=cfg.EXPLANATIONS,
+    calibration_technology="Pompe di calore",
 )
 
 with st.expander("Dati grezzi (traiettorie)"):

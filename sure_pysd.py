@@ -92,6 +92,16 @@ def _collect_results_output_bases() -> list[str]:
 # Output di interesse = chart Risultati annuali + extra Esplora
 OUTPUTS = _collect_results_output_bases()
 
+# Gli output GMD sono già esportabili dal modello Julia di produzione.
+# Separare la richiesta live conserva il catalogo e gli artefatti del batch.
+def _live_output_bases():
+    from pv_batteries_config import GMD_VARS as pv_gmd
+    from risanamento_config import GMD_VARS as ris_gmd
+    return list(dict.fromkeys(OUTPUTS + list(pv_gmd) + list(ris_gmd)))
+
+
+LIVE_OUTPUTS = _live_output_bases()
+
 # Leve scenario allineate alle pagine Risultati (esclusi da constants_ref)
 SCENARIO_INPUTS = [
     "PV rebate cantonal",

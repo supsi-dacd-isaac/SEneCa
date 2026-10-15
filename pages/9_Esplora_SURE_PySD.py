@@ -41,6 +41,7 @@ from explore_results_charts import (  # noqa: E402
     render_veicoli_section,
 )
 from section_ui import render_section_picker  # noqa: E402
+from live_summary import render_live_summary  # noqa: E402
 import risanamento_config as ris_cfg  # noqa: E402
 import veicoli_config as vei_cfg  # noqa: E402
 
@@ -86,7 +87,7 @@ def default_variant() -> str:
 @st.cache_data(show_spinner=False, max_entries=64)
 def run_live(engine_id: str, params_fp: str, params_json: str, _engine, _on_progress=None) -> pd.DataFrame:
     options = {"on_progress": _on_progress} if _engine.backend == "julia" else {}
-    return _engine.run(json.loads(params_json), outputs=sp.OUTPUTS, flatten=True, **options)
+    return _engine.run(json.loads(params_json), outputs=sp.LIVE_OUTPUTS, flatten=True, **options)
 
 
 def get_scenario(ui: dict[str, float], variant: str, title="Scenario") -> tuple[pd.DataFrame, str]:
@@ -254,6 +255,10 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
     active = render_section_picker(SUBPAGES, key=EXPLORE_SECTION_KEY)
     st.subheader(active)
 
+    if active != SUBPAGE_ELEC:
+        render_live_summary(active, user_df, base_df)
+        st.divider()
+
     if active == SUBPAGE_PV:
         if not df_has_results_columns(user_df):
             st.warning(
@@ -306,7 +311,7 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 # =============================================================
 st.title("Simulazione in tempo reale")
 st.caption(
-    f"Simulazione live con {len(sp.OUTPUTS)} output Risultati "
+    f"Simulazione live con {len(sp.LIVE_OUTPUTS)} output Risultati "
     "(PV / Risanamento / Veicoli / Elettricità)."
 )
 

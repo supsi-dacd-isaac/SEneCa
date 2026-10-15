@@ -1,0 +1,29 @@
+# UI locale sul runtime Julia e sui dati della release verificata.
+# Le equazioni e gli artefatti numerici restano quelli dell'immagine.
+name: seneca-local
+services:
+  streamlit-app:
+    image: ghcr.io/supsi-dacd-isaac/seneca:v0.3.1
+    ports:
+      - "127.0.0.1:${SENECA_LOCAL_PORT:-8502}:8501"
+    environment:
+      CARTO_API_KEY: ${CARTO_API_KEY:-}
+      SURE_VARIANT: v6
+      SURE_BACKEND: julia
+      PYTHONPATH: /app
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./app.py:/app/app.py:ro
+      - ./server.py:/app/server.py:ro
+      - ./sure_pysd.py:/app/sure_pysd.py:ro
+      - ./sure_backend.py:/app/sure_backend.py:ro
+      - ./sure_live.py:/app/sure_live.py:ro
+      - ./pages:/app/pages:ro
+      - ./pv_batteries:/app/pv_batteries:ro
+      - ./content:/app/content:ro
+    restart: unless-stopped
+    container_name: seneca-streamlit-local
