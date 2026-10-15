@@ -8,7 +8,10 @@ from __future__ import annotations
 import itertools
 from pathlib import Path
 
-from pv_batteries.policy_labels import input_metadata, format_value
+from pv_batteries.policy_labels import (
+    BILL_SURCHARGE_EQUITY_HELP, BILL_SURCHARGE_EQUITY_LABEL,
+    input_metadata, format_value,
+)
 
 import numpy as np
 import pandas as pd
@@ -83,11 +86,11 @@ UNCERTAINTY_ORDER = list(UNCERTAINTY_BOUNDS.keys())
 # =============================================================
 KPI_SPEC: dict[str, dict] = {
     "gmd_levy": {
-        "label": "Equità levy",
+        "label": BILL_SURCHARGE_EQUITY_LABEL,
         "unit": "-",
         "higher_is_better": False,
-        "help": "Gini Mean Difference sul saldo supplementi − incentivi PV. "
-                "Valore grezzo più basso = minore disuguaglianza.",
+        "help": BILL_SURCHARGE_EQUITY_HELP + " Gini Mean Difference: "
+                "valore grezzo più basso = minore disuguaglianza.",
     },
     "gmd_tax": {
         "label": "Equità tassa CO₂",

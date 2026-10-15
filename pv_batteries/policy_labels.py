@@ -1,6 +1,15 @@
 """Shared presentation of policy levers; names and values stay in model units."""
 from __future__ import annotations
 
+BILL_SURCHARGE_EQUITY_LABEL = "Equità del supplemento in bolletta"
+BILL_SURCHARGE_EQUITY_RADAR_LABEL = "Equità\nsupplemento\nin bolletta"
+BILL_SURCHARGE_EQUITY_HELP = (
+    "Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri "
+    "oneri rappresentati nel modello. L’indice confronta il saldo cumulato fra "
+    "supplementi pagati e incentivi PV ricevuti dai diversi tipi di famiglia, "
+    "ponderato per il numero di famiglie rappresentate."
+)
+
 
 POLICY_LABELS = {
     "PV rebate cantonal": {
