@@ -15,9 +15,7 @@ from echarts_charts import (
 )
 from sd_explainer.loaders import (
     _year_column,
-    calibration_to_grouped,
-    load_calibration_csv,
-    load_calibration_extra,
+    load_calibration_series,
     load_map_html,
     load_historical_hydro_production,
     load_production_csv,
@@ -689,22 +687,11 @@ def render_step_quantitative_model() -> None:
 
 
 CALIBRATION_CHARTS = (
-    ("Fotovoltaico", "sd_cal_pv", "Nuove installazioni annue PV"),
-    ("Pompe di calore", "sd_cal_hp", "Nuove installazioni annue pompe di calore"),
-    ("Accumulatori", "sd_cal_bat", "Nuovi accumulatori residenziali per anno"),
-    ("Veicoli elettrici", "sd_cal_bev", "Nuove immatricolazioni annue di veicoli elettrici"),
+    ("Fotovoltaico", "sd_cal_pv", "Nuove installazioni annue PV", "edifici/anno"),
+    ("Pompe di calore", "sd_cal_hp", "Nuove installazioni annue pompe di calore", "edifici/anno"),
+    ("Accumulatori", "sd_cal_bat", "Nuovi accumulatori residenziali per anno", "edifici/anno"),
+    ("Veicoli elettrici", "sd_cal_bev", "Nuove immatricolazioni annue di veicoli elettrici", "veicoli/anno"),
 )
-
-
-def _calibration_series(tech: str) -> tuple[list[str], dict[str, list]]:
-    """Serie osservata e simulata 2011-2024 per una delle tecnologie calibrate."""
-    files = {
-        "Fotovoltaico": "Calibration_PV.csv",
-        "Pompe di calore": "Calibration_HP.csv",
-    }
-    if tech in files:
-        return calibration_to_grouped(load_calibration_csv(files[tech]))
-    return load_calibration_extra(tech)
 
 
 def render_step_calibration() -> None:
@@ -763,22 +750,22 @@ def render_step_calibration() -> None:
         "osservato sul periodo di calibrazione."
     )
 
-    data = {tech: _calibration_series(tech) for tech, _, _ in CALIBRATION_CHARTS}
+    data = {tech: load_calibration_series(tech) for tech, *_ in CALIBRATION_CHARTS}
 
     metric_cols = st.columns(4)
-    for col, (tech, _, _) in zip(metric_cols, CALIBRATION_CHARTS):
+    for col, (tech, *_) in zip(metric_cols, CALIBRATION_CHARTS):
         _, series = data[tech]
-        observed = sum(v for v in series["Dati storici"] if v is not None)
+        observed = sum(v for v in series["Osservato"] if v is not None)
         col.metric(tech, f"{observed:,.0f}".replace(",", "'"))
 
     rows = [CALIBRATION_CHARTS[:2], CALIBRATION_CHARTS[2:]]
     for row in rows:
-        for col, (tech, chart_key, title) in zip(st.columns(2), row):
+        for col, (tech, chart_key, title, unit) in zip(st.columns(2), row):
             years, series = data[tech]
             with col:
                 _render_echarts_grouped(
                     years, series,
-                    unit="adozioni/anno",
+                    unit=unit,
                     chart_key=chart_key,
                     title=title,
                 )

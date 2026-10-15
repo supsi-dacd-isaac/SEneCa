@@ -11,6 +11,7 @@ from dotenv import dotenv_values
 from sd_explainer.paths import (
     EV_INPUT_CSV,
     HOUR_FACTORS_CSV,
+    HP_INPUT_CSV,
     MAP_HTML,
     PLOTS_DATA,
     PV_INPUT_CSV,
@@ -127,22 +128,6 @@ def production_line_series(
 
 
 @st.cache_data(show_spinner=False)
-def load_calibration_csv(filename: str) -> pd.DataFrame:
-    """Calibrazione: righe Simulate/Dati storici, colonne anni."""
-    return pd.read_csv(PLOTS_DATA / filename, sep=";", index_col=0, on_bad_lines="skip")
-
-
-def calibration_to_grouped(df: pd.DataFrame) -> tuple[list[str], dict[str, list[float | None]]]:
-    """Wide calibrazione -> anni + serie per riga."""
-    years = [str(int(c)) for c in df.columns]
-    series = {
-        str(idx): [float(v) if pd.notna(v) else None for v in df.loc[idx].tolist()]
-        for idx in df.index
-    }
-    return years, series
-
-
-@st.cache_data(show_spinner=False)
 def load_workshop_priorities() -> pd.DataFrame:
     """Priorità indicate dagli stakeholder: voce, menzioni alta e bassa.
 
@@ -179,7 +164,25 @@ def load_map_html() -> str | None:
     )
 
 
-_EXTRA_CALIBRATION = {
+# Stesse aggregazioni di plot_calibration_obs_sim.PANELS (Figura 5.1):
+# totale cantonale per tipologia edilizia, BEV per i veicoli.
+_CALIBRATION_SERIES = {
+    "Fotovoltaico": (
+        PV_INPUT_CSV,
+        [
+            "Adoption PV Type[SFH]",
+            "Adoption PV Type[DFH]",
+            "Adoption PV Type[MFH]",
+        ],
+    ),
+    "Pompe di calore": (
+        HP_INPUT_CSV,
+        [
+            "Adoption HP Type[SFH]",
+            "Adoption HP Type[DFH]",
+            "Adoption HP Type[MFH]",
+        ],
+    ),
     "Accumulatori": (
         PV_INPUT_CSV,
         [
@@ -193,18 +196,23 @@ _EXTRA_CALIBRATION = {
 
 
 @st.cache_data(show_spinner=False)
-def load_calibration_extra(
+def load_calibration_series(
     tech: str,
 ) -> tuple[list[str], dict[str, list[float | None]]]:
-    """Osservato contro simulato per accumulatori e veicoli elettrici.
+    """Osservato (input del modello) contro simulato, 2011-2024.
 
-    L'osservato viene dagli input del modello (`Vensim/`), il simulato dalla
-    corsa di calibrazione usata per le figure della documentazione.
+    L'osservato è la somma delle serie in `Vensim/PVinput.csv`, `HPinput.csv`
+    o `EVinput.csv`, gli stessi dati letti da SURE tramite i file `.vdfx`.
+    Il simulato viene da `calibration_sim_adoptions_v3.csv`, la corsa usata
+    per `documentation_figures/fig_calibration_obs_sim.png`.
     """
-    obs_path, rows = _EXTRA_CALIBRATION[tech]
+    obs_path, rows = _CALIBRATION_SERIES[tech]
 
     obs_raw = pd.read_csv(obs_path, index_col=0)
-    years = [c for c in obs_raw.columns if c.strip().isdigit() and int(c) <= 2024]
+    years = [
+        c for c in obs_raw.columns
+        if str(c).strip().isdigit() and 2011 <= int(c) <= 2024
+    ]
     observed = sum(
         pd.to_numeric(obs_raw.loc[row, years], errors="coerce").fillna(0.0)
         for row in rows
@@ -214,9 +222,9 @@ def load_calibration_extra(
     simulated = sim_raw[rows].sum(axis=1)
     simulated = simulated.reindex([int(y) for y in years])
 
-    return years, {
-        "Dati storici": [float(v) for v in observed],
-        "Simulate": [None if pd.isna(v) else float(v) for v in simulated],
+    return [str(y) for y in years], {
+        "Osservato": [float(v) for v in observed],
+        "Simulato": [None if pd.isna(v) else float(v) for v in simulated],
     }
 
 
