@@ -8,6 +8,8 @@ from __future__ import annotations
 import itertools
 from pathlib import Path
 
+from pv_batteries.policy_labels import input_metadata, format_value
+
 import numpy as np
 import pandas as pd
 
@@ -43,58 +45,11 @@ POLICY_GRID: dict[str, list[float]] = {
 }
 POLICY_ORDER = list(POLICY_GRID.keys())
 
-POLICY_META = {
-    "Cantonal PV support": {
-        "label": "Incentivi cantonali PV",
-        "unit": "-",
-        "kind": "binary",
-        "help": (
-            "Comprende sia la presenza del rimborso cantonale sia la "
-            "rimunerazione per l'elettricità da parte del cantone."
-        ),
-    },
-    "Battery Rebate": {
-        "label": "Rimborso batterie",
-        "unit": "-",
-        "kind": "numeric",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-    "Renewable heating incentives": {
-        "label": "Incentivi riscaldamento rinnovabile",
-        "unit": "-",
-        "kind": "numeric",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-    "Retrofit incentive input": {
-        "label": "Incentivo risanamento",
-        "unit": "CHF/m2",
-        "kind": "numeric",
-        "help": "Incentivi per metro quadro di elemento strutturale risanato.",
-    },
-    "PV reg scenario": {
-        "label": "Obbligo PV nuovi edifici",
-        "unit": "-",
-        "kind": "binary",
-    },
-    "MuKEn scenario": {
-        "label": "Regolamentazione riscaldamento",
-        "unit": "-",
-        "kind": "muken",
-    },
-    "Energy Community scenario": {
-        "label": "Comunità energetica (RCPv)",
-        "unit": "-",
-        "kind": "binary",
-        "help": (
-            "Questa policy dà la possibilità di creare comunità energetiche "
-            "virtuali (RCPv)."
-        ),
-    },
-}
+POLICY_META = input_metadata(POLICY_ORDER)
 
 MUKEN_LABELS: dict[float, str] = {
-    0.0: "Nessuna",
-    2.0: "MoPEc 2025",
+    0.0: "Nessuno",
+    2.0: "MoPEC 2025",
 }
 
 # =============================================================
@@ -182,13 +137,13 @@ KPI_SPEC: dict[str, dict] = {
                 "risanamento, al netto dei fondi federali della tassa CO₂.",
     },
     "pv_self_coverage": {
-        "label": "Domanda coperta dal FV autoconsumato",
+        "label": "Domanda coperta dal PV autoconsumato",
         "unit": "%",
         "higher_is_better": True,
-        "help": "Quota della domanda elettrica totale coperta dal FV autoconsumato "
+        "help": "Quota della domanda elettrica totale coperta dal PV autoconsumato "
                 "nel 2050. Rapporto tra Total PV electricity SC (GWh) e la somma "
                 "di Total annual demand Districts (kWh), convertita in GWh. "
-                "Non è la quota autoconsumata della produzione FV.",
+                "Non è la quota autoconsumata della produzione PV.",
     },
 }
 KPI_ORDER = list(KPI_SPEC.keys())
@@ -290,14 +245,7 @@ def policy_id_from_values(values: dict[str, float]) -> int:
 
 
 def format_policy_value(name: str, value: float) -> str:
-    meta = POLICY_META[name]
-    if meta["kind"] == "binary":
-        return "Sì" if float(value) >= 0.5 else "No"
-    if meta["kind"] == "muken":
-        return MUKEN_LABELS.get(float(value), f"{value:g}")
-    unit = meta["unit"]
-    text = f"{value:g}"
-    return f"{text} {unit}" if unit and unit != "-" else text
+    return format_value(POLICY_META[name], value)
 
 
 def n_policy_mixes() -> int:

@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pv_batteries.policy_labels import input_metadata
+
 ROOT = Path(__file__).resolve().parent.parent
 VPMX = ROOT / "Vensim" / "SURE.vpmx"
 STORE_DIR = ROOT / "precomputed" / "pv_batteries"
@@ -56,41 +58,7 @@ BASE_SCENARIO: dict[str, float] = {
 }
 
 # Etichette/unita' per la UI (allineate all'Excel)
-INPUT_META = {
-    "PV rebate cantonal": {
-        "label": "Rimborso PV cantonale",
-        "unit": "-",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-    "FiT": {
-        "label": "Rimunerazione elettricità",
-        "unit": "Rp/kWh",
-        "scale": 100,
-        "help": (
-            "Rimunerazione per l'elettricità non autoconsumata e immessa in rete, "
-            "in aggiunta all'attuale rimunerazione FER."
-        ),
-    },
-    "Battery Rebate": {
-        "label": "Rimborso batterie",
-        "unit": "-",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-    "PV rebate federal": {
-        "label": "Rimborso PV federale",
-        "unit": "-",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-    "PV reg scenario": {"label": "Obbligo PV nuovi edifici", "unit": "-"},
-    "Energy Community scenario": {
-        "label": "Comunità energetica (RCPv)",
-        "unit": "-",
-        "help": (
-            "Questa policy dà la possibilità di creare comunità energetiche "
-            "virtuali (RCPv)."
-        ),
-    },
-}
+INPUT_META = input_metadata(INPUT_ORDER)
 
 # =============================================================
 # OUTPUT (foglio "Output PV e Batterie")
@@ -179,7 +147,7 @@ OUTPUTS = [
      "title": "Energia PV annuale",
      "cumulative_title": "Energia PV cumulata",
      "time_basis": "flow", "history": "pv_production",
-     "history_note": "Produzione FV storica cantonale in GWh, disponibile fino al 2023. "
+     "history_note": "Produzione PV storica cantonale in GWh, disponibile fino al 2023. "
                      "Non sono disponibili serie storiche separate per autoconsumo e immissione in rete.",
      "desc": "Totale energia prodotta, iniettata in rete e autoconsumata",
      "height": 450,
