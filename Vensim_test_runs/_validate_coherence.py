@@ -57,7 +57,7 @@ def build_scenarios() -> dict[str, dict[str, float]]:
 
 
 class Vensim:
-    def __init__(self):
+    def __init__(self, model_path=None):
         self.dll = ctypes.WinDLL(paths.DLL_PATH)
         d = self.dll
         d.vensim_command.argtypes = [ctypes.c_char_p]
@@ -71,7 +71,7 @@ class Vensim:
         d.vensim_be_quiet.restype = ctypes.c_int
         d.vensim_be_quiet(2)
         os.chdir(paths.VENSIM)
-        self._cmd(f"SPECIAL>LOADMODEL|{paths.MODEL_VPMX}")
+        self._cmd(f"SPECIAL>LOADMODEL|{model_path or paths.MODEL_VPMX}")
         self._maxn = 4096
         self._vv = (ctypes.c_float * self._maxn)()
         self._tt = (ctypes.c_float * self._maxn)()

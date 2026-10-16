@@ -1,0 +1,43 @@
+{
+  "status": "python_checks_passed_native_validation_pending_no_release",
+  "upstream_commit": "c8a7cd8e26e39ee1e423699620f3f587b63f5413",
+  "pysd_version": "3.14.3",
+  "fer_unittest_methods": 6,
+  "dispatch_unittest_methods": 2,
+  "unrounded_replay_atol": 1e-11,
+  "fixture": {
+    "cases": 189,
+    "supplier_cells": 3402,
+    "max_abs": 2.0184387480859378e-08,
+    "atol": 1e-07,
+    "pass": true
+  },
+  "full_runs": {
+    "base": {
+      "python_physical": {
+        "max_balance_error": 1.6653345369377348e-16,
+        "min_dispatch": 0.0,
+        "max_capacity_excess": 0.0,
+        "max_unserved": 1.1102230246251565e-16,
+        "pass": true
+      },
+      "pass": true
+    },
+    "high": {
+      "python_physical": {
+        "max_balance_error": 1.6653345369377348e-16,
+        "min_dispatch": 0.0,
+        "max_capacity_excess": 0.0,
+        "max_unserved": 1.1102230246251565e-16,
+        "pass": true
+      },
+      "pass": true
+    }
+  },
+  "native_tested": false,
+  "sha256": {
+    "Vensim/SURE.mdl": "db465e5d10dba0d921ac91fb3d58ff0aef2cdd19c3644e7b58f562fe0c7182e8",
+    "Vensim/SURE_pysd_v6.py": "fb200edcb92e9b271846fff5014ce9aab7f475f6e7143c0b99f4a53fdf4cb0cb",
+    "constants_ref_v6.pkl": "2a9d6c7e9951429b5735da060c7ce61a75ba8cacde00ede29e425b4151f9ee4f"
+  }
+}
