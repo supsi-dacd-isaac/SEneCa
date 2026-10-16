@@ -1369,7 +1369,7 @@ PV cantonal subsidy[District,Type]=
 	IF THEN ELSE(Time < 2026, PV federal subsidy check[District,Type] / 2 , PV initial cantonal subsidy\
 		[District,Type] ) )
 	~	CHF
-	~		|
+	~	RFER art. 25: annual 2022 approximates the change on 1 April 2022.	|
 
 PV reg scenario=
 	1
@@ -4373,14 +4373,17 @@ Battery residential Type[Type]=
 "PV cantonal subsidy 30 - 100 kW check"=
 	IF THEN ELSE(Time < 2022,
 	MIN( 250000, "PV federal subsidy 30 - 100 kW check" / 3 ) ,
-	IF THEN ELSE( Time < 2026 , MIN( 250000, "PV federal subsidy 30 - 100 kW check" / 3 \
-		* ( "Average power PV 30 - 100 kW" - 30 ) / "Average power PV 30 - 100 kW" + "PV federal subsidy 30 - 100 kW check"\
-		 / 2 * 30 / "Average power PV 30 - 100 kW" ) ,
+	IF THEN ELSE( Time < 2026 , MIN( 250000, "PV federal subsidy 30 - 100 kW check" / 3 * ( "Average power PV 30 - 100 kW"\
+		 - 30 ) / "Average power PV 30 - 100 kW" + "PV federal subsidy 30 - 100 kW check" / 2 * 30 / "Average power PV 30 - 100 kW" ) ,
 	IF THEN ELSE( Exploratory analysis > 0 , "PV 30 - 100 kW investment cost Time adj" *\
 		 0.1 * Cantonal PV support , PV rebate cantonal * "PV 30 - 100 kW investment cost Time adj"\
 		 ) ) )
 	~	CHF
-	~		|
+	~	RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022.
+	50% of the proportional RU share for the first 30 kW; 1/3 of the excess.
+	Historical cap CHF 250000. Proportional RU allocation remains an approximation
+	(including the fixed federal grant). The branch from 2026 is unchanged.
+	See docs/validation/FER_CANTONAL_CORRECTION.md.	|
 
 "PV federal subsidy > 100 kW check"=
 	IF THEN ELSE( Time < 2026 , 
@@ -4423,14 +4426,18 @@ Share of buildings with PV by Type[Type]=
 
 "PV cantonal subsidy > 100 kW check"=
 	IF THEN ELSE( Time < 2022, MIN( 250000, "PV federal subsidy > 100 kW check" / 3 ) ,
-	IF THEN ELSE( Time < 2026 , MIN( 250000, "PV federal subsidy > 100 kW check"/ 3 * ( \
-		"Average power PV > 100 kW"- 30 ) / "Average power PV > 100 kW" + "PV federal subsidy > 100 kW check"\
-		 / 2 * 30 / "Average power PV > 100 kW" ) ,
+	IF THEN ELSE( Time < 2026 , MIN( 250000, "PV federal subsidy > 100 kW check"/ 3 * ( "Average power PV > 100 kW"\
+		- 30 ) / "Average power PV > 100 kW" + "PV federal subsidy > 100 kW check" / 2 * 30\
+		 / "Average power PV > 100 kW" ) ,
 	IF THEN ELSE( Exploratory analysis > 0 , "PV > 100 kW investment cost Time adj" * 0.1\
 		 * Cantonal PV support , PV rebate cantonal * "PV > 100 kW investment cost Time adj"\
 		 ) ) )
 	~	CHF
-	~		|
+	~	RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022.
+	50% of the proportional RU share for the first 30 kW; 1/3 of the excess.
+	Historical cap CHF 250000. Proportional RU allocation remains an approximation
+	(including the fixed federal grant). The branch from 2026 is unchanged.
+	See docs/validation/FER_CANTONAL_CORRECTION.md.	|
 
 Battery residential flow[District,HS,Performance,Type]=
 	( Battery capacity[District,HS,Performance,Type] + Buildings construction with battery\
@@ -7374,14 +7381,38 @@ Ppriority by supplier[Supplier]=
 	~	
 	~		|
 
+Dispatchable supply by supplier[Month,Hour,Supplier]=
+	MAX(0, Hourly available supply by Supplier[Month,Hour,Supplier])
+	~	
+	~	Non-negative capacity offered to dispatch. This makes the existing zero 
+		allocation for negative raw hydro supply explicit in the native source.
+	|
+
 Electricity dispatched[Month,Hour,Supplier]=
-	ALLOCATE AVAILABLE( Hourly available supply by Supplier[Month,Hour,Supplier], 
-	Priority vector by supplier[Supplier,ptype] , 
+	ALLOCATE BY PRIORITY( Dispatchable supply by supplier[Month,Hour,Supplier],
+	Ppriority by supplier[Supplier], ELMCOUNT(Supplier), Supplier priority width,
 	Hourly demand and PHS[Month,Hour] )
 	~	
-	~	ALLOCATE AVAILABLE( Hourly available supply by Supplier[Month,Hour,Supplier], 
-		Priority vector by supplier[Supplier,ptype] , 
-		Hourly demand and PHS[Month,Hour] )
+	~	Common-width rectangular allocation (priority type 1). Preserves cost 
+		priorities, width 0.1 and proportional sharing at equal priorities. 
+		Avoids ALLOCATE AVAILABLE's flat-profile search for this dispatch. 
+		Validate natively before using for recalibration or release.
+	|
+
+Electricity dispatch balance error[Month,Hour]=
+	SUM(Electricity dispatched[Month,Hour,Supplier!]) -
+	MIN(Hourly demand and PHS[Month,Hour],
+	SUM(Dispatchable supply by supplier[Month,Hour,Supplier!]))
+	~	
+	~	Diagnostic: zero when dispatch equals demand capped by total capacity. 
+		Does not modify the dispatch or hide a capacity shortfall.
+	|
+
+Unserved hourly electricity[Month,Hour]=
+	MAX(0, Hourly demand and PHS[Month,Hour] -
+	SUM(Electricity dispatched[Month,Hour,Supplier!]))
+	~	
+	~	Diagnostic: demand not served, including any capacity shortfall.
 	|
 
 Priority vector by supplier[Supplier,ptype]=

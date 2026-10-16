@@ -7,36 +7,26 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from pysd.py_backend.functions import vmin, sum, vmax, if_then_else
-from pysd.py_backend.statefuls import Integ, DelayFixed, Smooth
+from pysd.py_backend.functions import if_then_else, sum, vmax, vmin
+from pysd.py_backend.statefuls import DelayFixed, Integ, Smooth
 from pysd.py_backend.external import ExtData
-from pysd.py_backend.allocation import (
-    allocate_available as _pysd_allocate_available,
-    allocate_by_priority as _pysd_allocate_by_priority,
-)
+from pysd.py_backend.allocation import allocate_by_priority as _pysd_allocate_by_priority
 
 
-def allocate_available(request, pp, avail):  # allocate_nonneg: wrapper
-    """ALLOCATE AVAILABLE allineato a Vensim.
+def allocate_by_priority(request, priority, width, supply):  # allocate_priority_endpoint:
+    """Guard PySD 3.14.3's empty active set within roundoff of full capacity.
 
-    Le richieste negative sono azzerate: Vensim non le dispaccia e non
-    segnala errore, PySD invece solleva ValueError.
-
-    Con profilo rettangolare e una sola ampiezza, l'ordine di merito e'
-    esatto e coincide con il profilo rettangolare stretto di Vensim.
+    The allocator can exhaust its active suppliers while a sub-ULP residue
+    remains. Snap only supply within four Float64 ULPs of total capacity.
+    This does not discard small positive import residuals.
     """
-    if np.any(np.asanyarray(request) < 0):
-        request = request.clip(min=0.0)
-    pdim = pp.dims[-1]
-    ptype = np.asanyarray(pp.isel({pdim: 0}))
-    width = np.asanyarray(pp.isel({pdim: 2}), dtype=float)
-    widths = np.unique(np.round(width[np.isfinite(width)], 6))
-    if not (ptype.size and np.all(ptype == 1) and widths.size == 1):
-        return _pysd_allocate_available(request, pp, avail)
-    priority = pp.isel({pdim: 1})
-    w = float(widths[0])
-    width_b = (xr.zeros_like(avail) + w) if hasattr(avail, "dims") else w
-    return _pysd_allocate_by_priority(request, priority, width_b, avail)
+    total = request.sum(dim=request.dims[-1])
+    near_full = (supply < total) & ((total - supply) <= 4 * np.spacing(total))
+    if bool(near_full.any()):
+        supply = xr.where(near_full, total, supply)
+        if supply.ndim == 0:
+            supply = float(supply)
+    return _pysd_allocate_by_priority(request, priority, width, supply)
 from pysd import Component
 
 __pysd_version__ = "3.14.3"
@@ -671,16 +661,16 @@ def pv_kw_residential_demolished():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 3,
-        "share_of_buildings_with_suitable_roof": 3,
-        "share_urban_buildings": 1,
-        "share_of_owned_houses": 3,
-        "owned_buildings_with_rcpv": 3,
-        "energy_community_scenario": 2,
-        "owned_buildings_with_rcpv_pvno": 2,
-        "probability_adoption_rcp_owners": 3,
-        "heating_solution": 9,
         "owned_buildings_with_rcp": 3,
+        "share_of_buildings_with_suitable_roof": 3,
+        "owned_buildings_with_rcpv_pvno": 2,
+        "share_urban_buildings": 1,
+        "owned_buildings_with_pv": 3,
+        "heating_solution": 9,
+        "owned_buildings_with_rcpv": 3,
+        "probability_adoption_rcp_owners": 3,
+        "energy_community_scenario": 2,
+        "share_of_owned_houses": 3,
     },
 )
 def requested_owners_adopting_rcp():
@@ -882,16 +872,16 @@ def requested_owners_adopting_rcp():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 4,
-        "share_of_buildings_with_suitable_roof": 6,
-        "share_of_owned_houses": 4,
-        "owned_buildings_with_rcpv": 4,
-        "heating_solution": 16,
-        "probability_adoption_pv_owners": 6,
         "owned_buildings_with_rcp": 4,
+        "share_of_buildings_with_suitable_roof": 6,
+        "probability_adoption_pv_owners": 6,
+        "owned_buildings_with_pv": 4,
+        "heating_solution": 16,
+        "owned_buildings_with_rcpv": 4,
+        "share_of_owned_houses": 4,
+        "owned_buildings_with_rcpv_pvno": 3,
         "energy_community_scenario": 2,
         "share_urban_buildings": 3,
-        "owned_buildings_with_rcpv_pvno": 3,
     },
 )
 def requested_owners_adopting_pv():
@@ -1328,16 +1318,16 @@ _integ_rented_buildings_with_pv = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "rented_buildings_with_pv": 3,
         "share_of_buildings_with_suitable_roof": 3,
-        "share_urban_buildings": 1,
-        "share_of_owned_houses": 3,
         "rented_buildings_with_rcp": 3,
         "rented_buildings_with_rcpv": 3,
+        "share_urban_buildings": 1,
         "heating_solution": 9,
         "probability_adoption_rcp_renters": 3,
         "rented_buildings_with_rcpv_pvno": 2,
+        "rented_buildings_with_pv": 3,
         "energy_community_scenario": 2,
+        "share_of_owned_houses": 3,
     },
 )
 def requested_renters_adopting_rcp():
@@ -1680,15 +1670,15 @@ def annual_fuel_cost_archetype():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "rented_buildings_with_pv": 4,
         "share_of_buildings_with_suitable_roof": 6,
-        "share_of_owned_houses": 6,
         "probability_adoption_pv_renters": 6,
+        "rented_buildings_with_rcp": 4,
         "rented_buildings_with_rcpv": 4,
         "heating_solution": 16,
-        "rented_buildings_with_rcp": 4,
-        "share_urban_buildings": 1,
+        "rented_buildings_with_pv": 4,
+        "share_of_owned_houses": 6,
         "energy_community_scenario": 2,
+        "share_urban_buildings": 1,
         "rented_buildings_with_rcpv_pvno": 3,
     },
 )
@@ -1993,8 +1983,8 @@ def equipped_buildings():
     comp_subtype="Normal",
     depends_on={
         "equipped_buildings": 3,
-        "rented_buildings_with_pv": 1,
         "building_demolition_by_archetype": 1,
+        "rented_buildings_with_pv": 1,
     },
 )
 def rented_buildings_with_pv_demolished():
@@ -2065,8 +2055,8 @@ def rented_buildings_with_rcp_demolished():
     comp_subtype="Normal",
     depends_on={
         "equipped_buildings": 3,
-        "building_demolition_by_archetype": 1,
         "owned_buildings_with_rcpv": 1,
+        "building_demolition_by_archetype": 1,
     },
 )
 def owned_buildings_with_rcpv_demolished():
@@ -2919,10 +2909,10 @@ def investment_cost_hs_nost_adj():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_investment_cost": 2,
-        "exploratory_analysis": 1,
         "pv_rebate_cantonal": 1,
         "cantonal_pv_support": 1,
+        "pv_investment_cost": 2,
+        "exploratory_analysis": 1,
     },
 )
 def pv_initial_cantonal_subsidy():
@@ -4962,6 +4952,9 @@ def hourly_exported_electricity():
     },
 )
 def pv_cantonal_subsidy():
+    """
+    RFER art. 25: annual 2022 approximates the change on 1 April 2022.
+    """
     return if_then_else(
         time() < 2022,
         lambda: pv_federal_subsidy_check() / 3,
@@ -5083,8 +5076,8 @@ def grant_share_st():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "investment_grant_per_kw_15_kw_1": 1,
         "st_installed_capacity_by_arch": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute_st": 1,
     },
@@ -5154,11 +5147,11 @@ def grant_share_hp():
     comp_subtype="Normal",
     depends_on={
         "time": 3,
-        "buildings_construction": 3,
-        "coeff_roof_suitability": 3,
         "heating_solution": 6,
-        "res_total_construction_by_perf_type_district": 3,
+        "coeff_roof_suitability": 3,
+        "buildings_construction": 3,
         "pv_reg_scenario": 1,
+        "res_total_construction_by_perf_type_district": 3,
         "building_construction_by_archetype": 2,
     },
 )
@@ -5426,8 +5419,8 @@ def annual_subsidy_fit_by_archetype():
     depends_on={
         "probability_of_adoption_pv_district_delay_1": 1,
         "probability_of_adoption_pv_district_delay_2": 1,
-        "probability_of_adoption_and_battery_district_delay_1": 1,
         "probability_of_adoption_and_battery_district_delay_2": 1,
+        "probability_of_adoption_and_battery_district_delay_1": 1,
     },
 )
 def probability_of_adoption_pv_and_battery_district_smooth():
@@ -6067,8 +6060,8 @@ def incentive_oilst_from_os_by_archetype():
         "pv_investment_cost": 4,
         "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
-        "pv_federal_subsidy_check": 2,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def pv_capex():
@@ -6395,12 +6388,12 @@ def adoptions_hpst_from_hs_by_archetype():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_size_by_type_and_district": 1,
-        "low_changing_wall": 1,
         "wall_low_probabilities": 1,
+        "low_changing_wall": 1,
+        "wall_size_by_type_and_district": 1,
         "ground_low_probabilities": 1,
-        "low_changing_ground": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -7014,8 +7007,8 @@ def average_retrofit_cost():
     comp_subtype="Normal",
     depends_on={
         "adoptions_woodst_from_os_by_archetype": 1,
-        "grant_st": 1,
         "grant_pelletboiler_woodst": 1,
+        "grant_st": 1,
     },
 )
 def incentive_woodst_from_os_by_archetype():
@@ -7791,12 +7784,12 @@ _integ_cumulative_co2_tax_archetype = Integ(
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
+        "verylow_changing_wall": 1,
         "wall_verylow_probabilities": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_wall": 1,
-        "verylow_changing_ground": 1,
-        "ground_verylow_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -8538,8 +8531,8 @@ def funds_coming_from_federal_co2_tax_2025():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "funds_coming_from_federal_co2_tax_2025": 1,
         "increase_co2_tax_scenario": 1,
+        "funds_coming_from_federal_co2_tax_2025": 1,
     },
 )
 def funds_coming_from_federal_co2_tax():
@@ -8898,8 +8891,8 @@ def annual_dhw_consumption_electricity_hp_by_type():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "market_share_hs_filtered": 3,
         "market_share_hs_no_incentives_filtered": 3,
+        "market_share_hs_filtered": 3,
         "consumers_leaving_hs_for_old_age": 9,
     },
 )
@@ -8977,9 +8970,9 @@ def buildings_adopting_hs_for_old_age():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "low_to_performance_sq_m": 5,
         "incentive_minergie": 2,
         "incentive_cece": 2,
-        "low_to_performance_sq_m": 5,
         "incentive_base": 1,
     },
 )
@@ -9055,12 +9048,12 @@ def investment_grant_per_kw_15_kw():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_size_by_type_and_district": 1,
-        "low_changing_wall": 1,
         "wall_low_probabilities": 1,
+        "low_changing_wall": 1,
+        "wall_size_by_type_and_district": 1,
         "ground_low_probabilities": 1,
-        "low_changing_ground": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
     },
 )
 def low_to_performance_sq_m():
@@ -9472,15 +9465,15 @@ def roof_specific_cost():
         "_smooth_total_present_variable_costs_sh_roof": {
             "initial": {
                 "annual_variable_costs_sh": 1,
+                "roof_lifetime": 1,
                 "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
-                "roof_lifetime": 1,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
+                "roof_lifetime": 1,
                 "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
-                "roof_lifetime": 1,
             },
         }
     },
@@ -9587,9 +9580,9 @@ _smooth_total_present_variable_costs_sh_wall = Smooth(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "incentive_minergie": 2,
         "verylow_to_performance_sq_m": 5,
         "incentive_cece": 2,
-        "incentive_minergie": 2,
         "incentive_base": 1,
     },
 )
@@ -9847,12 +9840,12 @@ def incentive_per_tech_by_archetype():
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
+        "verylow_changing_wall": 1,
         "wall_verylow_probabilities": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_wall": 1,
-        "verylow_changing_ground": 1,
-        "ground_verylow_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance_sq_m():
@@ -11953,8 +11946,8 @@ def utility_pv_30_100_kw():
     depends_on={
         "delta_100_kw": 1,
         "share_of_consumers_considering_pv_stock_factor": 1,
-        "irr_100_kw": 1,
         "pv_nonres_eco_weight": 1,
+        "irr_100_kw": 1,
     },
 )
 def utility_pv_100_kw():
@@ -12380,12 +12373,12 @@ def market_share_hs_no_incentives():
     depends_on={
         "market_share_hs_no_incentives": 1,
         "dh_and_gas_suitability": 1,
-        "dh_only_suitability": 1,
         "market_share_hs_no_incentives_nogas": 1,
-        "gas_only_suitability": 1,
+        "dh_only_suitability": 1,
         "market_share_hs_no_incentives_nodh": 1,
-        "market_share_hs_no_incentives_nodh_nogas": 1,
+        "gas_only_suitability": 1,
         "no_suitability": 1,
+        "market_share_hs_no_incentives_nodh_nogas": 1,
     },
 )
 def market_share_hs_no_incentives_filtered():
@@ -12681,8 +12674,8 @@ def ground_cost_low():
     comp_subtype="Normal",
     depends_on={
         "roof_cost": 1,
-        "total_present_variable_costs_sh_average": 8,
         "roof_cost_low": 1,
+        "total_present_variable_costs_sh_average": 8,
         "roof_cost_moderate": 1,
         "roof_cost_high": 1,
         "roof_cost_veryhigh": 1,
@@ -12940,8 +12933,8 @@ def ground_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "ground_cost_moderate": 3,
-        "ground_cost_high": 1,
         "total_present_variable_costs_sh_average_ground": 4,
+        "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
     },
 )
@@ -13094,8 +13087,8 @@ def ground_moderate_scaled():
     depends_on={
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
-        "low_changing_wall": 1,
         "wall_low_probabilities": 1,
+        "low_changing_wall": 1,
         "ground_low_probabilities": 1,
         "low_changing_ground": 1,
     },
@@ -13248,8 +13241,8 @@ def ground_verylow_scaled():
     comp_subtype="Normal",
     depends_on={
         "wall_cost_low": 2,
-        "total_present_variable_costs_sh_average_wall": 6,
         "wall_cost_moderate": 1,
+        "total_present_variable_costs_sh_average_wall": 6,
         "wall_cost_high": 1,
         "wall_cost_veryhigh": 1,
     },
@@ -13333,10 +13326,10 @@ def wall_low_probabilities():
     depends_on={
         "high_changing_roof": 1,
         "roof_high_probabilities": 1,
-        "high_changing_wall": 1,
         "wall_high_probabilities": 1,
-        "ground_high_probabilities": 1,
+        "high_changing_wall": 1,
         "high_changing_ground": 1,
+        "ground_high_probabilities": 1,
     },
 )
 def high_to_performance():
@@ -13409,8 +13402,8 @@ def moderate_to_performance():
     comp_subtype="Normal",
     depends_on={
         "wall_cost": 1,
-        "total_present_variable_costs_sh_average_wall": 8,
         "wall_cost_low": 1,
+        "total_present_variable_costs_sh_average_wall": 8,
         "wall_cost_moderate": 1,
         "wall_cost_high": 1,
         "wall_cost_veryhigh": 1,
@@ -13491,8 +13484,8 @@ def wall_verylow():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_verylow_mfh_data": 1,
         "verylow_to_performance_mfh_ms": 1,
+        "retrofit_verylow_mfh_data": 1,
     },
 )
 def retrofit_verylow_mfh_log_likelihood():
@@ -13528,8 +13521,8 @@ def wall_verylow_probabilities():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "verylow_to_performance_sfh_ms": 1,
         "retrofit_verylow_sfh_data": 1,
+        "verylow_to_performance_sfh_ms": 1,
     },
 )
 def retrofit_verylow_sfh_log_likelihood():
@@ -13713,8 +13706,8 @@ def roof_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "roof_cost_moderate": 3,
-        "total_present_variable_costs_sh_average": 4,
         "roof_cost_high": 1,
+        "total_present_variable_costs_sh_average": 4,
         "roof_cost_veryhigh": 1,
     },
 )
@@ -13875,7 +13868,7 @@ def high_changing_ground():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"wall_moderate_scaled": 1, "coeff_moderate": 1, "wall_moderate": 3},
+    depends_on={"wall_moderate_scaled": 1, "wall_moderate": 3, "coeff_moderate": 1},
 )
 def wall_moderate_scaled():
     value = xr.DataArray(
@@ -14140,8 +14133,8 @@ def wall_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "wall_cost_moderate": 3,
-        "total_present_variable_costs_sh_average_wall": 4,
         "wall_cost_high": 1,
+        "total_present_variable_costs_sh_average_wall": 4,
         "wall_cost_veryhigh": 1,
     },
 )
@@ -14424,8 +14417,8 @@ def wall_cost():
     comp_subtype="Normal",
     depends_on={
         "roof_cost_high": 4,
-        "total_present_variable_costs_sh_average": 2,
         "roof_cost_veryhigh": 1,
+        "total_present_variable_costs_sh_average": 2,
     },
 )
 def roof_high():
@@ -14474,9 +14467,9 @@ def roof_high():
     depends_on={
         "time": 1,
         "adoption_hp_district_data": 1,
+        "average_ms_nohp_district": 1,
         "average_ms_hp_district": 1,
         "adoption_nohp_district_data": 1,
-        "average_ms_nohp_district": 1,
     },
 )
 def hp_district_log_likelihood():
@@ -14645,9 +14638,9 @@ _integ_battery_capacity_100_kw_1 = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_30_100_kw_share_grant_over_cost": 1,
-        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_federal_subsidy_30_100_kw": 1,
+        "pv_30_100_kw_investment_cost_time_adj": 2,
+        "pv_30_100_kw_share_grant_over_cost": 1,
         "pv_rebate_federal": 1,
     },
 )
@@ -14671,14 +14664,17 @@ def pv_federal_subsidy_30_100_kw_check():
     depends_on={
         "time": 2,
         "pv_federal_subsidy_30_100_kw_check": 3,
-        "pv_30_100_kw_investment_cost_time_adj": 2,
         "average_power_pv_30_100_kw": 3,
-        "exploratory_analysis": 1,
         "pv_rebate_cantonal": 1,
+        "pv_30_100_kw_investment_cost_time_adj": 2,
         "cantonal_pv_support": 1,
+        "exploratory_analysis": 1,
     },
 )
 def pv_cantonal_subsidy_30_100_kw_check():
+    """
+    RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022. 50% of the proportional RU share for the first 30 kW; 1/3 of the excess. Historical cap CHF 250000. Proportional RU allocation remains an approximation (including the fixed federal grant). The branch from 2026 is unchanged. See docs/validation/FER_CANTONAL_CORRECTION.md.
+    """
     return if_then_else(
         time() < 2022,
         lambda: float(np.minimum(250000, pv_federal_subsidy_30_100_kw_check() / 3)),
@@ -14715,8 +14711,8 @@ def pv_cantonal_subsidy_30_100_kw_check():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_100_kw_investment_cost_time_adj": 2,
         "pv_100_kw_share_grant_over_cost": 1,
+        "pv_100_kw_investment_cost_time_adj": 2,
         "pv_federal_subsidy_100_kw": 1,
         "pv_rebate_federal": 1,
     },
@@ -14741,10 +14737,10 @@ def pv_federal_subsidy_100_kw_check():
     depends_on={
         "time": 4,
         "reference_levy": 1,
-        "computed_levy_avg_2035_fixed": 1,
-        "computed_levy_avg_2045_fixed": 1,
-        "computed_levy_avg_2030_fixed": 1,
         "computed_levy_avg_2040_fixed": 1,
+        "computed_levy_avg_2030_fixed": 1,
+        "computed_levy_avg_2045_fixed": 1,
+        "computed_levy_avg_2035_fixed": 1,
     },
 )
 def levy_evolution():
@@ -14853,14 +14849,17 @@ def share_of_buildings_with_pv_by_type():
     depends_on={
         "time": 2,
         "pv_federal_subsidy_100_kw_check": 3,
-        "exploratory_analysis": 1,
         "pv_rebate_cantonal": 1,
         "pv_100_kw_investment_cost_time_adj": 2,
         "average_power_pv_100_kw": 3,
         "cantonal_pv_support": 1,
+        "exploratory_analysis": 1,
     },
 )
 def pv_cantonal_subsidy_100_kw_check():
+    """
+    RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022. 50% of the proportional RU share for the first 30 kW; 1/3 of the excess. Historical cap CHF 250000. Proportional RU allocation remains an approximation (including the fixed federal grant). The branch from 2026 is unchanged. See docs/validation/FER_CANTONAL_CORRECTION.md.
+    """
     return if_then_else(
         time() < 2022,
         lambda: float(np.minimum(250000, pv_federal_subsidy_100_kw_check() / 3)),
@@ -15006,10 +15005,10 @@ def annual_incentive_battery():
     depends_on={
         "battery_incentive_30_kw": 1,
         "battery_adoption_30_kw": 1,
-        "battery_adoption_30_100_kw": 1,
         "battery_incentive_30_100_kw": 1,
-        "battery_incentive_100_kw": 1,
+        "battery_adoption_30_100_kw": 1,
         "battery_adoption_100_kw": 1,
+        "battery_incentive_100_kw": 1,
     },
 )
 def annual_incentive_battery_nonres():
@@ -15053,9 +15052,9 @@ def annual_incentive_battery_res():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_capacity_rcpv": 1,
         "battery_rebate": 1,
         "battery_investiment_cost": 1,
+        "battery_capacity_rcpv": 1,
     },
 )
 def battery_incentive_rcpv():
@@ -15109,8 +15108,8 @@ def battery_rebate():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_battery_size_30_100_kw": 1,
         "battery_rebate": 1,
+        "average_battery_size_30_100_kw": 1,
         "battery_investiment_cost": 1,
     },
 )
@@ -15130,8 +15129,8 @@ def battery_incentive_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_battery_size_30_kw": 1,
         "battery_rebate": 1,
+        "average_battery_size_30_kw": 1,
         "battery_investiment_cost": 1,
     },
 )
@@ -15152,8 +15151,8 @@ def battery_incentive_30_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_capacity": 1,
         "battery_rebate": 1,
+        "battery_capacity": 1,
         "battery_investiment_cost": 1,
     },
 )
@@ -15208,8 +15207,8 @@ def probability_adoption_battery_average():
     depends_on={
         "time": 1,
         "average_battery_size_100_kw": 1,
-        "battery_rebate": 1,
         "battery_investiment_cost": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_100_kw():
@@ -15228,8 +15227,8 @@ def battery_incentive_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_investment_cost_scenario": 1,
         "annual_battery_cost_reduction": 1,
+        "battery_investment_cost_scenario": 1,
     },
 )
 def battery_investment_cost_flow():
@@ -15851,7 +15850,7 @@ def total_pv_electricity_injected_in_the_grid():
     units="Mio CHF",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "fit": 1, "total_pv_electricity_injected_in_the_grid": 1},
+    depends_on={"time": 1, "total_pv_electricity_injected_in_the_grid": 1, "fit": 1},
 )
 def annual_incentives_cantonal_fit():
     return if_then_else(
@@ -16648,8 +16647,8 @@ def total_federal_demand_grid():
     depends_on={
         "time": 4,
         "reference_cantonal_levy": 1,
-        "computed_cantonal_levy_avg_2030_fixed": 1,
         "computed_cantonal_levy_avg_2035_fixed": 1,
+        "computed_cantonal_levy_avg_2030_fixed": 1,
         "computed_cantonal_levy_avg_2045_fixed": 1,
         "computed_cantonal_levy_avg_2040_fixed": 1,
     },
@@ -17221,11 +17220,11 @@ def battery_adoption_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "additional_power_district_with_battery_30_100_kw": 2,
-        "yearly_installed_capacity_pv_30_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
-        "average_sc_30_100_kw": 1,
         "self_consumption_degree_with_storage_100_kw": 1,
+        "yearly_installed_capacity_pv_30_100_kw": 1,
+        "average_sc_30_100_kw": 1,
+        "pv_annual_generation_per_kw": 2,
+        "additional_power_district_with_battery_30_100_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30_100_kw():
@@ -17254,13 +17253,13 @@ def additional_annual_pv_kwh_self_consumed_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_sc_30_kw": 1,
-        "pv_annual_generation_per_kw": 2,
-        "additional_power_district_with_battery_30_kw": 2,
-        "additional_annual_pv_kwh_produced_by_archetype": 1,
-        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
         "share_additional_power_30_kw": 1,
         "self_consumption_degree_with_storage_30_kw": 1,
+        "additional_power_district_with_battery_30_kw": 2,
+        "additional_annual_pv_kwh_produced_by_archetype": 1,
+        "average_sc_30_kw": 1,
+        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
+        "pv_annual_generation_per_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30():
@@ -17313,11 +17312,11 @@ def additional_annual_pv_kwh_self_consumed_30():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_sc_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
         "self_consumption_degree_with_storage_100_kw": 1,
         "yearly_installed_capacity_pv_100_kw": 1,
+        "average_sc_100_kw": 1,
         "additional_power_district_with_battery_100_kw": 2,
+        "pv_annual_generation_per_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_100_kw():
@@ -17674,10 +17673,10 @@ def battery_adoption_30_kw():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_30_100_kw": 4,
-        "average_sc_30_100_kw": 3,
         "sc_05_kwhmwh_30_100_kw": 3,
-        "sc_10_kwhmwh_30_100_kw": 3,
+        "average_sc_30_100_kw": 3,
         "sc_15_kwhmwh_30_100_kw": 1,
+        "sc_10_kwhmwh_30_100_kw": 3,
     },
 )
 def self_consumption_degree_with_storage_30_100_kw():
@@ -17780,8 +17779,8 @@ def kwh_over_mwh_of_demand_30_kw():
         "kwh_over_mwh_of_demand_30_kw": 4,
         "average_sc_30_kw": 3,
         "sc_05_kwhmwh_30_kw": 3,
-        "sc_15_kwhmwh_30_kw": 1,
         "sc_10_kwhmwh_30_kw": 3,
+        "sc_15_kwhmwh_30_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_30_kw():
@@ -18056,10 +18055,10 @@ def consumers_adopting_rcpv_yes_with_battery():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually_rcpv": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
-        "interest_rate": 2,
+        "electricity_price": 1,
         "battery_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def battery_total_savings_rcpv():
@@ -18437,10 +18436,10 @@ _delayfixed_pv_adoptions_by_archetype = DelayFixed(
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_rcpv": 5,
-        "self_consumption_degree_rcpv": 2,
         "sc_05_kwhmwh_rcpv": 3,
-        "sc_10_kwhmwh_rcpv": 3,
+        "self_consumption_degree_rcpv": 2,
         "sc_15_kwhmwh_rcpv": 1,
+        "sc_10_kwhmwh_rcpv": 3,
     },
 )
 def self_consumption_degree_with_storage_rcpv():
@@ -18482,8 +18481,8 @@ def utility_battery_exp_rcpv():
     comp_subtype="Normal",
     depends_on={
         "el_consumption_per_building": 1,
-        "self_consumption_degree_with_storage_rcpv": 1,
         "self_consumption_degree_rcpv": 1,
+        "self_consumption_degree_with_storage_rcpv": 1,
         "decentralized_storage_efficiency": 1,
     },
 )
@@ -19165,9 +19164,9 @@ def buildings_with_pv_type():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "buildings_pv_bno_type": 2,
         "adoption_battery_type_data": 4,
         "probability_of_adoption_battery_type": 4,
+        "buildings_pv_bno_type": 2,
     },
 )
 def battery_type_log_likelihood():
@@ -19231,9 +19230,9 @@ def delta_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_battery_district_data": 2,
-        "probability_of_adoption_battery_district": 2,
         "buildings_pv_bno_district": 1,
+        "probability_of_adoption_battery_district": 2,
+        "adoption_battery_district_data": 2,
     },
 )
 def battery_district_log_likelihood():
@@ -19501,9 +19500,9 @@ def hs_veryold_demolited():
     comp_subtype="Normal",
     depends_on={
         "time": 6,
-        "building_construction_by_archetype": 9,
         "market_share_hs_no_incentives_filtered": 12,
         "probability_adoption_battery": 6,
+        "building_construction_by_archetype": 9,
     },
 )
 def buildings_construction_with_battery():
@@ -19742,8 +19741,8 @@ def buildings_construction_with_battery():
         "renters_adopting_rcp": 1,
         "owners_adopting_rcpv": 1,
         "renters_adopting_rcpv": 1,
-        "building_construction_by_archetype": 1,
         "heating_solution": 2,
+        "building_construction_by_archetype": 1,
     },
 )
 def adoption_pv_heatpump():
@@ -19929,8 +19928,8 @@ def sc_05_kwhmwh():
         "renters_adopting_rcp": 2,
         "owners_adopting_rcpv": 2,
         "renters_adopting_rcpv": 2,
-        "building_construction_by_archetype": 1,
         "heating_solution": 3,
+        "building_construction_by_archetype": 1,
     },
 )
 def adoption_pv_no_heatpump():
@@ -20228,10 +20227,10 @@ def battery_lifetime():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
-        "interest_rate": 2,
+        "electricity_price": 1,
         "battery_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def battery_total_savings():
@@ -20301,10 +20300,10 @@ def buildings_by_performance_mfh():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand": 5,
-        "sc_05_kwhmwh": 3,
         "self_consumption_degree": 2,
-        "sc_10_kwhmwh": 3,
+        "sc_05_kwhmwh": 3,
         "sc_15_kwhmwh": 1,
+        "sc_10_kwhmwh": 3,
     },
 )
 def self_consumption_degree_with_storage():
@@ -21128,11 +21127,11 @@ _integ_owned_buildings_with_rcpv_pvno = Integ(
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 3,
-        "share_of_owned_houses": 1,
-        "owned_buildings_with_rcpv": 1,
-        "owners_adopting_pv": 2,
-        "building_construction_by_archetype": 1,
         "owned_buildings_with_rcp": 1,
+        "building_construction_by_archetype": 1,
+        "owners_adopting_pv": 2,
+        "owned_buildings_with_rcpv": 1,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_pv_flow():
@@ -21177,11 +21176,11 @@ def owners_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 2,
-        "share_of_owned_houses": 1,
-        "owned_buildings_with_rcpv": 1,
-        "owners_adopting_rcp": 2,
-        "building_construction_by_archetype": 1,
         "owned_buildings_with_rcp": 2,
+        "building_construction_by_archetype": 1,
+        "owners_adopting_rcp": 2,
+        "owned_buildings_with_rcpv": 1,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_rcp_flow():
@@ -21249,11 +21248,11 @@ def share_urban_buildings():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 3,
+        "rented_buildings_with_rcp": 1,
+        "building_construction_by_archetype": 1,
+        "rented_buildings_with_rcpv": 1,
         "renters_adopting_pv": 2,
         "share_of_owned_houses": 1,
-        "rented_buildings_with_rcpv": 1,
-        "building_construction_by_archetype": 1,
-        "rented_buildings_with_rcp": 1,
     },
 )
 def renters_adopting_pv_flow():
@@ -21298,11 +21297,11 @@ def renters_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 2,
+        "rented_buildings_with_rcp": 2,
+        "building_construction_by_archetype": 1,
+        "rented_buildings_with_rcpv": 1,
         "renters_adopting_rcp": 2,
         "share_of_owned_houses": 1,
-        "rented_buildings_with_rcpv": 1,
-        "building_construction_by_archetype": 1,
-        "rented_buildings_with_rcp": 2,
     },
 )
 def renters_adopting_rcp_flow():
@@ -21347,11 +21346,11 @@ def renters_adopting_rcp_flow():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 2,
-        "share_of_owned_houses": 1,
-        "renters_adopting_rcpv": 2,
-        "rented_buildings_with_rcpv": 2,
-        "building_construction_by_archetype": 1,
         "rented_buildings_with_rcp": 1,
+        "building_construction_by_archetype": 1,
+        "rented_buildings_with_rcpv": 2,
+        "renters_adopting_rcpv": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def renters_adopting_rcpv_flow():
@@ -21658,11 +21657,11 @@ def adoption_pv_district():
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 2,
-        "share_of_owned_houses": 1,
-        "owned_buildings_with_rcpv": 2,
+        "owned_buildings_with_rcp": 1,
         "building_construction_by_archetype": 1,
         "owners_adopting_rcpv": 2,
-        "owned_buildings_with_rcp": 1,
+        "owned_buildings_with_rcpv": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_rcpv_flow():
@@ -22457,8 +22456,8 @@ def a_param_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "b_param_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "a_param_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_30_100_kw_investment_cost():
@@ -23664,10 +23663,10 @@ def adoption_nohp_pvpanel_data():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_hp_pvpanel_data": 1,
-        "average_ms_hp_pvpanel": 1,
         "adoption_nohp_pvpanel_data": 1,
+        "adoption_hp_pvpanel_data": 1,
         "average_ms_nohp_pvpanel": 1,
+        "average_ms_hp_pvpanel": 1,
     },
 )
 def hp_pvpanel_log_likelihood():
@@ -23712,9 +23711,9 @@ _ext_data_adoption_pv_heatpump_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_pv_no_heatpump_data": 2,
         "probability_of_adoption_pv_no_heatpump": 2,
         "buildings_no_heatpump": 1,
+        "adoption_pv_no_heatpump_data": 2,
     },
 )
 def pv_no_heatpump_log_likelihood():
@@ -24138,8 +24137,8 @@ def probability_of_adoption_pv_district():
     depends_on={
         "time": 1,
         "adoption_pv_performance_data": 2,
-        "probability_of_adoption_pv_performance": 2,
         "buildings_performance": 1,
+        "probability_of_adoption_pv_performance": 2,
     },
 )
 def pv_performance_log_likelihood():
@@ -24203,10 +24202,10 @@ def average_ms_nohp_performance():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_hp_type_data": 1,
-        "average_ms_nohp_type": 1,
         "adoption_nohp_type_data": 1,
         "average_ms_hp_type": 1,
+        "adoption_hp_type_data": 1,
+        "average_ms_nohp_type": 1,
     },
 )
 def hp_type_log_likelihood():
@@ -24248,8 +24247,8 @@ def probability_of_adoption_pv_type():
     depends_on={
         "time": 1,
         "buildings_district": 1,
-        "probability_of_adoption_pv_district": 2,
         "adoption_pv_district_data": 2,
+        "probability_of_adoption_pv_district": 2,
     },
 )
 def pv_district_log_likelihood():
@@ -24355,8 +24354,8 @@ _ext_data_buildings_type = ExtData(
     depends_on={
         "time": 1,
         "adoption_hp_performance_data": 1,
-        "average_ms_nohp_performance": 1,
         "adoption_nohp_performance_data": 1,
+        "average_ms_nohp_performance": 1,
         "average_ms_hp_performance": 1,
     },
 )
@@ -24454,14 +24453,14 @@ def share_of_consumers_considering_pv_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_annual_generation_30_100_kw": 5,
         "pv_annual_mantainance_cost": 2,
-        "interest_rate": 4,
         "pv_fit_30_100_kw": 1,
-        "electricity_price": 1,
-        "average_sc_30_100_kw": 2,
+        "pv_annual_generation_30_100_kw": 5,
+        "interest_rate": 4,
         "pv_lifetime": 1,
+        "average_sc_30_100_kw": 2,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
     },
 )
 def pv_total_earnings_30_100_kw():
@@ -24499,14 +24498,14 @@ def pv_total_earnings_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_fit_100_kw": 1,
         "pv_annual_mantainance_cost": 2,
         "pv_annual_generation_100_kw": 5,
+        "pv_fit_100_kw": 1,
         "interest_rate": 4,
-        "electricity_price": 1,
-        "average_sc_100_kw": 2,
         "pv_lifetime": 1,
+        "average_sc_100_kw": 2,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
     },
 )
 def pv_total_earnings_100_kw():
@@ -24851,26 +24850,93 @@ def ppriority_by_supplier():
 
 
 @component.add(
+    name="Dispatchable supply by supplier",
+    subscripts=["Month", "Hour", "Supplier"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_available_supply_by_supplier": 1},
+)
+def dispatchable_supply_by_supplier():
+    """
+    Non-negative capacity offered to dispatch. This makes the existing zero allocation for negative raw hydro supply explicit in the native source.
+    """
+    return np.maximum(0, hourly_available_supply_by_supplier())
+
+
+@component.add(
     name="Electricity dispatched",
     subscripts=["Month", "Hour", "Supplier"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
-        "hourly_available_supply_by_supplier": 1,
-        "priority_vector_by_supplier": 1,
+        "dispatchable_supply_by_supplier": 1,
+        "ppriority_by_supplier": 1,
+        "supplier_priority_width": 1,
         "hourly_demand_and_phs": 1,
     },
 )
 def electricity_dispatched():
     """
-    ALLOCATE AVAILABLE( Hourly available supply by Supplier[Month,Hour,Supplier], Priority vector by supplier[Supplier,ptype] , Hourly demand and PHS[Month,Hour] )
+    Common-width rectangular allocation (priority type 1). Preserves cost priorities, width 0.1 and proportional sharing at equal priorities. Avoids ALLOCATE AVAILABLE's flat-profile search for this dispatch. Validate natively before using for recalibration or release.
     """
-    return allocate_available(
-        hourly_available_supply_by_supplier(),
-        priority_vector_by_supplier()
+    return allocate_by_priority(
+        dispatchable_supply_by_supplier(),
+        ppriority_by_supplier()
         .expand_dims({"Month": _subscript_dict["Month"]}, 0)
         .expand_dims({"Hour": _subscript_dict["Hour"]}, 1),
+        xr.DataArray(
+            supplier_priority_width(),
+            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
+            ["Month", "Hour"],
+        ),
         hourly_demand_and_phs(),
+    )
+
+
+@component.add(
+    name="Electricity dispatch balance error",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "electricity_dispatched": 1,
+        "hourly_demand_and_phs": 1,
+        "dispatchable_supply_by_supplier": 1,
+    },
+)
+def electricity_dispatch_balance_error():
+    """
+    Diagnostic: zero when dispatch equals demand capped by total capacity. Does not modify the dispatch or hide a capacity shortfall.
+    """
+    return sum(
+        electricity_dispatched().rename({"Supplier": "Supplier!"}), dim=["Supplier!"]
+    ) - np.minimum(
+        hourly_demand_and_phs(),
+        sum(
+            dispatchable_supply_by_supplier().rename({"Supplier": "Supplier!"}),
+            dim=["Supplier!"],
+        ),
+    )
+
+
+@component.add(
+    name="Unserved hourly electricity",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_demand_and_phs": 1, "electricity_dispatched": 1},
+)
+def unserved_hourly_electricity():
+    """
+    Diagnostic: demand not served, including any capacity shortfall.
+    """
+    return np.maximum(
+        0,
+        hourly_demand_and_phs()
+        - sum(
+            electricity_dispatched().rename({"Supplier": "Supplier!"}),
+            dim=["Supplier!"],
+        ),
     )
 
 
@@ -25446,14 +25512,14 @@ def total_hydro_monthly_production():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
+        "hourly_total_inflow_for_ticino": 1,
         "rr_hourly_supply": 1,
-        "share_phs": 2,
+        "pv_hourly_supply": 1,
+        "waste_hourly_supply": 1,
         "hourly_electricity_grid_demand": 1,
         "wind_hourly_supply": 1,
+        "share_phs": 2,
         "hourly_phs_production": 3,
-        "waste_hourly_supply": 1,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 1,
     },
 )
 def phs_hourly_decrease():
@@ -25591,14 +25657,14 @@ def hourly_available_supply_by_supplier():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
+        "hourly_total_inflow_for_ticino": 3,
         "rr_hourly_supply": 1,
+        "pv_hourly_supply": 1,
+        "waste_hourly_supply": 1,
         "hourly_electricity_grid_demand": 1,
         "wind_hourly_supply": 1,
-        "hourly_phs_production": 1,
-        "waste_hourly_supply": 1,
         "share_hs": 2,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 3,
+        "hourly_phs_production": 1,
     },
 )
 def hs_hourly_decrease():
@@ -26218,7 +26284,7 @@ def pv_annual_generation_100_kw():
     subscripts=["Vechicle"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"mass_vechicle": 1, "power_vehicle": 1, "co2_coefficient": 1},
+    depends_on={"mass_vechicle": 1, "co2_coefficient": 1, "power_vehicle": 1},
 )
 def annual_circulation_tax():
     return mass_vechicle() * 0.1 + co2_coefficient() * power_vehicle()
@@ -26285,8 +26351,8 @@ def delta_100_kw():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_100_kw": 1,
-        "pv_capacity_federal_subsidy_100_kw": 1,
         "average_power_pv_100_kw": 1,
+        "pv_capacity_federal_subsidy_100_kw": 1,
     },
 )
 def pv_federal_subsidy_100_kw():
@@ -26592,8 +26658,8 @@ def pv_30_100_kw_specific_investment_cost_initial():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "pv_capacity_federal_subsidy_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_federal_subsidy_30_100_kw():
@@ -27422,8 +27488,8 @@ _ext_data_annual_hs_inflow_historical_for_ticino = ExtData(
     depends_on={
         "annual_hs_inflow_for_ticino": 1,
         "annual_phsn_inflow_for_ticino": 1,
-        "deflussi_minimi_lpac": 1,
         "time": 8,
+        "deflussi_minimi_lpac": 1,
         "cambiamento_climatico_hydro": 1,
         "provvedimento_12": 1,
         "provvedimento_13": 1,
@@ -30778,12 +30844,12 @@ def probability_adoption_pv_owners():
     depends_on={
         "market_share_hs": 1,
         "dh_and_gas_suitability": 1,
-        "dh_only_suitability": 1,
         "market_share_hs_nogas": 1,
-        "gas_only_suitability": 1,
+        "dh_only_suitability": 1,
         "market_share_hs_nodh": 1,
-        "market_share_hs_nodh_nogas": 1,
+        "gas_only_suitability": 1,
         "no_suitability": 1,
+        "market_share_hs_nodh_nogas": 1,
     },
 )
 def market_share_hs_filtered():
@@ -30883,8 +30949,8 @@ def annual_cost_hp_grid_expansion():
         "buildings_hs_renovation_to": 2,
         "consumers_adopting_pv_yes": 2,
         "consumers_leaving_hs_for_old_age": 2,
-        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "technology_sh_installed_capacity_sh_and_dhw": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "technology_sh_installed_capacity_just_sh": 1,
     },
 )
@@ -31208,8 +31274,8 @@ def additional_annual_rcpv_kwh_produced_by_archetype():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "pv_cantonal_subsidy": 1,
-        "consumers_adopting_rcpv_yes_with_battery": 1,
         "rcpv_cantonal_subsidy": 1,
+        "consumers_adopting_rcpv_yes_with_battery": 1,
     },
 )
 def annural_cantonal_subsidy_cu_by_archetype():
@@ -31415,9 +31481,9 @@ _integ_res_verylow_buildings = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "res_buildings_share": 2,
         "overall_demolited_buildings": 2,
         "res_verylow_buildings": 2,
-        "res_buildings_share": 2,
     },
 )
 def res_verylow_demolition():
@@ -32006,12 +32072,12 @@ def equivalent_lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "pv_investment_cost": 4,
         "dwellings_per_building": 4,
+        "pv_investment_cost": 4,
         "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
-        "pv_federal_subsidy_check": 2,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_owner():
@@ -36405,9 +36471,9 @@ _integ_res_veryhigh_buildings = Integ(
         "res_verylow_high_renovation": 1,
         "res_verylow_veryhigh_renovation": 1,
         "share_hs_by_archetype": 4,
+        "res_low_veryhigh_renovation": 1,
         "res_low_high_renovation": 1,
         "res_low_to_moderate_renovation": 1,
-        "res_low_veryhigh_renovation": 1,
         "res_moderate_veryhigh_renovation": 1,
         "res_moderate_high_renovation": 1,
         "res_high_veryhigh_renovation": 1,
@@ -36534,8 +36600,8 @@ _integ_res_moderate_buildings = Integ(
         "res_low_high_renovation": 1,
         "res_verylow_high_renovation": 1,
         "res_moderate_high_renovation": 1,
-        "res_low_veryhigh_renovation": 1,
         "res_moderate_veryhigh_renovation": 1,
+        "res_low_veryhigh_renovation": 1,
         "res_verylow_veryhigh_renovation": 1,
         "res_high_veryhigh_renovation": 1,
     },
@@ -39646,10 +39712,10 @@ def charged_electricity_per_year():
     depends_on={
         "fuel_consumption_per_km": 6,
         "petrol_price": 3,
-        "density_petrol": 3,
         "lhv_petrol": 3,
-        "lhv_diesel": 3,
+        "density_petrol": 3,
         "diesel_price": 3,
+        "lhv_diesel": 3,
         "denity_diesel": 3,
     },
 )
@@ -40102,8 +40168,8 @@ def utility_hs_exp_3():
     depends_on={
         "time": 11,
         "pv_uncertain_remunaration_factor": 1,
-        "fit": 1,
         "cantonal_pv_support": 1,
+        "fit": 1,
     },
 )
 def pv_cumulative_compensation_price():
@@ -40223,8 +40289,8 @@ def utility_pv_no_eco():
         "house_value_factor": 4,
         "double_tech_factor": 4,
         "dummy_hs": 4,
-        "alpha_hp": 2,
         "dummy_pv_for_hp_factor": 1,
+        "alpha_hp": 2,
     },
 )
 def utility_hs_no_incentives():
@@ -40539,10 +40605,10 @@ def market_share_hs():
     depends_on={
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
-        "wall_verylow_probabilities": 1,
         "verylow_changing_wall": 1,
-        "verylow_changing_ground": 1,
+        "wall_verylow_probabilities": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance():
@@ -40561,17 +40627,17 @@ def verylow_to_performance():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "interest_rate": 10,
-        "kwp_installed_per_building": 2,
-        "pv_annual_generation_per_building": 12,
-        "dwellings_per_building": 5,
-        "pv_fit_10_kw": 1,
-        "pv_annual_mantainance_cost": 5,
         "pv_fit_10_30_kw": 2,
-        "electricity_price": 2,
-        "self_consumption_degree": 4,
+        "pv_annual_generation_per_building": 12,
+        "pv_fit_10_kw": 1,
+        "kwp_installed_per_building": 2,
+        "dwellings_per_building": 5,
+        "pv_annual_mantainance_cost": 5,
+        "interest_rate": 10,
         "pv_lifetime": 2,
         "pv_cumulative_compensation_price": 2,
+        "self_consumption_degree": 4,
+        "electricity_price": 2,
     },
 )
 def pv_total_savings_owner():
@@ -40683,8 +40749,8 @@ def pv_federal_subsidy_check():
     depends_on={
         "heating_solution": 2,
         "equivalent_lifetime": 1,
-        "consumers_adopting_pv_no": 1,
         "building_demolition_by_archetype": 1,
+        "consumers_adopting_pv_no": 1,
         "buildings_hs_renovation_from": 1,
     },
 )
@@ -41008,14 +41074,14 @@ def pv_differential_cost_change():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "owned_buildings_with_pv": 1,
+        "owned_buildings_with_rcp": 1,
         "share_of_buildings_with_suitable_roof": 1,
         "share_urban_buildings": 1,
-        "share_of_owned_houses": 1,
+        "owned_buildings_with_pv": 1,
+        "heating_solution": 3,
         "owned_buildings_with_rcpv": 1,
         "owned_buildings_with_rcpv_pvno": 1,
-        "heating_solution": 3,
-        "owned_buildings_with_rcp": 1,
+        "share_of_owned_houses": 1,
         "probability_adoption_rcpv_owners": 1,
         "energy_community_scenario": 1,
     },
@@ -41086,14 +41152,14 @@ def requested_owners_adopting_rcpv():
     depends_on={
         "time": 1,
         "share_of_buildings_with_suitable_roof": 1,
-        "share_urban_buildings": 1,
-        "share_of_owned_houses": 1,
-        "probability_adoption_rcpv_renters": 1,
         "rented_buildings_with_rcp": 1,
         "rented_buildings_with_rcpv": 1,
+        "share_urban_buildings": 1,
+        "probability_adoption_rcpv_renters": 1,
         "heating_solution": 3,
         "rented_buildings_with_rcpv_pvno": 1,
         "rented_buildings_with_pv": 1,
+        "share_of_owned_houses": 1,
         "energy_community_scenario": 1,
     },
 )
@@ -42042,8 +42108,8 @@ def green_utility_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_moderate_sfh_data": 1,
         "moderate_to_performance_sfh_ms": 1,
+        "retrofit_moderate_sfh_data": 1,
     },
 )
 def retrofit_moderate_sfh_log_likelihood():
@@ -42073,8 +42139,8 @@ def retrofit_moderate_sfh_log_likelihood():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "moderate_to_performance_mfh_ms": 1,
         "retrofit_moderate_mfh_data": 1,
+        "moderate_to_performance_mfh_ms": 1,
     },
 )
 def retrofit_moderate_mfh_log_likelihood():
@@ -42332,12 +42398,12 @@ def battery_capacity_1_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "interest_rate": 10,
-        "kwp_installed_per_building": 2,
-        "pv_annual_generation_per_building": 10,
-        "pv_fit_10_kw": 1,
-        "pv_annual_mantainance_cost": 5,
         "pv_fit_10_30_kw": 2,
+        "pv_fit_10_kw": 1,
+        "pv_annual_generation_per_building": 10,
+        "kwp_installed_per_building": 2,
+        "pv_annual_mantainance_cost": 5,
+        "interest_rate": 10,
         "pv_lifetime": 2,
         "pv_cumulative_compensation_price": 2,
     },
@@ -42462,15 +42528,15 @@ def rcpv_eco_utility_renter():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "self_consumption_degree_rcpv": 3,
         "pv_annual_generation_per_building_rcpv": 4,
-        "pv_cumulative_compensation_price": 1,
         "dwellings_per_building": 1,
         "pv_annual_mantainance_cost": 1,
-        "buildings_pvno_connected_to_rcpv": 1,
+        "pv_cumulative_compensation_price": 1,
         "electricity_price": 2,
-        "interest_rate": 2,
+        "self_consumption_degree_rcpv": 3,
+        "buildings_pvno_connected_to_rcpv": 1,
         "pv_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def rcpv_total_savings_owner():
@@ -42530,8 +42596,8 @@ def rcpv_total_savings_owner():
         "pv_investment_cost": 4,
         "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
-        "pv_federal_subsidy_check": 2,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_renter():
@@ -42834,8 +42900,8 @@ def pv_eco_utility_renter():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building_rcpv": 3,
-        "a_param_10_kw": 1,
         "b_param_10_kw": 1,
+        "a_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -42857,14 +42923,14 @@ def pv_initial_investment_cost_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "self_consumption_degree_rcpv": 2,
         "pv_annual_generation_per_building_rcpv": 3,
-        "pv_cumulative_compensation_price": 1,
         "pv_annual_mantainance_cost": 1,
-        "buildings_pvno_connected_to_rcpv": 2,
+        "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "interest_rate": 2,
+        "self_consumption_degree_rcpv": 2,
+        "buildings_pvno_connected_to_rcpv": 2,
         "pv_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def rcpv_total_savings_renter():
@@ -43413,7 +43479,7 @@ def wall_high_scaled():
     subscripts=["Performance"],
     comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "low_to_performance_sfh_ms": 1, "retrofit_low_sfh_data": 1},
+    depends_on={"time": 1, "retrofit_low_sfh_data": 1, "low_to_performance_sfh_ms": 1},
 )
 def retrofit_low_sfh_log_likelihood():
     """
@@ -43790,15 +43856,15 @@ def annual_mantainance_costs_hs():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "cantonal_levy_evolution": 4,
-        "self_consumption_degree_rcpv": 2,
-        "rented_buildings_with_rcpv_pvno": 1,
-        "owned_buildings_with_rcpv_pvno": 1,
         "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
+        "rented_buildings_with_rcpv_pvno": 1,
+        "self_consumption_degree_rcpv": 2,
         "share_primary_houses": 3,
         "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree_with_storage": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "buildings_rcpv_by_archetype": 4,
         "time": 2,
         "self_consumption_degree": 1,
     },
@@ -43952,15 +44018,15 @@ def annual_cost_cantonal_levy_by_arch():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "levy_evolution": 4,
-        "self_consumption_degree_rcpv": 2,
-        "rented_buildings_with_rcpv_pvno": 1,
-        "owned_buildings_with_rcpv_pvno": 1,
         "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
+        "rented_buildings_with_rcpv_pvno": 1,
+        "self_consumption_degree_rcpv": 2,
         "share_primary_houses": 3,
         "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree_with_storage": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "buildings_rcpv_by_archetype": 4,
         "time": 2,
         "self_consumption_degree": 1,
     },
@@ -44124,14 +44190,14 @@ def pv_annual_generation_per_building():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_cumulative_compensation_price": 1,
-        "self_consumption_degree": 2,
         "pv_annual_generation_per_building": 3,
         "dwellings_per_building": 1,
         "pv_annual_mantainance_cost": 1,
+        "self_consumption_degree": 2,
+        "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "interest_rate": 2,
         "pv_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def rcp_total_savings_owner():
@@ -44176,8 +44242,8 @@ def rcp_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building": 3,
-        "a_param_10_kw": 1,
         "b_param_10_kw": 1,
+        "a_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -44198,13 +44264,13 @@ def pv_initial_investment_cost():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_cumulative_compensation_price": 1,
         "pv_annual_generation_per_building": 3,
-        "self_consumption_degree": 2,
         "pv_annual_mantainance_cost": 1,
+        "self_consumption_degree": 2,
+        "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "interest_rate": 2,
         "pv_lifetime": 1,
+        "interest_rate": 2,
     },
 )
 def rcp_total_savings_renter():
@@ -44639,11 +44705,11 @@ def lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "investment_grant_per_kw_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw": 1,
         "technology_sh_installed_capacity_sh_and_dhw": 3,
-        "investment_grant_per_kw_15_kw_1": 1,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44679,9 +44745,9 @@ def grant_pelletboiler_pellet():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "initial_grant_15_kw": 1,
-        "investment_grant_per_kw_15_kw_1": 1,
         "investment_grant_per_kw_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "initial_grant_15_kw": 1,
         "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
@@ -44710,10 +44776,10 @@ def grant_pelletboiler_woodst():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 1,
-        "initial_grant_dh": 1,
-        "technology_sh_installed_capacity_sh_and_dhw": 1,
         "investment_grant_per_kw_dh": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 1,
+        "initial_grant_dh": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "grant_absolute": 1,
     },
 )
@@ -44737,11 +44803,11 @@ def grant_dh():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "investment_grant_per_kw_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw": 1,
         "technology_sh_installed_capacity_sh_and_dhw": 3,
-        "investment_grant_per_kw_15_kw_1": 1,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44777,9 +44843,9 @@ def grant_hp_heatpump():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "initial_grant_15_kw": 1,
-        "investment_grant_per_kw_15_kw_1": 1,
         "investment_grant_per_kw_15_kw": 1,
+        "investment_grant_per_kw_15_kw_1": 1,
+        "initial_grant_15_kw": 1,
         "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
@@ -44812,14 +44878,14 @@ def grant_hp_hpst():
         "emissions_per_capacity_installed": 15,
         "lifetime": 15,
         "technology_sh_installed_capacity_just_sh": 4,
-        "annual_sh_demand": 11,
-        "st_share_of_total_heat_production": 4,
         "emissions_per_kwh_carrier_used": 11,
-        "efficiency": 10,
+        "annual_sh_demand": 11,
         "annual_dhw_demand": 11,
-        "technology_dhw_installed_capacity_sh_and_dhw": 7,
-        "efficiency_dhw_storage": 6,
+        "efficiency": 10,
+        "st_share_of_total_heat_production": 4,
         "technology_sh_installed_capacity_sh_and_dhw": 7,
+        "efficiency_dhw_storage": 6,
+        "technology_dhw_installed_capacity_sh_and_dhw": 7,
     },
 )
 def annual_gwp_heating_solution():
@@ -45080,7 +45146,7 @@ def annual_gwp_heating_solution():
     units="CHF",
     subscripts=["HS", "District", "Performance", "Type"],
     comp_type="Auxiliary",
-    comp_subtype="with Lookup, Normal",
+    comp_subtype="Normal, with Lookup",
     depends_on={
         "technology_sh_installed_capacity_sh_and_dhw": 7,
         "technology_dhw_installed_capacity_sh_and_dhw": 7,
@@ -46037,8 +46103,8 @@ def accepted_pv_adoption():
     comp_subtype="Normal",
     depends_on={
         "requested_owners_adopting_pv": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def owners_adopting_pv():
@@ -46072,8 +46138,8 @@ def owners_adopting_pv():
     comp_subtype="Normal",
     depends_on={
         "requested_owners_adopting_rcp": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def owners_adopting_rcp():
@@ -46107,8 +46173,8 @@ def owners_adopting_rcp():
     comp_subtype="Normal",
     depends_on={
         "requested_owners_adopting_rcpv": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def owners_adopting_rcpv():
@@ -46142,8 +46208,8 @@ def owners_adopting_rcpv():
     comp_subtype="Normal",
     depends_on={
         "requested_renters_adopting_pv": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def renters_adopting_pv():
@@ -46177,8 +46243,8 @@ def renters_adopting_pv():
     comp_subtype="Normal",
     depends_on={
         "requested_renters_adopting_rcp": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def renters_adopting_rcp():
@@ -46212,8 +46278,8 @@ def renters_adopting_rcp():
     comp_subtype="Normal",
     depends_on={
         "requested_renters_adopting_rcpv": 1,
-        "total_pv_request": 2,
         "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
     },
 )
 def renters_adopting_rcpv():

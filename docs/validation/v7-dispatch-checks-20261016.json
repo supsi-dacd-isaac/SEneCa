@@ -1,0 +1,53 @@
+{
+  "status": "python_checks_passed_native_validation_pending_no_release",
+  "upstream_commit": "7950c321a255a7af966dda1f72e387165bc99336",
+  "integrated_dispatch_correction": "11bdbcaf79339b34529c2a569af30578600cf795",
+  "pysd_version": "3.14.3",
+  "variant": "v7",
+  "fer_unittest_methods": 6,
+  "dispatch_unittest_methods": 2,
+  "hp_input_alignment_unittest_methods": 1,
+  "unrounded_replay_atol": 1e-11,
+  "fixture": {
+    "cases": 189,
+    "supplier_cells": 3402,
+    "max_abs": 2.0184387480859378e-08,
+    "atol": 1e-07,
+    "pass": true
+  },
+  "full_runs": {
+    "base": {
+      "python_physical": {
+        "max_balance_error": 1.6653345369377348e-16,
+        "min_dispatch": 0.0,
+        "max_capacity_excess": 0.0,
+        "max_unserved": 1.1102230246251565e-16,
+        "pass": true
+      },
+      "pass": true
+    },
+    "high": {
+      "python_physical": {
+        "max_balance_error": 1.6653345369377348e-16,
+        "min_dispatch": 0.0,
+        "max_capacity_excess": 0.0,
+        "max_unserved": 1.1102230246251565e-16,
+        "pass": true
+      },
+      "pass": true
+    }
+  },
+  "native_tested": false,
+  "only_existing_native_equation_changed": "Electricity dispatched[Month,Hour,Supplier]",
+  "v7_pv_parameters_retained": true,
+  "v7_calibration_constants_unchanged": true,
+  "all_6_v7_input_csvs_reproduced_from_sources": true,
+  "hp_source_series_aligned": 33,
+  "hp_source_data_cells_updated": 482,
+  "sha256": {
+    "Vensim/SURE.mdl": "1a4c1c6d36a6c21b37e4608d5a34cd078e8bcbd2f8195307b23904664a543f8d",
+    "Vensim/SURE_pysd_v7.py": "860bc1d0f73a9cbd103dac13e75242e4680a3358862d1aa14db042bf0adf791f",
+    "constants_ref_v7.pkl": "2a9d6c7e9951429b5735da060c7ce61a75ba8cacde00ede29e425b4151f9ee4f",
+    "Vensim/HPinput.csv": "abdf35a882871c813068371c8b30546500eefcdabe8be2ed2e9e5a10d2cbbe1d"
+  }
+}
