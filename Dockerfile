@@ -27,7 +27,7 @@ RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instanti
 # edits belong to the application layer below.
 COPY sure_julia /app/sure_julia
 COPY Vensim /app/Vensim
-COPY pv_batteries/__init__.py pv_batteries/*_config.py /app/pv_batteries/
+COPY pv_batteries/__init__.py pv_batteries/*_config.py pv_batteries/policy_labels.py /app/pv_batteries/
 COPY constants_ref_v7.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py /app/
 RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 
