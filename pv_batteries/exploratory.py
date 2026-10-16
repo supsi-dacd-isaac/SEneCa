@@ -29,7 +29,7 @@ def validate_kpi_store(df: pd.DataFrame) -> None:
         raise ValueError("Domanda o autoconsumo non validi")
     ratio = df["pv_self_coverage"].to_numpy()
     if not np.array_equal(ratio, numerator / demand) or np.any((ratio < 0) | (ratio > 1 + 1e-10)):
-        raise ValueError("La copertura FV non coincide con il rapporto tra autoconsumo e domanda")
+        raise ValueError("La copertura PV non coincide con il rapporto tra autoconsumo e domanda")
 
 
 def scale_kpis(df: pd.DataFrame) -> pd.DataFrame:

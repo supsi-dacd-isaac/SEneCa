@@ -14,6 +14,7 @@ for p in (str(ROOT), str(PVBAT)):
         sys.path.insert(0, p)
 
 import veicoli_config as cfg  # noqa: E402
+from pv_batteries.policy_labels import control_label, format_value
 importlib.reload(cfg)
 import section_store as _section_store  # noqa: E402
 import echarts_charts as _echarts_charts  # noqa: E402
@@ -50,10 +51,10 @@ with st.sidebar:
     for name in cfg.INPUT_ORDER:
         meta = cfg.INPUT_META[name]
         opts = cfg.INPUT_GRID[name]
-        label = meta["label"] + (f" ({meta['unit']})" if meta["unit"] != "-" else "")
+        label = control_label(meta)
         val = st.select_slider(
-            label, options=opts, value=opts[0],
-            format_func=lambda x: f"{x:g}",
+            label, options=opts, value=cfg.BASE_SCENARIO[name],
+            format_func=lambda x, meta=meta: format_value(meta, x, with_unit=False),
             help=meta.get("help") or None,
         )
         values.append(val)
@@ -63,8 +64,7 @@ with st.sidebar:
         for name in cfg.INPUT_ORDER:
             imeta = cfg.INPUT_META[name]
             base_val = cfg.BASE_SCENARIO[name]
-            unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-            st.markdown(f"- {imeta['label']}: `{base_val:g}`{unit}")
+            st.markdown(f"- {imeta['label']}: **{format_value(imeta, base_val)}**")
 
 key = combo_key(values)
 base_key = base_combo_key(cfg)

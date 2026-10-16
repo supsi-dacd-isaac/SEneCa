@@ -22,6 +22,7 @@ import section_store  # noqa: E402
 import section_ui as _section_ui  # noqa: E402
 import section_ui_hourly  # noqa: E402
 import echarts_charts as _echarts_charts  # noqa: E402
+from pv_batteries.policy_labels import control_label, format_value
 importlib.reload(cfg)
 importlib.reload(section_store)
 importlib.reload(section_store_hourly)
@@ -79,15 +80,15 @@ with st.sidebar:
     for name in cfg.INPUT_ORDER:
         meta = cfg.INPUT_META[name]
         opts = cfg.INPUT_GRID[name]
-        label = meta["label"] + (f" ({meta['unit']})" if meta["unit"] != "-" else "")
+        label = control_label(meta)
         if name in BINARY_INPUTS:
             val = _render_binary_input(
-                label, default=opts[0], help=meta.get("help") or None,
+                label, default=cfg.BASE_SCENARIO[name], help=meta.get("help") or None,
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
             val = st.select_slider(
-                label, options=opts, value=opts[0],
+                label, options=opts, value=cfg.BASE_SCENARIO[name],
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
                 help=meta.get("help") or None,
             )
@@ -102,10 +103,8 @@ with st.sidebar:
                 st.markdown(
                     f"- {imeta['label']}: **{'Sì' if base_val == 1.0 else 'No'}**")
             else:
-                unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-                scale = float(imeta.get("scale", 1) or 1)
                 st.markdown(
-                    f"- {imeta['label']}: `{base_val * scale:g}`{unit}"
+                    f"- {imeta['label']}: **{format_value(imeta, base_val)}**"
                 )
 
 key = combo_key(values)

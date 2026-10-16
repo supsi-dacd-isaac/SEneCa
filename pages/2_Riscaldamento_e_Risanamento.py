@@ -18,6 +18,7 @@ for p in (str(ROOT), str(PVBAT)):
         sys.path.insert(0, p)
 
 import risanamento_config as cfg  # noqa: E402
+from pv_batteries.policy_labels import control_label, format_value
 importlib.reload(cfg)
 import gmd as _gmd  # noqa: E402
 import section_store as _section_store  # noqa: E402
@@ -37,11 +38,7 @@ from section_ui import (  # noqa: E402
 
 
 def _format_base_value(name: str, value: float) -> str:
-    if name == "MuKEn scenario":
-        return cfg.MUKEN_LABELS.get(value, f"{value:g}")
-    imeta = cfg.INPUT_META[name]
-    unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-    return f"`{value:g}`{unit}"
+    return format_value(cfg.INPUT_META[name], value)
 
 
 def _render_muken_input(label: str, *, default: float = 0.0) -> float:
@@ -51,6 +48,7 @@ def _render_muken_input(label: str, *, default: float = 0.0) -> float:
         label,
         options=options,
         index=options.index(default_label),
+        help=cfg.INPUT_META["MuKEn scenario"]["help"],
     )
     return cfg.MUKEN_LABEL_TO_VALUE[selected]
 
@@ -83,13 +81,13 @@ with st.sidebar:
     for name in cfg.INPUT_ORDER:
         meta = cfg.INPUT_META[name]
         opts = cfg.INPUT_GRID[name]
-        label = meta["label"] + (f" ({meta['unit']})" if meta["unit"] != "-" else "")
+        label = control_label(meta)
         if name == "MuKEn scenario":
-            val = _render_muken_input(label, default=opts[0])
+            val = _render_muken_input(label, default=cfg.BASE_SCENARIO[name])
         else:
             val = st.select_slider(
-                label, options=opts, value=opts[0],
-                format_func=lambda x: f"{x:g}",
+                label, options=opts, value=cfg.BASE_SCENARIO[name],
+                format_func=lambda x, meta=meta: format_value(meta, x, with_unit=False),
                 help=meta.get("help") or None,
             )
         values.append(val)

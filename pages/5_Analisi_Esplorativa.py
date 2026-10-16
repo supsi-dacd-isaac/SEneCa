@@ -20,6 +20,7 @@ for p in (str(ROOT), str(PVBAT)):
         sys.path.insert(0, p)
 
 import exploratory_config as cfg  # noqa: E402
+from pv_batteries.policy_labels import BILL_SURCHARGE_EQUITY_RADAR_LABEL, control_label
 importlib.reload(cfg)
 import exploratory as expl  # noqa: E402
 importlib.reload(expl)
@@ -172,7 +173,7 @@ def _wrap_policy_label(label: str, max_chars: int = 18) -> str:
 
 def _composition_chart(top: pd.DataFrame) -> None:
     shares = expl.policy_value_shares(top)
-    categories = [_wrap_policy_label(cfg.POLICY_META[name]["label"])
+    categories = [_wrap_policy_label(cfg.POLICY_META[name]["short_label"])
                   for name in cfg.POLICY_ORDER]
     # Due serie: valore "alto"/attivo e valore "basso", in percentuale.
     high_vals: list[float] = []
@@ -205,53 +206,36 @@ def _composition_chart(top: pd.DataFrame) -> None:
         "inverse": True,
         "axisLabel": {
             "interval": 0,
-            "width": 240,
+            "width": 140,
             "overflow": "none",
             "hideOverlap": False,
         },
     }
-    options["grid"] = {"left": 260, "right": "8%", "top": "8%", "bottom": "16%"}
+    options["grid"] = {
+        "left": "4%", "right": "8%", "top": "8%", "bottom": "16%",
+        "containLabel": True,
+    }
     render_echarts(options, chart_key="expl_policy_shares", height=420)
 
-    st.html(
-        """
-        <style>
-        div.st-key-expl_policy_cards [data-testid="stMetricLabel"],
-        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] * {
-            white-space: normal !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
-            height: auto !important;
-            max-height: none !important;
-            line-height: 1.25 !important;
-        }
-        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] label,
-        div.st-key-expl_policy_cards [data-testid="stMetricLabel"] > div {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            align-items: flex-start !important;
-        }
-        </style>
-        """
-    )
-    with st.container(key="expl_policy_cards"):
-        cards = st.columns(len(cfg.POLICY_ORDER))
-        for col, name, high_lab, high_pct in zip(
-            cards, cfg.POLICY_ORDER, high_labels, high_vals, strict=True,
+    # Native wrapping keeps each label readable when the available width changes.
+    with st.container(key="expl_policy_cards", horizontal=True):
+        for name, high_lab, high_pct in zip(
+            cfg.POLICY_ORDER, high_labels, high_vals, strict=True,
         ):
-            with col:
-                with st.container(border=True):
-                    st.metric(
-                        cfg.POLICY_META[name]["label"],
-                        f"{high_pct:.0f}%",
-                        delta=high_lab,
-                        delta_color="off",
-                        help=cfg.POLICY_META[name].get("help") or None,
-                    )
+            meta = cfg.POLICY_META[name]
+            st.metric(
+                meta["short_label"],
+                f"{high_pct:.0f}%",
+                delta=high_lab,
+                delta_color="off",
+                border=True,
+                width=260,
+                help=f"{meta['label']}. {meta.get('help', '')}",
+            )
 
 
 RADAR_LABELS = {
-    "gmd_levy": "Equità\nlevy",
+    "gmd_levy": BILL_SURCHARGE_EQUITY_RADAR_LABEL,
     "gmd_tax": "Equità\ntassa CO₂",
     "gmd_cost": "Equità\ncosto",
     "avg_cost": "Costo\nfamiglia",
@@ -259,7 +243,7 @@ RADAR_LABELS = {
     "net_consumption": "Consumo\nnetto",
     "co2_cum": "Emissioni\nCO₂",
     "cantonal_spend": "Spesa\ncantonale",
-    "pv_self_coverage": "Copertura\nFV autoconsumato",
+    "pv_self_coverage": "Copertura\nPV autoconsumato",
 }
 
 
@@ -286,7 +270,7 @@ def _render_policy_selectors() -> dict[str, float]:
         opts = cfg.POLICY_GRID[name]
         labels = [cfg.format_policy_value(name, val) for val in opts]
         chosen = st.segmented_control(
-            cfg.POLICY_META[name]["label"],
+            control_label(cfg.POLICY_META[name], with_unit=False),
             options=labels,
             default=labels[0],
             key=f"expl_pol_{name}",
@@ -441,7 +425,7 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
     st.subheader(f"Composizione dei {TOP_N} policy mix migliori")
     st.markdown(
         "Per ogni leva: che percentuale dei mix in classifica assume il valore "
-        "alto/presente. Esempio: 100% su Comunità energetica significa che tutti e "
+        "alto/presente. Esempio: 100% su Autoconsumo virtuale significa che tutti e "
         f"{TOP_N} i migliori la attivano; 20% sugli incentivi cantonali PV "
         "significa che lo fa un mix su cinque."
     )
@@ -466,7 +450,15 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
         pretty = show[keep].rename(columns={
             "score": "Score", "score_std": "σ score", "n_samples": "N scenari",
         })
-        st.dataframe(pretty, width="stretch", hide_index=True)
+        st.dataframe(
+            pretty, width="stretch", hide_index=True,
+            column_config={
+                meta["label"]: st.column_config.TextColumn(
+                    meta["short_label"], help=f"{meta['label']}. {meta.get('help', '')}",
+                )
+                for meta in cfg.POLICY_META.values()
+            },
+        )
         st.download_button(
             "Scarica classifica CSV",
             pretty.to_csv(index=False).encode("utf-8"),
@@ -504,7 +496,7 @@ with col_mix.container(border=True):
     st.markdown("#### :material/tune: Policy mix")
     st.markdown(
         "Ogni mix è una combinazione di incentivi e regolamenti "
-        "(PV, batterie, riscaldamento, risanamento, comunità energetica). "
+        "(PV, batterie, riscaldamento, risanamento, autoconsumo virtuale). "
         "Sono **7 leve su due livelli** ciascuna, per un totale di "
         "**128 policy mix** possibili."
     )
@@ -522,8 +514,8 @@ with col_kpi.container(border=True):
     st.markdown(
         "Per ogni combinazione di policy mix e scenario di incertezza "
         "si calcolano **9 KPI**: costi (famiglia e spesa cantonale), "
-        "**equità distributiva** (levy, tassa CO₂, costo) ed **emissioni**, "
-        "insieme a produzione PV, consumo netto e domanda coperta dal FV autoconsumato."
+        "**equità distributiva** (supplemento in bolletta, tassa CO₂, costo) ed **emissioni**, "
+        "insieme a produzione PV, consumo netto e domanda coperta dal PV autoconsumato."
     )
 
 st.session_state.setdefault(SUBPAGE_KEY, SUBPAGES[0])

@@ -14,6 +14,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pv_batteries.policy_labels import input_metadata
+
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -90,66 +92,7 @@ BASE_SCENARIO: dict[str, float] = {
     "Provvedimento 1.7": 0.0,
 }
 
-INPUT_META = {
-
-    "FiT": {
-        "label": "Rimunerazione elettricità",
-        "unit": "Rp/kWh",
-        "scale": 100,
-        "help": (
-            "Rimunerazione per l'elettricità non autoconsumata e immessa in rete, "
-            "in aggiunta all'attuale rimunerazione FER."
-        ),
-    },
-
-    "PV rebate federal": {
-        "label": "Rimborso PV federale",
-        "unit": "-",
-        "help": "Frazione del costo di investimento rimborsata.",
-    },
-
-    "Provvedimento 1.2": {
-        "label": "Provv. 1.2 PECC (hydro dam)",
-        "unit": "-",
-        "help": (
-            "Rinnovo e ottimizzazione degli impianti idroelettrici ad accumulo "
-            "esistenti. Se attivo, aumenta la produzione annuale di 214 GWh "
-            "rispetto alla traiettoria di riferimento."
-        ),
-    },
-
-    "Provvedimento 1.3": {
-        "label": "Provv. 1.3 PECC (PHS)",
-        "unit": "-",
-        "help": (
-            "Nuovi impianti di pompaggio-turbinaggio. Se attivo, la produzione "
-            "aggiuntiva è di 637 GWh, a fronte di un consumo di 430 GWh "
-            "assorbito nelle ore di disponibilità in eccesso e restituito "
-            "tramite turbinaggio."
-        ),
-    },
-
-    "Provvedimento 1.4": {
-        "label": "Provv. 1.4 PECC (RoR)",
-        "unit": "-",
-        "help": (
-            "Nuovi impianti mini-idroelettrici, rappresentati come impianti "
-            "ad acqua fluente. Se attivo, aggiunge 80 GWh di produzione da "
-            "piccoli impianti privi di accumulo stagionale rilevante."
-        ),
-    },
-
-    "Provvedimento 1.7": {
-        "label": "Provv. 1.7 PECC (hydro dam)",
-        "unit": "-",
-        "help": (
-            "Aumento della capacità di accumulazione invernale dei bacini "
-            "esistenti. Se attivo, consente di trasferire circa 89 GWh dalla "
-            "stagione estiva a quella invernale."
-        ),
-    },
-
-}
+INPUT_META = input_metadata(INPUT_ORDER)
 
 
 

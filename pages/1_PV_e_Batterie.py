@@ -19,6 +19,7 @@ for p in (str(ROOT), str(PVBAT)):
         sys.path.insert(0, p)
 
 import pv_batteries_config as _cfg  # noqa: E402
+from pv_batteries.policy_labels import control_label, format_value
 importlib.reload(_cfg)
 from pv_batteries_config import (  # noqa: E402
     BASE_SCENARIO, BINARY_INPUTS, BINARY_LABELS, FINAL_YEAR,
@@ -88,16 +89,15 @@ with st.sidebar:
     for name in INPUT_ORDER:
         meta = INPUT_META[name]
         opts = INPUT_GRID[name]
-        label = f"{meta['label']}" + (f" ({meta['unit']})"
-                                      if meta["unit"] != "-" else "")
+        label = control_label(meta)
         if name in BINARY_INPUTS:
             val = _render_binary_input(
-                label, default=opts[0], help=meta.get("help") or None,
+                label, default=BASE_SCENARIO[name], help=meta.get("help") or None,
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
             val = st.select_slider(
-                label, options=opts, value=opts[0],
+                label, options=opts, value=BASE_SCENARIO[name],
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
                 help=meta.get("help") or None,
             )
@@ -113,10 +113,8 @@ with st.sidebar:
                     f"- {imeta['label']}: **{_format_input_value(name, base_val)}**"
                 )
             else:
-                unit = f" {imeta['unit']}" if imeta["unit"] != "-" else ""
-                scale = float(imeta.get("scale", 1) or 1)
                 st.markdown(
-                    f"- {imeta['label']}: `{base_val * scale:g}`{unit}"
+                    f"- {imeta['label']}: **{format_value(imeta, base_val)}**"
                 )
 
 key = combo_key(values)

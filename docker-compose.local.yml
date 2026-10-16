@@ -22,6 +22,7 @@ services:
       - ./sure_pysd.py:/app/sure_pysd.py:ro
       - ./sure_backend.py:/app/sure_backend.py:ro
       - ./sure_live.py:/app/sure_live.py:ro
+      - ./pysd_explore_config.py:/app/pysd_explore_config.py:ro
       - ./pages:/app/pages:ro
       - ./pv_batteries:/app/pv_batteries:ro
       - ./content:/app/content:ro
