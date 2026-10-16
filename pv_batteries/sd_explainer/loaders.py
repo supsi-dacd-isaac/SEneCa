@@ -7,11 +7,10 @@ from urllib.parse import quote
 import pandas as pd
 import streamlit as st
 from dotenv import dotenv_values
+from pv_batteries.history_data import CALIBRATION_INPUTS, available_history, calibration_observations
 
 from sd_explainer.paths import (
-    EV_INPUT_CSV,
     HOUR_FACTORS_CSV,
-    HP_INPUT_CSV,
     MAP_HTML,
     PLOTS_DATA,
     PV_INPUT_CSV,
@@ -164,66 +163,26 @@ def load_map_html() -> str | None:
     )
 
 
-# Stesse aggregazioni di plot_calibration_obs_sim.PANELS (Figura 5.1):
-# totale cantonale per tipologia edilizia, BEV per i veicoli.
-_CALIBRATION_SERIES = {
-    "Fotovoltaico": (
-        PV_INPUT_CSV,
-        [
-            "Adoption PV Type[SFH]",
-            "Adoption PV Type[DFH]",
-            "Adoption PV Type[MFH]",
-        ],
-    ),
-    "Pompe di calore": (
-        HP_INPUT_CSV,
-        [
-            "Adoption HP Type[SFH]",
-            "Adoption HP Type[DFH]",
-            "Adoption HP Type[MFH]",
-        ],
-    ),
-    "Accumulatori": (
-        PV_INPUT_CSV,
-        [
-            "Adoption Battery Type[SFH]",
-            "Adoption Battery Type[DFH]",
-            "Adoption Battery Type[MFH]",
-        ],
-    ),
-    "Veicoli elettrici": (EV_INPUT_CSV, ["Adoption Vehicles[BEV]"]),
-}
-
-
 @st.cache_data(show_spinner=False)
 def load_calibration_series(
     tech: str,
 ) -> tuple[list[str], dict[str, list[float | None]]]:
-    """Osservato (input del modello) contro simulato, 2011-2024.
+    """Osservato contro simulato negli anni disponibili per la tecnologia.
 
     L'osservato è la somma delle serie in `Vensim/PVinput.csv`, `HPinput.csv`
     o `EVinput.csv`, gli stessi dati letti da SURE tramite i file `.vdfx`.
     Il simulato viene dalla baseline v7 in `calibration_sim_adoptions_v7.csv`,
     verificata contro gli output Python e Julia della validazione completa.
     """
-    obs_path, rows = _CALIBRATION_SERIES[tech]
-
-    obs_raw = pd.read_csv(obs_path, index_col=0)
-    years = [
-        c for c in obs_raw.columns
-        if str(c).strip().isdigit() and 2011 <= int(c) <= 2024
-    ]
-    observed = sum(
-        pd.to_numeric(obs_raw.loc[row, years], errors="coerce").fillna(0.0)
-        for row in rows
-    )
+    _, rows = CALIBRATION_INPUTS[tech]
+    observed = calibration_observations(tech)
+    years = list(observed.index)
 
     sim_raw = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
-    simulated = sim_raw[rows].sum(axis=1)
-    simulated = simulated.reindex([int(y) for y in years])
+    simulated = sim_raw[rows].sum(axis=1, min_count=len(rows)).reindex(years)
 
     return [str(y) for y in years], {
-        "Osservato": [float(v) for v in observed],
+        "Osservato": [None if pd.isna(v) else float(v) for v in observed],
         "Simulato": [None if pd.isna(v) else float(v) for v in simulated],
     }
 
@@ -231,8 +190,8 @@ def load_calibration_series(
 @st.cache_data(show_spinner=False)
 def load_pv_buildings_input(
     dimension: str,
-) -> tuple[list[str], dict[str, list[float]]]:
-    """Edifici con PV, cumulati 2011-2024, per distretto o tipo edilizio.
+) -> tuple[list[str], dict[str, list[float | None]]]:
+    """Edifici con PV cumulati negli anni disponibili, per distretto o tipo.
 
     Fonte: `Vensim/PVinput.csv`, gli stessi dati osservati che alimentano il
     modello. Le serie sono la somma cumulata delle adozioni annuali.
@@ -243,12 +202,10 @@ def load_pv_buildings_input(
     }[dimension]
 
     raw = pd.read_csv(PV_INPUT_CSV, index_col=0)
-    years = [c for c in raw.columns if c.strip().isdigit() and int(c) <= 2024]
     rows = [idx for idx in raw.index if str(idx).startswith(prefix)]
-
-    series: dict[str, list[float]] = {}
+    history = available_history(raw, rows).cumsum(skipna=False)
+    series: dict[str, list[float | None]] = {}
     for idx in rows:
         label = str(idx)[len(prefix):].rstrip("]")
-        values = pd.to_numeric(raw.loc[idx, years], errors="coerce").fillna(0.0)
-        series[label] = [float(v) for v in values.cumsum()]
-    return years, series
+        series[label] = [None if pd.isna(v) else float(v) for v in history[idx]]
+    return [str(y) for y in history.index], series

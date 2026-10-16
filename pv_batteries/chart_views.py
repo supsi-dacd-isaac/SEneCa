@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.history_data import available_history
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -58,7 +59,6 @@ def historical_series(source: str) -> pd.DataFrame:
         return raw.set_index("year")[["Fotovoltaico"]].rename(columns={"Fotovoltaico": "Produzione"})
     filename = "EVinput.csv" if source == "vehicle_adoptions" else "PVinput.csv"
     raw = pd.read_csv(ROOT / "Vensim" / filename, index_col=0)
-    years = [c for c in raw.columns if c.isdigit() and 2011 <= int(c) <= 2024]
     if source == "pv_capacity":
         rows = {'"Capacity PV 30 - 100 kW"': "30–100 kW",
                 '"Capacity PV > 100 kW"': "> 100 kW"}
@@ -67,8 +67,7 @@ def historical_series(source: str) -> pd.DataFrame:
                 if c.startswith("Adoption Vehicles[")}
     else:
         raise ValueError(f"Fonte storica sconosciuta: {source}")
-    result = raw.loc[list(rows), years].apply(pd.to_numeric, errors="coerce").T
-    result.index = result.index.astype(int)
+    result = available_history(raw, list(rows))
     return result.rename(columns=rows)
 
 
@@ -104,7 +103,9 @@ def render_calibration_reference(technology: str, *, key: str) -> None:
     frame = transform_series(frame, "flow", mode)
     count_unit = "veicoli" if technology == "Veicoli elettrici" else "edifici"
     unit = count_unit if mode == "cumulative" else count_unit + "/anno"
-    options = build_line_options(list(frame.index), frame.to_dict("list"), unit=unit)
+    chart_series = {name: [None if pd.isna(v) else float(v) for v in frame[name]]
+                    for name in frame}
+    options = build_line_options(list(frame.index), chart_series, unit=unit)
     options["series"][0].update(type="bar", smooth=False)
     options["series"][1]["name"] = "Simulato (corsa di calibrazione)"
     options["legend"]["data"] = [s["name"] for s in options["series"]]

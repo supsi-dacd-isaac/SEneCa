@@ -18,6 +18,7 @@ from sure_julia.catalog import inventory, outputs
 from sure_julia.python_backend import PythonBackend
 from sure_julia.runtime import frame_from_arrays
 from sure_julia.validation import compare
+from pv_batteries.history_data import CALIBRATION_INPUTS, calibration_observations
 
 NAMES = ['Adoption Battery Type', 'Adoption HP Type', 'Adoption PV Type', 'Adoption Vehicles']
 
@@ -45,14 +46,17 @@ def export(baseline, destination):
     specs = [{'name': n, 'dims': variables[n].get('subscripts', []),
               'coords': {d: dimensions[d] for d in variables[n].get('subscripts', [])}} for n in NAMES]
     frame = frame_from_arrays({n: arrays[n] for n in NAMES}, specs, flatten=True)
-    frame = frame.loc[2011:2024]
-    if len(frame) != 14 or not np.isfinite(frame.to_numpy()).all():
+    observation_years = {tech: [int(y) for y in calibration_observations(tech).dropna().index]
+                         for tech in CALIBRATION_INPUTS}
+    years = sorted({y for available in observation_years.values() for y in available})
+    frame = frame.reindex(years)
+    if not years or not np.isfinite(frame.to_numpy()).all():
         raise ValueError('Invalid calibration plot data')
     destination.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(destination, index_label='Time')
     dump(destination.with_suffix('.json'), {
         'model_revision': MODEL_REVISION, 'model_sources': model_sources(),
-        'years': list(range(2011, 2025)), 'outputs': NAMES,
+        'years': years, 'observation_years': observation_years, 'outputs': NAMES,
         'engine': 'PySD 3.14.3; canonical calibration; synchronous DELAY FIXED; baseline policy',
         'validated_python_outputs_exact': len(outputs()), 'validated_julia_comparison_pass': comparison['pass'],
         'baseline_sha256': {n: hashlib.sha256((baseline/n).read_bytes()).hexdigest()

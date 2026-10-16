@@ -706,7 +706,7 @@ def render_step_calibration() -> None:
         decidere se installare un impianto — non lo sono: vanno *stimati*.
 
         Calibrare significa cercare i valori di questi parametri per cui il modello,
-        lasciato correre sul periodo **2011-2024**, riproduce le decisioni che in
+        lasciato correre sul **periodo coperto dai dati storici**, riproduce le decisioni che in
         quegli anni sono state osservate davvero.
         """
     )
@@ -717,7 +717,7 @@ def render_step_calibration() -> None:
         st.markdown(
             "Si cambiano alcuni parametri del modello, quelli che descrivono "
             "come le persone scelgono, finché le adozioni simulate **riproducono "
-            "i dati storici** del 2011–2024. I parametri tecnici ed economici "
+            "i dati storici** disponibili per ciascuna tecnologia. I parametri tecnici ed economici "
             "restano fissi."
         )
     with col_b.container(border=True):
@@ -754,9 +754,10 @@ def render_step_calibration() -> None:
 
     metric_cols = st.columns(4)
     for col, (tech, *_) in zip(metric_cols, CALIBRATION_CHARTS):
-        _, series = data[tech]
+        years, series = data[tech]
         observed = sum(v for v in series["Osservato"] if v is not None)
         col.metric(tech, f"{observed:,.0f}".replace(",", "'"))
+        col.caption(f"Periodo osservato: {years[0]}–{years[-1]}")
 
     rows = [CALIBRATION_CHARTS[:2], CALIBRATION_CHARTS[2:]]
     for row in rows:
