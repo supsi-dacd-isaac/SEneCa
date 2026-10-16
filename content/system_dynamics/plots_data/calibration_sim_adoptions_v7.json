@@ -1,0 +1,55 @@
+{
+  "model_revision": "sure-v7-dispatch-1",
+  "model_sources": {
+    "Vensim/SURE_pysd_v7.py": "860bc1d0f73a9cbd103dac13e75242e4680a3358862d1aa14db042bf0adf791f",
+    "Vensim/SURE_pysd_v7.mdl": "e07a6742b9b59c57c869fac6b25c425ee1b66eed54f12746d112e79fdffa779b",
+    "constants_ref_v7.pkl": "17a41809ef5887c857c38a413ada726105d193a92a615e03790e52528ee57f0e",
+    "Vensim/SURE.mdl": "5fb7da99db7f82b0d895b4c8db112d5d8e28bb76218c88841813fce049f7198d",
+    "Vensim/calibration/manifest.json": "1f6f8de8dd4bee5fab31c8826c8207d91209a750f2ebeec3240c939d1268a8e6",
+    "Vensim/calibration/Energy cost.out": "4d5d7d0db5e859e527b1e7882e8f99b90dc62c6afb059c68461919c84ee64c44",
+    "Vensim/calibration/PV and Battery and HS and HP.out": "e863dda19a0dc601e96e0363af6ad0d9aee359ad4920a159c4cb1deee173d416",
+    "Vensim/calibration/PV power.out": "f8544b38675ec2f1e5b28cb72cb30833ffd05fcd32fd5ef07a810430107a3c21",
+    "Vensim/calibration/Renovation.out": "05fc358e406bc1dd8d5e2753d843e819d0b40e40adf607b6e4a9baa8ba0c1e49",
+    "Vensim/calibration/Vehicle.out": "dd8ae4f8a6aee91c6e77b69e1c1b583ea8dda4c12f0e9ef6aebfc3f6643cf022",
+    "sure_julia/pv_budget.py": "ce7cf8324f07725dc6a771c7c3e491b9e785fe8fac23ed3eb2b7e04ad3941b0d",
+    "sure_julia/pv-budget.json": "03e9ff2c32dd03f5e14fa1c8646b2ec6f9d2582e2d5f4cc61247e1cf05b6d744",
+    "fix_selfref_sure.py": "bee4ad9bd96593895c30538af72fe1e59fd97762f2be2d3c0cf5c64fa31adce1",
+    "fix_allocate_sure.py": "6d350a8a4e2e3f75830c3b27ce8a80786251ae40456de1a1b6124d2ff23542a6",
+    "Vensim/EVinput_pysd_v7.csv": "c49a265d07a8aadb823a7d4d2a7b74d56b13cf3808ddb6c3590919704070b8a9",
+    "Vensim/HPinput_pysd_v7.csv": "2cef689631fe9e278a87429ebdd873f950dfa7b18bb280a177faab84f43f5d1b",
+    "Vensim/Input Hour Factors_pysd_v7.csv": "9fa7ccafb9ba17f44e45ef4d8c4d96945f8185129f1e718ede61d2ea45b0f8ea",
+    "Vensim/Input2011_pysd_v7.csv": "624a441758130df4a73519eeb1b65808296fa12be60c1d779bfa464817bb98fb",
+    "Vensim/InputRenovation_pysd_v7.csv": "e2734c27e22b26eb2a6f50fc5aacefa574dc68211c352fe3d61c4d2a057c6f0e",
+    "Vensim/PVinput_pysd_v7.csv": "6bcfd9fa17307e2becd17156a20bf7e6bd1fd0c76c9106eba6df83835e6d3b45"
+  },
+  "years": [
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "outputs": [
+    "Adoption Battery Type",
+    "Adoption HP Type",
+    "Adoption PV Type",
+    "Adoption Vehicles"
+  ],
+  "engine": "PySD 3.14.3; canonical calibration; synchronous DELAY FIXED; baseline policy",
+  "validated_python_outputs_exact": 137,
+  "validated_julia_comparison_pass": true,
+  "baseline_sha256": {
+    "python.npz": "87dc23fd1025ec7c60c5cabd96154efa46c03045416b9a1790e63516cedb5931",
+    "julia.npz": "fc040879db7f1dada09f35b9de0d553aec47dbfad9f32f38c46cf442e6f8d559"
+  },
+  "csv_sha256": "752a59654b4f33c5109fd84826efd1b30f34eccb86be3150b7b01f814b2a7d45"
+}

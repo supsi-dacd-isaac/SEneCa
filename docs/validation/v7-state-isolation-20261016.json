@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "results": {
+    "python": {
+      "base_high_base_exact": true,
+      "fresh_process_exact": true,
+      "app_pruning_exact": true
+    },
+    "julia": {
+      "base_high_base_exact": true,
+      "warm_no_compilation": true,
+      "concurrent_isolation": true,
+      "crash_recovery_exact": true,
+      "fresh_exact": true
+    }
+  }
+}

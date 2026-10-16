@@ -1,11 +1,11 @@
 #!/bin/sh
-# Run in the pinned runtime on Elettra. Publication remains a separate step.
+# Regenerate the canonical v7 dataset in the pinned Elettra runtime after native precision review.
 set -eu
 run=${1:?Supply a new run identifier}
 case "$run" in *[!a-zA-Z0-9_-]*) echo 'Invalid run identifier' >&2; exit 1;; esac
 root=/runs/$run
 mkdir "$root"
-export PYTHONPATH=/app SURE_VARIANT=v6 PYTHONHASHSEED=0
+export PYTHONPATH=/app SURE_VARIANT=v7 PYTHONHASHSEED=0
 monitor=
 finish() {
     code=$?
@@ -58,21 +58,9 @@ python -m unittest discover -s tests -p 'test_exploratory*.py' -v > "$root/unit-
 python -m unittest discover -s tests -p test_sure_production.py -v > "$root/unit-production.log" 2>&1
 echo source-check > "$root/stage"
 python -m sure_julia.pv_budget --check > "$root/source-check.log" 2>&1
+python scripts/import_calibration.py --check > "$root/calibration-check.log" 2>&1
 echo build > "$root/stage"
 /opt/translator/bin/python -u -m sure_julia.build /app/sure_julia/generated > "$root/build.log" 2>&1
-python - "$root" <<'PY'
-from pathlib import Path
-import sys
-from sure_julia.common import read, dump
-previous=read('/app/provenance/build.json')['model']
-current=read('/app/sure_julia/generated/build.json')
-keys=['artifacts','sources','defaults','parameters','years','float','delay_policy','model_revision']
-checks={key:previous[key]==current[key] for key in keys}
-dump(Path(sys.argv[1])/'model-identity.json', {'pass':all(checks.values()),'checks':checks,
-    'reference':'data-v1.1.0; equations, calibration and exported coordinates unchanged'})
-if not all(checks.values()):
-    raise ValueError('The policy-mix update unexpectedly changed the numerical model')
-PY
 echo targeted > "$root/stage"
 python -u -m sure_julia.targeted "$root/targeted" > "$root/targeted.log" 2>&1
 echo full-validation > "$root/stage"

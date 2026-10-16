@@ -1,20 +1,24 @@
-# Modello SURE supportato
+# SURE v7 canonico
 
-La revisione usata dall’app è **sure-v6-pv-budget-2**:
+Usare `SURE.mdl`: contiene la calibrazione v7, la correzione FER, il budget
+condiviso delle adozioni PV e il dispatch `ALLOCATE BY PRIORITY`.
+`SURE_pysd_v7.mdl` e `.py` sono i derivati per Python e Julia.
 
-- `SURE_v6_pvbounded.mdl`: sorgente corretto per Vensim.
-- `SURE_pysd_v6_pvbounded.mdl`: sorgente corretto preparato per PySD e Julia.
-- `SURE_pysd_v6_pvbounded.py`: riferimento Python della stessa correzione.
+I cinque file `calibration/*.out` sono quelli ricevuti il 16 ottobre 2026.
+Il manifest registra 56 assegnazioni e 33 gruppi; `constants_ref_v7.pkl`
+viene ricostruito dai decimali originali in Float64, senza ricalibrazione.
+I CSV correnti sono la sorgente dei dati: i VDFX nativi vanno rigenerati
+da questi CSV, in particolare HPinput, e non copiati dal vecchio ZIP.
 
-`SURE.mdl`, `SURE_pysd_v6.mdl` e `SURE_pysd_v6.py` conservano il sorgente
-upstream precedente al limite condiviso delle adozioni FV. Servono a
-`sure_julia.pv_budget --check` per dimostrare quali equazioni sono cambiate;
-non rappresentano il modello accettato per le simulazioni dell’app.
+```shell
+python scripts/import_calibration.py --check
+python -m sure_julia.pv_budget --check
+python retranslate_sure_pipeline.py --run --variant v7 --skip-export --reuse-constants constants_ref_v7.pkl
+python -m unittest discover -s tests -p test_dispatch.py
+```
 
-Gli input `*_pysd_v6.csv` e `../constants_ref_v6.pkl` appartengono alla
-revisione supportata. I CSV senza suffisso sono anche sorgenti degli storici
-mostrati nell’interfaccia. `SURE.vpmx` e i `.vdfx` arrivano dalla release dati
-immutabile e non sostituiscono il modello corretto.
-
-La [mappa del repository](../docs/repository-inventory.md) descrive le
-dipendenze conservate. Le versioni v2–v5 si recuperano dal tag `v0.3.1`.
+La [diagnosi numerica](../docs/validation/dispatch-correction.md) distingue
+l’errore residuo dell’allocatore Vensim dalla validazione Python–Julia.
+La nuova release è subordinata ai controlli completi e alla rigenerazione.
+Le versioni v6 sono recuperabili nella storia Git; i vecchi VPMX non sono
+modelli alternativi supportati.

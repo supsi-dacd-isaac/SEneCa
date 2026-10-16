@@ -202,9 +202,13 @@ def apply():
         return self._repro_original_u0()
 
     def allocate(self, identifier, ast, visitor):
-        from pysd.translators.structures.abstract_expressions import AllocateAvailableStructure
+        from pysd.translators.structures.abstract_expressions import AllocateAvailableStructure, AllocateByPriorityStructure
+        if isinstance(ast, AllocateByPriorityStructure):
+            arguments = [visitor.visit(value) for value in
+                         (ast.request, ast.priority, ast.size, ast.width, ast.supply)]
+            return [f"{identifier} ~ seneca_allocate_by_priority({', '.join(arguments)})"]
         if not isinstance(ast, AllocateAvailableStructure):
-            raise ValueError("ALLOCATE BY PRIORITY is outside the verified SURE profile")
+            raise ValueError("Unsupported allocation expression")
         pp_name = self.namespace.get(ast.pp.reference)
         if pp_name is None:
             raise ValueError("Unresolved allocation profile")

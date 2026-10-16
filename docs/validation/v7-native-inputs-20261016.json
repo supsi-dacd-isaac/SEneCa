@@ -1,0 +1,44 @@
+{
+  "Input Hour Factors": {
+    "rows": 4943,
+    "years": 39,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "340e6a9535011ec9fb1088c25a252f2d522ddbfe4b58510d65f1ec40aa85663f"
+  },
+  "EVinput": {
+    "rows": 63,
+    "years": 14,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "e33e64657e59ee618529f6c72736629d210a058eb5d38cc99707ba81bdfd14b4"
+  },
+  "HPinput": {
+    "rows": 33,
+    "years": 15,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "19e495f2af67d3c0f07fb78a81e186110592acb4de18cfc6603414f212c51234"
+  },
+  "Input2011": {
+    "rows": 3000,
+    "years": 15,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "1664e7afd5f77ff3f7c573a3acd1d8b9868beb284832ba22de95d4f470359815"
+  },
+  "InputRenovation": {
+    "rows": 40,
+    "years": 14,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "adb1a0524e76a2f0dfcb86978357d1ff42903b265e474b9178be015ac09fe683"
+  },
+  "PVinput": {
+    "rows": 56,
+    "years": 16,
+    "mismatches_after_float32_six_digit_export": 0,
+    "max_abs": 0.0,
+    "vdfx_sha256": "8b88d49c57f52bc6e4303e9c6b6b1fb5ca3204523c9e0c484673a75b6262f38a"
+  }
+}

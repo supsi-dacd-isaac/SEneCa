@@ -1,5 +1,5 @@
 """
-Python model 'SURE_pysd_v6.py'
+Python model 'SURE_pysd_v7.py'
 Translated using PySD
 """
 
@@ -7,36 +7,26 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from pysd.py_backend.functions import vmin, if_then_else, sum, vmax
+from pysd.py_backend.functions import if_then_else, sum, vmax, vmin
 from pysd.py_backend.statefuls import DelayFixed, Integ, Smooth
 from pysd.py_backend.external import ExtData
-from pysd.py_backend.allocation import (
-    allocate_available as _pysd_allocate_available,
-    allocate_by_priority as _pysd_allocate_by_priority,
-)
+from pysd.py_backend.allocation import allocate_by_priority as _pysd_allocate_by_priority
 
 
-def allocate_available(request, pp, avail):  # allocate_nonneg: wrapper
-    """ALLOCATE AVAILABLE allineato a Vensim.
+def allocate_by_priority(request, priority, width, supply):  # allocate_priority_endpoint:
+    """Guard PySD 3.14.3's empty active set within roundoff of full capacity.
 
-    Le richieste negative sono azzerate: Vensim non le dispaccia e non
-    segnala errore, PySD invece solleva ValueError.
-
-    Con profilo rettangolare e una sola ampiezza, l'ordine di merito e'
-    esatto e coincide con il profilo rettangolare stretto di Vensim.
+    The allocator can exhaust its active suppliers while a sub-ULP residue
+    remains. Snap only supply within four Float64 ULPs of total capacity.
+    This does not discard small positive import residuals.
     """
-    if np.any(np.asanyarray(request) < 0):
-        request = request.clip(min=0.0)
-    pdim = pp.dims[-1]
-    ptype = np.asanyarray(pp.isel({pdim: 0}))
-    width = np.asanyarray(pp.isel({pdim: 2}), dtype=float)
-    widths = np.unique(np.round(width[np.isfinite(width)], 6))
-    if not (ptype.size and np.all(ptype == 1) and widths.size == 1):
-        return _pysd_allocate_available(request, pp, avail)
-    priority = pp.isel({pdim: 1})
-    w = float(widths[0])
-    width_b = (xr.zeros_like(avail) + w) if hasattr(avail, "dims") else w
-    return _pysd_allocate_by_priority(request, priority, width_b, avail)
+    total = request.sum(dim=request.dims[-1])
+    near_full = (supply < total) & ((total - supply) <= 4 * np.spacing(total))
+    if bool(near_full.any()):
+        supply = xr.where(near_full, total, supply)
+        if supply.ndim == 0:
+            supply = float(supply)
+    return _pysd_allocate_by_priority(request, priority, width, supply)
 from pysd import Component
 
 __pysd_version__ = "3.14.3"
@@ -247,25 +237,443 @@ def time_step():
 
 
 @component.add(
-    name="Owners adopting RCP",
+    name="PV SC check",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_sc_computed": 1},
+)
+def pv_sc_check():
+    return (
+        sum(
+            pv_hourly_sc_computed().rename({"Month": "Month!", "Hour": "Hour!"}),
+            dim=["Month!", "Hour!"],
+        )
+        * 365
+        / 12
+    )
+
+
+@component.add(
+    name="Hourly electricity grid demand",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_sc_computed": 2, "hourly_electricity_demand": 2},
+)
+def hourly_electricity_grid_demand():
+    return if_then_else(
+        pv_hourly_sc_computed() < hourly_electricity_demand(),
+        lambda: hourly_electricity_demand() - pv_hourly_sc_computed(),
+        lambda: xr.DataArray(
+            0,
+            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
+            ["Month", "Hour"],
+        ),
+    )
+
+
+@component.add(
+    name="Hourly el demand with PV",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_electricity_demand": 1, "share_of_buildings_with_pv": 1},
+)
+def hourly_el_demand_with_pv():
+    return hourly_electricity_demand() * share_of_buildings_with_pv()
+
+
+@component.add(
+    name="PV hour SC",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_production": 1, "hourly_el_demand_with_pv": 1},
+)
+def pv_hour_sc():
+    return np.minimum(pv_hourly_production(), hourly_el_demand_with_pv())
+
+
+@component.add(
+    name="PV Hourly SC computed",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"total_pv_electricity_sc": 1, "pv_hour_sc": 2},
+)
+def pv_hourly_sc_computed():
+    return (
+        total_pv_electricity_sc()
+        * pv_hour_sc()
+        / sum(
+            pv_hour_sc().rename({"Month": "Month!", "Hour": "Hour!"}),
+            dim=["Month!", "Hour!"],
+        )
+        / (365 / 12)
+    )
+
+
+@component.add(
+    name="Building demolition by archetype",
+    subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"res_verylow_demolition": 1, "share_hs_by_archetype": 1},
+)
+def building_demolition_by_archetype():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+            "Battery": _subscript_dict["Battery"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
+    )
+    value.loc[:, :, ["VeryLow"], :, :, :] = (
+        (
+            res_verylow_demolition()
+            * share_hs_by_archetype()
+            .loc[:, :, "VeryLow", :, :, :]
+            .reset_coords(drop=True)
+            .transpose("District", "Type", "HS", "PVpanel", "Battery")
+        )
+        .transpose("District", "HS", "Type", "PVpanel", "Battery")
+        .expand_dims({"PerformanceLow": ["VeryLow"]}, 2)
+        .values
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, :, ["VeryLow"], :, :, :] = False
+    value.values[except_subs.values] = 0
+    return value
+
+
+@component.add(
+    name="Total PV kWh SC",
+    units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_total_pv_kwh_sc": 1},
+    other_deps={
+        "_integ_total_pv_kwh_sc": {
+            "initial": {},
+            "step": {"additional_annual_pv_kwh_sc": 1, "pv_kwh_sc_demolished": 1},
+        }
+    },
+)
+def total_pv_kwh_sc():
+    return _integ_total_pv_kwh_sc()
+
+
+_integ_total_pv_kwh_sc = Integ(
+    lambda: additional_annual_pv_kwh_sc() - pv_kwh_sc_demolished(),
+    lambda: xr.DataArray(
+        0,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+        },
+        ["District", "HS", "Performance", "Type"],
+    ),
+    "_integ_total_pv_kwh_sc",
+)
+
+
+@component.add(
+    name="PV kW installed Residential",
+    units="kW",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_pv_kw_installed_residential": 1},
+    other_deps={
+        "_integ_pv_kw_installed_residential": {
+            "initial": {"initial_kwp_installed_by_archetype": 1},
+            "step": {"annual_pv_kw_installation": 1, "pv_kw_residential_demolished": 1},
+        }
+    },
+)
+def pv_kw_installed_residential():
+    return _integ_pv_kw_installed_residential()
+
+
+_integ_pv_kw_installed_residential = Integ(
+    lambda: annual_pv_kw_installation() - pv_kw_residential_demolished(),
+    lambda: initial_kwp_installed_by_archetype(),
+    "_integ_pv_kw_installed_residential",
+)
+
+
+@component.add(
+    name="Annual CO2 tax archetype",
+    units="CHF",
+    subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "annual_dhw_demand": 2,
+        "heating_solution": 6,
+        "annual_sh_demand": 4,
+        "annual_heating_degree_days_coefficient": 4,
+        "efficiency": 4,
+        "co2_tax": 4,
+    },
+)
+def annual_co2_tax_archetype():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["NonRenSolution"], :, :, :] = False
+    value.values[except_subs.values] = 0
+    value.loc[:, ["Oil"], :, :, :] = (
+        (
+            (
+                annual_dhw_demand()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Oil", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                ).transpose("District", "Type", "Performance", "PVpanel")
+                + (
+                    annual_sh_demand()
+                    * annual_heating_degree_days_coefficient()
+                    * sum(
+                        heating_solution()
+                        .loc[:, "Oil", :, :, :, :]
+                        .reset_coords(drop=True)
+                        .rename({"Battery": "Battery!"}),
+                        dim=["Battery!"],
+                    )
+                ).transpose("District", "Type", "Performance", "PVpanel")
+            )
+            / float(efficiency().loc["OilBoiler"])
+            * co2_tax()
+            * 0.00026532
+        )
+        .transpose("District", "Performance", "Type", "PVpanel")
+        .expand_dims({"NonRenSolution": ["Oil"]}, 1)
+        .values
+    )
+    value.loc[:, ["OilST"], :, :, :] = (
+        (
+            (
+                annual_sh_demand()
+                * annual_heating_degree_days_coefficient()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Oil", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                )
+            )
+            / float(efficiency().loc["OilBoiler"])
+            * co2_tax()
+            * 0.00026532
+        )
+        .expand_dims({"NonRenSolution": ["OilST"]}, 1)
+        .values
+    )
+    value.loc[:, ["Gas"], :, :, :] = (
+        (
+            (
+                annual_dhw_demand()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Gas", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                ).transpose("District", "Type", "Performance", "PVpanel")
+                + (
+                    annual_sh_demand()
+                    * annual_heating_degree_days_coefficient()
+                    * sum(
+                        heating_solution()
+                        .loc[:, "Gas", :, :, :, :]
+                        .reset_coords(drop=True)
+                        .rename({"Battery": "Battery!"}),
+                        dim=["Battery!"],
+                    )
+                ).transpose("District", "Type", "Performance", "PVpanel")
+            )
+            / float(efficiency().loc["GasBoiler"])
+            * co2_tax()
+            * 0.0002016
+        )
+        .transpose("District", "Performance", "Type", "PVpanel")
+        .expand_dims({"WithGeoConstraint": ["Gas"]}, 1)
+        .values
+    )
+    value.loc[:, ["GasST"], :, :, :] = (
+        (
+            (
+                annual_sh_demand()
+                * annual_heating_degree_days_coefficient()
+                * sum(
+                    heating_solution()
+                    .loc[:, "GasST", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                )
+            )
+            / float(efficiency().loc["GasBoiler"])
+            * co2_tax()
+            * 0.0002016
+        )
+        .expand_dims({"WithGeoConstraint": ["GasST"]}, 1)
+        .values
+    )
+    value.loc[:, ["ElectricHeater"], :, :, :] = 0
+    return value
+
+
+@component.add(
+    name="PV kWh SC demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_kwh_self_consumed_demolished": 1},
+)
+def pv_kwh_sc_demolished():
+    return pv_kwh_self_consumed_demolished()
+
+
+@component.add(
+    name="PV kWh self consumed",
+    units="kWh",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_pv_kwh_self_consumed": 1},
+    other_deps={
+        "_integ_pv_kwh_self_consumed": {
+            "initial": {},
+            "step": {
+                "additional_annual_pv_kwh_self_consumed": 1,
+                "pv_kwh_self_consumed_demolished": 1,
+            },
+        }
+    },
+)
+def pv_kwh_self_consumed():
+    return _integ_pv_kwh_self_consumed()
+
+
+_integ_pv_kwh_self_consumed = Integ(
+    lambda: additional_annual_pv_kwh_self_consumed()
+    - pv_kwh_self_consumed_demolished(),
+    lambda: xr.DataArray(
+        0,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+        },
+        ["District", "HS", "Performance", "Type"],
+    ),
+    "_integ_pv_kwh_self_consumed",
+)
+
+
+@component.add(
+    name="PV kWh self consumed demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "kwp_installed_per_building": 1,
+        "pv_annual_generation_per_kw": 1,
+        "self_consumption_degree": 1,
+        "building_demolition_by_archetype": 1,
+    },
+)
+def pv_kwh_self_consumed_demolished():
+    return if_then_else(
+        time() < 2015,
+        lambda: xr.DataArray(
+            0,
+            {
+                "District": _subscript_dict["District"],
+                "HS": _subscript_dict["HS"],
+                "Performance": _subscript_dict["Performance"],
+                "Type": _subscript_dict["Type"],
+            },
+            ["District", "HS", "Performance", "Type"],
+        ),
+        lambda: sum(
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVyes", :]
+            .reset_coords(drop=True)
+            .rename({"Battery": "Battery!"}),
+            dim=["Battery!"],
+        )
+        * kwp_installed_per_building()
+        * pv_annual_generation_per_kw()
+        * self_consumption_degree(),
+    )
+
+
+@component.add(
+    name="PV kW Residential demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"building_demolition_by_archetype": 1, "kwp_installed_per_building": 1},
+)
+def pv_kw_residential_demolished():
+    return (
+        sum(
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVyes", :]
+            .reset_coords(drop=True)
+            .rename({"Battery": "Battery!"}),
+            dim=["Battery!"],
+        )
+        * kwp_installed_per_building()
+    )
+
+
+@component.add(
+    name="Requested Owners adopting RCP",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 3,
         "owned_buildings_with_rcp": 3,
-        "share_of_owned_houses": 3,
-        "share_urban_buildings": 1,
-        "energy_community_scenario": 2,
-        "probability_adoption_rcp_owners": 3,
-        "heating_solution": 9,
-        "owned_buildings_with_rcpv_pvno": 2,
         "share_of_buildings_with_suitable_roof": 3,
+        "owned_buildings_with_rcpv_pvno": 2,
+        "share_urban_buildings": 1,
+        "owned_buildings_with_pv": 3,
+        "heating_solution": 9,
         "owned_buildings_with_rcpv": 3,
+        "probability_adoption_rcp_owners": 3,
+        "energy_community_scenario": 2,
+        "share_of_owned_houses": 3,
     },
 )
-def owners_adopting_rcp():
+def requested_owners_adopting_rcp():
     value = xr.DataArray(
         np.nan,
         {
@@ -458,25 +866,25 @@ def owners_adopting_rcp():
 
 
 @component.add(
-    name="Owners adopting PV",
+    name="Requested Owners adopting PV",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 4,
         "owned_buildings_with_rcp": 4,
-        "share_of_owned_houses": 4,
-        "heating_solution": 16,
         "share_of_buildings_with_suitable_roof": 6,
-        "owned_buildings_with_rcpv": 4,
         "probability_adoption_pv_owners": 6,
+        "owned_buildings_with_pv": 4,
+        "heating_solution": 16,
+        "owned_buildings_with_rcpv": 4,
+        "share_of_owned_houses": 4,
+        "owned_buildings_with_rcpv_pvno": 3,
         "energy_community_scenario": 2,
         "share_urban_buildings": 3,
-        "owned_buildings_with_rcpv_pvno": 3,
     },
 )
-def owners_adopting_pv():
+def requested_owners_adopting_pv():
     value = xr.DataArray(
         np.nan,
         {
@@ -850,7 +1258,7 @@ _integ_rented_buildings_with_rcpv = Integ(
     name="House Value coefficient HT",
     units="Dmnl",
     subscripts=["Performance", "HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"house_value_coefficient": 1},
 )
@@ -904,25 +1312,25 @@ _integ_rented_buildings_with_pv = Integ(
 
 
 @component.add(
-    name="Renters adopting RCP",
+    name="Requested Renters adopting RCP",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "share_of_owned_houses": 3,
-        "share_urban_buildings": 1,
-        "energy_community_scenario": 2,
-        "rented_buildings_with_rcpv": 3,
+        "share_of_buildings_with_suitable_roof": 3,
         "rented_buildings_with_rcp": 3,
+        "rented_buildings_with_rcpv": 3,
+        "share_urban_buildings": 1,
+        "heating_solution": 9,
         "probability_adoption_rcp_renters": 3,
         "rented_buildings_with_rcpv_pvno": 2,
-        "heating_solution": 9,
-        "share_of_buildings_with_suitable_roof": 3,
         "rented_buildings_with_pv": 3,
+        "energy_community_scenario": 2,
+        "share_of_owned_houses": 3,
     },
 )
-def renters_adopting_rcp():
+def requested_renters_adopting_rcp():
     value = xr.DataArray(
         np.nan,
         {
@@ -1118,12 +1526,12 @@ def renters_adopting_rcp():
     name="Annual fuel cost archetype",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annual_dhw_demand": 5,
-        "annual_heating_degree_days_coefficient": 8,
         "annual_sh_demand": 8,
+        "annual_heating_degree_days_coefficient": 8,
         "efficiency": 7,
         "carrier_used_cost_per_kwh": 7,
     },
@@ -1256,25 +1664,25 @@ def annual_fuel_cost_archetype():
 
 
 @component.add(
-    name="Renters adopting PV",
+    name="Requested Renters adopting PV",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "probability_adoption_pv_renters": 6,
-        "share_of_owned_houses": 6,
-        "rented_buildings_with_rcpv": 4,
-        "rented_buildings_with_rcp": 4,
-        "heating_solution": 16,
         "share_of_buildings_with_suitable_roof": 6,
+        "probability_adoption_pv_renters": 6,
+        "rented_buildings_with_rcp": 4,
+        "rented_buildings_with_rcpv": 4,
+        "heating_solution": 16,
         "rented_buildings_with_pv": 4,
-        "rented_buildings_with_rcpv_pvno": 3,
+        "share_of_owned_houses": 6,
         "energy_community_scenario": 2,
         "share_urban_buildings": 1,
+        "rented_buildings_with_rcpv_pvno": 3,
     },
 )
-def renters_adopting_pv():
+def requested_renters_adopting_pv():
     value = xr.DataArray(
         np.nan,
         {
@@ -1575,8 +1983,8 @@ def equipped_buildings():
     comp_subtype="Normal",
     depends_on={
         "equipped_buildings": 3,
-        "rented_buildings_with_pv": 1,
         "building_demolition_by_archetype": 1,
+        "rented_buildings_with_pv": 1,
     },
 )
 def rented_buildings_with_pv_demolished():
@@ -1941,7 +2349,7 @@ def oilgas_lifetime_uncertainty_factor():
     name="Adoptions OilST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2095,7 +2503,7 @@ def average_energy_price_market():
     name="Adoptions DH from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2148,7 +2556,7 @@ def electricity_consumption_industry():
     name="Adoptions GasST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2240,7 +2648,7 @@ def oilgas_carrier_cost_uncertainty():
     name="Adoptions HPST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2329,7 +2737,7 @@ def pv_30_100_kw_investment_cost_time_adj():
     name="Adoptions Pellet from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2502,9 +2910,9 @@ def investment_cost_hs_nost_adj():
     depends_on={
         "time": 1,
         "pv_rebate_cantonal": 1,
-        "exploratory_analysis": 1,
         "cantonal_pv_support": 1,
         "pv_investment_cost": 2,
+        "exploratory_analysis": 1,
     },
 )
 def pv_initial_cantonal_subsidy():
@@ -2603,7 +3011,7 @@ def hp_efficiency_uncertainty_factor():
 
 @component.add(name="Exploratory analysis", comp_type="Constant", comp_subtype="Normal")
 def exploratory_analysis():
-    return 1
+    return 0
 
 
 @component.add(
@@ -2812,7 +3220,7 @@ def interest_rate_uncertainty():
     name="Adoptions HeatPump from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2899,7 +3307,7 @@ def overall_construction_rate():
 @component.add(
     name="Grant absolute",
     subscripts=["HS", "District", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "exploratory_analysis": 5,
@@ -3007,7 +3415,7 @@ def grant_absolute():
     name="Adoptions WoodST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -3147,142 +3555,6 @@ def woodpellet_carrier_cost_uncertainty():
 )
 def woodpellet_lifetime_uncertainty():
     return 0
-
-
-@component.add(
-    name="Annual CO2 tax archetype",
-    units="CHF",
-    subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "annual_dhw_demand": 2,
-        "heating_solution": 6,
-        "annual_heating_degree_days_coefficient": 4,
-        "annual_sh_demand": 4,
-        "efficiency": 4,
-        "co2_tax": 4,
-    },
-)
-def annual_co2_tax_archetype():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel"],
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, _subscript_dict["NonRenSolution"], :, :, :] = False
-    value.values[except_subs.values] = 0
-    value.loc[:, ["Oil"], :, :, :] = (
-        (
-            (
-                annual_dhw_demand()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Oil", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                ).transpose("District", "Type", "Performance", "PVpanel")
-                + (
-                    annual_sh_demand()
-                    * annual_heating_degree_days_coefficient()
-                    * sum(
-                        heating_solution()
-                        .loc[:, "Oil", :, :, :, :]
-                        .reset_coords(drop=True)
-                        .rename({"Battery": "Battery!"}),
-                        dim=["Battery!"],
-                    )
-                ).transpose("District", "Type", "Performance", "PVpanel")
-            )
-            / float(efficiency().loc["OilBoiler"])
-            * co2_tax()
-            * 0.00026532
-        )
-        .transpose("District", "Performance", "Type", "PVpanel")
-        .expand_dims({"NonRenSolution": ["Oil"]}, 1)
-        .values
-    )
-    value.loc[:, ["OilST"], :, :, :] = (
-        (
-            (
-                annual_sh_demand()
-                * annual_heating_degree_days_coefficient()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Oil", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                )
-            )
-            / float(efficiency().loc["OilBoiler"])
-            * co2_tax()
-            * 0.00026532
-        )
-        .expand_dims({"NonRenSolution": ["OilST"]}, 1)
-        .values
-    )
-    value.loc[:, ["Gas"], :, :, :] = (
-        (
-            (
-                annual_dhw_demand()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Gas", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                ).transpose("District", "Type", "Performance", "PVpanel")
-                + (
-                    annual_sh_demand()
-                    * annual_heating_degree_days_coefficient()
-                    * sum(
-                        heating_solution()
-                        .loc[:, "Gas", :, :, :, :]
-                        .reset_coords(drop=True)
-                        .rename({"Battery": "Battery!"}),
-                        dim=["Battery!"],
-                    )
-                ).transpose("District", "Type", "Performance", "PVpanel")
-            )
-            / float(efficiency().loc["GasBoiler"])
-            * co2_tax()
-            * 0.0002016
-        )
-        .transpose("District", "Performance", "Type", "PVpanel")
-        .expand_dims({"WithGeoConstraint": ["Gas"]}, 1)
-        .values
-    )
-    value.loc[:, ["GasST"], :, :, :] = (
-        (
-            (
-                annual_sh_demand()
-                * annual_heating_degree_days_coefficient()
-                * sum(
-                    heating_solution()
-                    .loc[:, "GasST", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                )
-            )
-            / float(efficiency().loc["GasBoiler"])
-            * co2_tax()
-            * 0.0002016
-        )
-        .expand_dims({"WithGeoConstraint": ["GasST"]}, 1)
-        .values
-    )
-    value.loc[:, ["ElectricHeater"], :, :, :] = 0
-    return value
 
 
 @component.add(
@@ -3921,29 +4193,6 @@ def annual_hs_inflow():
 
 
 @component.add(
-    name="PV hourly SC",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc_initial": 2, "total_pv_electricity_sc": 1},
-)
-def pv_hourly_sc():
-    return (
-        pv_hourly_sc_initial()
-        * total_pv_electricity_sc()
-        / (
-            sum(
-                pv_hourly_sc_initial().rename({"Month": "Month!", "Hour": "Hour!"}),
-                dim=["Month!", "Hour!"],
-            )
-            * 365
-            / 12
-        )
-    )
-
-
-@component.add(
     name="Annual grid upgrading cost District",
     units="CHF",
     subscripts=["District"],
@@ -4014,7 +4263,7 @@ def provvedimento_17():
 @component.add(
     name="Hydro additional hourly supply winter",
     subscripts=["Month", "Hour"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 2, "provvedimento_17": 1, "hour_factor_hs": 2},
 )
@@ -4052,7 +4301,7 @@ def hydro_additional_hourly_supply_winter():
 @component.add(
     name="Hydro decrese hourly supply summer",
     subscripts=["Month", "Hour"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 2, "provvedimento_17": 1, "hour_factor_hs": 2},
 )
@@ -4189,8 +4438,8 @@ def total_annual_electricity_consumed():
     comp_subtype="Normal",
     depends_on={
         "phs_annual_production_historical": 1,
-        "time": 2,
         "provvedimento_13": 1,
+        "time": 2,
     },
 )
 def phs_annual_production():
@@ -4252,7 +4501,7 @@ def annual_phsn_inflow_historical_for_ticino():
 
 
 _ext_data_annual_phsn_inflow_historical_for_ticino = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -4359,7 +4608,7 @@ def dummy_factor_v():
     name="CO2eq per km vehicle",
     units="CO2eq/km",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "fuel_consumption_per_km": 6,
@@ -4508,7 +4757,7 @@ def annual_co2_emissions_vehicles():
 @component.add(
     name="CO2 coefficient",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 1, "co2_coefficient_input_ice": 1, "co2_coefficient_ice": 1},
 )
@@ -4554,27 +4803,6 @@ def total_pv_electricity_production_district():
 
 
 @component.add(
-    name="Hourly electricity demand with PV",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "hourly_electricity_demand": 1,
-        "share_of_buildings_with_pv": 1,
-        "remaining_pv_sc_ratio_delay": 1,
-    },
-)
-def hourly_electricity_demand_with_pv():
-    return (
-        hourly_electricity_demand()
-        * share_of_buildings_with_pv()
-        * remaining_pv_sc_ratio_delay()
-        * 1.25
-    )
-
-
-@component.add(
     name="Light hourly demand Res",
     units="GWh",
     subscripts=["Month", "Hour"],
@@ -4584,19 +4812,6 @@ def hourly_electricity_demand_with_pv():
 )
 def light_hourly_demand_res():
     return light_annual_demand_res() * hour_factor_light()
-
-
-@component.add(
-    name="PV SC initial",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc_initial": 1},
-)
-def pv_sc_initial():
-    return sum(
-        pv_hourly_sc_initial().rename({"Month": "Month!", "Hour": "Hour!"}),
-        dim=["Month!", "Hour!"],
-    )
 
 
 @component.add(
@@ -4617,80 +4832,10 @@ def light_annual_demand_res():
 
 
 @component.add(
-    name="PV hourly SC initial",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_production": 1, "hourly_electricity_demand_with_pv": 1},
-)
-def pv_hourly_sc_initial():
-    return np.minimum(pv_hourly_production(), hourly_electricity_demand_with_pv())
-
-
-@component.add(
-    name="Remaining PV SC Ratio delay",
-    comp_type="Stateful",
-    comp_subtype="DelayFixed",
-    depends_on={"_delayfixed_remaining_pv_sc_ratio_delay": 1},
-    other_deps={
-        "_delayfixed_remaining_pv_sc_ratio_delay": {
-            "initial": {},
-            "step": {"remaining_pv_sc_ratio": 1},
-        }
-    },
-)
-def remaining_pv_sc_ratio_delay():
-    return _delayfixed_remaining_pv_sc_ratio_delay()
-
-
-_delayfixed_remaining_pv_sc_ratio_delay = DelayFixed(
-    lambda: remaining_pv_sc_ratio(),
-    lambda: 1,
-    lambda: 1,
-    time_step,
-    "_delayfixed_remaining_pv_sc_ratio_delay",
-)
-
-
-@component.add(
-    name="Remaining PV SC Ratio",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_self_consumption": 1, "pv_sc_initial": 1},
-)
-def remaining_pv_sc_ratio():
-    return float(np.maximum(pv_self_consumption() / pv_sc_initial(), 1))
-
-
-@component.add(
     name="EV charger incentive input", comp_type="Constant", comp_subtype="Normal"
 )
 def ev_charger_incentive_input():
     return 500
-
-
-@component.add(
-    name="PV Self Consumption",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_monthly_self_consumption": 1},
-)
-def pv_self_consumption():
-    return sum(
-        pv_monthly_self_consumption().rename({"Month": "Month!"}), dim=["Month!"]
-    )
-
-
-@component.add(
-    name="PV hourly Self Consumption",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"hour_factor_pv": 1, "total_pv_electricity_sc": 1},
-)
-def pv_hourly_self_consumption():
-    return hour_factor_pv() * total_pv_electricity_sc()
 
 
 @component.add(name="CO2 coefficient ICE", comp_type="Constant", comp_subtype="Normal")
@@ -4729,17 +4874,6 @@ def electricity_distpatched_by_month():
 )
 def diesel_price_input():
     return 1.98
-
-
-@component.add(
-    name="PV monthly Self Consumption",
-    subscripts=["Month"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_self_consumption": 1},
-)
-def pv_monthly_self_consumption():
-    return sum(pv_hourly_self_consumption().rename({"Hour": "Hour!"}), dim=["Hour!"])
 
 
 @component.add(
@@ -4782,7 +4916,7 @@ def total_electricity_produced_annual():
 @component.add(
     name="Hourly exported electricity",
     subscripts=["Month", "Hour", "Supplier"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"hourly_available_supply_by_supplier": 1, "electricity_dispatched": 1},
 )
@@ -4818,8 +4952,11 @@ def hourly_exported_electricity():
     },
 )
 def pv_cantonal_subsidy():
+    """
+    RFER art. 25: annual 2022 approximates the change on 1 April 2022.
+    """
     return if_then_else(
-        time() < 2021,
+        time() < 2022,
         lambda: pv_federal_subsidy_check() / 3,
         lambda: if_then_else(
             time() < 2026,
@@ -4852,44 +4989,6 @@ def pv_residential_power_by_type():
         )
         / 1000
     )
-
-
-@component.add(
-    name="Building demolition by archetype",
-    subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={"res_verylow_demolition": 1, "share_hs_by_archetype": 1},
-)
-def building_demolition_by_archetype():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-            "Battery": _subscript_dict["Battery"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    )
-    value.loc[:, :, ["VeryLow"], :, :, :] = (
-        (
-            res_verylow_demolition()
-            * share_hs_by_archetype()
-            .loc[:, :, "VeryLow", :, :, :]
-            .reset_coords(drop=True)
-            .transpose("District", "Type", "HS", "PVpanel", "Battery")
-        )
-        .transpose("District", "HS", "Type", "PVpanel", "Battery")
-        .expand_dims({"PerformanceLow": ["VeryLow"]}, 2)
-        .values
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, :, ["VeryLow"], :, :, :] = False
-    value.values[except_subs.values] = 0
-    return value
 
 
 @component.add(
@@ -4977,9 +5076,9 @@ def grant_share_st():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "st_installed_capacity_by_arch": 1,
         "investment_grant_per_kw_15_kw_1": 1,
         "initial_grant_15_kw_1": 1,
-        "st_installed_capacity_by_arch": 1,
         "grant_absolute_st": 1,
     },
 )
@@ -5044,15 +5143,15 @@ def grant_share_hp():
 @component.add(
     name="Building construction by archetype",
     subscripts=["District", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 3,
-        "buildings_construction": 3,
-        "coeff_roof_suitability": 3,
         "heating_solution": 6,
-        "res_total_construction_by_perf_type_district": 3,
+        "coeff_roof_suitability": 3,
+        "buildings_construction": 3,
         "pv_reg_scenario": 1,
+        "res_total_construction_by_perf_type_district": 3,
         "building_construction_by_archetype": 2,
     },
 )
@@ -5519,7 +5618,7 @@ def average_levy_minus_incentives_archetype():
     name="CAPEX retrofit cost",
     units="CHF",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "low_cost": 1,
@@ -5826,8 +5925,8 @@ def annualization_coefficient_for_levy_payments():
     comp_subtype="Normal",
     depends_on={
         "annural_cantonal_subsidy_cu_by_archetype": 1,
-        "pv_annual_adoption_30_100_kw": 1,
         "pv_cantonal_subsidy_30_100_kw_check": 1,
+        "pv_annual_adoption_30_100_kw": 1,
         "pv_cantonal_subsidy_100_kw_check": 1,
         "pv_annual_adoption_100_kw": 1,
     },
@@ -5872,8 +5971,8 @@ def incentive_gasst_from_os_by_archetype():
     depends_on={
         "annural_federal_subsidy_rup_by_archetype": 1,
         "share_additional_power_30_kw": 1,
-        "pv_annual_adoption_30_100_kw": 1,
         "pv_federal_subsidy_30_100_kw_check": 1,
+        "pv_annual_adoption_30_100_kw": 1,
     },
 )
 def annural_federal_subsidy_rup_ti():
@@ -5958,11 +6057,11 @@ def incentive_oilst_from_os_by_archetype():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
+        "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def pv_capex():
@@ -6018,11 +6117,12 @@ def annual_electricity_cost():
     )
     value.loc[:, :, :, :, ["PVyes"]] = (
         (
-            (
+            np.maximum(
                 electricity_consumption_by_archetype()
                 .loc[:, :, :, :, "PVyes"]
                 .reset_coords(drop=True)
-                - total_pv_kwh_sc()
+                - total_pv_kwh_sc(),
+                0,
             )
             * electricity_price()
             - annual_subsidy_fit_by_archetype()
@@ -6202,7 +6302,7 @@ def adoptions_heatpump_from_hs_by_archetype():
     name="Annual PV CAPEX",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"annualised_pv_capex": 1, "heating_solution": 1},
 )
@@ -6291,9 +6391,9 @@ def adoptions_hpst_from_hs_by_archetype():
         "wall_low_probabilities": 1,
         "low_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "low_changing_ground": 1,
         "ground_low_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -6522,12 +6622,12 @@ def annualised_hs_capex():
     name="Annualised HS CAPEX average",
     units="CHF",
     subscripts=["HS", "District", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annualised_hs_capex_no_incentives": 8,
-        "share_oilst_adoption_from_os": 2,
         "annualised_hs_capex": 7,
+        "share_oilst_adoption_from_os": 2,
         "share_gasst_adoption_from_os": 2,
         "share_woodst_adoption_from_os": 2,
         "share_hpst_adoption_from_os": 2,
@@ -6641,31 +6741,6 @@ def annualised_hs_capex_average():
         .values
     )
     return value
-
-
-@component.add(
-    name="PV kW installed Residential",
-    units="kW",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_pv_kw_installed_residential": 1},
-    other_deps={
-        "_integ_pv_kw_installed_residential": {
-            "initial": {"initial_kwp_installed_by_archetype": 1},
-            "step": {"annual_pv_kw_installation": 1},
-        }
-    },
-)
-def pv_kw_installed_residential():
-    return _integ_pv_kw_installed_residential()
-
-
-_integ_pv_kw_installed_residential = Integ(
-    lambda: annual_pv_kw_installation(),
-    lambda: initial_kwp_installed_by_archetype(),
-    "_integ_pv_kw_installed_residential",
-)
 
 
 @component.add(
@@ -6932,8 +7007,8 @@ def average_retrofit_cost():
     comp_subtype="Normal",
     depends_on={
         "adoptions_woodst_from_os_by_archetype": 1,
-        "grant_st": 1,
         "grant_pelletboiler_woodst": 1,
+        "grant_st": 1,
     },
 )
 def incentive_woodst_from_os_by_archetype():
@@ -7227,40 +7302,6 @@ _integ_cumulative_pv_incentives_archetype = Integ(
 
 
 @component.add(
-    name="Total PV kWh SC",
-    units="kWh",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_total_pv_kwh_sc": 1},
-    other_deps={
-        "_integ_total_pv_kwh_sc": {
-            "initial": {},
-            "step": {"additional_annual_pv_kwh_sc": 1},
-        }
-    },
-)
-def total_pv_kwh_sc():
-    return _integ_total_pv_kwh_sc()
-
-
-_integ_total_pv_kwh_sc = Integ(
-    lambda: additional_annual_pv_kwh_sc(),
-    lambda: xr.DataArray(
-        0,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-        },
-        ["District", "HS", "Performance", "Type"],
-    ),
-    "_integ_total_pv_kwh_sc",
-)
-
-
-@component.add(
     name="Cumulative adoptions DH from HS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
@@ -7416,40 +7457,6 @@ def annual_archetypes():
         sum(heating_solution().rename({"Battery": "Battery!"}), dim=["Battery!"])
         * dwellings_per_building()
     )
-
-
-@component.add(
-    name="PV kWh self consumed",
-    units="kWh",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_pv_kwh_self_consumed": 1},
-    other_deps={
-        "_integ_pv_kwh_self_consumed": {
-            "initial": {},
-            "step": {"additional_annual_pv_kwh_self_consumed": 1},
-        }
-    },
-)
-def pv_kwh_self_consumed():
-    return _integ_pv_kwh_self_consumed()
-
-
-_integ_pv_kwh_self_consumed = Integ(
-    lambda: additional_annual_pv_kwh_self_consumed(),
-    lambda: xr.DataArray(
-        0,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-        },
-        ["District", "HS", "Performance", "Type"],
-    ),
-    "_integ_pv_kwh_self_consumed",
-)
 
 
 @component.add(
@@ -7777,12 +7784,12 @@ _integ_cumulative_co2_tax_archetype = Integ(
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_verylow_probabilities": 1,
         "verylow_changing_wall": 1,
+        "wall_verylow_probabilities": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_ground": 1,
         "ground_size_by_type_and_district": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -7989,7 +7996,7 @@ def flow_incentives_archetype_from_os():
     name="Incentives by archetype from OS",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "incentive_dh_from_os_by_archetype": 1,
@@ -8074,7 +8081,7 @@ def flow_adoptions_heatpump_from_hs_by_archetype():
     name="Incentives by archetype renovation",
     units="CHF",
     subscripts=["Performance", "District", "Type", "HS", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "verylow_to_performance_sq_m_by_archetype": 3,
@@ -8524,8 +8531,8 @@ def funds_coming_from_federal_co2_tax_2025():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "funds_coming_from_federal_co2_tax_2025": 1,
         "increase_co2_tax_scenario": 1,
+        "funds_coming_from_federal_co2_tax_2025": 1,
     },
 )
 def funds_coming_from_federal_co2_tax():
@@ -8884,9 +8891,9 @@ def annual_dhw_consumption_electricity_hp_by_type():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "consumers_leaving_hs_for_old_age": 9,
         "market_share_hs_no_incentives_filtered": 3,
         "market_share_hs_filtered": 3,
+        "consumers_leaving_hs_for_old_age": 9,
     },
 )
 def buildings_adopting_hs_for_old_age():
@@ -8963,9 +8970,9 @@ def buildings_adopting_hs_for_old_age():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "incentive_cece": 2,
         "low_to_performance_sq_m": 5,
         "incentive_minergie": 2,
+        "incentive_cece": 2,
         "incentive_base": 1,
     },
 )
@@ -8989,7 +8996,7 @@ def annual_inventive_renovation_low():
     name='"Investment grant per kW > 15 kW"',
     units="CHF/kW",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -9044,9 +9051,9 @@ def investment_grant_per_kw_15_kw():
         "wall_low_probabilities": 1,
         "low_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "low_changing_ground": 1,
         "ground_low_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
     },
 )
 def low_to_performance_sq_m():
@@ -9067,7 +9074,7 @@ def low_to_performance_sq_m():
     name='"Initial grant > 15 kW"',
     units="CHF",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -9300,14 +9307,14 @@ def renovation_cost_index():
         "_smooth_total_present_variable_costs_sh_ground": {
             "initial": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "ground_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "ground_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
         }
@@ -9458,14 +9465,14 @@ def roof_specific_cost():
         "_smooth_total_present_variable_costs_sh_roof": {
             "initial": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "roof_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "roof_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
         }
@@ -9517,14 +9524,14 @@ _smooth_total_present_variable_costs_sh_roof = Smooth(
         "_smooth_total_present_variable_costs_sh_wall": {
             "initial": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
+                "additional_interest_rate_for_loan": 2,
                 "interest_rate": 2,
             },
         }
@@ -9573,9 +9580,9 @@ _smooth_total_present_variable_costs_sh_wall = Smooth(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "incentive_minergie": 2,
         "verylow_to_performance_sq_m": 5,
         "incentive_cece": 2,
-        "incentive_minergie": 2,
         "incentive_base": 1,
     },
 )
@@ -9644,8 +9651,8 @@ def adoptions_hp_from_os():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "consumers_leaving_hs_for_old_age": 4,
         "market_share_hs_filtered": 3,
+        "consumers_leaving_hs_for_old_age": 4,
     },
 )
 def adoptions_hs_from_os_by_archetype():
@@ -9733,7 +9740,7 @@ def incentive_per_tech():
 @component.add(
     name="Incentive per Tech by archetype",
     subscripts=["District", "Tech", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "adoptions_hs_from_os_by_archetype": 5,
@@ -9833,12 +9840,12 @@ def incentive_per_tech_by_archetype():
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_verylow_probabilities": 1,
         "verylow_changing_wall": 1,
+        "wall_verylow_probabilities": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_ground": 1,
         "ground_size_by_type_and_district": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance_sq_m():
@@ -10557,8 +10564,8 @@ def annual_sh_variable_costs_hs_by_archetype():
     comp_subtype="Normal",
     depends_on={
         "annual_dhw_demand": 1,
-        "annual_heating_degree_days_coefficient": 1,
         "annual_sh_demand": 1,
+        "annual_heating_degree_days_coefficient": 1,
     },
 )
 def annual_heat_demand():
@@ -12370,8 +12377,8 @@ def market_share_hs_no_incentives():
         "dh_only_suitability": 1,
         "market_share_hs_no_incentives_nodh": 1,
         "gas_only_suitability": 1,
-        "market_share_hs_no_incentives_nodh_nogas": 1,
         "no_suitability": 1,
+        "market_share_hs_no_incentives_nodh_nogas": 1,
     },
 )
 def market_share_hs_no_incentives_filtered():
@@ -12577,7 +12584,7 @@ def suitability_check():
 @component.add(
     name="Roof Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_moderate_scaled": 1},
 )
@@ -12769,7 +12776,7 @@ def roof_verylow_probabilities():
 @component.add(
     name="Coeff High",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_high": 1},
 )
@@ -12801,8 +12808,8 @@ def coeff_high():
     comp_subtype="Normal",
     depends_on={
         "ground_cost_low": 2,
-        "ground_cost_moderate": 1,
         "total_present_variable_costs_sh_average_ground": 6,
+        "ground_cost_moderate": 1,
         "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
     },
@@ -12868,7 +12875,7 @@ def ground_low():
 @component.add(
     name="Coeff Moderate",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_moderate": 1},
 )
@@ -12926,8 +12933,8 @@ def ground_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "ground_cost_moderate": 3,
-        "ground_cost_high": 1,
         "total_present_variable_costs_sh_average_ground": 4,
+        "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
     },
 )
@@ -12984,7 +12991,7 @@ def ground_moderate():
 @component.add(
     name="Ground Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_moderate_scaled": 1},
 )
@@ -13082,8 +13089,8 @@ def ground_moderate_scaled():
         "roof_low_probabilities": 1,
         "wall_low_probabilities": 1,
         "low_changing_wall": 1,
-        "low_changing_ground": 1,
         "ground_low_probabilities": 1,
+        "low_changing_ground": 1,
     },
 )
 def low_to_performance():
@@ -13101,8 +13108,8 @@ def low_to_performance():
     comp_subtype="Normal",
     depends_on={
         "ground_cost": 1,
-        "ground_cost_low": 1,
         "total_present_variable_costs_sh_average_ground": 8,
+        "ground_cost_low": 1,
         "ground_cost_moderate": 1,
         "ground_cost_high": 1,
         "ground_cost_veryhigh": 1,
@@ -13319,8 +13326,8 @@ def wall_low_probabilities():
     depends_on={
         "high_changing_roof": 1,
         "roof_high_probabilities": 1,
-        "high_changing_wall": 1,
         "wall_high_probabilities": 1,
+        "high_changing_wall": 1,
         "high_changing_ground": 1,
         "ground_high_probabilities": 1,
     },
@@ -13477,8 +13484,8 @@ def wall_verylow():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_verylow_mfh_data": 1,
         "verylow_to_performance_mfh_ms": 1,
+        "retrofit_verylow_mfh_data": 1,
     },
 )
 def retrofit_verylow_mfh_log_likelihood():
@@ -13514,8 +13521,8 @@ def wall_verylow_probabilities():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "verylow_to_performance_sfh_ms": 1,
         "retrofit_verylow_sfh_data": 1,
+        "verylow_to_performance_sfh_ms": 1,
     },
 )
 def retrofit_verylow_sfh_log_likelihood():
@@ -13571,7 +13578,7 @@ def ground_cost():
 @component.add(
     name="HT cumulative cost change",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 5},
 )
@@ -13822,7 +13829,7 @@ def roof_moderate_scaled():
 @component.add(
     name="Wall Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_moderate_scaled": 1},
 )
@@ -13861,7 +13868,7 @@ def high_changing_ground():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"wall_moderate_scaled": 1, "coeff_moderate": 1, "wall_moderate": 3},
+    depends_on={"wall_moderate_scaled": 1, "wall_moderate": 3, "coeff_moderate": 1},
 )
 def wall_moderate_scaled():
     value = xr.DataArray(
@@ -13923,7 +13930,7 @@ def retrofit_high_mfh_data():
 
 
 _ext_data_retrofit_high_mfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -13959,8 +13966,8 @@ def ground_cost_veryhigh():
     comp_subtype="Normal",
     depends_on={
         "ground_cost_high": 4,
-        "ground_cost_veryhigh": 1,
         "total_present_variable_costs_sh_average_ground": 2,
+        "ground_cost_veryhigh": 1,
     },
 )
 def ground_high():
@@ -14040,7 +14047,7 @@ def retrofit_moderate_sfh_data():
 
 
 _ext_data_retrofit_moderate_sfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B7",
@@ -14258,7 +14265,7 @@ def retrofit_moderate_mfh_data():
 
 
 _ext_data_retrofit_moderate_mfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B12",
@@ -14277,8 +14284,8 @@ _ext_data_retrofit_moderate_mfh_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "wall_cost_high": 4,
-        "wall_cost_veryhigh": 1,
         "total_present_variable_costs_sh_average_wall": 2,
+        "wall_cost_veryhigh": 1,
     },
 )
 def wall_high():
@@ -14335,7 +14342,7 @@ def retrofit_high_sfh_data():
 
 
 _ext_data_retrofit_high_sfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B17",
@@ -14459,10 +14466,10 @@ def roof_high():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_nohp_district_data": 1,
         "adoption_hp_district_data": 1,
-        "average_ms_hp_district": 1,
         "average_ms_nohp_district": 1,
+        "average_ms_hp_district": 1,
+        "adoption_nohp_district_data": 1,
     },
 )
 def hp_district_log_likelihood():
@@ -14631,9 +14638,9 @@ _integ_battery_capacity_100_kw_1 = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_30_100_kw_share_grant_over_cost": 1,
-        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_federal_subsidy_30_100_kw": 1,
+        "pv_30_100_kw_investment_cost_time_adj": 2,
+        "pv_30_100_kw_share_grant_over_cost": 1,
         "pv_rebate_federal": 1,
     },
 )
@@ -14658,26 +14665,34 @@ def pv_federal_subsidy_30_100_kw_check():
         "time": 2,
         "pv_federal_subsidy_30_100_kw_check": 3,
         "average_power_pv_30_100_kw": 3,
-        "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_rebate_cantonal": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
+        "cantonal_pv_support": 1,
+        "exploratory_analysis": 1,
     },
 )
 def pv_cantonal_subsidy_30_100_kw_check():
+    """
+    RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022. 50% of the proportional RU share for the first 30 kW; 1/3 of the excess. Historical cap CHF 250000. Proportional RU allocation remains an approximation (including the fixed federal grant). The branch from 2026 is unchanged. See docs/validation/FER_CANTONAL_CORRECTION.md.
+    """
     return if_then_else(
-        time() < 2021,
-        lambda: pv_federal_subsidy_30_100_kw_check() / 3,
+        time() < 2022,
+        lambda: float(np.minimum(250000, pv_federal_subsidy_30_100_kw_check() / 3)),
         lambda: if_then_else(
             time() < 2026,
-            lambda: pv_federal_subsidy_30_100_kw_check()
-            / 2
-            * (average_power_pv_30_100_kw() - 30)
-            / average_power_pv_30_100_kw()
-            + pv_federal_subsidy_30_100_kw_check()
-            / 3
-            * 30
-            / average_power_pv_30_100_kw(),
+            lambda: float(
+                np.minimum(
+                    250000,
+                    pv_federal_subsidy_30_100_kw_check()
+                    / 3
+                    * (average_power_pv_30_100_kw() - 30)
+                    / average_power_pv_30_100_kw()
+                    + pv_federal_subsidy_30_100_kw_check()
+                    / 2
+                    * 30
+                    / average_power_pv_30_100_kw(),
+                )
+            ),
             lambda: if_then_else(
                 exploratory_analysis() > 0,
                 lambda: pv_30_100_kw_investment_cost_time_adj()
@@ -14696,9 +14711,9 @@ def pv_cantonal_subsidy_30_100_kw_check():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_federal_subsidy_100_kw": 1,
         "pv_100_kw_share_grant_over_cost": 1,
         "pv_100_kw_investment_cost_time_adj": 2,
+        "pv_federal_subsidy_100_kw": 1,
         "pv_rebate_federal": 1,
     },
 )
@@ -14722,9 +14737,9 @@ def pv_federal_subsidy_100_kw_check():
     depends_on={
         "time": 4,
         "reference_levy": 1,
-        "computed_levy_avg_2045_fixed": 1,
         "computed_levy_avg_2040_fixed": 1,
         "computed_levy_avg_2030_fixed": 1,
+        "computed_levy_avg_2045_fixed": 1,
         "computed_levy_avg_2035_fixed": 1,
     },
 )
@@ -14834,24 +14849,35 @@ def share_of_buildings_with_pv_by_type():
     depends_on={
         "time": 2,
         "pv_federal_subsidy_100_kw_check": 3,
-        "pv_100_kw_investment_cost_time_adj": 2,
-        "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_rebate_cantonal": 1,
+        "pv_100_kw_investment_cost_time_adj": 2,
         "average_power_pv_100_kw": 3,
+        "cantonal_pv_support": 1,
+        "exploratory_analysis": 1,
     },
 )
 def pv_cantonal_subsidy_100_kw_check():
+    """
+    RFER art. 25: 1/3 through 2021; annual 2022 uses the rule from 1 April 2022. 50% of the proportional RU share for the first 30 kW; 1/3 of the excess. Historical cap CHF 250000. Proportional RU allocation remains an approximation (including the fixed federal grant). The branch from 2026 is unchanged. See docs/validation/FER_CANTONAL_CORRECTION.md.
+    """
     return if_then_else(
-        time() < 2021,
-        lambda: pv_federal_subsidy_100_kw_check() / 3,
+        time() < 2022,
+        lambda: float(np.minimum(250000, pv_federal_subsidy_100_kw_check() / 3)),
         lambda: if_then_else(
             time() < 2026,
-            lambda: pv_federal_subsidy_100_kw_check()
-            / 2
-            * (average_power_pv_100_kw() - 30)
-            / average_power_pv_100_kw()
-            + pv_federal_subsidy_100_kw_check() / 3 * 30 / average_power_pv_100_kw(),
+            lambda: float(
+                np.minimum(
+                    250000,
+                    pv_federal_subsidy_100_kw_check()
+                    / 3
+                    * (average_power_pv_100_kw() - 30)
+                    / average_power_pv_100_kw()
+                    + pv_federal_subsidy_100_kw_check()
+                    / 2
+                    * 30
+                    / average_power_pv_100_kw(),
+                )
+            ),
             lambda: if_then_else(
                 exploratory_analysis() > 0,
                 lambda: pv_100_kw_investment_cost_time_adj()
@@ -15002,8 +15028,8 @@ def annual_incentive_battery_nonres():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "battery_incentive": 1,
-        "consumers_adopting_rcpv_yes_with_battery": 1,
         "battery_incentive_rcpv": 1,
+        "consumers_adopting_rcpv_yes_with_battery": 1,
     },
 )
 def annual_incentive_battery_res():
@@ -15026,9 +15052,9 @@ def annual_incentive_battery_res():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_capacity_rcpv": 1,
-        "battery_investiment_cost": 1,
         "battery_rebate": 1,
+        "battery_investiment_cost": 1,
+        "battery_capacity_rcpv": 1,
     },
 )
 def battery_incentive_rcpv():
@@ -15054,8 +15080,8 @@ def battery_incentive_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "share_of_batteries_nonres": 2,
         "total_battery_adoption_res": 2,
+        "share_of_batteries_nonres": 2,
         "probability_adoption_battery_average": 1,
     },
 )
@@ -15073,7 +15099,7 @@ def total_battery_adoption_nonres():
 
 @component.add(name="Battery Rebate", comp_type="Constant", comp_subtype="Normal")
 def battery_rebate():
-    return 0.5
+    return 0
 
 
 @component.add(
@@ -15180,9 +15206,9 @@ def probability_adoption_battery_average():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
         "average_battery_size_100_kw": 1,
         "battery_investiment_cost": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_100_kw():
@@ -16621,10 +16647,10 @@ def total_federal_demand_grid():
     depends_on={
         "time": 4,
         "reference_cantonal_levy": 1,
-        "computed_cantonal_levy_avg_2030_fixed": 1,
-        "computed_cantonal_levy_avg_2040_fixed": 1,
         "computed_cantonal_levy_avg_2035_fixed": 1,
+        "computed_cantonal_levy_avg_2030_fixed": 1,
         "computed_cantonal_levy_avg_2045_fixed": 1,
+        "computed_cantonal_levy_avg_2040_fixed": 1,
     },
 )
 def cantonal_levy_evolution():
@@ -17173,7 +17199,7 @@ def battery_adoption_30_100_kw():
     comp_subtype="Normal",
 )
 def share_additional_power_30_kw():
-    return 0.0616
+    return 0.0529
 
 
 @component.add(
@@ -17194,11 +17220,11 @@ def battery_adoption_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "additional_power_district_with_battery_30_100_kw": 2,
         "self_consumption_degree_with_storage_100_kw": 1,
         "yearly_installed_capacity_pv_30_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
         "average_sc_30_100_kw": 1,
+        "pv_annual_generation_per_kw": 2,
+        "additional_power_district_with_battery_30_100_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30_100_kw():
@@ -17227,13 +17253,13 @@ def additional_annual_pv_kwh_self_consumed_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_sc_30_kw": 1,
         "share_additional_power_30_kw": 1,
-        "additional_annual_pv_kwh_produced_by_archetype": 1,
-        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
-        "pv_annual_generation_per_kw": 2,
         "self_consumption_degree_with_storage_30_kw": 1,
         "additional_power_district_with_battery_30_kw": 2,
+        "additional_annual_pv_kwh_produced_by_archetype": 1,
+        "average_sc_30_kw": 1,
+        "additional_annual_rcpv_kwh_produced_by_archetype": 1,
+        "pv_annual_generation_per_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30():
@@ -17288,8 +17314,8 @@ def additional_annual_pv_kwh_self_consumed_30():
         "time": 1,
         "self_consumption_degree_with_storage_100_kw": 1,
         "yearly_installed_capacity_pv_100_kw": 1,
-        "additional_power_district_with_battery_100_kw": 2,
         "average_sc_100_kw": 1,
+        "additional_power_district_with_battery_100_kw": 2,
         "pv_annual_generation_per_kw": 2,
     },
 )
@@ -17471,7 +17497,7 @@ def sc_10_kwhmwh_30_kw():
 @component.add(
     name="Adoption Battery Type",
     subscripts=["Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 3,
@@ -17647,8 +17673,8 @@ def battery_adoption_30_kw():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_30_100_kw": 4,
-        "average_sc_30_100_kw": 3,
         "sc_05_kwhmwh_30_100_kw": 3,
+        "average_sc_30_100_kw": 3,
         "sc_15_kwhmwh_30_100_kw": 1,
         "sc_10_kwhmwh_30_100_kw": 3,
     },
@@ -17753,8 +17779,8 @@ def kwh_over_mwh_of_demand_30_kw():
         "kwh_over_mwh_of_demand_30_kw": 4,
         "average_sc_30_kw": 3,
         "sc_05_kwhmwh_30_kw": 3,
-        "sc_15_kwhmwh_30_kw": 1,
         "sc_10_kwhmwh_30_kw": 3,
+        "sc_15_kwhmwh_30_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_30_kw():
@@ -17827,8 +17853,8 @@ def kwp_over_mwh_of_demand_30_kw():
         "kwh_over_mwh_of_demand_100_kw": 4,
         "average_sc_100_kw": 3,
         "sc_05_kwhmwh_100_kw": 3,
-        "sc_15_kwhmwh_100_kw": 1,
         "sc_10_kwhmwh_100_kw": 3,
+        "sc_15_kwhmwh_100_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_100_kw():
@@ -17905,7 +17931,7 @@ def sc_10_kwhmwh_30_100_kw():
 @component.add(
     name="Consumers adopting PV yes with battery",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_adopting_pv_yes": 2, "probability_adoption_battery": 2},
 )
@@ -17947,7 +17973,7 @@ def consumers_adopting_pv_yes_with_battery():
 @component.add(
     name="Consumers adopting RCPv yes",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"owners_adopting_rcpv": 1, "renters_adopting_rcpv": 1},
 )
@@ -17976,7 +18002,7 @@ def consumers_adopting_rcpv_yes():
     name="Consumers adopting RCPv yes with battery",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "consumers_adopting_rcpv_yes": 2,
@@ -18029,8 +18055,8 @@ def consumers_adopting_rcpv_yes_with_battery():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually_rcpv": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "battery_lifetime": 1,
         "interest_rate": 2,
     },
@@ -18130,8 +18156,8 @@ def battery_economic_utility_rcpv():
         "additional_annual_pv_kwh_produced_by_archetype": 2,
         "self_consumption_degree": 1,
         "self_consumption_degree_with_storage": 1,
-        "self_consumption_degree_rcpv": 1,
         "additional_annual_rcpv_kwh_produced_by_archetype": 2,
+        "self_consumption_degree_rcpv": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
     },
 )
@@ -19093,8 +19119,8 @@ def sc_degree_difference_by_type():
     comp_subtype="Normal",
     depends_on={
         "utility_pv_100_kw": 2,
-        "capacity_potential_pv_100_kw": 1,
         "capacity_pv_100_kw": 1,
+        "capacity_potential_pv_100_kw": 1,
         "share_pv_capacity_installed_per_district": 1,
     },
 )
@@ -19138,9 +19164,9 @@ def buildings_with_pv_type():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "buildings_pv_bno_type": 2,
         "adoption_battery_type_data": 4,
         "probability_of_adoption_battery_type": 4,
+        "buildings_pv_bno_type": 2,
     },
 )
 def battery_type_log_likelihood():
@@ -19180,7 +19206,7 @@ def adoption_battery_district_data():
 
 
 _ext_data_adoption_battery_district_data = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -19204,9 +19230,9 @@ def delta_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_battery_district_data": 2,
-        "probability_of_adoption_battery_district": 2,
         "buildings_pv_bno_district": 1,
+        "probability_of_adoption_battery_district": 2,
+        "adoption_battery_district_data": 2,
     },
 )
 def battery_district_log_likelihood():
@@ -19238,7 +19264,7 @@ def buildings_pv_bno_district():
 
 
 _ext_data_buildings_pv_bno_district = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B10",
@@ -19266,7 +19292,7 @@ def buildings_pv_bno_type():
 
 
 _ext_data_buildings_pv_bno_type = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B18",
@@ -19294,7 +19320,7 @@ def adoption_battery_type_data():
 
 
 _ext_data_adoption_battery_type_data = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B21",
@@ -19470,13 +19496,13 @@ def hs_veryold_demolited():
     name="Buildings construction with battery",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 6,
-        "building_construction_by_archetype": 9,
-        "probability_adoption_battery": 6,
         "market_share_hs_no_incentives_filtered": 12,
+        "probability_adoption_battery": 6,
+        "building_construction_by_archetype": 9,
     },
 )
 def buildings_construction_with_battery():
@@ -19715,8 +19741,8 @@ def buildings_construction_with_battery():
         "renters_adopting_rcp": 1,
         "owners_adopting_rcpv": 1,
         "renters_adopting_rcpv": 1,
-        "building_construction_by_archetype": 1,
         "heating_solution": 2,
+        "building_construction_by_archetype": 1,
     },
 )
 def adoption_pv_heatpump():
@@ -19902,8 +19928,8 @@ def sc_05_kwhmwh():
         "renters_adopting_rcp": 2,
         "owners_adopting_rcpv": 2,
         "renters_adopting_rcpv": 2,
-        "building_construction_by_archetype": 1,
         "heating_solution": 3,
+        "building_construction_by_archetype": 1,
     },
 )
 def adoption_pv_no_heatpump():
@@ -20201,8 +20227,8 @@ def battery_lifetime():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "battery_lifetime": 1,
         "interest_rate": 2,
     },
@@ -20219,7 +20245,7 @@ def battery_total_savings():
 @component.add(
     name="Initial Heating Solution battery",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"initial_heating_solution": 1},
 )
@@ -20274,10 +20300,10 @@ def buildings_by_performance_mfh():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand": 5,
-        "sc_05_kwhmwh": 3,
         "self_consumption_degree": 2,
-        "sc_10_kwhmwh": 3,
+        "sc_05_kwhmwh": 3,
         "sc_15_kwhmwh": 1,
+        "sc_10_kwhmwh": 3,
     },
 )
 def self_consumption_degree_with_storage():
@@ -20504,7 +20530,7 @@ def residential_electricity_cons_sh_by_arch():
 @component.add(
     name="Res total construction by Perf Type District",
     subscripts=["Performance", "Type", "District"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"overall_constructed_buildings": 3, "heating_solution": 12},
 )
@@ -20822,8 +20848,8 @@ def utility_battery_exp():
     comp_subtype="Normal",
     depends_on={
         "el_consumption_per_building": 1,
-        "self_consumption_degree_with_storage": 1,
         "self_consumption_degree": 1,
+        "self_consumption_degree_with_storage": 1,
         "decentralized_storage_efficiency": 1,
     },
 )
@@ -21102,10 +21128,10 @@ _integ_owned_buildings_with_rcpv_pvno = Integ(
     depends_on={
         "owned_buildings_with_pv": 3,
         "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
         "building_construction_by_archetype": 1,
         "owners_adopting_pv": 2,
         "owned_buildings_with_rcpv": 1,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_pv_flow():
@@ -21151,10 +21177,10 @@ def owners_adopting_pv_flow():
     depends_on={
         "owned_buildings_with_pv": 2,
         "owned_buildings_with_rcp": 2,
-        "share_of_owned_houses": 1,
         "building_construction_by_archetype": 1,
         "owners_adopting_rcp": 2,
         "owned_buildings_with_rcpv": 1,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_rcp_flow():
@@ -21222,11 +21248,11 @@ def share_urban_buildings():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 3,
-        "share_of_owned_houses": 1,
+        "rented_buildings_with_rcp": 1,
         "building_construction_by_archetype": 1,
         "rented_buildings_with_rcpv": 1,
-        "rented_buildings_with_rcp": 1,
         "renters_adopting_pv": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def renters_adopting_pv_flow():
@@ -21271,11 +21297,11 @@ def renters_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 2,
-        "share_of_owned_houses": 1,
+        "rented_buildings_with_rcp": 2,
         "building_construction_by_archetype": 1,
         "rented_buildings_with_rcpv": 1,
-        "rented_buildings_with_rcp": 2,
         "renters_adopting_rcp": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def renters_adopting_rcp_flow():
@@ -21320,11 +21346,11 @@ def renters_adopting_rcp_flow():
     comp_subtype="Normal",
     depends_on={
         "rented_buildings_with_pv": 2,
-        "share_of_owned_houses": 1,
-        "renters_adopting_rcpv": 2,
+        "rented_buildings_with_rcp": 1,
         "building_construction_by_archetype": 1,
         "rented_buildings_with_rcpv": 2,
-        "rented_buildings_with_rcp": 1,
+        "renters_adopting_rcpv": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def renters_adopting_rcpv_flow():
@@ -21632,10 +21658,10 @@ def adoption_pv_district():
     depends_on={
         "owned_buildings_with_pv": 2,
         "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
         "building_construction_by_archetype": 1,
         "owners_adopting_rcpv": 2,
         "owned_buildings_with_rcpv": 2,
+        "share_of_owned_houses": 1,
     },
 )
 def owners_adopting_rcpv_flow():
@@ -22085,7 +22111,7 @@ def fuels_consumption_industry_factor():
 
 
 _ext_data_fuels_consumption_industry_factor = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3",
@@ -22113,7 +22139,7 @@ def electricity_consumption_industry_historical():
 
 
 _ext_data_electricity_consumption_industry_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4",
@@ -22140,7 +22166,7 @@ def fuels_consumption_tertiary_factor():
 
 
 _ext_data_fuels_consumption_tertiary_factor = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B5",
@@ -22168,7 +22194,7 @@ def electricity_consumption_tertiary_historical():
 
 
 _ext_data_electricity_consumption_tertiary_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B6",
@@ -22196,7 +22222,7 @@ def electricity_consumption_industry_factor():
 
 
 _ext_data_electricity_consumption_industry_factor = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B7",
@@ -22224,7 +22250,7 @@ def electricity_consumption_tertiary_factor():
 
 
 _ext_data_electricity_consumption_tertiary_factor = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B8",
@@ -22430,8 +22456,8 @@ def a_param_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "b_param_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "a_param_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_30_100_kw_investment_cost():
@@ -22486,7 +22512,7 @@ def b_param_30_100_kw():
     units="CHF",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"b_param_100_kw": 1, "average_power_pv_100_kw": 1, "a_param_100_kw": 1},
+    depends_on={"b_param_100_kw": 1, "a_param_100_kw": 1, "average_power_pv_100_kw": 1},
 )
 def pv_100_kw_investment_cost():
     return b_param_100_kw() + a_param_100_kw() * average_power_pv_100_kw()
@@ -22519,7 +22545,7 @@ def irr_100_kw():
 @component.add(
     name="Coeff Low",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_low": 1},
 )
@@ -22547,7 +22573,7 @@ def coeff_low():
 @component.add(
     name="Coeff VeryLow",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_verylow": 1},
 )
@@ -22721,7 +22747,7 @@ def adoption_vehicles_data():
 
 
 _ext_data_adoption_vehicles_data = ExtData(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -22749,7 +22775,7 @@ def adoption_vehicles_district_data():
 
 
 _ext_data_adoption_vehicles_district_data = ExtData(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B9",
@@ -22761,7 +22787,7 @@ _ext_data_adoption_vehicles_district_data = ExtData(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B17",
@@ -22770,7 +22796,7 @@ _ext_data_adoption_vehicles_district_data.add(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B25",
@@ -22779,7 +22805,7 @@ _ext_data_adoption_vehicles_district_data.add(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B33",
@@ -22788,7 +22814,7 @@ _ext_data_adoption_vehicles_district_data.add(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B41",
@@ -22797,7 +22823,7 @@ _ext_data_adoption_vehicles_district_data.add(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B49",
@@ -22806,7 +22832,7 @@ _ext_data_adoption_vehicles_district_data.add(
 )
 
 _ext_data_adoption_vehicles_district_data.add(
-    r"EVinput_pysd_v6.csv",
+    r"EVinput_pysd_v7.csv",
     "",
     "1",
     "B57",
@@ -22905,7 +22931,7 @@ def retrofit_low_sfh_data():
 
 
 _ext_data_retrofit_low_sfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B22",
@@ -22933,7 +22959,7 @@ def retrofit_verylow_sfh_data():
 
 
 _ext_data_retrofit_verylow_sfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B27",
@@ -22961,7 +22987,7 @@ def retrofit_verylow_mfh_data():
 
 
 _ext_data_retrofit_verylow_mfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B32",
@@ -22989,7 +23015,7 @@ def retrofit_low_mfh_data():
 
 
 _ext_data_retrofit_low_mfh_data = ExtData(
-    r"InputRenovation_pysd_v6.csv",
+    r"InputRenovation_pysd_v7.csv",
     "",
     "1",
     "B37",
@@ -23149,7 +23175,7 @@ _integ_hs_middleage = Integ(
 @component.add(
     name="Historical carrier cost",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 56},
 )
@@ -23407,7 +23433,7 @@ def pv_for_hp_weight():
 @component.add(
     name="Dummy HS",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "dummy_oil": 2,
@@ -23552,7 +23578,7 @@ def adoption_heating_solutions_data():
 
 
 _ext_data_adoption_heating_solutions_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -23580,7 +23606,7 @@ def adoption_hp_pvpanel_data():
 
 
 _ext_data_adoption_hp_pvpanel_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B13",
@@ -23607,7 +23633,7 @@ def adoption_pv_no_heatpump_data():
 
 
 _ext_data_adoption_pv_no_heatpump_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B15",
@@ -23639,8 +23665,8 @@ def adoption_nohp_pvpanel_data():
         "time": 1,
         "adoption_nohp_pvpanel_data": 1,
         "adoption_hp_pvpanel_data": 1,
-        "average_ms_hp_pvpanel": 1,
         "average_ms_nohp_pvpanel": 1,
+        "average_ms_hp_pvpanel": 1,
     },
 )
 def hp_pvpanel_log_likelihood():
@@ -23667,7 +23693,7 @@ def adoption_pv_heatpump_data():
 
 
 _ext_data_adoption_pv_heatpump_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B16",
@@ -23685,8 +23711,8 @@ _ext_data_adoption_pv_heatpump_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "buildings_no_heatpump": 1,
         "probability_of_adoption_pv_no_heatpump": 2,
+        "buildings_no_heatpump": 1,
         "adoption_pv_no_heatpump_data": 2,
     },
 )
@@ -23726,7 +23752,7 @@ def buildings_heatpump():
 
 
 _ext_data_buildings_heatpump = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B17",
@@ -23744,9 +23770,9 @@ _ext_data_buildings_heatpump = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_pv_heatpump_data": 2,
-        "buildings_heatpump": 1,
         "probability_of_adoption_pv_heatpump": 2,
+        "buildings_heatpump": 1,
+        "adoption_pv_heatpump_data": 2,
     },
 )
 def pv_heatpump_log_likelihood():
@@ -23775,7 +23801,7 @@ def buildings_no_heatpump():
 
 
 _ext_data_buildings_no_heatpump = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B18",
@@ -23860,8 +23886,8 @@ def buildings_construction_total():
     depends_on={
         "time": 1,
         "adoption_pv_type_data": 2,
-        "probability_of_adoption_pv_type": 2,
         "buildings_type": 1,
+        "probability_of_adoption_pv_type": 2,
     },
 )
 def pv_type_log_likelihood():
@@ -23901,7 +23927,7 @@ def adoption_hp_district_data():
 
 
 _ext_data_adoption_hp_district_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B19",
@@ -23929,7 +23955,7 @@ def adoption_hp_performance_data():
 
 
 _ext_data_adoption_hp_performance_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B27",
@@ -23957,7 +23983,7 @@ def adoption_hp_type_data():
 
 
 _ext_data_adoption_hp_type_data = ExtData(
-    r"HPinput_pysd_v6.csv",
+    r"HPinput_pysd_v7.csv",
     "",
     "1",
     "B32",
@@ -24024,7 +24050,7 @@ def adoption_pv_district_data():
 
 
 _ext_data_adoption_pv_district_data = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B24",
@@ -24052,7 +24078,7 @@ def adoption_pv_performance_data():
 
 
 _ext_data_adoption_pv_performance_data = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B32",
@@ -24080,7 +24106,7 @@ def adoption_pv_type_data():
 
 
 _ext_data_adoption_pv_type_data = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B37",
@@ -24111,8 +24137,8 @@ def probability_of_adoption_pv_district():
     depends_on={
         "time": 1,
         "adoption_pv_performance_data": 2,
-        "probability_of_adoption_pv_performance": 2,
         "buildings_performance": 1,
+        "probability_of_adoption_pv_performance": 2,
     },
 )
 def pv_performance_log_likelihood():
@@ -24220,9 +24246,9 @@ def probability_of_adoption_pv_type():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "buildings_district": 1,
         "adoption_pv_district_data": 2,
         "probability_of_adoption_pv_district": 2,
-        "buildings_district": 1,
     },
 )
 def pv_district_log_likelihood():
@@ -24254,7 +24280,7 @@ def buildings_district():
 
 
 _ext_data_buildings_district = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B40",
@@ -24308,7 +24334,7 @@ def buildings_type():
 
 
 _ext_data_buildings_type = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B48",
@@ -24327,10 +24353,10 @@ _ext_data_buildings_type = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "average_ms_hp_performance": 1,
+        "adoption_hp_performance_data": 1,
         "adoption_nohp_performance_data": 1,
         "average_ms_nohp_performance": 1,
-        "adoption_hp_performance_data": 1,
+        "average_ms_hp_performance": 1,
     },
 )
 def hp_performance_log_likelihood():
@@ -24360,7 +24386,7 @@ def buildings_performance():
 
 
 _ext_data_buildings_performance = ExtData(
-    r"PVinput_pysd_v6.csv",
+    r"PVinput_pysd_v7.csv",
     "",
     "1",
     "B51",
@@ -24427,14 +24453,14 @@ def share_of_consumers_considering_pv_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_annual_generation_30_100_kw": 5,
         "pv_annual_mantainance_cost": 2,
         "pv_fit_30_100_kw": 1,
+        "pv_annual_generation_30_100_kw": 5,
         "interest_rate": 4,
-        "electricity_price": 1,
         "pv_lifetime": 1,
-        "pv_cumulative_compensation_price": 1,
         "average_sc_30_100_kw": 2,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
     },
 )
 def pv_total_earnings_30_100_kw():
@@ -24472,14 +24498,14 @@ def pv_total_earnings_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_fit_100_kw": 1,
-        "pv_annual_generation_100_kw": 5,
         "pv_annual_mantainance_cost": 2,
+        "pv_annual_generation_100_kw": 5,
+        "pv_fit_100_kw": 1,
         "interest_rate": 4,
-        "electricity_price": 1,
         "pv_lifetime": 1,
-        "pv_cumulative_compensation_price": 1,
         "average_sc_100_kw": 2,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
     },
 )
 def pv_total_earnings_100_kw():
@@ -24824,26 +24850,93 @@ def ppriority_by_supplier():
 
 
 @component.add(
+    name="Dispatchable supply by supplier",
+    subscripts=["Month", "Hour", "Supplier"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_available_supply_by_supplier": 1},
+)
+def dispatchable_supply_by_supplier():
+    """
+    Non-negative capacity offered to dispatch. This makes the existing zero allocation for negative raw hydro supply explicit in the native source.
+    """
+    return np.maximum(0, hourly_available_supply_by_supplier())
+
+
+@component.add(
     name="Electricity dispatched",
     subscripts=["Month", "Hour", "Supplier"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
-        "hourly_available_supply_by_supplier": 1,
-        "priority_vector_by_supplier": 1,
+        "dispatchable_supply_by_supplier": 1,
+        "ppriority_by_supplier": 1,
+        "supplier_priority_width": 1,
         "hourly_demand_and_phs": 1,
     },
 )
 def electricity_dispatched():
     """
-    ALLOCATE AVAILABLE( Hourly available supply by Supplier[Month,Hour,Supplier], Priority vector by supplier[Supplier,ptype] , Hourly demand and PHS[Month,Hour] )
+    Common-width rectangular allocation (priority type 1). Preserves cost priorities, width 0.1 and proportional sharing at equal priorities. Avoids ALLOCATE AVAILABLE's flat-profile search for this dispatch. Validate natively before using for recalibration or release.
     """
-    return allocate_available(
-        hourly_available_supply_by_supplier(),
-        priority_vector_by_supplier()
+    return allocate_by_priority(
+        dispatchable_supply_by_supplier(),
+        ppriority_by_supplier()
         .expand_dims({"Month": _subscript_dict["Month"]}, 0)
         .expand_dims({"Hour": _subscript_dict["Hour"]}, 1),
+        xr.DataArray(
+            supplier_priority_width(),
+            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
+            ["Month", "Hour"],
+        ),
         hourly_demand_and_phs(),
+    )
+
+
+@component.add(
+    name="Electricity dispatch balance error",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "electricity_dispatched": 1,
+        "hourly_demand_and_phs": 1,
+        "dispatchable_supply_by_supplier": 1,
+    },
+)
+def electricity_dispatch_balance_error():
+    """
+    Diagnostic: zero when dispatch equals demand capped by total capacity. Does not modify the dispatch or hide a capacity shortfall.
+    """
+    return sum(
+        electricity_dispatched().rename({"Supplier": "Supplier!"}), dim=["Supplier!"]
+    ) - np.minimum(
+        hourly_demand_and_phs(),
+        sum(
+            dispatchable_supply_by_supplier().rename({"Supplier": "Supplier!"}),
+            dim=["Supplier!"],
+        ),
+    )
+
+
+@component.add(
+    name="Unserved hourly electricity",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_demand_and_phs": 1, "electricity_dispatched": 1},
+)
+def unserved_hourly_electricity():
+    """
+    Diagnostic: demand not served, including any capacity shortfall.
+    """
+    return np.maximum(
+        0,
+        hourly_demand_and_phs()
+        - sum(
+            electricity_dispatched().rename({"Supplier": "Supplier!"}),
+            dim=["Supplier!"],
+        ),
     )
 
 
@@ -25419,14 +25512,14 @@ def total_hydro_monthly_production():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
-        "hourly_phs_production": 3,
-        "share_phs": 2,
-        "hourly_electricity_grid_demand": 1,
-        "rr_hourly_supply": 1,
-        "wind_hourly_supply": 1,
-        "pv_hourly_supply": 1,
         "hourly_total_inflow_for_ticino": 1,
+        "rr_hourly_supply": 1,
+        "pv_hourly_supply": 1,
         "waste_hourly_supply": 1,
+        "hourly_electricity_grid_demand": 1,
+        "wind_hourly_supply": 1,
+        "share_phs": 2,
+        "hourly_phs_production": 3,
     },
 )
 def phs_hourly_decrease():
@@ -25564,14 +25657,14 @@ def hourly_available_supply_by_supplier():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
+        "hourly_total_inflow_for_ticino": 3,
+        "rr_hourly_supply": 1,
+        "pv_hourly_supply": 1,
+        "waste_hourly_supply": 1,
+        "hourly_electricity_grid_demand": 1,
+        "wind_hourly_supply": 1,
         "share_hs": 2,
         "hourly_phs_production": 1,
-        "hourly_electricity_grid_demand": 1,
-        "rr_hourly_supply": 1,
-        "wind_hourly_supply": 1,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 3,
-        "waste_hourly_supply": 1,
     },
 )
 def hs_hourly_decrease():
@@ -25638,7 +25731,7 @@ def waste_annual_production():
 
 
 _ext_data_waste_annual_production = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B9",
@@ -25694,25 +25787,6 @@ def monthly_electricity_demand():
         sum(hourly_electricity_grid_demand().rename({"Hour": "Hour!"}), dim=["Hour!"])
         * 365
         / 12
-    )
-
-
-@component.add(
-    name="Hourly electricity grid demand",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc": 2, "hourly_electricity_demand": 2},
-)
-def hourly_electricity_grid_demand():
-    return if_then_else(
-        pv_hourly_sc() < hourly_electricity_demand(),
-        lambda: hourly_electricity_demand() - pv_hourly_sc(),
-        lambda: xr.DataArray(
-            0,
-            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
-            ["Month", "Hour"],
-        ),
     )
 
 
@@ -25783,7 +25857,7 @@ def initial_installed_capacity_100_kw_district():
 )
 def share_pv_capacity_installed_per_district():
     return xr.DataArray(
-        [0.1779, 0.0139, 0.0409, 0.1503, 0.312, 0.251, 0.0472, 0.0068],
+        [0.1878, 0.0134, 0.0397, 0.1531, 0.3026, 0.2522, 0.0448, 0.0066],
         {"District": _subscript_dict["District"]},
         ["District"],
     )
@@ -26168,7 +26242,7 @@ def residential_electricity_cons_by_district():
     name='"Capacity potential PV > 100 kW"', comp_type="Constant", comp_subtype="Normal"
 )
 def capacity_potential_pv_100_kw():
-    return 789351
+    return 801196
 
 
 @component.add(
@@ -26177,7 +26251,7 @@ def capacity_potential_pv_100_kw():
     comp_subtype="Normal",
 )
 def capacity_potential_pv_30_100_kw():
-    return 269386
+    return 267303
 
 
 @component.add(
@@ -26277,8 +26351,8 @@ def delta_100_kw():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_100_kw": 1,
-        "pv_capacity_federal_subsidy_100_kw": 1,
         "average_power_pv_100_kw": 1,
+        "pv_capacity_federal_subsidy_100_kw": 1,
     },
 )
 def pv_federal_subsidy_100_kw():
@@ -26427,7 +26501,7 @@ def pv_capacity_federal_subsidy_100_kw():
     comp_subtype="Normal",
 )
 def average_power_pv_100_kw():
-    return 300
+    return 295
 
 
 @component.add(
@@ -26479,8 +26553,8 @@ _integ_capacity_pv_30_100_kw = Integ(
     depends_on={
         "time": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
-        "pv_cantonal_subsidy_30_100_kw_check": 1,
         "pv_federal_subsidy_30_100_kw_check": 1,
+        "pv_cantonal_subsidy_30_100_kw_check": 1,
     },
 )
 def investment_pv_30_100_kw():
@@ -26584,8 +26658,8 @@ def pv_30_100_kw_specific_investment_cost_initial():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "pv_capacity_federal_subsidy_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_federal_subsidy_30_100_kw():
@@ -27036,7 +27110,7 @@ def other_electricity_consumption():
 
 
 _ext_data_other_electricity_consumption = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B10",
@@ -27081,7 +27155,7 @@ def fuels_consumption_tertiary_historical():
 
 
 _ext_data_fuels_consumption_tertiary_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B11",
@@ -27122,7 +27196,7 @@ def grid_losses():
 
 
 _ext_data_grid_losses = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B12",
@@ -27172,7 +27246,7 @@ def public_light():
 
 
 _ext_data_public_light = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B13",
@@ -27199,7 +27273,7 @@ def fuels_consumption_industry_historical():
 
 
 _ext_data_fuels_consumption_industry_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B14",
@@ -27277,7 +27351,7 @@ def annual_hs_inflow_historical_not_for_ticino():
 
 
 _ext_data_annual_hs_inflow_historical_not_for_ticino = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B15",
@@ -27330,7 +27404,7 @@ def annual_phsn_inflow_historical_not_for_ticino():
 
 
 _ext_data_annual_phsn_inflow_historical_not_for_ticino = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B16",
@@ -27395,7 +27469,7 @@ def annual_hs_inflow_historical_for_ticino():
 
 
 _ext_data_annual_hs_inflow_historical_for_ticino = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B17",
@@ -27497,7 +27571,7 @@ def phs_annual_production_historical():
 
 
 _ext_data_phs_annual_production_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B18",
@@ -27535,7 +27609,7 @@ def coal_annual_import():
 
 
 _ext_data_coal_annual_import = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B19",
@@ -27656,7 +27730,7 @@ def hour_factor_transport():
 
 
 _ext_data_hour_factor_transport = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B20",
@@ -27668,7 +27742,7 @@ _ext_data_hour_factor_transport = ExtData(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B44",
@@ -27677,7 +27751,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B68",
@@ -27686,7 +27760,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B92",
@@ -27695,7 +27769,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B116",
@@ -27704,7 +27778,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B140",
@@ -27713,7 +27787,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B164",
@@ -27722,7 +27796,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B188",
@@ -27731,7 +27805,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B212",
@@ -27740,7 +27814,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B236",
@@ -27749,7 +27823,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B260",
@@ -27758,7 +27832,7 @@ _ext_data_hour_factor_transport.add(
 )
 
 _ext_data_hour_factor_transport.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B284",
@@ -27809,7 +27883,7 @@ def hour_factor_appliances():
 
 
 _ext_data_hour_factor_appliances = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B308",
@@ -27821,7 +27895,7 @@ _ext_data_hour_factor_appliances = ExtData(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B332",
@@ -27830,7 +27904,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B356",
@@ -27839,7 +27913,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B380",
@@ -27848,7 +27922,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B404",
@@ -27857,7 +27931,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B428",
@@ -27866,7 +27940,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B452",
@@ -27875,7 +27949,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B476",
@@ -27884,7 +27958,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B500",
@@ -27893,7 +27967,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B524",
@@ -27902,7 +27976,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B548",
@@ -27911,7 +27985,7 @@ _ext_data_hour_factor_appliances.add(
 )
 
 _ext_data_hour_factor_appliances.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B572",
@@ -27936,7 +28010,7 @@ def hour_factor_conditioning():
 
 
 _ext_data_hour_factor_conditioning = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B596",
@@ -27948,7 +28022,7 @@ _ext_data_hour_factor_conditioning = ExtData(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B620",
@@ -27957,7 +28031,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B644",
@@ -27966,7 +28040,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B668",
@@ -27975,7 +28049,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B692",
@@ -27984,7 +28058,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B716",
@@ -27993,7 +28067,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B740",
@@ -28002,7 +28076,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B764",
@@ -28011,7 +28085,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B788",
@@ -28020,7 +28094,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B812",
@@ -28029,7 +28103,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B836",
@@ -28038,7 +28112,7 @@ _ext_data_hour_factor_conditioning.add(
 )
 
 _ext_data_hour_factor_conditioning.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B860",
@@ -28063,7 +28137,7 @@ def hour_factor_dhw_industry():
 
 
 _ext_data_hour_factor_dhw_industry = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B884",
@@ -28075,7 +28149,7 @@ _ext_data_hour_factor_dhw_industry = ExtData(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B908",
@@ -28084,7 +28158,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B932",
@@ -28093,7 +28167,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B956",
@@ -28102,7 +28176,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B980",
@@ -28111,7 +28185,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1004",
@@ -28120,7 +28194,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1028",
@@ -28129,7 +28203,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1052",
@@ -28138,7 +28212,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1076",
@@ -28147,7 +28221,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1100",
@@ -28156,7 +28230,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1124",
@@ -28165,7 +28239,7 @@ _ext_data_hour_factor_dhw_industry.add(
 )
 
 _ext_data_hour_factor_dhw_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1148",
@@ -28190,7 +28264,7 @@ def hour_factor_dhw_residential():
 
 
 _ext_data_hour_factor_dhw_residential = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1172",
@@ -28202,7 +28276,7 @@ _ext_data_hour_factor_dhw_residential = ExtData(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1196",
@@ -28211,7 +28285,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1220",
@@ -28220,7 +28294,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1244",
@@ -28229,7 +28303,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1268",
@@ -28238,7 +28312,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1292",
@@ -28247,7 +28321,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1316",
@@ -28256,7 +28330,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1340",
@@ -28265,7 +28339,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1364",
@@ -28274,7 +28348,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1388",
@@ -28283,7 +28357,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1412",
@@ -28292,7 +28366,7 @@ _ext_data_hour_factor_dhw_residential.add(
 )
 
 _ext_data_hour_factor_dhw_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1436",
@@ -28317,7 +28391,7 @@ def hour_factor_hs():
 
 
 _ext_data_hour_factor_hs = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1460",
@@ -28329,7 +28403,7 @@ _ext_data_hour_factor_hs = ExtData(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1484",
@@ -28338,7 +28412,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1508",
@@ -28347,7 +28421,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1532",
@@ -28356,7 +28430,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1556",
@@ -28365,7 +28439,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1580",
@@ -28374,7 +28448,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1604",
@@ -28383,7 +28457,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1628",
@@ -28392,7 +28466,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1652",
@@ -28401,7 +28475,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1676",
@@ -28410,7 +28484,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1700",
@@ -28419,7 +28493,7 @@ _ext_data_hour_factor_hs.add(
 )
 
 _ext_data_hour_factor_hs.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1724",
@@ -28444,7 +28518,7 @@ def hour_factor_light():
 
 
 _ext_data_hour_factor_light = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1748",
@@ -28456,7 +28530,7 @@ _ext_data_hour_factor_light = ExtData(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1772",
@@ -28465,7 +28539,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1796",
@@ -28474,7 +28548,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1820",
@@ -28483,7 +28557,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1844",
@@ -28492,7 +28566,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1868",
@@ -28501,7 +28575,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1892",
@@ -28510,7 +28584,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1916",
@@ -28519,7 +28593,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1940",
@@ -28528,7 +28602,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1964",
@@ -28537,7 +28611,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B1988",
@@ -28546,7 +28620,7 @@ _ext_data_hour_factor_light.add(
 )
 
 _ext_data_hour_factor_light.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2012",
@@ -28604,7 +28678,7 @@ def hour_factor_phs_production():
 
 
 _ext_data_hour_factor_phs_production = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2036",
@@ -28616,7 +28690,7 @@ _ext_data_hour_factor_phs_production = ExtData(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2060",
@@ -28625,7 +28699,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2084",
@@ -28634,7 +28708,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2108",
@@ -28643,7 +28717,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2132",
@@ -28652,7 +28726,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2156",
@@ -28661,7 +28735,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2180",
@@ -28670,7 +28744,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2204",
@@ -28679,7 +28753,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2228",
@@ -28688,7 +28762,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2252",
@@ -28697,7 +28771,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2276",
@@ -28706,7 +28780,7 @@ _ext_data_hour_factor_phs_production.add(
 )
 
 _ext_data_hour_factor_phs_production.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2300",
@@ -28731,7 +28805,7 @@ def hour_factor_process_heat():
 
 
 _ext_data_hour_factor_process_heat = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2324",
@@ -28743,7 +28817,7 @@ _ext_data_hour_factor_process_heat = ExtData(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2348",
@@ -28752,7 +28826,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2372",
@@ -28761,7 +28835,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2396",
@@ -28770,7 +28844,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2420",
@@ -28779,7 +28853,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2444",
@@ -28788,7 +28862,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2468",
@@ -28797,7 +28871,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2492",
@@ -28806,7 +28880,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2516",
@@ -28815,7 +28889,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2540",
@@ -28824,7 +28898,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2564",
@@ -28833,7 +28907,7 @@ _ext_data_hour_factor_process_heat.add(
 )
 
 _ext_data_hour_factor_process_heat.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2588",
@@ -28859,7 +28933,7 @@ def hour_factor_pv():
 
 
 _ext_data_hour_factor_pv = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2612",
@@ -28871,7 +28945,7 @@ _ext_data_hour_factor_pv = ExtData(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2636",
@@ -28880,7 +28954,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2660",
@@ -28889,7 +28963,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2684",
@@ -28898,7 +28972,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2708",
@@ -28907,7 +28981,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2732",
@@ -28916,7 +28990,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2756",
@@ -28925,7 +28999,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2780",
@@ -28934,7 +29008,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2804",
@@ -28943,7 +29017,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2828",
@@ -28952,7 +29026,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2852",
@@ -28961,7 +29035,7 @@ _ext_data_hour_factor_pv.add(
 )
 
 _ext_data_hour_factor_pv.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2876",
@@ -28987,7 +29061,7 @@ def hour_factor_rr():
 
 
 _ext_data_hour_factor_rr = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2900",
@@ -28999,7 +29073,7 @@ _ext_data_hour_factor_rr = ExtData(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2924",
@@ -29008,7 +29082,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2948",
@@ -29017,7 +29091,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2972",
@@ -29026,7 +29100,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B2996",
@@ -29035,7 +29109,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3020",
@@ -29044,7 +29118,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3044",
@@ -29053,7 +29127,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3068",
@@ -29062,7 +29136,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3092",
@@ -29071,7 +29145,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3116",
@@ -29080,7 +29154,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3140",
@@ -29089,7 +29163,7 @@ _ext_data_hour_factor_rr.add(
 )
 
 _ext_data_hour_factor_rr.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3164",
@@ -29114,7 +29188,7 @@ def hour_factor_sh_industry():
 
 
 _ext_data_hour_factor_sh_industry = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3188",
@@ -29126,7 +29200,7 @@ _ext_data_hour_factor_sh_industry = ExtData(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3212",
@@ -29135,7 +29209,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3236",
@@ -29144,7 +29218,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3260",
@@ -29153,7 +29227,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3284",
@@ -29162,7 +29236,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3308",
@@ -29171,7 +29245,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3332",
@@ -29180,7 +29254,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3356",
@@ -29189,7 +29263,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3380",
@@ -29198,7 +29272,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3404",
@@ -29207,7 +29281,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3428",
@@ -29216,7 +29290,7 @@ _ext_data_hour_factor_sh_industry.add(
 )
 
 _ext_data_hour_factor_sh_industry.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3452",
@@ -29241,7 +29315,7 @@ def hour_factor_sh_residential():
 
 
 _ext_data_hour_factor_sh_residential = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3476",
@@ -29253,7 +29327,7 @@ _ext_data_hour_factor_sh_residential = ExtData(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3500",
@@ -29262,7 +29336,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3524",
@@ -29271,7 +29345,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3548",
@@ -29280,7 +29354,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3572",
@@ -29289,7 +29363,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3596",
@@ -29298,7 +29372,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3620",
@@ -29307,7 +29381,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3644",
@@ -29316,7 +29390,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3668",
@@ -29325,7 +29399,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3692",
@@ -29334,7 +29408,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3716",
@@ -29343,7 +29417,7 @@ _ext_data_hour_factor_sh_residential.add(
 )
 
 _ext_data_hour_factor_sh_residential.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3740",
@@ -29368,7 +29442,7 @@ def hour_factor_sh_services():
 
 
 _ext_data_hour_factor_sh_services = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3764",
@@ -29380,7 +29454,7 @@ _ext_data_hour_factor_sh_services = ExtData(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3788",
@@ -29389,7 +29463,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3812",
@@ -29398,7 +29472,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3836",
@@ -29407,7 +29481,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3860",
@@ -29416,7 +29490,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3884",
@@ -29425,7 +29499,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3908",
@@ -29434,7 +29508,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3932",
@@ -29443,7 +29517,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3956",
@@ -29452,7 +29526,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B3980",
@@ -29461,7 +29535,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4004",
@@ -29470,7 +29544,7 @@ _ext_data_hour_factor_sh_services.add(
 )
 
 _ext_data_hour_factor_sh_services.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4028",
@@ -29503,7 +29577,7 @@ def hour_factor_wind():
 
 
 _ext_data_hour_factor_wind = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4052",
@@ -29515,7 +29589,7 @@ _ext_data_hour_factor_wind = ExtData(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4076",
@@ -29524,7 +29598,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4100",
@@ -29533,7 +29607,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4124",
@@ -29542,7 +29616,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4148",
@@ -29551,7 +29625,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4172",
@@ -29560,7 +29634,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4196",
@@ -29569,7 +29643,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4220",
@@ -29578,7 +29652,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4244",
@@ -29587,7 +29661,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4268",
@@ -29596,7 +29670,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4292",
@@ -29605,7 +29679,7 @@ _ext_data_hour_factor_wind.add(
 )
 
 _ext_data_hour_factor_wind.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4316",
@@ -29671,7 +29745,7 @@ def share_hs_historical():
 
 
 _ext_data_share_hs_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4340",
@@ -29683,7 +29757,7 @@ _ext_data_share_hs_historical = ExtData(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4364",
@@ -29692,7 +29766,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4388",
@@ -29701,7 +29775,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4412",
@@ -29710,7 +29784,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4436",
@@ -29719,7 +29793,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4460",
@@ -29728,7 +29802,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4484",
@@ -29737,7 +29811,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4508",
@@ -29746,7 +29820,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4532",
@@ -29755,7 +29829,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4556",
@@ -29764,7 +29838,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4580",
@@ -29773,7 +29847,7 @@ _ext_data_share_hs_historical.add(
 )
 
 _ext_data_share_hs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4604",
@@ -29954,7 +30028,7 @@ def nuclear_annual_import():
 
 
 _ext_data_nuclear_annual_import = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4628",
@@ -30158,7 +30232,7 @@ def wind_annual_production():
 
 
 _ext_data_wind_annual_production = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4629",
@@ -30198,7 +30272,7 @@ def rr_annual_production_historical():
 
 
 _ext_data_rr_annual_production_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4630",
@@ -30244,7 +30318,7 @@ def share_phs_historical():
 
 
 _ext_data_share_phs_historical = ExtData(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4631",
@@ -30256,7 +30330,7 @@ _ext_data_share_phs_historical = ExtData(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4655",
@@ -30265,7 +30339,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4679",
@@ -30274,7 +30348,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4703",
@@ -30283,7 +30357,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4727",
@@ -30292,7 +30366,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4751",
@@ -30301,7 +30375,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4775",
@@ -30310,7 +30384,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4799",
@@ -30319,7 +30393,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4823",
@@ -30328,7 +30402,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4847",
@@ -30337,7 +30411,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4871",
@@ -30346,7 +30420,7 @@ _ext_data_share_phs_historical.add(
 )
 
 _ext_data_share_phs_historical.add(
-    r"Input Hour Factors_pysd_v6.csv",
+    r"Input Hour Factors_pysd_v7.csv",
     "",
     "1",
     "B4895",
@@ -30875,8 +30949,8 @@ def annual_cost_hp_grid_expansion():
         "buildings_hs_renovation_to": 2,
         "consumers_adopting_pv_yes": 2,
         "consumers_leaving_hs_for_old_age": 2,
-        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "technology_sh_installed_capacity_sh_and_dhw": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "technology_sh_installed_capacity_just_sh": 1,
     },
 )
@@ -30944,8 +31018,8 @@ def annual_hp_kw_installation_by_archetype():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "pv_federal_subsidy_check": 1,
-        "consumers_adopting_rcpv_yes_with_battery": 1,
         "pv_federal_subsidy_check_rcpv": 1,
+        "consumers_adopting_rcpv_yes_with_battery": 1,
     },
 )
 def annural_federal_subsidy_rup_by_archetype():
@@ -31200,8 +31274,8 @@ def additional_annual_rcpv_kwh_produced_by_archetype():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "pv_cantonal_subsidy": 1,
-        "consumers_adopting_rcpv_yes_with_battery": 1,
         "rcpv_cantonal_subsidy": 1,
+        "consumers_adopting_rcpv_yes_with_battery": 1,
     },
 )
 def annural_cantonal_subsidy_cu_by_archetype():
@@ -31235,8 +31309,8 @@ def annural_cantonal_subsidy_cu_by_archetype():
         "time": 4,
         "initial_dso_charge": 4,
         "total_annual_grid_upgrading_cost_by_dso_smooth": 4,
-        "total_annual_grid_demand_districts": 8,
         "initial_dso_expenses": 4,
+        "total_annual_grid_demand_districts": 8,
         "dso_charge": 4,
     },
 )
@@ -31407,9 +31481,9 @@ _integ_res_verylow_buildings = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "res_verylow_buildings": 2,
-        "overall_demolited_buildings": 2,
         "res_buildings_share": 2,
+        "overall_demolited_buildings": 2,
+        "res_verylow_buildings": 2,
     },
 )
 def res_verylow_demolition():
@@ -31470,7 +31544,7 @@ def res_buildings_i():
 
 
 _ext_data_res_buildings_i = ExtData(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2",
@@ -31492,7 +31566,7 @@ _ext_data_res_buildings_i = ExtData(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B10",
@@ -31506,7 +31580,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B18",
@@ -31520,7 +31594,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B26",
@@ -31534,7 +31608,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B34",
@@ -31548,7 +31622,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B42",
@@ -31562,7 +31636,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B50",
@@ -31576,7 +31650,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B58",
@@ -31590,7 +31664,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B66",
@@ -31604,7 +31678,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B74",
@@ -31618,7 +31692,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B82",
@@ -31632,7 +31706,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B90",
@@ -31646,7 +31720,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B98",
@@ -31660,7 +31734,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B106",
@@ -31674,7 +31748,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B114",
@@ -31688,7 +31762,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B122",
@@ -31702,7 +31776,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B130",
@@ -31716,7 +31790,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B138",
@@ -31730,7 +31804,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B146",
@@ -31744,7 +31818,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B154",
@@ -31758,7 +31832,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B162",
@@ -31772,7 +31846,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B170",
@@ -31786,7 +31860,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B178",
@@ -31800,7 +31874,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B186",
@@ -31814,7 +31888,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B194",
@@ -31828,7 +31902,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B202",
@@ -31842,7 +31916,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B210",
@@ -31856,7 +31930,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B218",
@@ -31870,7 +31944,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B226",
@@ -31884,7 +31958,7 @@ _ext_data_res_buildings_i.add(
 )
 
 _ext_data_res_buildings_i.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B234",
@@ -31999,11 +32073,11 @@ def equivalent_lifetime():
     depends_on={
         "time": 2,
         "dwellings_per_building": 4,
-        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
+        "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_owner():
@@ -32577,7 +32651,7 @@ def initial_heating_solution():
 
 
 _ext_data_initial_heating_solution = ExtData(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B242",
@@ -32601,7 +32675,7 @@ _ext_data_initial_heating_solution = ExtData(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B253",
@@ -32616,7 +32690,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B264",
@@ -32631,7 +32705,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B275",
@@ -32646,7 +32720,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B286",
@@ -32661,7 +32735,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B297",
@@ -32676,7 +32750,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B308",
@@ -32691,7 +32765,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B319",
@@ -32706,7 +32780,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B330",
@@ -32721,7 +32795,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B341",
@@ -32736,7 +32810,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B352",
@@ -32751,7 +32825,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B363",
@@ -32766,7 +32840,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B374",
@@ -32781,7 +32855,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B385",
@@ -32796,7 +32870,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B396",
@@ -32811,7 +32885,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B407",
@@ -32826,7 +32900,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B418",
@@ -32841,7 +32915,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B429",
@@ -32856,7 +32930,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B440",
@@ -32871,7 +32945,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B451",
@@ -32886,7 +32960,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B462",
@@ -32901,7 +32975,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B473",
@@ -32916,7 +32990,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B484",
@@ -32931,7 +33005,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B495",
@@ -32946,7 +33020,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B506",
@@ -32961,7 +33035,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B517",
@@ -32976,7 +33050,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B528",
@@ -32991,7 +33065,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B539",
@@ -33006,7 +33080,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B550",
@@ -33021,7 +33095,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B561",
@@ -33036,7 +33110,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B572",
@@ -33051,7 +33125,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B583",
@@ -33066,7 +33140,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B594",
@@ -33081,7 +33155,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B605",
@@ -33096,7 +33170,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B616",
@@ -33111,7 +33185,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B627",
@@ -33126,7 +33200,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B638",
@@ -33141,7 +33215,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B649",
@@ -33156,7 +33230,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B660",
@@ -33171,7 +33245,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B671",
@@ -33186,7 +33260,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B682",
@@ -33201,7 +33275,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B693",
@@ -33216,7 +33290,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B704",
@@ -33231,7 +33305,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B715",
@@ -33246,7 +33320,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B726",
@@ -33261,7 +33335,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B737",
@@ -33276,7 +33350,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B748",
@@ -33291,7 +33365,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B759",
@@ -33306,7 +33380,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B770",
@@ -33321,7 +33395,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B781",
@@ -33336,7 +33410,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B792",
@@ -33351,7 +33425,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B803",
@@ -33366,7 +33440,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B814",
@@ -33381,7 +33455,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B825",
@@ -33396,7 +33470,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B836",
@@ -33411,7 +33485,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B847",
@@ -33426,7 +33500,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B858",
@@ -33441,7 +33515,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B869",
@@ -33456,7 +33530,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B880",
@@ -33471,7 +33545,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B891",
@@ -33486,7 +33560,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B902",
@@ -33501,7 +33575,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B913",
@@ -33516,7 +33590,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B924",
@@ -33531,7 +33605,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B935",
@@ -33546,7 +33620,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B946",
@@ -33561,7 +33635,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B957",
@@ -33576,7 +33650,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B968",
@@ -33591,7 +33665,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B979",
@@ -33606,7 +33680,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B990",
@@ -33621,7 +33695,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1001",
@@ -33636,7 +33710,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1012",
@@ -33651,7 +33725,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1023",
@@ -33666,7 +33740,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1034",
@@ -33681,7 +33755,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1045",
@@ -33696,7 +33770,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1056",
@@ -33711,7 +33785,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1067",
@@ -33726,7 +33800,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1078",
@@ -33741,7 +33815,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1089",
@@ -33756,7 +33830,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1100",
@@ -33771,7 +33845,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1111",
@@ -33786,7 +33860,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1122",
@@ -33801,7 +33875,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1133",
@@ -33816,7 +33890,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1144",
@@ -33831,7 +33905,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1155",
@@ -33846,7 +33920,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1166",
@@ -33861,7 +33935,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1177",
@@ -33876,7 +33950,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1188",
@@ -33891,7 +33965,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1199",
@@ -33906,7 +33980,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1210",
@@ -33921,7 +33995,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1221",
@@ -33936,7 +34010,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1232",
@@ -33951,7 +34025,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1243",
@@ -33966,7 +34040,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1254",
@@ -33981,7 +34055,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1265",
@@ -33996,7 +34070,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1276",
@@ -34011,7 +34085,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1287",
@@ -34026,7 +34100,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1298",
@@ -34041,7 +34115,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1309",
@@ -34056,7 +34130,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1320",
@@ -34071,7 +34145,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1331",
@@ -34086,7 +34160,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1342",
@@ -34101,7 +34175,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1353",
@@ -34116,7 +34190,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1364",
@@ -34131,7 +34205,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1375",
@@ -34146,7 +34220,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1386",
@@ -34161,7 +34235,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1397",
@@ -34176,7 +34250,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1408",
@@ -34191,7 +34265,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1419",
@@ -34206,7 +34280,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1430",
@@ -34221,7 +34295,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1441",
@@ -34236,7 +34310,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1452",
@@ -34251,7 +34325,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1463",
@@ -34266,7 +34340,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1474",
@@ -34281,7 +34355,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1485",
@@ -34296,7 +34370,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1496",
@@ -34311,7 +34385,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1507",
@@ -34326,7 +34400,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1518",
@@ -34341,7 +34415,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1529",
@@ -34356,7 +34430,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1540",
@@ -34371,7 +34445,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1551",
@@ -34386,7 +34460,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1562",
@@ -34401,7 +34475,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1573",
@@ -34416,7 +34490,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1584",
@@ -34431,7 +34505,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1595",
@@ -34446,7 +34520,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1606",
@@ -34461,7 +34535,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1617",
@@ -34476,7 +34550,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1628",
@@ -34491,7 +34565,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1639",
@@ -34506,7 +34580,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1650",
@@ -34521,7 +34595,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1661",
@@ -34536,7 +34610,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1672",
@@ -34551,7 +34625,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1683",
@@ -34566,7 +34640,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1694",
@@ -34581,7 +34655,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1705",
@@ -34596,7 +34670,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1716",
@@ -34611,7 +34685,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1727",
@@ -34626,7 +34700,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1738",
@@ -34641,7 +34715,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1749",
@@ -34656,7 +34730,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1760",
@@ -34671,7 +34745,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1771",
@@ -34686,7 +34760,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1782",
@@ -34701,7 +34775,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1793",
@@ -34716,7 +34790,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1804",
@@ -34731,7 +34805,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1815",
@@ -34746,7 +34820,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1826",
@@ -34761,7 +34835,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1837",
@@ -34776,7 +34850,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1848",
@@ -34791,7 +34865,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1859",
@@ -34806,7 +34880,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1870",
@@ -34821,7 +34895,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1881",
@@ -34836,7 +34910,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1892",
@@ -34851,7 +34925,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1903",
@@ -34866,7 +34940,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1914",
@@ -34881,7 +34955,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1925",
@@ -34896,7 +34970,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1936",
@@ -34911,7 +34985,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1947",
@@ -34926,7 +35000,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1958",
@@ -34941,7 +35015,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1969",
@@ -34956,7 +35030,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1980",
@@ -34971,7 +35045,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B1991",
@@ -34986,7 +35060,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2002",
@@ -35001,7 +35075,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2013",
@@ -35016,7 +35090,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2024",
@@ -35031,7 +35105,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2035",
@@ -35046,7 +35120,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2046",
@@ -35061,7 +35135,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2057",
@@ -35076,7 +35150,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2068",
@@ -35091,7 +35165,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2079",
@@ -35106,7 +35180,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2090",
@@ -35121,7 +35195,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2101",
@@ -35136,7 +35210,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2112",
@@ -35151,7 +35225,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2123",
@@ -35166,7 +35240,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2134",
@@ -35181,7 +35255,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2145",
@@ -35196,7 +35270,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2156",
@@ -35211,7 +35285,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2167",
@@ -35226,7 +35300,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2178",
@@ -35241,7 +35315,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2189",
@@ -35256,7 +35330,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2200",
@@ -35271,7 +35345,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2211",
@@ -35286,7 +35360,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2222",
@@ -35301,7 +35375,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2233",
@@ -35316,7 +35390,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2244",
@@ -35331,7 +35405,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2255",
@@ -35346,7 +35420,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2266",
@@ -35361,7 +35435,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2277",
@@ -35376,7 +35450,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2288",
@@ -35391,7 +35465,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2299",
@@ -35406,7 +35480,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2310",
@@ -35421,7 +35495,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2321",
@@ -35436,7 +35510,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2332",
@@ -35451,7 +35525,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2343",
@@ -35466,7 +35540,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2354",
@@ -35481,7 +35555,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2365",
@@ -35496,7 +35570,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2376",
@@ -35511,7 +35585,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2387",
@@ -35526,7 +35600,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2398",
@@ -35541,7 +35615,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2409",
@@ -35556,7 +35630,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2420",
@@ -35571,7 +35645,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2431",
@@ -35586,7 +35660,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2442",
@@ -35601,7 +35675,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2453",
@@ -35616,7 +35690,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2464",
@@ -35631,7 +35705,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2475",
@@ -35646,7 +35720,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2486",
@@ -35661,7 +35735,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2497",
@@ -35676,7 +35750,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2508",
@@ -35691,7 +35765,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2519",
@@ -35706,7 +35780,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2530",
@@ -35721,7 +35795,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2541",
@@ -35736,7 +35810,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2552",
@@ -35751,7 +35825,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2563",
@@ -35766,7 +35840,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2574",
@@ -35781,7 +35855,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2585",
@@ -35796,7 +35870,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2596",
@@ -35811,7 +35885,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2607",
@@ -35826,7 +35900,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2618",
@@ -35841,7 +35915,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2629",
@@ -35856,7 +35930,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2640",
@@ -35871,7 +35945,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2651",
@@ -35886,7 +35960,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2662",
@@ -35901,7 +35975,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2673",
@@ -35916,7 +35990,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2684",
@@ -35931,7 +36005,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2695",
@@ -35946,7 +36020,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2706",
@@ -35961,7 +36035,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2717",
@@ -35976,7 +36050,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2728",
@@ -35991,7 +36065,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2739",
@@ -36006,7 +36080,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2750",
@@ -36021,7 +36095,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2761",
@@ -36036,7 +36110,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2772",
@@ -36051,7 +36125,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2783",
@@ -36066,7 +36140,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2794",
@@ -36081,7 +36155,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2805",
@@ -36096,7 +36170,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2816",
@@ -36111,7 +36185,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2827",
@@ -36126,7 +36200,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2838",
@@ -36141,7 +36215,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2849",
@@ -36156,7 +36230,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2860",
@@ -36171,7 +36245,7 @@ _ext_data_initial_heating_solution.add(
 )
 
 _ext_data_initial_heating_solution.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2871",
@@ -36389,7 +36463,7 @@ _integ_res_veryhigh_buildings = Integ(
 @component.add(
     name="Buildings HS Renovation From",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "res_verylow_low_renovation": 1,
@@ -36397,11 +36471,11 @@ _integ_res_veryhigh_buildings = Integ(
         "res_verylow_high_renovation": 1,
         "res_verylow_veryhigh_renovation": 1,
         "share_hs_by_archetype": 4,
-        "res_low_to_moderate_renovation": 1,
         "res_low_veryhigh_renovation": 1,
         "res_low_high_renovation": 1,
-        "res_moderate_high_renovation": 1,
+        "res_low_to_moderate_renovation": 1,
         "res_moderate_veryhigh_renovation": 1,
+        "res_moderate_high_renovation": 1,
         "res_high_veryhigh_renovation": 1,
     },
 )
@@ -36516,19 +36590,19 @@ _integ_res_moderate_buildings = Integ(
 @component.add(
     name="Buildings HS Renovation To",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "res_verylow_low_renovation": 1,
         "share_hs_by_archetype": 10,
-        "res_low_to_moderate_renovation": 1,
         "res_verylow_moderate_renovation": 1,
-        "res_verylow_high_renovation": 1,
+        "res_low_to_moderate_renovation": 1,
         "res_low_high_renovation": 1,
+        "res_verylow_high_renovation": 1,
         "res_moderate_high_renovation": 1,
+        "res_moderate_veryhigh_renovation": 1,
         "res_low_veryhigh_renovation": 1,
         "res_verylow_veryhigh_renovation": 1,
-        "res_moderate_veryhigh_renovation": 1,
         "res_high_veryhigh_renovation": 1,
     },
 )
@@ -37284,7 +37358,7 @@ def buildings_construction():
 
 
 _ext_data_buildings_construction = ExtData(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2882",
@@ -37304,7 +37378,7 @@ _ext_data_buildings_construction = ExtData(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2890",
@@ -37313,7 +37387,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2898",
@@ -37326,7 +37400,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2906",
@@ -37335,7 +37409,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2914",
@@ -37348,7 +37422,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2922",
@@ -37361,7 +37435,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2930",
@@ -37370,7 +37444,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2938",
@@ -37383,7 +37457,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2946",
@@ -37392,7 +37466,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2954",
@@ -37405,7 +37479,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2962",
@@ -37418,7 +37492,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2970",
@@ -37427,7 +37501,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2978",
@@ -37440,7 +37514,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2986",
@@ -37449,7 +37523,7 @@ _ext_data_buildings_construction.add(
 )
 
 _ext_data_buildings_construction.add(
-    r"Input2011_pysd_v6.csv",
+    r"Input2011_pysd_v7.csv",
     "",
     "1",
     "B2994",
@@ -37753,9 +37827,76 @@ def emissions_per_kwh_carrier_used():
 
 
 @component.add(
+    name="Electricity consumed",
+    units="GWh",
+    subscripts=["Month", "Hour", "Supplier"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"electricity_dispatched": 2, "pv_hourly_sc_computed": 1},
+)
+def electricity_consumed():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "Month": _subscript_dict["Month"],
+            "Hour": _subscript_dict["Hour"],
+            "Supplier": _subscript_dict["Supplier"],
+        },
+        ["Month", "Hour", "Supplier"],
+    )
+    value.loc[:, :, ["Solar"]] = (
+        (
+            electricity_dispatched().loc[:, :, "Solar"].reset_coords(drop=True)
+            + pv_hourly_sc_computed()
+        )
+        .expand_dims({"Supplier": ["Solar"]}, 2)
+        .values
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, :, ["Solar"]] = False
+    value.values[except_subs.values] = electricity_dispatched().values[
+        except_subs.values
+    ]
+    return value
+
+
+@component.add(
+    name="Vehicle range factor change",
+    subscripts=["Vechicle"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"time": 4},
+)
+def vehicle_range_factor_change():
+    """
+    -0.0256 -0.0164 -0.0166 -0.0148 -0.0105
+    """
+    value = xr.DataArray(
+        np.nan, {"Vechicle": _subscript_dict["Vechicle"]}, ["Vechicle"]
+    )
+    value.loc[["BEV"]] = if_then_else(
+        time() < 2015,
+        lambda: 0.1339,
+        lambda: if_then_else(
+            time() < 2020,
+            lambda: 0.0857,
+            lambda: if_then_else(
+                time() < 2030,
+                lambda: 0.0714,
+                lambda: if_then_else(time() < 2040, lambda: 0.0429, lambda: 0.0286),
+            ),
+        ),
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[["BEV"]] = False
+    value.values[except_subs.values] = 0
+    return value
+
+
+@component.add(
     name="HS Log Likelihood",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 3, "adoption_heating_solutions_data": 3, "average_ms_by_hs": 3},
 )
@@ -37800,7 +37941,7 @@ def hs_log_likelihood():
 @component.add(
     name="Market Share HS noDH noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_nodh": 3},
 )
@@ -37837,7 +37978,7 @@ def market_share_hs_nodh_nogas():
 @component.add(
     name="Market Share HS noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs": 3},
 )
@@ -37874,7 +38015,7 @@ def market_share_hs_nogas():
 @component.add(
     name="Market Share HS no incentives noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives": 3},
 )
@@ -37973,7 +38114,7 @@ def peer_effect_hs_factor():
 @component.add(
     name="Market Share HS no incentives noDH noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives_nodh": 3},
 )
@@ -38004,39 +38145,6 @@ def market_share_hs_no_incentives_nodh_nogas():
         )
     ).values[except_subs.values]
     value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
-    return value
-
-
-@component.add(
-    name="Vehicle range factor change",
-    subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={"time": 4},
-)
-def vehicle_range_factor_change():
-    """
-    -0.0256 -0.0164 -0.0166 -0.0148 -0.0105
-    """
-    value = xr.DataArray(
-        np.nan, {"Vechicle": _subscript_dict["Vechicle"]}, ["Vechicle"]
-    )
-    value.loc[["BEV"]] = if_then_else(
-        time() < 2015,
-        lambda: 0.1339,
-        lambda: if_then_else(
-            time() < 2020,
-            lambda: 0.0857,
-            lambda: if_then_else(
-                time() < 2030,
-                lambda: 0.0714,
-                lambda: if_then_else(time() < 2040, lambda: 0.0429, lambda: 0.0286),
-            ),
-        ),
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[["BEV"]] = False
-    value.values[except_subs.values] = 0
     return value
 
 
@@ -38367,40 +38475,6 @@ def ev_buying_incentive():
 
 
 @component.add(
-    name="Electricity consumed",
-    units="GWh",
-    subscripts=["Month", "Hour", "Supplier"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"electricity_dispatched": 2, "pv_hourly_sc": 1},
-)
-def electricity_consumed():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "Month": _subscript_dict["Month"],
-            "Hour": _subscript_dict["Hour"],
-            "Supplier": _subscript_dict["Supplier"],
-        },
-        ["Month", "Hour", "Supplier"],
-    )
-    value.loc[:, :, ["Solar"]] = (
-        (
-            electricity_dispatched().loc[:, :, "Solar"].reset_coords(drop=True)
-            + pv_hourly_sc()
-        )
-        .expand_dims({"Supplier": ["Solar"]}, 2)
-        .values
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, :, ["Solar"]] = False
-    value.values[except_subs.values] = electricity_dispatched().values[
-        except_subs.values
-    ]
-    return value
-
-
-@component.add(
     name="Consumers leaving vehicle",
     subscripts=["District", "Vechicle"],
     comp_type="Auxiliary",
@@ -38617,8 +38691,8 @@ def total_annualised_cost_vehicle():
         "initial_purchase_cost_vehicle": 7,
         "vehicle_purchase_cost_factor": 7,
         "ev_buying_incentive": 5,
-        "private_charging_station_cost": 3,
         "private_charging_station_incentive": 3,
+        "private_charging_station_cost": 3,
         "federal_tax_deduction_import_ev": 1,
     },
 )
@@ -39235,7 +39309,7 @@ def vehicle_efficiency_factor_i():
 @component.add(
     name="Vehicle electric consumption per km factor change",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 12},
 )
@@ -39330,7 +39404,7 @@ _integ_vehicle_fuel_consumption_per_km_factor = Integ(
 @component.add(
     name="Vehicle fuel consumption per km factor change",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 8},
 )
@@ -39511,7 +39585,7 @@ def infrastructure_utility_factor():
 @component.add(
     name="Infrastructure Utility",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"public_charging_stations": 9},
 )
@@ -39633,15 +39707,15 @@ def charged_electricity_per_year():
     name="Cost per km fuel",
     units="CHF/km",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "fuel_consumption_per_km": 6,
         "petrol_price": 3,
-        "density_petrol": 3,
         "lhv_petrol": 3,
-        "lhv_diesel": 3,
+        "density_petrol": 3,
         "diesel_price": 3,
+        "lhv_diesel": 3,
         "denity_diesel": 3,
     },
 )
@@ -40094,8 +40168,8 @@ def utility_hs_exp_3():
     depends_on={
         "time": 11,
         "pv_uncertain_remunaration_factor": 1,
-        "fit": 1,
         "cantonal_pv_support": 1,
+        "fit": 1,
     },
 )
 def pv_cumulative_compensation_price():
@@ -40215,8 +40289,8 @@ def utility_pv_no_eco():
         "house_value_factor": 4,
         "double_tech_factor": 4,
         "dummy_hs": 4,
-        "alpha_hp": 2,
         "dummy_pv_for_hp_factor": 1,
+        "alpha_hp": 2,
     },
 )
 def utility_hs_no_incentives():
@@ -40309,7 +40383,7 @@ def utility_hs_no_incentives():
 @component.add(
     name="Market Share HS noDH",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs": 3},
 )
@@ -40341,7 +40415,7 @@ def market_share_hs_nodh():
 @component.add(
     name="Market Share HS no incentives noDH",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives": 3},
 )
@@ -40531,10 +40605,10 @@ def market_share_hs():
     depends_on={
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
-        "wall_verylow_probabilities": 1,
         "verylow_changing_wall": 1,
-        "verylow_changing_ground": 1,
+        "wall_verylow_probabilities": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance():
@@ -40553,17 +40627,17 @@ def verylow_to_performance():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "dwellings_per_building": 5,
-        "pv_annual_generation_per_building": 12,
-        "kwp_installed_per_building": 2,
-        "interest_rate": 10,
-        "pv_fit_10_kw": 1,
         "pv_fit_10_30_kw": 2,
+        "pv_annual_generation_per_building": 12,
+        "pv_fit_10_kw": 1,
+        "kwp_installed_per_building": 2,
+        "dwellings_per_building": 5,
         "pv_annual_mantainance_cost": 5,
-        "electricity_price": 2,
+        "interest_rate": 10,
         "pv_lifetime": 2,
         "pv_cumulative_compensation_price": 2,
         "self_consumption_degree": 4,
+        "electricity_price": 2,
     },
 )
 def pv_total_savings_owner():
@@ -40675,8 +40749,8 @@ def pv_federal_subsidy_check():
     depends_on={
         "heating_solution": 2,
         "equivalent_lifetime": 1,
-        "consumers_adopting_pv_no": 1,
         "building_demolition_by_archetype": 1,
+        "consumers_adopting_pv_no": 1,
         "buildings_hs_renovation_from": 1,
     },
 )
@@ -40796,11 +40870,11 @@ def annualized_total_cost_hs_no_incentives():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "kwp_installed_per_building": 1,
         "pv_federal_investment_grant_capacity": 1,
         "pv_initial_grant": 1,
-        "kwp_installed_per_building": 1,
-        "pv_rebate_federal": 1,
         "pv_investment_cost": 1,
+        "pv_rebate_federal": 1,
     },
 )
 def pv_initial_federal_subsidy():
@@ -40994,25 +41068,25 @@ def pv_differential_cost_change():
 
 
 @component.add(
-    name="Owners adopting RCPv",
+    name="Requested Owners adopting RCPv",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "owned_buildings_with_pv": 1,
         "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
-        "share_urban_buildings": 1,
-        "probability_adoption_rcpv_owners": 1,
-        "heating_solution": 3,
-        "owned_buildings_with_rcpv_pvno": 1,
         "share_of_buildings_with_suitable_roof": 1,
+        "share_urban_buildings": 1,
+        "owned_buildings_with_pv": 1,
+        "heating_solution": 3,
         "owned_buildings_with_rcpv": 1,
+        "owned_buildings_with_rcpv_pvno": 1,
+        "share_of_owned_houses": 1,
+        "probability_adoption_rcpv_owners": 1,
         "energy_community_scenario": 1,
     },
 )
-def owners_adopting_rcpv():
+def requested_owners_adopting_rcpv():
     return np.maximum(
         if_then_else(
             time() < 2025,
@@ -41071,25 +41145,25 @@ def owners_adopting_rcpv():
 
 
 @component.add(
-    name="Renters adopting RCPv",
+    name="Requested Renters adopting RCPv",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "share_of_owned_houses": 1,
-        "share_urban_buildings": 1,
-        "rented_buildings_with_rcpv": 1,
-        "rented_buildings_with_rcp": 1,
-        "rented_buildings_with_rcpv_pvno": 1,
-        "heating_solution": 3,
         "share_of_buildings_with_suitable_roof": 1,
-        "rented_buildings_with_pv": 1,
+        "rented_buildings_with_rcp": 1,
+        "rented_buildings_with_rcpv": 1,
+        "share_urban_buildings": 1,
         "probability_adoption_rcpv_renters": 1,
+        "heating_solution": 3,
+        "rented_buildings_with_rcpv_pvno": 1,
+        "rented_buildings_with_pv": 1,
+        "share_of_owned_houses": 1,
         "energy_community_scenario": 1,
     },
 )
-def renters_adopting_rcpv():
+def requested_renters_adopting_rcpv():
     return np.maximum(
         if_then_else(
             time() < 2025,
@@ -41908,7 +41982,7 @@ def utility_hs():
 @component.add(
     name="Consumers adopting PV no",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "owners_adopting_pv": 1,
@@ -41953,7 +42027,7 @@ def consumers_adopting_pv_no():
 @component.add(
     name="Consumers adopting PV yes",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "owners_adopting_pv": 1,
@@ -42028,9 +42102,71 @@ def green_utility_weight():
 
 
 @component.add(
+    name="Retrofit Moderate SFH Log Likelihood",
+    subscripts=["Performance"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "moderate_to_performance_sfh_ms": 1,
+        "retrofit_moderate_sfh_data": 1,
+    },
+)
+def retrofit_moderate_sfh_log_likelihood():
+    """
+    IF THEN ELSE( Time < 2020 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) + Retrofit Low SFH Data[High] * LN( Low to High SFH MS ) + Retrofit Low SFH Data[VeryHigh] * LN( Low to VeryHigh SFH MS ) , 0 ) )
+    """
+    value = xr.DataArray(
+        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
+    value.values[except_subs.values] = if_then_else(
+        time() < 2025,
+        lambda: retrofit_moderate_sfh_data() * np.log(moderate_to_performance_sfh_ms()),
+        lambda: xr.DataArray(
+            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+        ),
+    ).values[except_subs.values]
+    value.loc[_subscript_dict["PerformanceLow"]] = 0
+    return value
+
+
+@component.add(
+    name="Retrofit Moderate MFH Log Likelihood",
+    subscripts=["Performance"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "retrofit_moderate_mfh_data": 1,
+        "moderate_to_performance_mfh_ms": 1,
+    },
+)
+def retrofit_moderate_mfh_log_likelihood():
+    """
+    IF THEN ELSE( Time < 2020 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) + Retrofit Low MFH Data[High] * LN( Low to High MFH MS ) + Retrofit Low MFH Data[VeryHigh] * LN( Low to VeryHigh MFH MS ) , 0 ) )
+    """
+    value = xr.DataArray(
+        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
+    value.values[except_subs.values] = if_then_else(
+        time() < 2025,
+        lambda: retrofit_moderate_mfh_data() * np.log(moderate_to_performance_mfh_ms()),
+        lambda: xr.DataArray(
+            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+        ),
+    ).values[except_subs.values]
+    value.loc[_subscript_dict["PerformanceLow"]] = 0
+    return value
+
+
+@component.add(
     name="Wall Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_low_scaled": 1},
 )
@@ -42056,7 +42192,7 @@ def wall_low_exp():
 @component.add(
     name="Retrofit High SFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
@@ -42098,7 +42234,7 @@ def retrofit_high_sfh_log_likelihood():
 @component.add(
     name="Ground Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_low_scaled": 1},
 )
@@ -42124,12 +42260,12 @@ def ground_low_exp():
 @component.add(
     name="Retrofit High MFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "high_to_performance_mfh_ms": 1,
         "retrofit_high_mfh_data": 1,
+        "high_to_performance_mfh_ms": 1,
     },
 )
 def retrofit_high_mfh_log_likelihood():
@@ -42215,68 +42351,6 @@ def pv_investment_cost_rcpv():
 
 
 @component.add(
-    name="Retrofit Moderate SFH Log Likelihood",
-    subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "time": 1,
-        "retrofit_moderate_sfh_data": 1,
-        "moderate_to_performance_sfh_ms": 1,
-    },
-)
-def retrofit_moderate_sfh_log_likelihood():
-    """
-    IF THEN ELSE( Time < 2020 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) + Retrofit Low SFH Data[High] * LN( Low to High SFH MS ) + Retrofit Low SFH Data[VeryHigh] * LN( Low to VeryHigh SFH MS ) , 0 ) )
-    """
-    value = xr.DataArray(
-        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
-    value.values[except_subs.values] = if_then_else(
-        time() < 2025,
-        lambda: retrofit_moderate_sfh_data() * np.log(moderate_to_performance_sfh_ms()),
-        lambda: xr.DataArray(
-            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-        ),
-    ).values[except_subs.values]
-    value.loc[_subscript_dict["PerformanceLow"]] = 0
-    return value
-
-
-@component.add(
-    name="Retrofit Moderate MFH Log Likelihood",
-    subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "time": 1,
-        "moderate_to_performance_mfh_ms": 1,
-        "retrofit_moderate_mfh_data": 1,
-    },
-)
-def retrofit_moderate_mfh_log_likelihood():
-    """
-    IF THEN ELSE( Time < 2020 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) + Retrofit Low MFH Data[High] * LN( Low to High MFH MS ) + Retrofit Low MFH Data[VeryHigh] * LN( Low to VeryHigh MFH MS ) , 0 ) )
-    """
-    value = xr.DataArray(
-        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
-    value.values[except_subs.values] = if_then_else(
-        time() < 2025,
-        lambda: retrofit_moderate_mfh_data() * np.log(moderate_to_performance_mfh_ms()),
-        lambda: xr.DataArray(
-            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-        ),
-    ).values[except_subs.values]
-    value.loc[_subscript_dict["PerformanceLow"]] = 0
-    return value
-
-
-@component.add(
     name="Battery capacity",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
@@ -42324,12 +42398,12 @@ def battery_capacity_1_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "pv_fit_10_30_kw": 2,
+        "pv_fit_10_kw": 1,
         "pv_annual_generation_per_building": 10,
         "kwp_installed_per_building": 2,
-        "interest_rate": 10,
-        "pv_fit_10_kw": 1,
-        "pv_fit_10_30_kw": 2,
         "pv_annual_mantainance_cost": 5,
+        "interest_rate": 10,
         "pv_lifetime": 2,
         "pv_cumulative_compensation_price": 2,
     },
@@ -42456,11 +42530,11 @@ def rcpv_eco_utility_renter():
         "time": 1,
         "pv_annual_generation_per_building_rcpv": 4,
         "dwellings_per_building": 1,
-        "self_consumption_degree_rcpv": 3,
-        "buildings_pvno_connected_to_rcpv": 1,
+        "pv_annual_mantainance_cost": 1,
         "pv_cumulative_compensation_price": 1,
         "electricity_price": 2,
-        "pv_annual_mantainance_cost": 1,
+        "self_consumption_degree_rcpv": 3,
+        "buildings_pvno_connected_to_rcpv": 1,
         "pv_lifetime": 1,
         "interest_rate": 2,
     },
@@ -42519,11 +42593,11 @@ def rcpv_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
+        "tax_deduction_investment": 4,
         "kwp_installed_per_building": 1,
         "pv_cantonal_subsidy": 2,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_renter():
@@ -42850,11 +42924,11 @@ def pv_initial_investment_cost_rcpv():
     depends_on={
         "time": 1,
         "pv_annual_generation_per_building_rcpv": 3,
-        "self_consumption_degree_rcpv": 2,
-        "buildings_pvno_connected_to_rcpv": 2,
+        "pv_annual_mantainance_cost": 1,
         "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "pv_annual_mantainance_cost": 1,
+        "self_consumption_degree_rcpv": 2,
+        "buildings_pvno_connected_to_rcpv": 2,
         "pv_lifetime": 1,
         "interest_rate": 2,
     },
@@ -43132,7 +43206,7 @@ def daily_hot_water_consumption_per_person():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"ground_high_scaled": 2, "coeff_high": 1, "ground_high": 3},
+    depends_on={"ground_high_scaled": 2, "ground_high": 3, "coeff_high": 1},
 )
 def ground_high_scaled():
     value = xr.DataArray(
@@ -43191,7 +43265,7 @@ def ground_high_scaled():
 @component.add(
     name="Roof High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_high_scaled": 1},
 )
@@ -43282,7 +43356,7 @@ def roof_high_scaled():
 @component.add(
     name="Wall High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_high_scaled": 1},
 )
@@ -43312,7 +43386,7 @@ def wall_high_exp():
 @component.add(
     name="Ground High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_high_scaled": 1},
 )
@@ -43403,9 +43477,9 @@ def wall_high_scaled():
 @component.add(
     name="Retrofit Low SFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "low_to_performance_sfh_ms": 1, "retrofit_low_sfh_data": 1},
+    depends_on={"time": 1, "retrofit_low_sfh_data": 1, "low_to_performance_sfh_ms": 1},
 )
 def retrofit_low_sfh_log_likelihood():
     """
@@ -43430,7 +43504,7 @@ def retrofit_low_sfh_log_likelihood():
 @component.add(
     name="Retrofit Low MFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 1, "retrofit_low_mfh_data": 1, "low_to_performance_mfh_ms": 1},
 )
@@ -43782,16 +43856,16 @@ def annual_mantainance_costs_hs():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "cantonal_levy_evolution": 4,
+        "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
         "rented_buildings_with_rcpv_pvno": 1,
         "self_consumption_degree_rcpv": 2,
-        "owned_buildings_with_rcpv_pvno": 1,
-        "pv_annual_generation_per_building_rcpv": 3,
         "share_primary_houses": 3,
         "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree_with_storage": 1,
-        "time": 2,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "buildings_rcpv_by_archetype": 4,
+        "time": 2,
         "self_consumption_degree": 1,
     },
 )
@@ -43944,16 +44018,16 @@ def annual_cost_cantonal_levy_by_arch():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "levy_evolution": 4,
+        "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
         "rented_buildings_with_rcpv_pvno": 1,
         "self_consumption_degree_rcpv": 2,
-        "owned_buildings_with_rcpv_pvno": 1,
-        "pv_annual_generation_per_building_rcpv": 3,
         "share_primary_houses": 3,
         "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree_with_storage": 1,
-        "time": 2,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "buildings_rcpv_by_archetype": 4,
+        "time": 2,
         "self_consumption_degree": 1,
     },
 )
@@ -44116,12 +44190,12 @@ def pv_annual_generation_per_building():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "dwellings_per_building": 1,
         "pv_annual_generation_per_building": 3,
-        "pv_cumulative_compensation_price": 1,
-        "electricity_price": 1,
+        "dwellings_per_building": 1,
         "pv_annual_mantainance_cost": 1,
         "self_consumption_degree": 2,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "pv_lifetime": 1,
         "interest_rate": 2,
     },
@@ -44191,10 +44265,10 @@ def pv_initial_investment_cost():
     depends_on={
         "time": 1,
         "pv_annual_generation_per_building": 3,
-        "pv_cumulative_compensation_price": 1,
-        "electricity_price": 1,
         "pv_annual_mantainance_cost": 1,
         "self_consumption_degree": 2,
+        "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "pv_lifetime": 1,
         "interest_rate": 2,
     },
@@ -44434,7 +44508,7 @@ def utility_battery_rcpv():
 @component.add(
     name="Roof Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_low_scaled": 1},
 )
@@ -44508,7 +44582,7 @@ def utility_battery():
     name="Carrier used cost per kWh",
     units="CHF/l",
     subscripts=["District", "Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 6,
@@ -44580,7 +44654,7 @@ def carrier_used_cost_per_kwh():
     name="Efficiency",
     units="Dmnl",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"hp_efficiency_uncertainty_factor": 1},
 )
@@ -44600,7 +44674,7 @@ def efficiency():
     name="Lifetime",
     units="year",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "oilgas_lifetime_uncertainty_factor": 4,
@@ -44631,11 +44705,11 @@ def lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "investment_grant_per_kw_15_kw": 1,
-        "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 3,
+        "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44671,10 +44745,10 @@ def grant_pelletboiler_pellet():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_sh_installed_capacity_just_sh": 3,
         "investment_grant_per_kw_15_kw": 1,
-        "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44703,9 +44777,9 @@ def grant_pelletboiler_woodst():
     depends_on={
         "time": 1,
         "investment_grant_per_kw_dh": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "technology_sh_installed_capacity_sh_and_dhw": 1,
         "initial_grant_dh": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 1,
         "grant_absolute": 1,
     },
 )
@@ -44729,11 +44803,11 @@ def grant_dh():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "investment_grant_per_kw_15_kw": 1,
-        "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "technology_dhw_installed_capacity_sh_and_dhw": 3,
+        "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44769,10 +44843,10 @@ def grant_hp_heatpump():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_sh_installed_capacity_just_sh": 3,
         "investment_grant_per_kw_15_kw": 1,
-        "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_just_sh": 3,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44804,14 +44878,14 @@ def grant_hp_hpst():
         "emissions_per_capacity_installed": 15,
         "lifetime": 15,
         "technology_sh_installed_capacity_just_sh": 4,
-        "annual_sh_demand": 11,
         "emissions_per_kwh_carrier_used": 11,
+        "annual_sh_demand": 11,
+        "annual_dhw_demand": 11,
         "efficiency": 10,
         "st_share_of_total_heat_production": 4,
-        "annual_dhw_demand": 11,
+        "technology_sh_installed_capacity_sh_and_dhw": 7,
         "efficiency_dhw_storage": 6,
         "technology_dhw_installed_capacity_sh_and_dhw": 7,
-        "technology_sh_installed_capacity_sh_and_dhw": 7,
     },
 )
 def annual_gwp_heating_solution():
@@ -45434,7 +45508,7 @@ def annualized_total_cost_hs():
     name="Residential electricity cons DHW per building",
     units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annual_dhw_demand": 3,
@@ -45506,8 +45580,8 @@ def economic_utility_hs():
     comp_subtype="Normal",
     depends_on={
         "annual_light_and_appl_demand_by_arch": 4,
-        "efficiency_dhw_storage": 2,
         "annual_sh_demand": 3,
+        "efficiency_dhw_storage": 2,
         "efficiency": 3,
         "annual_dhw_demand": 3,
         "annual_electricity_consumption_per_building_evs": 4,
@@ -45668,7 +45742,7 @@ def annual_dhw_demand():
     name="Residential electricity cons SH per building",
     units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"annual_sh_demand": 3, "efficiency": 3},
 )
@@ -45831,7 +45905,7 @@ def annual_variable_costs_sh():
     name='"Initial grant < 15 kW"',
     units="CHF",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 10},
 )
@@ -45879,7 +45953,7 @@ def initial_grant_15_kw_1():
     name='"Investment grant per kW < 15 kW"',
     units="CHF/kW",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -45939,3 +46013,293 @@ def emissions_per_capacity_installed():
     value.loc[["ST"]] = 221.2
     value.loc[["WoodBoiler"]] = 21.1
     return value
+
+
+@component.add(
+    name="Available PV adoption",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "heating_solution": 1,
+        "time_step": 1,
+        "building_demolition_by_archetype": 1,
+        "buildings_hs_renovation_from": 1,
+    },
+)
+def available_pv_adoption():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(
+        0,
+        heating_solution().loc[:, :, :, :, "PVno", "Bno"].reset_coords(drop=True)
+        / time_step()
+        - np.maximum(
+            0,
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVno", "Bno"]
+            .reset_coords(drop=True),
+        )
+        - np.maximum(
+            0,
+            buildings_hs_renovation_from()
+            .loc[:, :, :, :, "PVno", "Bno"]
+            .reset_coords(drop=True),
+        ),
+    )
+
+
+@component.add(
+    name="Total PV request",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_pv": 1,
+        "requested_owners_adopting_rcp": 1,
+        "requested_owners_adopting_rcpv": 1,
+        "requested_renters_adopting_pv": 1,
+        "requested_renters_adopting_rcp": 1,
+        "requested_renters_adopting_rcpv": 1,
+    },
+)
+def total_pv_request():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return (
+        np.maximum(0, requested_owners_adopting_pv())
+        + np.maximum(0, requested_owners_adopting_rcp())
+        + np.maximum(0, requested_owners_adopting_rcpv())
+        + np.maximum(0, requested_renters_adopting_pv())
+        + np.maximum(0, requested_renters_adopting_rcp())
+        + np.maximum(0, requested_renters_adopting_rcpv())
+    )
+
+
+@component.add(
+    name="Accepted PV adoption",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"available_pv_adoption": 1, "total_pv_request": 1},
+)
+def accepted_pv_adoption():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.minimum(available_pv_adoption(), total_pv_request())
+
+
+@component.add(
+    name="Owners adopting PV",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_pv": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def owners_adopting_pv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Owners adopting RCP",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_rcp": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def owners_adopting_rcp():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Owners adopting RCPv",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_rcpv": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def owners_adopting_rcpv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting PV",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_pv": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def renters_adopting_pv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting RCP",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_rcp": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def renters_adopting_rcp():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting RCPv",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_rcpv": 1,
+        "accepted_pv_adoption": 1,
+        "total_pv_request": 2,
+    },
+)
+def renters_adopting_rcpv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )

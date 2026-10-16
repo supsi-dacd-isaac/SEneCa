@@ -1,0 +1,374 @@
+{
+  "schema": 1,
+  "variant": "v7",
+  "source": "Model (1).zip supplied 2026-10-16",
+  "archive_sha256": "482a6135aa31b76725b65d3423ffc239c051ab362a88387a63b66b5d297bcbdd",
+  "files": {
+    "Energy cost.out": {
+      "sha256": "4d5d7d0db5e859e527b1e7882e8f99b90dc62c6afb059c68461919c84ee64c44",
+      "assignments": 1
+    },
+    "PV power.out": {
+      "sha256": "f8544b38675ec2f1e5b28cb72cb30833ffd05fcd32fd5ef07a810430107a3c21",
+      "assignments": 3
+    },
+    "Renovation.out": {
+      "sha256": "05fc358e406bc1dd8d5e2753d843e819d0b40e40adf607b6e4a9baa8ba0c1e49",
+      "assignments": 26
+    },
+    "PV and Battery and HS and HP.out": {
+      "sha256": "e863dda19a0dc601e96e0363af6ad0d9aee359ad4920a159c4cb1deee173d416",
+      "assignments": 18
+    },
+    "Vehicle.out": {
+      "sha256": "dd8ae4f8a6aee91c6e77b69e1c1b583ea8dda4c12f0e9ef6aebfc3f6643cf022",
+      "assignments": 8
+    }
+  },
+  "assignments": 56,
+  "groups": 33,
+  "precision": "Decimal values from OUT loaded as Float64; no recalibration performed",
+  "parameters": {
+    "\"Delta 30 - 100 kW\"": {
+      "dims": [],
+      "coords": {},
+      "values": -4.47358
+    },
+    "\"Delta > 100 kW\"": {
+      "dims": [],
+      "coords": {},
+      "values": -4.73963
+    },
+    "Alpha Type": {
+      "dims": [
+        "Type"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ]
+      },
+      "values": [
+        0.0,
+        0.0,
+        -0.659401
+      ]
+    },
+    "Alpha battery": {
+      "dims": [],
+      "coords": {},
+      "values": 1.4747
+    },
+    "Alpha battery Type": {
+      "dims": [
+        "Type"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ]
+      },
+      "values": [
+        -0.650305,
+        0.0,
+        -2.28661
+      ]
+    },
+    "Alpha old": {
+      "dims": [],
+      "coords": {},
+      "values": -1.76831
+    },
+    "Annual V available weight": {
+      "dims": [],
+      "coords": {},
+      "values": 2.48396
+    },
+    "Coeff High": {
+      "dims": [
+        "Type",
+        "Performance"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ],
+        "Performance": [
+          "VeryLow",
+          "Low",
+          "Moderate",
+          "High",
+          "VeryHigh"
+        ]
+      },
+      "values": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          3.36,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          3.36,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          5.28086,
+          0.0
+        ]
+      ]
+    },
+    "Coeff Low": {
+      "dims": [
+        "Type",
+        "Performance"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ],
+        "Performance": [
+          "VeryLow",
+          "Low",
+          "Moderate",
+          "High",
+          "VeryHigh"
+        ]
+      },
+      "values": [
+        [
+          0.0,
+          5.62286,
+          1.58866,
+          -0.628445,
+          -4.25396
+        ],
+        [
+          0.0,
+          5.62286,
+          1.58866,
+          -0.628445,
+          -4.25396
+        ],
+        [
+          0.0,
+          11.7735,
+          5.54908,
+          -0.12553,
+          -6.86471
+        ]
+      ]
+    },
+    "Coeff Moderate": {
+      "dims": [
+        "Type",
+        "Performance"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ],
+        "Performance": [
+          "VeryLow",
+          "Low",
+          "Moderate",
+          "High",
+          "VeryHigh"
+        ]
+      },
+      "values": [
+        [
+          0.0,
+          0.0,
+          4.47645,
+          1.476,
+          -2.40767
+        ],
+        [
+          0.0,
+          0.0,
+          4.47645,
+          1.476,
+          -2.40767
+        ],
+        [
+          0.0,
+          0.0,
+          7.40086,
+          1.5834,
+          -5.44207
+        ]
+      ]
+    },
+    "Coeff VeryLow": {
+      "dims": [
+        "Type",
+        "Performance"
+      ],
+      "coords": {
+        "Type": [
+          "SFH",
+          "DFH",
+          "MFH"
+        ],
+        "Performance": [
+          "VeryLow",
+          "Low",
+          "Moderate",
+          "High",
+          "VeryHigh"
+        ]
+      },
+      "values": [
+        [
+          5.0367,
+          3.4674,
+          -1.75271,
+          -3.50107,
+          -6.63161
+        ],
+        [
+          5.0367,
+          3.4674,
+          -1.75271,
+          -3.50107,
+          -6.63161
+        ],
+        [
+          23.9471,
+          14.5418,
+          5.38603,
+          -0.0840068,
+          -6.40669
+        ]
+      ]
+    },
+    "Double Tech weight": {
+      "dims": [],
+      "coords": {},
+      "values": 2.24336
+    },
+    "Dummy BEV": {
+      "dims": [],
+      "coords": {},
+      "values": -0.130848
+    },
+    "Dummy HEV": {
+      "dims": [],
+      "coords": {},
+      "values": 0.744718
+    },
+    "Dummy PHEV": {
+      "dims": [],
+      "coords": {},
+      "values": 2.0
+    },
+    "Dummy Petrol": {
+      "dims": [],
+      "coords": {},
+      "values": 1.61673
+    },
+    "Economic Utility V weight": {
+      "dims": [],
+      "coords": {},
+      "values": -3.32245
+    },
+    "Economic Utility weight": {
+      "dims": [],
+      "coords": {},
+      "values": -1.34438
+    },
+    "Green Utility V weight": {
+      "dims": [],
+      "coords": {},
+      "values": -5.62288
+    },
+    "Green Utility weight": {
+      "dims": [],
+      "coords": {},
+      "values": 0.0
+    },
+    "Grid HS weight": {
+      "dims": [],
+      "coords": {},
+      "values": -1.13113
+    },
+    "HP for PV weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.40756
+    },
+    "House Value Utility PV weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.09761
+    },
+    "House Value weight": {
+      "dims": [],
+      "coords": {},
+      "values": 20.9362
+    },
+    "Import marginal cost dummy variable": {
+      "dims": [],
+      "coords": {},
+      "values": 67.1955
+    },
+    "PE battery weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.38241
+    },
+    "PV Eco weight": {
+      "dims": [],
+      "coords": {},
+      "values": 0.107293
+    },
+    "PV for HP weight": {
+      "dims": [],
+      "coords": {},
+      "values": 2.42349
+    },
+    "PV nonRes Eco weight": {
+      "dims": [],
+      "coords": {},
+      "values": 0.305348
+    },
+    "Peer effect HS weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.52587
+    },
+    "Peer effect V weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.70541
+    },
+    "Primary houses PV weight": {
+      "dims": [],
+      "coords": {},
+      "values": 0.0
+    },
+    "Share of consumers considering PV weight": {
+      "dims": [],
+      "coords": {},
+      "values": 1.62728
+    }
+  }
+}

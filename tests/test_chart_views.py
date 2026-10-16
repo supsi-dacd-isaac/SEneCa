@@ -1,4 +1,6 @@
 """Temporal views preserve model timing, baseline alignment and missing data."""
+import hashlib
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -10,7 +12,7 @@ from streamlit.testing.v1 import AppTest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pv_batteries"))
 from chart_views import historical_series, transform_series
 from sd_explainer.loaders import load_calibration_series
-from sd_explainer.paths import IMAGE_WORKSHOP, PV_INPUT_CSV
+from sd_explainer.paths import IMAGE_WORKSHOP, PV_INPUT_CSV, SIM_ADOPTIONS_CSV
 
 
 class TemporalViewsTests(unittest.TestCase):
@@ -69,9 +71,20 @@ render_echarts_line(df, {'base':'PV', 'kind':'line', 'title':'PV', 'unit':'MW',
         rows = [f"Adoption PV Type[{t}]" for t in ("SFH", "DFH", "MFH")]
         expected = raw.loc[rows, years].astype(float).sum().tolist()
         self.assertEqual(series["Osservato"], expected)
-        self.assertEqual(series["Osservato"][-1], 2389.)
-        self.assertEqual(sum(series["Osservato"]), 13094.)
+        self.assertEqual(series["Osservato"][-1], 2400.)
+        self.assertEqual(sum(series["Osservato"]), 12967.)
         self.assertNotEqual(series["Simulato"][-1], series["Osservato"][-1])
+
+    def test_calibration_plot_belongs_to_the_current_model_and_calibration(self):
+        from sure_julia.common import MODEL_REVISION, model_sources
+        audit = json.loads(SIM_ADOPTIONS_CSV.with_suffix('.json').read_text())
+        self.assertEqual(audit['model_revision'], MODEL_REVISION)
+        self.assertEqual(audit['model_sources'], model_sources())
+        self.assertEqual(audit['csv_sha256'], hashlib.sha256(SIM_ADOPTIONS_CSV.read_bytes()).hexdigest())
+        self.assertEqual(audit['validated_python_outputs_exact'], 137)
+        self.assertTrue(audit['validated_julia_comparison_pass'])
+        frame = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
+        self.assertEqual(list(frame.index), list(range(2011, 2025)))
 
     def test_workshop_asset_name_matches_case_on_linux(self):
         self.assertIn(IMAGE_WORKSHOP.name, [p.name for p in IMAGE_WORKSHOP.parent.iterdir()])

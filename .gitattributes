@@ -4,3 +4,8 @@
 *.pdf binary
 *.pkl binary
 *.xlsx binary
+# Preserve the received calibration bytes for provenance checks.
+Vensim/calibration/*.out -text
+# CSV input and calibration-curve hashes use the canonical LF checkout bytes.
+Vensim/*_pysd_v7.csv text eol=lf
+content/system_dynamics/plots_data/calibration_sim_adoptions_v7.csv text eol=lf

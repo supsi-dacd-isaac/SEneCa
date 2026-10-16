@@ -211,7 +211,8 @@ def main():
         raise SystemExit("Interrotto: risolvere i problemi sopra prima di tradurre.")
 
     remaining = new_text.count("GET VDF DATA")
-    out_mdl.write_text(new_text, encoding=ENC)
+    newline = "\r\n" if b"\r\n" in SRC_MDL.read_bytes() else "\n"
+    out_mdl.write_text(new_text, encoding=ENC, newline=newline)
     print(f"\nScritto {out_mdl}")
     print(f"Occorrenze 'GET VDF DATA' rimaste: {remaining}")
     if remaining:

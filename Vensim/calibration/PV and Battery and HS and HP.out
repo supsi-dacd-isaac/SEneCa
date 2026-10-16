@@ -1,0 +1,53 @@
+:COMSYS After 1984 simulations
+:COMSYS Best payoff is -642310
+:COMSYS Normally terminated optimization
+:OPTIMIZER=Powell
+:SENSITIVITY=Off
+:MULTIPLE_START=Off
+:RANDOM_NUMBER=Default
+:OUTPUT_LEVEL=On
+:TRACE=Off
+:MAX_ITERATIONS=1000
+:RESTART_MAX=3
+:PASS_LIMIT=2
+:FRACTIONAL_TOLERANCE=0.0003
+:TOLERANCE_MULTIPLIER=21
+:ABSOLUTE_TOLERANCE=1
+:SCALE_ABSOLUTE=1
+:VECTOR_POINTS=25
+:MCLIMIT=0
+:MCJUMP=0.05
+:MCBURNIN=0
+:MCDELTA=0.0001
+:MCTEMP=1
+:MCNCHAINS=2
+:MCUPDATEPAIRS=2
+:MCSCHEDULE=0
+:MCOUTLIER=0.05
+:MCXOVER=0.2
+:MCCOOLING=1000
+:MCINITMETHOD=0
+:MCPAYOFFTYPE=0
+:MCGAMMA=1
+:MCRECORD=0
+:MCKNN=0
+:MCEPSILON=0.01
+:MCFTEMP=1
+-8 <= Alpha old = -1.76831  <= 0
+0 <= Share of consumers considering PV weight = 1.62728  <= 5
+0 <= PV Eco weight = 0.107293  <= 1
+0 <= House Value Utility PV weight = 1.09761  <= 20
+-5 <= Primary houses PV weight = 0  <= 0
+0 <= HP for PV weight = 1.40756  <= 2
+0 <= Peer effect HS weight = 1.52587  <= 10
+-10 <= Economic Utility weight = -1.34438  <= 0
+-5 <= Green Utility weight = 0  <= 0
+0 <= Double Tech weight = 2.24336  <= 5
+0 <= PV for HP weight = 2.42349  <= 5
+0 <= House Value weight = 20.9362  <= 40
+-2 <= Alpha Type[MFH] = -0.659401  <= 0
+-5 <= Grid HS weight = -1.13113  <= 0
+-10 <= Alpha battery = 1.4747  <= 10
+0 <= PE battery weight = 1.38241  <= 10
+-10 <= Alpha battery Type[SFH] = -0.650305  <= 10
+-10 <= Alpha battery Type[MFH] = -2.28661  <= 10

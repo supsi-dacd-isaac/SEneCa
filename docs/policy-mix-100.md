@@ -40,7 +40,7 @@ Usare un checkout dedicato sul branch `policy-mix-100`, dal commit main
 Il runner richiede 32 core fisici e un limite di memoria di 128 GiB:
 
 ```sh
-sh scripts/prepare_policy_mix.sh policy-mix-100-001
+sh scripts/prepare_model_release.sh policy-mix-100-001
 ```
 
 Passare `SURE_SOURCE_COMMIT` con il commit del checkout e montare `/app`,

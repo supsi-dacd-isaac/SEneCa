@@ -26,10 +26,16 @@ Uso
 
   # Ritraduzione completa in una nuova variante (non tocca i file esistenti)
   .\\.venv\\Scripts\\python.exe retranslate_sure_pipeline.py --run --variant candidate
+
+  # macOS/Linux: conversione da CSV e costanti gia' esportati (non ricalibra)
+  python retranslate_sure_pipeline.py --run --variant v7 --skip-export \\
+      --reuse-constants constants_ref_v7.pkl
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import re
 import shutil
 import subprocess
@@ -41,37 +47,14 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import sure_paths as paths  # noqa: E402
+from pysd_explore_config import ALL_INPUTS  # noqa: E402
 
 VENSIM = paths.VENSIM
 SRC_MDL = paths.SRC_MDL
-PY = paths.VENV_PY
+PY = Path(sys.executable)
 
-# Input usati dalle pagine Risultati (union delle INPUT_GRID)
-RESULTS_INPUTS = [
-    # PV e Batterie
-    "PV rebate cantonal",
-    "FiT",
-    "Battery Rebate",
-    "PV rebate federal",
-    "PV reg scenario",
-    "Energy Community scenario",
-    # Risanamento
-    "Grant share HP",
-    "Grant share PelletBoiler",
-    "Grant share DH",
-    "Retrofit incentive input",
-    "CO2 tax",
-    "MuKEn scenario",
-    # Veicoli
-    "EV charger incentive input",
-    "CO2 coefficient ICE",
-    "ICE ban year",
-    "EV annual cost reduction input",
-    "ICE fuel price input",
-    # Elettricità (oltre overlap PV)
-    "Seasonal PHS annual production 2050",
-    "Additional annual inflow for Ticino",
-]
+# Input usati dalle pagine Risultati (unione delle INPUT_GRID).
+RESULTS_INPUTS = [item.name for item in ALL_INPUTS]
 
 STEPS = [
     ("pysd_export_vdf.py", "Export .vdfx -> .csv via DLL"),
@@ -84,11 +67,11 @@ STEPS = [
 
 
 def _eq_present(text: str, name: str) -> bool:
-    return bool(re.search(r"(?m)^" + re.escape(name) + r"\s*=", text))
+    return bool(re.search(r'(?m)^"?' + re.escape(name) + r'"?\s*=', text))
 
 
 def _py_present(text: str, name: str) -> bool:
-    return f'name="{name}"' in text
+    return f'name="{name}"' in text or f"name='\"{name}\"'" in text
 
 
 def check_file(path: Path, kind: str) -> dict[str, bool]:
@@ -146,12 +129,21 @@ def backup():
     return bak_dir
 
 
-def run_steps(skip_export=False):
+def run_steps(skip_export=False, reuse_constants=None):
     if not PY.exists():
         raise SystemExit(f"Python venv non trovato: {PY}")
+    if reuse_constants is not None:
+        reuse_constants = Path(reuse_constants).resolve()
+        if not skip_export or not reuse_constants.is_file():
+            raise SystemExit("--reuse-constants richiede --skip-export e un file esistente")
+    elif sys.platform != "win32":
+        raise SystemExit("L'estrazione Vensim richiede Windows. Per tradurre dagli export "
+                         "usare --skip-export --reuse-constants PATH.")
     print(paths.describe(), "\n")
     bak = backup()
-    steps = [s for s in STEPS if not (skip_export and s[0] == "pysd_export_vdf.py")]
+    steps = [s for s in STEPS
+             if not (skip_export and s[0] == "pysd_export_vdf.py")
+             and not (reuse_constants is not None and s[0] == "extract_constants_sure.py")]
     for script, desc in steps:
         path = ROOT / script
         if not path.exists():
@@ -163,6 +155,24 @@ def run_steps(skip_export=False):
         if rc != 0:
             raise SystemExit(f"Fallito {script} (exit {rc})."
                              + (f" Ripristina da {bak}" if bak else ""))
+    if reuse_constants is not None and reuse_constants != paths.const_pkl().resolve():
+        shutil.copy2(reuse_constants, paths.const_pkl())
+    # Provenance records what was translated, not proof of native equivalence
+    # or of calibration validity after changes to the equations.
+    import pysd
+    csv_names = re.findall(r"GET DIRECT DATA\('([^']+)'", paths.pysd_mdl().read_text(encoding="latin-1"))
+    artifacts = [SRC_MDL, paths.pysd_mdl(), paths.pysd_py(), paths.const_pkl()]
+    artifacts += [VENSIM / name for name in sorted(set(csv_names))]
+    manifest = ROOT / "provenance" / f"translation-{paths.variant()}.json"
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(json.dumps({
+        "pysd_version": pysd.__version__,
+        "constants_reused": reuse_constants is not None,
+        "native_validation": "pending",
+        "calibration_validation": "pending",
+        "files": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in artifacts},
+    }, indent=2) + "\n")
     print("\n=== Pipeline completata. Controllo namespace: ===\n")
     print_check()
     print("\nQuesta pipeline prepara solo il sorgente upstream. "
@@ -180,6 +190,9 @@ def main():
                     help="Suffisso degli artefatti generati (es. v2). Default: SURE_VARIANT")
     ap.add_argument("--skip-export", action="store_true",
                     help="Salta l'export .vdfx -> .csv (riusa i CSV gia' presenti)")
+    ap.add_argument("--reuse-constants", type=Path,
+                    help="Con --skip-export, riusa costanti esportate invece della DLL "
+                         "Vensim: traduzione possibile anche su macOS/Linux")
     args = ap.parse_args()
     if args.variant is not None:
         paths.set_variant(args.variant)
@@ -191,7 +204,7 @@ def main():
         print()
         print_check()
     else:
-        run_steps(skip_export=args.skip_export)
+        run_steps(skip_export=args.skip_export, reuse_constants=args.reuse_constants)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
-      SURE_VARIANT: v6
+      SURE_VARIANT: v7
       PYTHONHASHSEED: 0
       OPENBLAS_NUM_THREADS: 1
       OMP_NUM_THREADS: 1
