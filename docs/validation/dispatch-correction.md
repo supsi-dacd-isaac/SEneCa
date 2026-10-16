@@ -1,9 +1,44 @@
+# Diagnosi numerica del dispatch — 16 ottobre 2026
+
+La calibrazione ricevuta è completa: cinque OUT, 56 assegnazioni. Le 54
+assegnazioni già presenti coincidono dopo conversione Float32 con il pickle
+v7; le altre due sono pesi nulli già a zero nel modello. Per la nuova release
+si conservano direttamente i decimali degli OUT in Float64 (33 gruppi).
+
+Con gli stessi input CSV in entrambi i motori, il confronto nativo originale
+passa per la baseline ma conserva 24 celle fuori tolleranza nel caso alto:
+massimo 160,832 kWh nel dispatch e 124,612 kWh nel pompaggio. Arrotondare
+separatamente dati e parametri a Float32 non elimina questi residui.
+
+In una copia diagnostica, le allocazioni sono espresse come minimo tra capacità
+e domanda rimasta dopo i fornitori meno costosi. La distanza minima tra le
+priorità meno la larghezza è 0,4 in tutti gli anni: i rettangoli non si
+sovrappongono, quindi la formula è equivalente nei due casi verificati.
+Il modello diagnostico mantiene in parallelo l’allocatore nativo originale:
+il suo errore locale massimo è 0,634 kWh. Il circuito di importazioni filtrate
+e pompaggio stagionale amplifica questi errori durante l’integrazione.
+
+Con la formula diagnostica, tutti i 12 gruppi di output passano in baseline
+e nel caso alto, senza modificare le soglie. Gli scarti massimi sono
+0,675 kWh nel dispatch e 1,123 kWh nel pompaggio. La conclusione riguarda
+questi due scenari e non certifica l’equivalenza nativa per ogni configurazione.
+Il modello distribuito mantiene `ALLOCATE BY PRIORITY`: la formula diagnostica
+non entra nel runtime. La validazione Python–Julia resta integrale e stretta.
+
+Evidenza: `dispatch-precision-20261016.json`. Gli esperimenti completi sono
+in `dist/dispatch-precision-20261016/`; il pacchetto ricevuto ha SHA256
+`482a6135aa31b76725b65d3423ffc239c051ab362a88387a63b66b5d297bcbdd`.
+HPinput.csv e il VDFX dello ZIP differiscono in 482 celle: per questa release
+il CSV corrente, coerente con la traduzione v7, è la sorgente autorevole.
+
+## Nota originaria del candidato (stato precedente alla diagnosi)
+
 # Dispatch candidate — 16 October 2026
 
 The candidate derives from `7950c321a255a7af966dda1f72e387165bc99336`
 (`sure-v7-pysd-translation`) and integrates the dispatch correction from
 `11bdbcaf79339b34529c2a569af30578600cf795`. The authoritative source is `Vensim/SURE.mdl`.
-Native verification is pending. This branch is not a release or app-runtime update.
+The following sections record the original candidate investigation; current status is above.
 
 ## Changes and rationale
 

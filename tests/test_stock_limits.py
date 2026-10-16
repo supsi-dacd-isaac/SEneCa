@@ -1,4 +1,4 @@
-"""Regression checks against the actual v6 source and physical acceptance gate."""
+"""Regression checks against the actual v7 source and physical acceptance gate."""
 import ast
 from pathlib import Path
 import tempfile
@@ -10,7 +10,7 @@ import numpy as np
 import xarray as xr
 
 from sure_julia.common import MODEL_PY, ROOT
-from sure_julia.pv_budget import FLOWS, corrected_source
+from sure_julia.pv_budget import FLOWS, budget_audit
 from sure_julia.physical import OUTPUTS, check
 
 
@@ -58,17 +58,14 @@ class StockLimitsTests(unittest.TestCase):
                     if demand > 0:
                         np.testing.assert_allclose(a, expected * demand / sum(max(0., d) for d in demands))
 
-    def test_source_patch_preserves_sketch_and_all_original_request_clauses(self):
-        original = (ROOT / "Vensim/SURE_pysd_v6.mdl").read_bytes().decode("latin-1")
-        corrected, clauses = corrected_source(original)
-        marker = "\\\\\\---///"
-        self.assertEqual(original.partition(marker)[2], corrected.partition(marker)[2])
-        self.assertEqual(sum(map(len, clauses.values())), 10)
-        for name, bodies in clauses.items():
-            for body in bodies:
-                self.assertIn("Requested " + name + body, corrected)
+    def test_canonical_source_contains_the_shared_budget(self):
+        native = budget_audit((ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1"))
+        prepared = budget_audit((ROOT / "Vensim/SURE_pysd_v7.mdl").read_text(encoding="latin-1"))
+        self.assertEqual(native, prepared)
+        self.assertEqual(sum(map(len, native["requests"].values())), 10)
+        changed = (ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1").replace("MIN(Available PV adoption", "MAX(Available PV adoption", 1)
         with self.assertRaises(ValueError):
-            corrected_source(corrected)
+            budget_audit(changed)
 
     def test_zero_substitutions_do_not_empty_a_heating_category(self):
         from pysd.py_backend.functions import if_then_else, sum as pysd_sum

@@ -1,0 +1,356 @@
+{
+  "base": {
+    "comparison": [
+      {
+        "variable": "Electricity dispatched",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.274454236148252e-07,
+        "worst": "Electricity dispatched[M5,H9,Solar] @ 2048.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Dispatchable supply by supplier",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.126903784846704e-07,
+        "worst": "Dispatchable supply by supplier[M7,H10,Hydro] @ 2043.0",
+        "atol": 9.999999999999999e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly demand and PHS",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.28587140197212e-07,
+        "worst": "Hourly demand and PHS[M5,H9] @ 2049.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity dispatch balance error",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 2.2204465369377345e-16,
+        "worst": "Electricity dispatch balance error[M11,H6] @ 2023.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Unserved hourly electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.1102230246251563e-16,
+        "worst": "Unserved hourly electricity[M7,H6] @ 2012.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly imported electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.083839993980099e-07,
+        "worst": "Hourly imported electricity[M1,H5] @ 2019.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Seasonal PHS hourly production",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0,
+        "worst": "Seasonal PHS hourly production[M1,H1] @ 2011.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity market price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005000000000165983,
+        "worst": "Electricity market price[M1,H1] @ 2011.0",
+        "atol": 0.00034821499999999997,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Energy price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.417235692916188e-07,
+        "worst": "Energy price[Mendrisio] @ 2031.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.999129464278163e-07,
+        "worst": "Electricity price[Mendrisio] @ 2047.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Power by Type",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005085223913283698,
+        "worst": "Power by Type[SFH] @ 2037.0",
+        "atol": 0.00037211099999999995,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Annual CO2 emissions",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.064686289801834e-07,
+        "worst": "Annual CO2 emissions @ 2027.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      }
+    ],
+    "physical": {
+      "max_balance_error": 1.4399999999636925e-06,
+      "min_dispatch": 0.0,
+      "max_capacity_excess": 0.0,
+      "max_unserved": 1.360000000005801e-06,
+      "pass": true
+    },
+    "nonoverlap_margin_min": 0.4,
+    "allocator_local_max_error": 6.32693e-07,
+    "failed_cells": 0
+  },
+  "high": {
+    "comparison": [
+      {
+        "variable": "Electricity dispatched",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 6.750753430151413e-07,
+        "worst": "Electricity dispatched[M2,H13,Solar] @ 2044.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Dispatchable supply by supplier",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.1448374173106401e-06,
+        "worst": "Dispatchable supply by supplier[M2,H15,PHS] @ 2046.0",
+        "atol": 9.999999999999999e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly demand and PHS",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 6.502695059085184e-07,
+        "worst": "Hourly demand and PHS[M11,H11] @ 2039.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity dispatch balance error",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 2.2204465369377345e-16,
+        "worst": "Electricity dispatch balance error[M11,H6] @ 2023.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Unserved hourly electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.1102230246251563e-16,
+        "worst": "Unserved hourly electricity[M7,H6] @ 2012.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly imported electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.083839993980099e-07,
+        "worst": "Hourly imported electricity[M1,H5] @ 2019.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Seasonal PHS hourly production",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.1232700893037961e-06,
+        "worst": "Seasonal PHS hourly production[M2,H15] @ 2046.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity market price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005000000000165983,
+        "worst": "Electricity market price[M1,H1] @ 2011.0",
+        "atol": 0.00034821499999999997,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Energy price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.9827271190153706e-07,
+        "worst": "Energy price[Mendrisio] @ 2027.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.915941501093535e-07,
+        "worst": "Electricity price[Mendrisio] @ 2044.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Power by Type",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005061597925646311,
+        "worst": "Power by Type[SFH] @ 2028.0",
+        "atol": 0.00045368599999999997,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Annual CO2 emissions",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.839103414921997e-07,
+        "worst": "Annual CO2 emissions @ 2031.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      }
+    ],
+    "physical": {
+      "max_balance_error": 1.429999999968956e-06,
+      "min_dispatch": 0.0,
+      "max_capacity_excess": 0.0,
+      "max_unserved": 1.380000000050785e-06,
+      "pass": true
+    },
+    "nonoverlap_margin_min": 0.4,
+    "allocator_local_max_error": 6.33835e-07,
+    "failed_cells": 0,
+    "both32": [
+      {
+        "variable": "Electricity dispatched",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 9.441914406022045e-07,
+        "worst": "Electricity dispatched[M11,H3,Hydro] @ 2049.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Dispatchable supply by supplier",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 7.82785969294375e-07,
+        "worst": "Dispatchable supply by supplier[M11,H3,PHS] @ 2049.0",
+        "atol": 9.999999999999999e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly demand and PHS",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 6.221762738900516e-07,
+        "worst": "Hourly demand and PHS[M11,H11] @ 2039.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity dispatch balance error",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.6653350246251562e-16,
+        "worst": "Electricity dispatch balance error[M6,H5] @ 2013.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Unserved hourly electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.1102230246251563e-16,
+        "worst": "Unserved hourly electricity[M7,H15] @ 2011.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Hourly imported electricity",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 5.015280087894425e-07,
+        "worst": "Hourly imported electricity[M3,H9] @ 2020.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Seasonal PHS hourly production",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 7.218076221032765e-07,
+        "worst": "Seasonal PHS hourly production[M11,H3] @ 2049.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity market price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005032348632880712,
+        "worst": "Electricity market price[M1,H1] @ 2011.0",
+        "atol": 0.00034821499999999997,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Energy price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 1.9649845700575597e-07,
+        "worst": "Energy price[Mendrisio] @ 2027.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Electricity price",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.933404095242011e-07,
+        "worst": "Electricity price[Mendrisio] @ 2044.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Power by Type",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 0.0005365226969047399,
+        "worst": "Power by Type[SFH] @ 2028.0",
+        "atol": 0.00045368599999999997,
+        "rtol": 0.001
+      },
+      {
+        "variable": "Annual CO2 emissions",
+        "pass": true,
+        "fail_cells": 0,
+        "max_abs": 4.896314595992379e-07,
+        "worst": "Annual CO2 emissions @ 2031.0",
+        "atol": 1e-06,
+        "rtol": 0.001
+      }
+    ]
+  }
+}

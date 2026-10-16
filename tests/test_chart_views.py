@@ -69,8 +69,8 @@ render_echarts_line(df, {'base':'PV', 'kind':'line', 'title':'PV', 'unit':'MW',
         rows = [f"Adoption PV Type[{t}]" for t in ("SFH", "DFH", "MFH")]
         expected = raw.loc[rows, years].astype(float).sum().tolist()
         self.assertEqual(series["Osservato"], expected)
-        self.assertEqual(series["Osservato"][-1], 2389.)
-        self.assertEqual(sum(series["Osservato"]), 13094.)
+        self.assertEqual(series["Osservato"][-1], 2400.)
+        self.assertEqual(sum(series["Osservato"]), 12967.)
         self.assertNotEqual(series["Simulato"][-1], series["Osservato"][-1])
 
     def test_workshop_asset_name_matches_case_on_linux(self):

@@ -33,7 +33,7 @@ def rectangular(request, costs, demand, width=.1):
 
 
 def cases():
-    rows = np.load(ROOT / 'Vensim_test_runs/gap_base_vectors.npy', allow_pickle=False)
+    rows = np.load(ROOT / 'model_checks/dispatch_vectors.npy', allow_pickle=False)
     result = []
     costs = np.array([2, 1, 10, 11, 32, 157.2, 31.5, 55, 12.])
     for year, hour, month, residual, old_import, import_cost, demand, *q in rows:

@@ -1,11 +1,14 @@
-# PySD 3.14.3 _allocate_by_priority_1d, used by the published v4 wrapper
-# for rectangular profiles of one common width. The old rectangular solver
-# remains the explicit fallback, as in SURE_pysd_v4.py.
-function sure_v4_priority(request, priority, width, supply)
+# Common-width priority allocation matching PySD 3.14.3 in Float64.
+# The endpoint guard is shared with the canonical Python reference.
+function seneca_priority(request, priority, width, supply)
     width > 0 || error("Allocation width must be positive")
     supply >= 0 || error("Allocation supply must be nonnegative")
     q = max.(Float64.(request), 0.0)
-    supply >= seneca_numpy_sum(q) && return q
+    total = seneca_numpy_sum(q)
+    if supply < total && total - supply <= 4eps(total)
+        supply = total
+    end
+    supply >= total && return q
     supply == 0 && return zeros(length(q))
     indices = findall(!iszero, q)
     # SURE has fewer than sixteen suppliers. NumPy's indirect quicksort uses
@@ -49,13 +52,31 @@ function seneca_allocate_available(request, pp, available)
     end
     width = only(widths)
     if ndims(request) == 1
-        return sure_v4_priority(request, pp[:, 2], width, available)
+        return seneca_priority(request, pp[:, 2], width, available)
     end
     size(available) == size(request)[1:end-1] || error("Availability shape mismatch")
     result = similar(request, Float64)
     for idx in CartesianIndices(available)
         prefix = Tuple(idx)
-        result[prefix..., :] = sure_v4_priority(request[prefix..., :], pp[:, 2], width, available[idx])
+        result[prefix..., :] = seneca_priority(request[prefix..., :], pp[:, 2], width, available[idx])
+    end
+    return result
+end
+
+
+function seneca_allocate_by_priority(request, priority, count, width, available)
+    ndims(priority) == 1 || error("Expected one shared Supplier priority vector")
+    length(priority) == size(request, ndims(request)) == count || error("Supplier count mismatch")
+    width isa Real || error("Expected the scalar common priority width")
+    all(request .>= 0) || error("Negative dispatchable capacity")
+    if ndims(request) == 1
+        return seneca_priority(request, priority, width, available)
+    end
+    size(available) == size(request)[1:end-1] || error("Availability shape mismatch")
+    result = similar(request, Float64)
+    for idx in CartesianIndices(available)
+        prefix = Tuple(idx)
+        result[prefix..., :] = seneca_priority(request[prefix..., :], priority, width, available[idx])
     end
     return result
 end

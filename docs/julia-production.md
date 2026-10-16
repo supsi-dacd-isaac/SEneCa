@@ -1,6 +1,6 @@
-# SURE v6 production backend
+# SURE v7 production backend
 
-The supported model is `sure-v6-pv-budget-2`. Its retained validation evidence
+The supported model is `sure-v7-dispatch-1`. Its retained validation evidence
 is under `docs/validation/`; small-model regression fixtures are under
 `model_checks/`. Obsolete models and experiment runners are available in
 the Git history at `v0.3.1`, not in the current checkout. See the
@@ -9,8 +9,8 @@ the Git history at `v0.3.1`, not in the current checkout. See the
 ## Execution contract
 
 `SURE_BACKEND=julia` is the application default; `SURE_BACKEND=python`
-selects the independent PySD 3.14.3 implementation. Both use the v6 equations
-from commit `9080f62` plus the shared PV source budget `sure-v6-pv-budget-2`,
+selects the independent PySD 3.14.3 implementation. Both use the canonical v7 equations
+including the FER, shared PV budget and priority dispatch corrections,
 calibrated constants, synchronous pre-step DELAY FIXED inputs, Float64 and
 fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
@@ -27,16 +27,13 @@ for the full suite have not been supplied. The release criteria are the
 completed Python–Julia validation, physical checks and audited regeneration.
 See [the native handoff](validation/PV_BUDGET_VENSIM.md).
 
-`PYTHONHASHSEED=0 python -m sure_julia.pv_budget` generates both corrected MDL copies and the
-Python reference. `--check` regenerates in a temporary directory and verifies
-all artifacts. The six original requests (ten clauses, including EXCEPT) are
-preserved under `Requested ...`; one common proportional factor caps their
-sum to stock/TIME STEP after demolition and renovation. No stock is clipped.
-The original v6 files, lifetime fallback and equipped-building demolition
-equations are preserved. Existing PySD self-reference and allocation fixes
-are applied automatically, with their hashes recorded.
+`python -m sure_julia.pv_budget --check` verifies that the canonical native and
+preprocessed v7 sources contain the same shared PV budget. It does not generate
+another model. `python scripts/import_calibration.py --check` verifies the 56
+OUT assignments and their Float64 export. Native precision diagnosis and its
+limits are documented in [the dispatch report](validation/dispatch-correction.md).
 
-The policy-mix update uses `sh scripts/prepare_policy_mix.sh <new-run-id>`:
+The policy-mix update uses `sh scripts/prepare_model_release.sh <new-run-id>`:
 418 validation cases, serial/parallel pilots, 14,571 unique simulations and
 the final data audit. It has no publication, merge or deployment step. Its
 final status is `ready-for-release`. See the
@@ -49,15 +46,15 @@ the host because the worktree's Git administration directory is not mounted
 inside the container:
 
 ```sh
-task_source_commit=$(git -C /ssd2/elettra/seneca-policy-mix-100 rev-parse HEAD)
-docker run -d --init --name seneca-policy-mix-100-new \
+task_source_commit=$(git -C /ssd2/elettra/seneca-v7-release rev-parse HEAD)
+docker run -d --init --name seneca-v7-release-new \
   --cpuset-cpus=0-31 --memory=128g --memory-swap=128g \
   -e SURE_SOURCE_COMMIT="$task_source_commit" \
-  -v /ssd2/elettra/seneca-policy-mix-100:/app \
+  -v /ssd2/elettra/seneca-v7-release:/app \
   -v /ssd2/elettra/seneca-runtime:/runtime \
   -v /ssd2/elettra/seneca-runs:/runs \
   seneca-julia-runtime:production sh -c \
-  'cd /app && sh scripts/prepare_policy_mix.sh policy-mix-100-new > /runs/policy-mix-100-new-launch.log 2>&1'
+  'cd /app && sh scripts/prepare_model_release.sh policy-mix-100-new > /runs/policy-mix-100-new-launch.log 2>&1'
 ```
 
 Progress, exit status and memory samples are written under `/runs/<run-id>`.
@@ -103,7 +100,7 @@ directory. Model and data identity are part of the bounded web result cache.
 
 ## Elettra
 
-The current worktree is `/ssd2/elettra/seneca-policy-mix-100`, with runtime/depot
+The current worktree is `/ssd2/elettra/seneca-v7-release`, with runtime/depot
 in `/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
 The earlier model worktree is `/ssd2/elettra/seneca-julia-production`;
 `/home/elettra/projects/SEneCa` manages the production deployment on `main`.
@@ -167,7 +164,7 @@ dataset.
 
 For the previous `v0.1.1` image, also restore its model selection:
 `SENECA_IMAGE_TAG=v0.1.1 SURE_VARIANT=v3 SURE_BACKEND=python docker compose -f docker-compose.prod.yml up -d`.
-Current images require v6; the variant override exists to make old-image
+The new images require v7; the variant override exists to make old-image
 rollback explicit, not to run the production Julia backend against v3.
 
 ## Historical investigations
@@ -177,7 +174,7 @@ experimental correction are retained in the
 [v0.3.1 archive](https://github.com/supsi-dacd-isaac/SEneCa/tree/v0.3.1/benchmarks).
 They are not supported simulation alternatives. Current validation uses the
 fixtures in `model_checks/` and production translator helpers directly, including
-the allocation oracle extracted from `SURE_pysd_v6_pvbounded.py`.
+the allocation oracle extracted from `SURE_pysd_v7.py`.
 
 To audit a newly regenerated dataset:
 

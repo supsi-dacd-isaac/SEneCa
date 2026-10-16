@@ -52,8 +52,13 @@ SHA_RE = re.compile(r"[0-9a-f]{64}\Z")
 
 
 def data_paths(tag: str) -> tuple[str, ...]:
-    """Keep the immutable v1.0.0 archive readable; later releases add provenance."""
-    return DATA_PATHS if tag == "data-v1.0.0" else DATA_PATHS + PROVENANCE_PATHS
+    """Read historical archives unchanged; v2 omits the obsolete published model."""
+    if tag == "data-v1.0.0":
+        return DATA_PATHS
+    paths = DATA_PATHS
+    if int(tag.removeprefix("data-v").split(".")[0]) >= 2:
+        paths = tuple(p for p in paths if p != "Vensim/SURE.vpmx")
+    return paths + PROVENANCE_PATHS
 
 
 def sha256_file(path: Path) -> str:

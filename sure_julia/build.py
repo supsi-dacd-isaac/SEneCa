@@ -78,13 +78,13 @@ def build(target):
             parsed = VensimFile(target / MODEL_MDL.name, encoding="latin-1")
             parsed.parse()
             abstract = parsed.get_abstract_model()
-            original_source = VensimFile(ROOT / "Vensim/SURE_pysd_v6.mdl", encoding="latin-1")
+            original_source = VensimFile(ROOT / "Vensim/SURE.mdl", encoding="latin-1")
             original_source.parse()
             old_elements = {e.name: e for s in original_source.get_abstract_model().sections for e in s.elements}
             new_elements = {e.name: e for s in abstract.sections for e in s.elements}
             request_audit = []
             for name in FLOWS:
-                old, new = old_elements[name].components, new_elements["Requested " + name].components
+                old, new = old_elements["Requested " + name].components, new_elements["Requested " + name].components
                 if len(old) != len(new) or any(repr(a.ast) != repr(b.ast) or a.subscripts != b.subscripts
                                               for a, b in zip(old, new)):
                     raise ValueError(f"Original PV request/EXCEPT clauses changed: {name}")
@@ -108,7 +108,7 @@ def build(target):
             raise ValueError(f"Unapplied parameters: {sorted(missing)}")
         generated, fields = transform(path.read_text(), list(scenario), scenario)
         generated = replace_once(generated, "function seneca_allocate_available(request, pp, available)", "function sure_v3_allocate_available(request, pp, available)")
-        generated += "\n" + (CONFIG / "allocation_v4.jl").read_text()
+        generated += "\n" + (CONFIG / "priority_allocation.jl").read_text()
         model = target / "SURE.jl"
         model.write_text(generated)
         namespace = builder.sections[0].namespace.namespace

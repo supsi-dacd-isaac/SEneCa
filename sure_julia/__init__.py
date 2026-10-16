@@ -1,1 +1,1 @@
-"""Pinned SURE v6 translation and execution backends."""
+"""Pinned SURE v7 translation and execution backends."""

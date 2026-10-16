@@ -16,7 +16,7 @@ RUN git clone https://github.com/SDXorg/pysd.git /opt/pysd && \
     git -C /opt/pysd -c submodule.pysd/builders/julia/PySD.jl.url=https://github.com/rogersamso/PySD.jl.git submodule update --init pysd/builders/julia/PySD.jl && \
     test "$(git -C /opt/pysd/pysd/builders/julia/PySD.jl rev-parse HEAD)" = abe4251fe91734f83776a9c782088d3a2f09dc57 && \
     python -m venv --system-site-packages /opt/translator && /opt/translator/bin/pip install --no-deps -e /opt/pysd
-ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 SURE_VARIANT=v6 JULIA_DEPOT_PATH=/runtime/julia-depot
+ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 SURE_VARIANT=v7 JULIA_DEPOT_PATH=/runtime/julia-depot
 WORKDIR /app
 
 FROM runtime AS model-builder
@@ -28,7 +28,7 @@ RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instanti
 COPY sure_julia /app/sure_julia
 COPY Vensim /app/Vensim
 COPY pv_batteries/__init__.py pv_batteries/*_config.py /app/pv_batteries/
-COPY constants_ref_v6.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py /app/
+COPY constants_ref_v7.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py /app/
 RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 
 FROM runtime AS application

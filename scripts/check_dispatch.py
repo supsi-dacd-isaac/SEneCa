@@ -100,7 +100,7 @@ def fixture(native_path=None):
     ref.to_csv(DEST / 'fixture_expected.csv', index_label='Time')
     ref = ref.drop(columns='case')
     if native_path:
-        from Vensim_test_runs._validate_coherence import Vensim
+        from model_checks.vensim_windows import Vensim
         ven = Vensim(native_path)
         run = str(DEST / 'native_fixture')
         ven._cmd(f'SIMULATE>RUNNAME|{run}')
@@ -152,7 +152,7 @@ def full_runs(native_path=None):
         item = {'python_physical': check_physical(df)}
         item['pass'] = item['python_physical']['pass']
         if native_path:
-            from Vensim_test_runs._validate_coherence import Vensim
+            from model_checks.vensim_windows import Vensim
             # Reload the package for each scenario; no SETVAL leaks.
             ven = Vensim(native_path)
             run = str(DEST / f'{name}.native')

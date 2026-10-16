@@ -73,6 +73,13 @@ class DataReleaseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             data_release.verify_installed(destination, pin)
 
+    def test_v2_excludes_obsolete_model_without_changing_historical_archives(self):
+        with patch.object(data_release, "DATA_PATHS", (self.relative, "Vensim/SURE.vpmx")):
+            self.assertIn("Vensim/SURE.vpmx", data_release.data_paths("data-v1.2.0"))
+            self.assertNotIn("Vensim/SURE.vpmx", data_release.data_paths("data-v2.0.0"))
+            self.assertIn(self.relative, data_release.data_paths("data-v2.0.0"))
+            self.assertIn("provenance/build.json", data_release.data_paths("data-v2.0.0"))
+
     def test_missing_and_lfs_pointer_are_rejected(self) -> None:
         self.file.unlink()
         with self.assertRaisesRegex(ValueError, "mancante"):
