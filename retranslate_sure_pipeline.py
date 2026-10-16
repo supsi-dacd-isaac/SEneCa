@@ -41,37 +41,14 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import sure_paths as paths  # noqa: E402
+from pysd_explore_config import ALL_INPUTS  # noqa: E402
 
 VENSIM = paths.VENSIM
 SRC_MDL = paths.SRC_MDL
 PY = paths.VENV_PY
 
-# Input usati dalle pagine Risultati (union delle INPUT_GRID)
-RESULTS_INPUTS = [
-    # PV e Batterie
-    "PV rebate cantonal",
-    "FiT",
-    "Battery Rebate",
-    "PV rebate federal",
-    "PV reg scenario",
-    "Energy Community scenario",
-    # Risanamento
-    "Grant share HP",
-    "Grant share PelletBoiler",
-    "Grant share DH",
-    "Retrofit incentive input",
-    "CO2 tax",
-    "MuKEn scenario",
-    # Veicoli
-    "EV charger incentive input",
-    "CO2 coefficient ICE",
-    "ICE ban year",
-    "EV annual cost reduction input",
-    "ICE fuel price input",
-    # Elettricità (oltre overlap PV)
-    "Seasonal PHS annual production 2050",
-    "Additional annual inflow for Ticino",
-]
+# Input usati dalle pagine Risultati (unione delle INPUT_GRID).
+RESULTS_INPUTS = [item.name for item in ALL_INPUTS]
 
 STEPS = [
     ("pysd_export_vdf.py", "Export .vdfx -> .csv via DLL"),
@@ -84,11 +61,11 @@ STEPS = [
 
 
 def _eq_present(text: str, name: str) -> bool:
-    return bool(re.search(r"(?m)^" + re.escape(name) + r"\s*=", text))
+    return bool(re.search(r'(?m)^"?' + re.escape(name) + r'"?\s*=', text))
 
 
 def _py_present(text: str, name: str) -> bool:
-    return f'name="{name}"' in text
+    return f'name="{name}"' in text or f"name='\"{name}\"'" in text
 
 
 def check_file(path: Path, kind: str) -> dict[str, bool]:

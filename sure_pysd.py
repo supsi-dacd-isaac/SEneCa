@@ -102,28 +102,14 @@ def _live_output_bases():
 
 LIVE_OUTPUTS = _live_output_bases()
 
-# Leve scenario allineate alle pagine Risultati (esclusi da constants_ref)
-SCENARIO_INPUTS = [
-    "PV rebate cantonal",
-    "FiT",
-    "Battery Rebate",
-    "PV rebate federal",
-    "PV reg scenario",
-    "Energy Community scenario",
-    "Grant share HP",
-    "Grant share PelletBoiler",
-    "Grant share DH",
-    "Retrofit incentive input",
-    "CO2 tax",
-    "MuKEn scenario",
-    "EV charger incentive input",
-    "CO2 coefficient ICE",
-    "ICE ban year",
-    "EV annual cost reduction input",
-    "ICE fuel price input",
-    "Seasonal PHS annual production 2050",
-    "Additional annual inflow for Ticino",
-]
+# Leve scenario allineate alle quattro pagine Risultati. La lista deriva dalla
+# stessa configurazione usata dalla web app.
+def _results_scenario_inputs() -> list[str]:
+    from pysd_explore_config import ALL_INPUTS
+    return [item.name for item in ALL_INPUTS]
+
+
+SCENARIO_INPUTS = _results_scenario_inputs()
 
 
 def _output_closure_vars(model, outputs=None):

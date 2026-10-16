@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from pysd.py_backend.functions import vmin, if_then_else, sum, vmax
+from pysd.py_backend.functions import vmax, vmin, if_then_else, sum
 from pysd.py_backend.statefuls import DelayFixed, Integ, Smooth
 from pysd.py_backend.external import ExtData
 from pysd.py_backend.allocation import (
@@ -37,6 +37,8 @@ def allocate_available(request, pp, avail):  # allocate_nonneg: wrapper
     w = float(widths[0])
     width_b = (xr.zeros_like(avail) + w) if hasattr(avail, "dims") else w
     return _pysd_allocate_by_priority(request, priority, width_b, avail)
+
+
 from pysd import Component
 
 __pysd_version__ = "3.14.3"
@@ -247,25 +249,443 @@ def time_step():
 
 
 @component.add(
-    name="Owners adopting RCP",
+    name="PV SC check",
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_sc_computed": 1},
+)
+def pv_sc_check():
+    return (
+        sum(
+            pv_hourly_sc_computed().rename({"Month": "Month!", "Hour": "Hour!"}),
+            dim=["Month!", "Hour!"],
+        )
+        * 365
+        / 12
+    )
+
+
+@component.add(
+    name="Hourly electricity grid demand",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_sc_computed": 2, "hourly_electricity_demand": 2},
+)
+def hourly_electricity_grid_demand():
+    return if_then_else(
+        pv_hourly_sc_computed() < hourly_electricity_demand(),
+        lambda: hourly_electricity_demand() - pv_hourly_sc_computed(),
+        lambda: xr.DataArray(
+            0,
+            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
+            ["Month", "Hour"],
+        ),
+    )
+
+
+@component.add(
+    name="Hourly el demand with PV",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"hourly_electricity_demand": 1, "share_of_buildings_with_pv": 1},
+)
+def hourly_el_demand_with_pv():
+    return hourly_electricity_demand() * share_of_buildings_with_pv()
+
+
+@component.add(
+    name="PV hour SC",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_hourly_production": 1, "hourly_el_demand_with_pv": 1},
+)
+def pv_hour_sc():
+    return np.minimum(pv_hourly_production(), hourly_el_demand_with_pv())
+
+
+@component.add(
+    name="PV Hourly SC computed",
+    subscripts=["Month", "Hour"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"total_pv_electricity_sc": 1, "pv_hour_sc": 2},
+)
+def pv_hourly_sc_computed():
+    return (
+        total_pv_electricity_sc()
+        * pv_hour_sc()
+        / sum(
+            pv_hour_sc().rename({"Month": "Month!", "Hour": "Hour!"}),
+            dim=["Month!", "Hour!"],
+        )
+        / (365 / 12)
+    )
+
+
+@component.add(
+    name="Building demolition by archetype",
+    subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"res_verylow_demolition": 1, "share_hs_by_archetype": 1},
+)
+def building_demolition_by_archetype():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+            "Battery": _subscript_dict["Battery"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
+    )
+    value.loc[:, :, ["VeryLow"], :, :, :] = (
+        (
+            res_verylow_demolition()
+            * share_hs_by_archetype()
+            .loc[:, :, "VeryLow", :, :, :]
+            .reset_coords(drop=True)
+            .transpose("District", "Type", "HS", "PVpanel", "Battery")
+        )
+        .transpose("District", "HS", "Type", "PVpanel", "Battery")
+        .expand_dims({"PerformanceLow": ["VeryLow"]}, 2)
+        .values
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, :, ["VeryLow"], :, :, :] = False
+    value.values[except_subs.values] = 0
+    return value
+
+
+@component.add(
+    name="Total PV kWh SC",
+    units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_total_pv_kwh_sc": 1},
+    other_deps={
+        "_integ_total_pv_kwh_sc": {
+            "initial": {},
+            "step": {"additional_annual_pv_kwh_sc": 1, "pv_kwh_sc_demolished": 1},
+        }
+    },
+)
+def total_pv_kwh_sc():
+    return _integ_total_pv_kwh_sc()
+
+
+_integ_total_pv_kwh_sc = Integ(
+    lambda: additional_annual_pv_kwh_sc() - pv_kwh_sc_demolished(),
+    lambda: xr.DataArray(
+        0,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+        },
+        ["District", "HS", "Performance", "Type"],
+    ),
+    "_integ_total_pv_kwh_sc",
+)
+
+
+@component.add(
+    name="PV kW installed Residential",
+    units="kW",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_pv_kw_installed_residential": 1},
+    other_deps={
+        "_integ_pv_kw_installed_residential": {
+            "initial": {"initial_kwp_installed_by_archetype": 1},
+            "step": {"annual_pv_kw_installation": 1, "pv_kw_residential_demolished": 1},
+        }
+    },
+)
+def pv_kw_installed_residential():
+    return _integ_pv_kw_installed_residential()
+
+
+_integ_pv_kw_installed_residential = Integ(
+    lambda: annual_pv_kw_installation() - pv_kw_residential_demolished(),
+    lambda: initial_kwp_installed_by_archetype(),
+    "_integ_pv_kw_installed_residential",
+)
+
+
+@component.add(
+    name="Annual CO2 tax archetype",
+    units="CHF",
+    subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "annual_dhw_demand": 2,
+        "heating_solution": 6,
+        "annual_heating_degree_days_coefficient": 4,
+        "annual_sh_demand": 4,
+        "efficiency": 4,
+        "co2_tax": 4,
+    },
+)
+def annual_co2_tax_archetype():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+            "PVpanel": _subscript_dict["PVpanel"],
+        },
+        ["District", "HS", "Performance", "Type", "PVpanel"],
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, _subscript_dict["NonRenSolution"], :, :, :] = False
+    value.values[except_subs.values] = 0
+    value.loc[:, ["Oil"], :, :, :] = (
+        (
+            (
+                annual_dhw_demand()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Oil", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                ).transpose("District", "Type", "Performance", "PVpanel")
+                + (
+                    annual_sh_demand()
+                    * annual_heating_degree_days_coefficient()
+                    * sum(
+                        heating_solution()
+                        .loc[:, "Oil", :, :, :, :]
+                        .reset_coords(drop=True)
+                        .rename({"Battery": "Battery!"}),
+                        dim=["Battery!"],
+                    )
+                ).transpose("District", "Type", "Performance", "PVpanel")
+            )
+            / float(efficiency().loc["OilBoiler"])
+            * co2_tax()
+            * 0.00026532
+        )
+        .transpose("District", "Performance", "Type", "PVpanel")
+        .expand_dims({"NonRenSolution": ["Oil"]}, 1)
+        .values
+    )
+    value.loc[:, ["OilST"], :, :, :] = (
+        (
+            (
+                annual_sh_demand()
+                * annual_heating_degree_days_coefficient()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Oil", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                )
+            )
+            / float(efficiency().loc["OilBoiler"])
+            * co2_tax()
+            * 0.00026532
+        )
+        .expand_dims({"NonRenSolution": ["OilST"]}, 1)
+        .values
+    )
+    value.loc[:, ["Gas"], :, :, :] = (
+        (
+            (
+                annual_dhw_demand()
+                * sum(
+                    heating_solution()
+                    .loc[:, "Gas", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                ).transpose("District", "Type", "Performance", "PVpanel")
+                + (
+                    annual_sh_demand()
+                    * annual_heating_degree_days_coefficient()
+                    * sum(
+                        heating_solution()
+                        .loc[:, "Gas", :, :, :, :]
+                        .reset_coords(drop=True)
+                        .rename({"Battery": "Battery!"}),
+                        dim=["Battery!"],
+                    )
+                ).transpose("District", "Type", "Performance", "PVpanel")
+            )
+            / float(efficiency().loc["GasBoiler"])
+            * co2_tax()
+            * 0.0002016
+        )
+        .transpose("District", "Performance", "Type", "PVpanel")
+        .expand_dims({"WithGeoConstraint": ["Gas"]}, 1)
+        .values
+    )
+    value.loc[:, ["GasST"], :, :, :] = (
+        (
+            (
+                annual_sh_demand()
+                * annual_heating_degree_days_coefficient()
+                * sum(
+                    heating_solution()
+                    .loc[:, "GasST", :, :, :, :]
+                    .reset_coords(drop=True)
+                    .rename({"Battery": "Battery!"}),
+                    dim=["Battery!"],
+                )
+            )
+            / float(efficiency().loc["GasBoiler"])
+            * co2_tax()
+            * 0.0002016
+        )
+        .expand_dims({"WithGeoConstraint": ["GasST"]}, 1)
+        .values
+    )
+    value.loc[:, ["ElectricHeater"], :, :, :] = 0
+    return value
+
+
+@component.add(
+    name="PV kWh SC demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"pv_kwh_self_consumed_demolished": 1},
+)
+def pv_kwh_sc_demolished():
+    return pv_kwh_self_consumed_demolished()
+
+
+@component.add(
+    name="PV kWh self consumed",
+    units="kWh",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Stateful",
+    comp_subtype="Integ",
+    depends_on={"_integ_pv_kwh_self_consumed": 1},
+    other_deps={
+        "_integ_pv_kwh_self_consumed": {
+            "initial": {},
+            "step": {
+                "additional_annual_pv_kwh_self_consumed": 1,
+                "pv_kwh_self_consumed_demolished": 1,
+            },
+        }
+    },
+)
+def pv_kwh_self_consumed():
+    return _integ_pv_kwh_self_consumed()
+
+
+_integ_pv_kwh_self_consumed = Integ(
+    lambda: additional_annual_pv_kwh_self_consumed()
+    - pv_kwh_self_consumed_demolished(),
+    lambda: xr.DataArray(
+        0,
+        {
+            "District": _subscript_dict["District"],
+            "HS": _subscript_dict["HS"],
+            "Performance": _subscript_dict["Performance"],
+            "Type": _subscript_dict["Type"],
+        },
+        ["District", "HS", "Performance", "Type"],
+    ),
+    "_integ_pv_kwh_self_consumed",
+)
+
+
+@component.add(
+    name="PV kWh self consumed demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "pv_annual_generation_per_kw": 1,
+        "kwp_installed_per_building": 1,
+        "building_demolition_by_archetype": 1,
+        "self_consumption_degree": 1,
+    },
+)
+def pv_kwh_self_consumed_demolished():
+    return if_then_else(
+        time() < 2015,
+        lambda: xr.DataArray(
+            0,
+            {
+                "District": _subscript_dict["District"],
+                "HS": _subscript_dict["HS"],
+                "Performance": _subscript_dict["Performance"],
+                "Type": _subscript_dict["Type"],
+            },
+            ["District", "HS", "Performance", "Type"],
+        ),
+        lambda: sum(
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVyes", :]
+            .reset_coords(drop=True)
+            .rename({"Battery": "Battery!"}),
+            dim=["Battery!"],
+        )
+        * kwp_installed_per_building()
+        * pv_annual_generation_per_kw()
+        * self_consumption_degree(),
+    )
+
+
+@component.add(
+    name="PV kW Residential demolished",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"building_demolition_by_archetype": 1, "kwp_installed_per_building": 1},
+)
+def pv_kw_residential_demolished():
+    return (
+        sum(
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVyes", :]
+            .reset_coords(drop=True)
+            .rename({"Battery": "Battery!"}),
+            dim=["Battery!"],
+        )
+        * kwp_installed_per_building()
+    )
+
+
+@component.add(
+    name="Requested Owners adopting RCP",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 3,
-        "owned_buildings_with_rcp": 3,
         "share_of_owned_houses": 3,
-        "share_urban_buildings": 1,
-        "energy_community_scenario": 2,
-        "probability_adoption_rcp_owners": 3,
-        "heating_solution": 9,
-        "owned_buildings_with_rcpv_pvno": 2,
         "share_of_buildings_with_suitable_roof": 3,
+        "owned_buildings_with_rcp": 3,
+        "heating_solution": 9,
         "owned_buildings_with_rcpv": 3,
+        "share_urban_buildings": 1,
+        "probability_adoption_rcp_owners": 3,
+        "owned_buildings_with_pv": 3,
+        "energy_community_scenario": 2,
+        "owned_buildings_with_rcpv_pvno": 2,
     },
 )
-def owners_adopting_rcp():
+def requested_owners_adopting_rcp():
     value = xr.DataArray(
         np.nan,
         {
@@ -458,25 +878,25 @@ def owners_adopting_rcp():
 
 
 @component.add(
-    name="Owners adopting PV",
+    name="Requested Owners adopting PV",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "owned_buildings_with_pv": 4,
-        "owned_buildings_with_rcp": 4,
         "share_of_owned_houses": 4,
-        "heating_solution": 16,
         "share_of_buildings_with_suitable_roof": 6,
+        "owned_buildings_with_rcp": 4,
+        "heating_solution": 16,
         "owned_buildings_with_rcpv": 4,
         "probability_adoption_pv_owners": 6,
+        "owned_buildings_with_pv": 4,
+        "owned_buildings_with_rcpv_pvno": 3,
         "energy_community_scenario": 2,
         "share_urban_buildings": 3,
-        "owned_buildings_with_rcpv_pvno": 3,
     },
 )
-def owners_adopting_pv():
+def requested_owners_adopting_pv():
     value = xr.DataArray(
         np.nan,
         {
@@ -850,7 +1270,7 @@ _integ_rented_buildings_with_rcpv = Integ(
     name="House Value coefficient HT",
     units="Dmnl",
     subscripts=["Performance", "HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"house_value_coefficient": 1},
 )
@@ -904,25 +1324,25 @@ _integ_rented_buildings_with_pv = Integ(
 
 
 @component.add(
-    name="Renters adopting RCP",
+    name="Requested Renters adopting RCP",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "rented_buildings_with_pv": 3,
         "share_of_owned_houses": 3,
-        "share_urban_buildings": 1,
-        "energy_community_scenario": 2,
+        "share_of_buildings_with_suitable_roof": 3,
+        "heating_solution": 9,
         "rented_buildings_with_rcpv": 3,
+        "share_urban_buildings": 1,
         "rented_buildings_with_rcp": 3,
+        "energy_community_scenario": 2,
         "probability_adoption_rcp_renters": 3,
         "rented_buildings_with_rcpv_pvno": 2,
-        "heating_solution": 9,
-        "share_of_buildings_with_suitable_roof": 3,
-        "rented_buildings_with_pv": 3,
     },
 )
-def renters_adopting_rcp():
+def requested_renters_adopting_rcp():
     value = xr.DataArray(
         np.nan,
         {
@@ -1118,7 +1538,7 @@ def renters_adopting_rcp():
     name="Annual fuel cost archetype",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annual_dhw_demand": 5,
@@ -1256,25 +1676,25 @@ def annual_fuel_cost_archetype():
 
 
 @component.add(
-    name="Renters adopting PV",
+    name="Requested Renters adopting PV",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "probability_adoption_pv_renters": 6,
+        "rented_buildings_with_pv": 4,
         "share_of_owned_houses": 6,
+        "share_of_buildings_with_suitable_roof": 6,
+        "heating_solution": 16,
         "rented_buildings_with_rcpv": 4,
         "rented_buildings_with_rcp": 4,
-        "heating_solution": 16,
-        "share_of_buildings_with_suitable_roof": 6,
-        "rented_buildings_with_pv": 4,
-        "rented_buildings_with_rcpv_pvno": 3,
+        "probability_adoption_pv_renters": 6,
         "energy_community_scenario": 2,
+        "rented_buildings_with_rcpv_pvno": 3,
         "share_urban_buildings": 1,
     },
 )
-def renters_adopting_pv():
+def requested_renters_adopting_pv():
     value = xr.DataArray(
         np.nan,
         {
@@ -1941,7 +2361,7 @@ def oilgas_lifetime_uncertainty_factor():
     name="Adoptions OilST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2095,7 +2515,7 @@ def average_energy_price_market():
     name="Adoptions DH from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2148,7 +2568,7 @@ def electricity_consumption_industry():
     name="Adoptions GasST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2240,7 +2660,7 @@ def oilgas_carrier_cost_uncertainty():
     name="Adoptions HPST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2329,7 +2749,7 @@ def pv_30_100_kw_investment_cost_time_adj():
     name="Adoptions Pellet from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2501,10 +2921,10 @@ def investment_cost_hs_nost_adj():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_rebate_cantonal": 1,
         "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_investment_cost": 2,
+        "pv_rebate_cantonal": 1,
+        "cantonal_pv_support": 1,
     },
 )
 def pv_initial_cantonal_subsidy():
@@ -2603,7 +3023,7 @@ def hp_efficiency_uncertainty_factor():
 
 @component.add(name="Exploratory analysis", comp_type="Constant", comp_subtype="Normal")
 def exploratory_analysis():
-    return 1
+    return 0
 
 
 @component.add(
@@ -2812,7 +3232,7 @@ def interest_rate_uncertainty():
     name="Adoptions HeatPump from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -2899,12 +3319,12 @@ def overall_construction_rate():
 @component.add(
     name="Grant absolute",
     subscripts=["HS", "District", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "exploratory_analysis": 5,
-        "investment_cost_hs_nost_adj": 10,
         "renewable_heating_incentives": 5,
+        "investment_cost_hs_nost_adj": 10,
         "grant_share_pelletboiler": 2,
         "grant_share_hp": 2,
         "grant_share_dh": 1,
@@ -3007,7 +3427,7 @@ def grant_absolute():
     name="Adoptions WoodST from OS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_leaving_hs_for_old_age": 1, "market_share_hs_filtered": 1},
 )
@@ -3147,142 +3567,6 @@ def woodpellet_carrier_cost_uncertainty():
 )
 def woodpellet_lifetime_uncertainty():
     return 0
-
-
-@component.add(
-    name="Annual CO2 tax archetype",
-    units="CHF",
-    subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "annual_dhw_demand": 2,
-        "heating_solution": 6,
-        "annual_heating_degree_days_coefficient": 4,
-        "annual_sh_demand": 4,
-        "efficiency": 4,
-        "co2_tax": 4,
-    },
-)
-def annual_co2_tax_archetype():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel"],
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, _subscript_dict["NonRenSolution"], :, :, :] = False
-    value.values[except_subs.values] = 0
-    value.loc[:, ["Oil"], :, :, :] = (
-        (
-            (
-                annual_dhw_demand()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Oil", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                ).transpose("District", "Type", "Performance", "PVpanel")
-                + (
-                    annual_sh_demand()
-                    * annual_heating_degree_days_coefficient()
-                    * sum(
-                        heating_solution()
-                        .loc[:, "Oil", :, :, :, :]
-                        .reset_coords(drop=True)
-                        .rename({"Battery": "Battery!"}),
-                        dim=["Battery!"],
-                    )
-                ).transpose("District", "Type", "Performance", "PVpanel")
-            )
-            / float(efficiency().loc["OilBoiler"])
-            * co2_tax()
-            * 0.00026532
-        )
-        .transpose("District", "Performance", "Type", "PVpanel")
-        .expand_dims({"NonRenSolution": ["Oil"]}, 1)
-        .values
-    )
-    value.loc[:, ["OilST"], :, :, :] = (
-        (
-            (
-                annual_sh_demand()
-                * annual_heating_degree_days_coefficient()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Oil", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                )
-            )
-            / float(efficiency().loc["OilBoiler"])
-            * co2_tax()
-            * 0.00026532
-        )
-        .expand_dims({"NonRenSolution": ["OilST"]}, 1)
-        .values
-    )
-    value.loc[:, ["Gas"], :, :, :] = (
-        (
-            (
-                annual_dhw_demand()
-                * sum(
-                    heating_solution()
-                    .loc[:, "Gas", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                ).transpose("District", "Type", "Performance", "PVpanel")
-                + (
-                    annual_sh_demand()
-                    * annual_heating_degree_days_coefficient()
-                    * sum(
-                        heating_solution()
-                        .loc[:, "Gas", :, :, :, :]
-                        .reset_coords(drop=True)
-                        .rename({"Battery": "Battery!"}),
-                        dim=["Battery!"],
-                    )
-                ).transpose("District", "Type", "Performance", "PVpanel")
-            )
-            / float(efficiency().loc["GasBoiler"])
-            * co2_tax()
-            * 0.0002016
-        )
-        .transpose("District", "Performance", "Type", "PVpanel")
-        .expand_dims({"WithGeoConstraint": ["Gas"]}, 1)
-        .values
-    )
-    value.loc[:, ["GasST"], :, :, :] = (
-        (
-            (
-                annual_sh_demand()
-                * annual_heating_degree_days_coefficient()
-                * sum(
-                    heating_solution()
-                    .loc[:, "GasST", :, :, :, :]
-                    .reset_coords(drop=True)
-                    .rename({"Battery": "Battery!"}),
-                    dim=["Battery!"],
-                )
-            )
-            / float(efficiency().loc["GasBoiler"])
-            * co2_tax()
-            * 0.0002016
-        )
-        .expand_dims({"WithGeoConstraint": ["GasST"]}, 1)
-        .values
-    )
-    value.loc[:, ["ElectricHeater"], :, :, :] = 0
-    return value
 
 
 @component.add(
@@ -3921,29 +4205,6 @@ def annual_hs_inflow():
 
 
 @component.add(
-    name="PV hourly SC",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc_initial": 2, "total_pv_electricity_sc": 1},
-)
-def pv_hourly_sc():
-    return (
-        pv_hourly_sc_initial()
-        * total_pv_electricity_sc()
-        / (
-            sum(
-                pv_hourly_sc_initial().rename({"Month": "Month!", "Hour": "Hour!"}),
-                dim=["Month!", "Hour!"],
-            )
-            * 365
-            / 12
-        )
-    )
-
-
-@component.add(
     name="Annual grid upgrading cost District",
     units="CHF",
     subscripts=["District"],
@@ -4014,9 +4275,9 @@ def provvedimento_17():
 @component.add(
     name="Hydro additional hourly supply winter",
     subscripts=["Month", "Hour"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 2, "provvedimento_17": 1, "hour_factor_hs": 2},
+    depends_on={"time": 2, "hour_factor_hs": 2, "provvedimento_17": 1},
 )
 def hydro_additional_hourly_supply_winter():
     value = xr.DataArray(
@@ -4052,9 +4313,9 @@ def hydro_additional_hourly_supply_winter():
 @component.add(
     name="Hydro decrese hourly supply summer",
     subscripts=["Month", "Hour"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 2, "provvedimento_17": 1, "hour_factor_hs": 2},
+    depends_on={"time": 2, "hour_factor_hs": 2, "provvedimento_17": 1},
 )
 def hydro_decrese_hourly_supply_summer():
     value = xr.DataArray(
@@ -4189,8 +4450,8 @@ def total_annual_electricity_consumed():
     comp_subtype="Normal",
     depends_on={
         "phs_annual_production_historical": 1,
-        "time": 2,
         "provvedimento_13": 1,
+        "time": 2,
     },
 )
 def phs_annual_production():
@@ -4359,7 +4620,7 @@ def dummy_factor_v():
     name="CO2eq per km vehicle",
     units="CO2eq/km",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "fuel_consumption_per_km": 6,
@@ -4508,7 +4769,7 @@ def annual_co2_emissions_vehicles():
 @component.add(
     name="CO2 coefficient",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 1, "co2_coefficient_input_ice": 1, "co2_coefficient_ice": 1},
 )
@@ -4554,27 +4815,6 @@ def total_pv_electricity_production_district():
 
 
 @component.add(
-    name="Hourly electricity demand with PV",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={
-        "hourly_electricity_demand": 1,
-        "share_of_buildings_with_pv": 1,
-        "remaining_pv_sc_ratio_delay": 1,
-    },
-)
-def hourly_electricity_demand_with_pv():
-    return (
-        hourly_electricity_demand()
-        * share_of_buildings_with_pv()
-        * remaining_pv_sc_ratio_delay()
-        * 1.25
-    )
-
-
-@component.add(
     name="Light hourly demand Res",
     units="GWh",
     subscripts=["Month", "Hour"],
@@ -4584,19 +4824,6 @@ def hourly_electricity_demand_with_pv():
 )
 def light_hourly_demand_res():
     return light_annual_demand_res() * hour_factor_light()
-
-
-@component.add(
-    name="PV SC initial",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc_initial": 1},
-)
-def pv_sc_initial():
-    return sum(
-        pv_hourly_sc_initial().rename({"Month": "Month!", "Hour": "Hour!"}),
-        dim=["Month!", "Hour!"],
-    )
 
 
 @component.add(
@@ -4617,80 +4844,10 @@ def light_annual_demand_res():
 
 
 @component.add(
-    name="PV hourly SC initial",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_production": 1, "hourly_electricity_demand_with_pv": 1},
-)
-def pv_hourly_sc_initial():
-    return np.minimum(pv_hourly_production(), hourly_electricity_demand_with_pv())
-
-
-@component.add(
-    name="Remaining PV SC Ratio delay",
-    comp_type="Stateful",
-    comp_subtype="DelayFixed",
-    depends_on={"_delayfixed_remaining_pv_sc_ratio_delay": 1},
-    other_deps={
-        "_delayfixed_remaining_pv_sc_ratio_delay": {
-            "initial": {},
-            "step": {"remaining_pv_sc_ratio": 1},
-        }
-    },
-)
-def remaining_pv_sc_ratio_delay():
-    return _delayfixed_remaining_pv_sc_ratio_delay()
-
-
-_delayfixed_remaining_pv_sc_ratio_delay = DelayFixed(
-    lambda: remaining_pv_sc_ratio(),
-    lambda: 1,
-    lambda: 1,
-    time_step,
-    "_delayfixed_remaining_pv_sc_ratio_delay",
-)
-
-
-@component.add(
-    name="Remaining PV SC Ratio",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_self_consumption": 1, "pv_sc_initial": 1},
-)
-def remaining_pv_sc_ratio():
-    return float(np.maximum(pv_self_consumption() / pv_sc_initial(), 1))
-
-
-@component.add(
     name="EV charger incentive input", comp_type="Constant", comp_subtype="Normal"
 )
 def ev_charger_incentive_input():
     return 500
-
-
-@component.add(
-    name="PV Self Consumption",
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_monthly_self_consumption": 1},
-)
-def pv_self_consumption():
-    return sum(
-        pv_monthly_self_consumption().rename({"Month": "Month!"}), dim=["Month!"]
-    )
-
-
-@component.add(
-    name="PV hourly Self Consumption",
-    units="GWh",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"hour_factor_pv": 1, "total_pv_electricity_sc": 1},
-)
-def pv_hourly_self_consumption():
-    return hour_factor_pv() * total_pv_electricity_sc()
 
 
 @component.add(name="CO2 coefficient ICE", comp_type="Constant", comp_subtype="Normal")
@@ -4729,17 +4886,6 @@ def electricity_distpatched_by_month():
 )
 def diesel_price_input():
     return 1.98
-
-
-@component.add(
-    name="PV monthly Self Consumption",
-    subscripts=["Month"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_self_consumption": 1},
-)
-def pv_monthly_self_consumption():
-    return sum(pv_hourly_self_consumption().rename({"Hour": "Hour!"}), dim=["Hour!"])
 
 
 @component.add(
@@ -4782,7 +4928,7 @@ def total_electricity_produced_annual():
 @component.add(
     name="Hourly exported electricity",
     subscripts=["Month", "Hour", "Supplier"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"hourly_available_supply_by_supplier": 1, "electricity_dispatched": 1},
 )
@@ -4852,44 +4998,6 @@ def pv_residential_power_by_type():
         )
         / 1000
     )
-
-
-@component.add(
-    name="Building demolition by archetype",
-    subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={"res_verylow_demolition": 1, "share_hs_by_archetype": 1},
-)
-def building_demolition_by_archetype():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-            "PVpanel": _subscript_dict["PVpanel"],
-            "Battery": _subscript_dict["Battery"],
-        },
-        ["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    )
-    value.loc[:, :, ["VeryLow"], :, :, :] = (
-        (
-            res_verylow_demolition()
-            * share_hs_by_archetype()
-            .loc[:, :, "VeryLow", :, :, :]
-            .reset_coords(drop=True)
-            .transpose("District", "Type", "HS", "PVpanel", "Battery")
-        )
-        .transpose("District", "HS", "Type", "PVpanel", "Battery")
-        .expand_dims({"PerformanceLow": ["VeryLow"]}, 2)
-        .values
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, :, ["VeryLow"], :, :, :] = False
-    value.values[except_subs.values] = 0
-    return value
 
 
 @component.add(
@@ -4978,8 +5086,8 @@ def grant_share_st():
     depends_on={
         "time": 1,
         "investment_grant_per_kw_15_kw_1": 1,
-        "initial_grant_15_kw_1": 1,
         "st_installed_capacity_by_arch": 1,
+        "initial_grant_15_kw_1": 1,
         "grant_absolute_st": 1,
     },
 )
@@ -5044,15 +5152,15 @@ def grant_share_hp():
 @component.add(
     name="Building construction by archetype",
     subscripts=["District", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 3,
         "buildings_construction": 3,
-        "coeff_roof_suitability": 3,
         "heating_solution": 6,
-        "res_total_construction_by_perf_type_district": 3,
+        "coeff_roof_suitability": 3,
         "pv_reg_scenario": 1,
+        "res_total_construction_by_perf_type_district": 3,
         "building_construction_by_archetype": 2,
     },
 )
@@ -5320,8 +5428,8 @@ def annual_subsidy_fit_by_archetype():
     depends_on={
         "probability_of_adoption_pv_district_delay_1": 1,
         "probability_of_adoption_pv_district_delay_2": 1,
-        "probability_of_adoption_and_battery_district_delay_2": 1,
         "probability_of_adoption_and_battery_district_delay_1": 1,
+        "probability_of_adoption_and_battery_district_delay_2": 1,
     },
 )
 def probability_of_adoption_pv_and_battery_district_smooth():
@@ -5519,7 +5627,7 @@ def average_levy_minus_incentives_archetype():
     name="CAPEX retrofit cost",
     units="CHF",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "low_cost": 1,
@@ -5902,8 +6010,8 @@ def annural_federal_subsidy_rup_ti():
     comp_subtype="Normal",
     depends_on={
         "adoptions_hpst_from_os_by_archetype": 1,
-        "grant_st": 1,
         "grant_hp_hpst": 1,
+        "grant_st": 1,
     },
 )
 def incentive_hpst_from_os_by_archetype():
@@ -5958,11 +6066,11 @@ def incentive_oilst_from_os_by_archetype():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
-        "kwp_installed_per_building": 1,
+        "tax_deduction_investment": 4,
         "pv_cantonal_subsidy": 2,
+        "kwp_installed_per_building": 1,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def pv_capex():
@@ -6018,11 +6126,12 @@ def annual_electricity_cost():
     )
     value.loc[:, :, :, :, ["PVyes"]] = (
         (
-            (
+            np.maximum(
                 electricity_consumption_by_archetype()
                 .loc[:, :, :, :, "PVyes"]
                 .reset_coords(drop=True)
-                - total_pv_kwh_sc()
+                - total_pv_kwh_sc(),
+                0,
             )
             * electricity_price()
             - annual_subsidy_fit_by_archetype()
@@ -6202,7 +6311,7 @@ def adoptions_heatpump_from_hs_by_archetype():
     name="Annual PV CAPEX",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"annualised_pv_capex": 1, "heating_solution": 1},
 )
@@ -6288,12 +6397,12 @@ def adoptions_hpst_from_hs_by_archetype():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_low_probabilities": 1,
-        "low_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "low_changing_ground": 1,
+        "low_changing_wall": 1,
+        "wall_low_probabilities": 1,
         "ground_low_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -6522,7 +6631,7 @@ def annualised_hs_capex():
     name="Annualised HS CAPEX average",
     units="CHF",
     subscripts=["HS", "District", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annualised_hs_capex_no_incentives": 8,
@@ -6641,31 +6750,6 @@ def annualised_hs_capex_average():
         .values
     )
     return value
-
-
-@component.add(
-    name="PV kW installed Residential",
-    units="kW",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_pv_kw_installed_residential": 1},
-    other_deps={
-        "_integ_pv_kw_installed_residential": {
-            "initial": {"initial_kwp_installed_by_archetype": 1},
-            "step": {"annual_pv_kw_installation": 1},
-        }
-    },
-)
-def pv_kw_installed_residential():
-    return _integ_pv_kw_installed_residential()
-
-
-_integ_pv_kw_installed_residential = Integ(
-    lambda: annual_pv_kw_installation(),
-    lambda: initial_kwp_installed_by_archetype(),
-    "_integ_pv_kw_installed_residential",
-)
 
 
 @component.add(
@@ -7227,40 +7311,6 @@ _integ_cumulative_pv_incentives_archetype = Integ(
 
 
 @component.add(
-    name="Total PV kWh SC",
-    units="kWh",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_total_pv_kwh_sc": 1},
-    other_deps={
-        "_integ_total_pv_kwh_sc": {
-            "initial": {},
-            "step": {"additional_annual_pv_kwh_sc": 1},
-        }
-    },
-)
-def total_pv_kwh_sc():
-    return _integ_total_pv_kwh_sc()
-
-
-_integ_total_pv_kwh_sc = Integ(
-    lambda: additional_annual_pv_kwh_sc(),
-    lambda: xr.DataArray(
-        0,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-        },
-        ["District", "HS", "Performance", "Type"],
-    ),
-    "_integ_total_pv_kwh_sc",
-)
-
-
-@component.add(
     name="Cumulative adoptions DH from HS by archetype",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
@@ -7416,40 +7466,6 @@ def annual_archetypes():
         sum(heating_solution().rename({"Battery": "Battery!"}), dim=["Battery!"])
         * dwellings_per_building()
     )
-
-
-@component.add(
-    name="PV kWh self consumed",
-    units="kWh",
-    subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Stateful",
-    comp_subtype="Integ",
-    depends_on={"_integ_pv_kwh_self_consumed": 1},
-    other_deps={
-        "_integ_pv_kwh_self_consumed": {
-            "initial": {},
-            "step": {"additional_annual_pv_kwh_self_consumed": 1},
-        }
-    },
-)
-def pv_kwh_self_consumed():
-    return _integ_pv_kwh_self_consumed()
-
-
-_integ_pv_kwh_self_consumed = Integ(
-    lambda: additional_annual_pv_kwh_self_consumed(),
-    lambda: xr.DataArray(
-        0,
-        {
-            "District": _subscript_dict["District"],
-            "HS": _subscript_dict["HS"],
-            "Performance": _subscript_dict["Performance"],
-            "Type": _subscript_dict["Type"],
-        },
-        ["District", "HS", "Performance", "Type"],
-    ),
-    "_integ_pv_kwh_self_consumed",
-)
 
 
 @component.add(
@@ -7777,12 +7793,12 @@ _integ_cumulative_co2_tax_archetype = Integ(
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_verylow_probabilities": 1,
-        "verylow_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_ground": 1,
+        "verylow_changing_wall": 1,
+        "wall_verylow_probabilities": 1,
         "ground_size_by_type_and_district": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
         "share_hs_by_archetype": 1,
     },
 )
@@ -7989,7 +8005,7 @@ def flow_incentives_archetype_from_os():
     name="Incentives by archetype from OS",
     units="CHF",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "incentive_dh_from_os_by_archetype": 1,
@@ -8074,7 +8090,7 @@ def flow_adoptions_heatpump_from_hs_by_archetype():
     name="Incentives by archetype renovation",
     units="CHF",
     subscripts=["Performance", "District", "Type", "HS", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "verylow_to_performance_sq_m_by_archetype": 3,
@@ -8267,7 +8283,7 @@ def total_sh_net_consumption():
     units="MtonCO2",
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "co2_emissions_gas": 1, "co2_emissions_oil": 1},
+    depends_on={"time": 1, "co2_emissions_oil": 1, "co2_emissions_gas": 1},
 )
 def annual_co2_emissions():
     return if_then_else(
@@ -8524,8 +8540,8 @@ def funds_coming_from_federal_co2_tax_2025():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "funds_coming_from_federal_co2_tax_2025": 1,
         "increase_co2_tax_scenario": 1,
+        "funds_coming_from_federal_co2_tax_2025": 1,
     },
 )
 def funds_coming_from_federal_co2_tax():
@@ -8884,8 +8900,8 @@ def annual_dhw_consumption_electricity_hp_by_type():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "consumers_leaving_hs_for_old_age": 9,
         "market_share_hs_no_incentives_filtered": 3,
+        "consumers_leaving_hs_for_old_age": 9,
         "market_share_hs_filtered": 3,
     },
 )
@@ -8963,9 +8979,9 @@ def buildings_adopting_hs_for_old_age():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "incentive_cece": 2,
-        "low_to_performance_sq_m": 5,
         "incentive_minergie": 2,
+        "low_to_performance_sq_m": 5,
+        "incentive_cece": 2,
         "incentive_base": 1,
     },
 )
@@ -8989,7 +9005,7 @@ def annual_inventive_renovation_low():
     name='"Investment grant per kW > 15 kW"',
     units="CHF/kW",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -9041,12 +9057,12 @@ def investment_grant_per_kw_15_kw():
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_low_probabilities": 1,
-        "low_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "low_changing_ground": 1,
+        "low_changing_wall": 1,
+        "wall_low_probabilities": 1,
         "ground_low_probabilities": 1,
         "ground_size_by_type_and_district": 1,
+        "low_changing_ground": 1,
     },
 )
 def low_to_performance_sq_m():
@@ -9067,7 +9083,7 @@ def low_to_performance_sq_m():
     name='"Initial grant > 15 kW"',
     units="CHF",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -9300,15 +9316,15 @@ def renovation_cost_index():
         "_smooth_total_present_variable_costs_sh_ground": {
             "initial": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "ground_lifetime": 1,
-                "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "ground_lifetime": 1,
-                "interest_rate": 2,
             },
         }
     },
@@ -9458,15 +9474,15 @@ def roof_specific_cost():
         "_smooth_total_present_variable_costs_sh_roof": {
             "initial": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "roof_lifetime": 1,
                 "interest_rate": 2,
+                "additional_interest_rate_for_loan": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
-                "additional_interest_rate_for_loan": 2,
                 "roof_lifetime": 1,
                 "interest_rate": 2,
+                "additional_interest_rate_for_loan": 2,
             },
         }
     },
@@ -9517,15 +9533,15 @@ _smooth_total_present_variable_costs_sh_roof = Smooth(
         "_smooth_total_present_variable_costs_sh_wall": {
             "initial": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
-                "interest_rate": 2,
             },
             "step": {
                 "annual_variable_costs_sh": 1,
+                "interest_rate": 2,
                 "additional_interest_rate_for_loan": 2,
                 "wall_lifetime": 1,
-                "interest_rate": 2,
             },
         }
     },
@@ -9574,8 +9590,8 @@ _smooth_total_present_variable_costs_sh_wall = Smooth(
     depends_on={
         "time": 1,
         "verylow_to_performance_sq_m": 5,
-        "incentive_cece": 2,
         "incentive_minergie": 2,
+        "incentive_cece": 2,
         "incentive_base": 1,
     },
 )
@@ -9733,7 +9749,7 @@ def incentive_per_tech():
 @component.add(
     name="Incentive per Tech by archetype",
     subscripts=["District", "Tech", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "adoptions_hs_from_os_by_archetype": 5,
@@ -9833,12 +9849,12 @@ def incentive_per_tech_by_archetype():
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
         "roof_size_by_type_and_district": 1,
-        "wall_verylow_probabilities": 1,
-        "verylow_changing_wall": 1,
         "wall_size_by_type_and_district": 1,
-        "verylow_changing_ground": 1,
+        "verylow_changing_wall": 1,
+        "wall_verylow_probabilities": 1,
         "ground_size_by_type_and_district": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance_sq_m():
@@ -9885,8 +9901,8 @@ def buildings_by_type_district_performance():
         "annual_sh_demand": 17,
         "annual_mantainance_costs_hs": 14,
         "efficiency_dhw_storage": 10,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def annual_variable_costs_hs_by_archetype():
@@ -10361,8 +10377,8 @@ def building_area_by_performance():
         "annual_sh_demand": 17,
         "efficiency": 16,
         "carrier_used_cost_per_kwh": 14,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def annual_sh_variable_costs_hs_by_archetype():
@@ -11770,8 +11786,8 @@ def low_to_performance_mfh_ms():
     depends_on={
         "time": 1,
         "utility_hs_exp": 5,
-        "muken_2014_scenario": 1,
         "oil_vs_hp_difference": 1,
+        "muken_2014_scenario": 1,
     },
 )
 def utility_hs_exp_2():
@@ -11919,8 +11935,8 @@ def high_to_performance_sfh_ms():
     depends_on={
         "delta_30_100_kw": 1,
         "share_of_consumers_considering_pv_stock_factor": 1,
-        "pv_nonres_eco_weight": 1,
         "irr_30_100_kw": 1,
+        "pv_nonres_eco_weight": 1,
     },
 )
 def utility_pv_30_100_kw():
@@ -12366,8 +12382,8 @@ def market_share_hs_no_incentives():
     depends_on={
         "market_share_hs_no_incentives": 1,
         "dh_and_gas_suitability": 1,
-        "market_share_hs_no_incentives_nogas": 1,
         "dh_only_suitability": 1,
+        "market_share_hs_no_incentives_nogas": 1,
         "market_share_hs_no_incentives_nodh": 1,
         "gas_only_suitability": 1,
         "market_share_hs_no_incentives_nodh_nogas": 1,
@@ -12577,7 +12593,7 @@ def suitability_check():
 @component.add(
     name="Roof Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_moderate_scaled": 1},
 )
@@ -12667,8 +12683,8 @@ def ground_cost_low():
     comp_subtype="Normal",
     depends_on={
         "roof_cost": 1,
-        "roof_cost_low": 1,
         "total_present_variable_costs_sh_average": 8,
+        "roof_cost_low": 1,
         "roof_cost_moderate": 1,
         "roof_cost_high": 1,
         "roof_cost_veryhigh": 1,
@@ -12769,7 +12785,7 @@ def roof_verylow_probabilities():
 @component.add(
     name="Coeff High",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_high": 1},
 )
@@ -12868,7 +12884,7 @@ def ground_low():
 @component.add(
     name="Coeff Moderate",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_moderate": 1},
 )
@@ -12984,7 +13000,7 @@ def ground_moderate():
 @component.add(
     name="Ground Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_moderate_scaled": 1},
 )
@@ -13080,10 +13096,10 @@ def ground_moderate_scaled():
     depends_on={
         "low_changing_roof": 1,
         "roof_low_probabilities": 1,
-        "wall_low_probabilities": 1,
         "low_changing_wall": 1,
-        "low_changing_ground": 1,
+        "wall_low_probabilities": 1,
         "ground_low_probabilities": 1,
+        "low_changing_ground": 1,
     },
 )
 def low_to_performance():
@@ -13234,8 +13250,8 @@ def ground_verylow_scaled():
     comp_subtype="Normal",
     depends_on={
         "wall_cost_low": 2,
-        "wall_cost_moderate": 1,
         "total_present_variable_costs_sh_average_wall": 6,
+        "wall_cost_moderate": 1,
         "wall_cost_high": 1,
         "wall_cost_veryhigh": 1,
     },
@@ -13321,8 +13337,8 @@ def wall_low_probabilities():
         "roof_high_probabilities": 1,
         "high_changing_wall": 1,
         "wall_high_probabilities": 1,
-        "high_changing_ground": 1,
         "ground_high_probabilities": 1,
+        "high_changing_ground": 1,
     },
 )
 def high_to_performance():
@@ -13376,8 +13392,8 @@ def moderate_changing_wall():
         "roof_moderate_probabilities": 1,
         "wall_moderate_probabilities": 1,
         "moderate_changing_wall": 1,
-        "moderate_changing_ground": 1,
         "ground_moderate_probabilities": 1,
+        "moderate_changing_ground": 1,
     },
 )
 def moderate_to_performance():
@@ -13477,8 +13493,8 @@ def wall_verylow():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "retrofit_verylow_mfh_data": 1,
         "verylow_to_performance_mfh_ms": 1,
+        "retrofit_verylow_mfh_data": 1,
     },
 )
 def retrofit_verylow_mfh_log_likelihood():
@@ -13571,7 +13587,7 @@ def ground_cost():
 @component.add(
     name="HT cumulative cost change",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 5},
 )
@@ -13602,8 +13618,8 @@ def ht_cumulative_cost_change():
     comp_subtype="Normal",
     depends_on={
         "roof_cost_low": 2,
-        "roof_cost_moderate": 1,
         "total_present_variable_costs_sh_average": 6,
+        "roof_cost_moderate": 1,
         "roof_cost_high": 1,
         "roof_cost_veryhigh": 1,
     },
@@ -13773,7 +13789,7 @@ def grid_hs_weight():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"roof_moderate_scaled": 1, "coeff_moderate": 1, "roof_moderate": 3},
+    depends_on={"roof_moderate_scaled": 1, "roof_moderate": 3, "coeff_moderate": 1},
 )
 def roof_moderate_scaled():
     value = xr.DataArray(
@@ -13822,7 +13838,7 @@ def roof_moderate_scaled():
 @component.add(
     name="Wall Moderate exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_moderate_scaled": 1},
 )
@@ -14126,8 +14142,8 @@ def wall_low_scaled():
     comp_subtype="Normal",
     depends_on={
         "wall_cost_moderate": 3,
-        "wall_cost_high": 1,
         "total_present_variable_costs_sh_average_wall": 4,
+        "wall_cost_high": 1,
         "wall_cost_veryhigh": 1,
     },
 )
@@ -14277,8 +14293,8 @@ _ext_data_retrofit_moderate_mfh_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "wall_cost_high": 4,
-        "wall_cost_veryhigh": 1,
         "total_present_variable_costs_sh_average_wall": 2,
+        "wall_cost_veryhigh": 1,
     },
 )
 def wall_high():
@@ -14459,10 +14475,10 @@ def roof_high():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_nohp_district_data": 1,
         "adoption_hp_district_data": 1,
-        "average_ms_hp_district": 1,
+        "adoption_nohp_district_data": 1,
         "average_ms_nohp_district": 1,
+        "average_ms_hp_district": 1,
     },
 )
 def hp_district_log_likelihood():
@@ -14562,8 +14578,8 @@ def battery_residential_type():
     depends_on={
         "battery_adoption_30_kw": 1,
         "average_battery_size_30_kw": 1,
-        "average_battery_size_30_100_kw": 1,
         "battery_adoption_30_100_kw": 1,
+        "average_battery_size_30_100_kw": 1,
         "share_annual_installed_capacity_nonres_by_district": 1,
     },
 )
@@ -14632,8 +14648,8 @@ _integ_battery_capacity_100_kw_1 = Integ(
     depends_on={
         "time": 1,
         "pv_30_100_kw_share_grant_over_cost": 1,
-        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_federal_subsidy_30_100_kw": 1,
+        "pv_30_100_kw_investment_cost_time_adj": 2,
         "pv_rebate_federal": 1,
     },
 )
@@ -14657,27 +14673,32 @@ def pv_federal_subsidy_30_100_kw_check():
     depends_on={
         "time": 2,
         "pv_federal_subsidy_30_100_kw_check": 3,
-        "average_power_pv_30_100_kw": 3,
-        "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_rebate_cantonal": 1,
+        "exploratory_analysis": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
+        "average_power_pv_30_100_kw": 3,
+        "cantonal_pv_support": 1,
     },
 )
 def pv_cantonal_subsidy_30_100_kw_check():
     return if_then_else(
-        time() < 2021,
-        lambda: pv_federal_subsidy_30_100_kw_check() / 3,
+        time() < 2022,
+        lambda: float(np.minimum(250000, pv_federal_subsidy_30_100_kw_check() / 3)),
         lambda: if_then_else(
             time() < 2026,
-            lambda: pv_federal_subsidy_30_100_kw_check()
-            / 2
-            * (average_power_pv_30_100_kw() - 30)
-            / average_power_pv_30_100_kw()
-            + pv_federal_subsidy_30_100_kw_check()
-            / 3
-            * 30
-            / average_power_pv_30_100_kw(),
+            lambda: float(
+                np.minimum(
+                    250000,
+                    pv_federal_subsidy_30_100_kw_check()
+                    / 3
+                    * (average_power_pv_30_100_kw() - 30)
+                    / average_power_pv_30_100_kw()
+                    + pv_federal_subsidy_30_100_kw_check()
+                    / 2
+                    * 30
+                    / average_power_pv_30_100_kw(),
+                )
+            ),
             lambda: if_then_else(
                 exploratory_analysis() > 0,
                 lambda: pv_30_100_kw_investment_cost_time_adj()
@@ -14696,8 +14717,8 @@ def pv_cantonal_subsidy_30_100_kw_check():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_federal_subsidy_100_kw": 1,
         "pv_100_kw_share_grant_over_cost": 1,
+        "pv_federal_subsidy_100_kw": 1,
         "pv_100_kw_investment_cost_time_adj": 2,
         "pv_rebate_federal": 1,
     },
@@ -14722,9 +14743,9 @@ def pv_federal_subsidy_100_kw_check():
     depends_on={
         "time": 4,
         "reference_levy": 1,
-        "computed_levy_avg_2045_fixed": 1,
         "computed_levy_avg_2040_fixed": 1,
         "computed_levy_avg_2030_fixed": 1,
+        "computed_levy_avg_2045_fixed": 1,
         "computed_levy_avg_2035_fixed": 1,
     },
 )
@@ -14835,23 +14856,31 @@ def share_of_buildings_with_pv_by_type():
         "time": 2,
         "pv_federal_subsidy_100_kw_check": 3,
         "pv_100_kw_investment_cost_time_adj": 2,
-        "exploratory_analysis": 1,
-        "cantonal_pv_support": 1,
         "pv_rebate_cantonal": 1,
         "average_power_pv_100_kw": 3,
+        "exploratory_analysis": 1,
+        "cantonal_pv_support": 1,
     },
 )
 def pv_cantonal_subsidy_100_kw_check():
     return if_then_else(
-        time() < 2021,
-        lambda: pv_federal_subsidy_100_kw_check() / 3,
+        time() < 2022,
+        lambda: float(np.minimum(250000, pv_federal_subsidy_100_kw_check() / 3)),
         lambda: if_then_else(
             time() < 2026,
-            lambda: pv_federal_subsidy_100_kw_check()
-            / 2
-            * (average_power_pv_100_kw() - 30)
-            / average_power_pv_100_kw()
-            + pv_federal_subsidy_100_kw_check() / 3 * 30 / average_power_pv_100_kw(),
+            lambda: float(
+                np.minimum(
+                    250000,
+                    pv_federal_subsidy_100_kw_check()
+                    / 3
+                    * (average_power_pv_100_kw() - 30)
+                    / average_power_pv_100_kw()
+                    + pv_federal_subsidy_100_kw_check()
+                    / 2
+                    * 30
+                    / average_power_pv_100_kw(),
+                )
+            ),
             lambda: if_then_else(
                 exploratory_analysis() > 0,
                 lambda: pv_100_kw_investment_cost_time_adj()
@@ -14873,8 +14902,8 @@ def pv_cantonal_subsidy_100_kw_check():
         "battery_capacity": 1,
         "buildings_construction_with_battery": 1,
         "consumers_adopting_pv_yes_with_battery": 1,
-        "battery_capacity_rcpv": 1,
         "consumers_adopting_rcpv_yes_with_battery": 1,
+        "battery_capacity_rcpv": 1,
     },
 )
 def battery_residential_flow():
@@ -15002,8 +15031,8 @@ def annual_incentive_battery_nonres():
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 1,
         "battery_incentive": 1,
-        "consumers_adopting_rcpv_yes_with_battery": 1,
         "battery_incentive_rcpv": 1,
+        "consumers_adopting_rcpv_yes_with_battery": 1,
     },
 )
 def annual_incentive_battery_res():
@@ -15026,8 +15055,8 @@ def annual_incentive_battery_res():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_capacity_rcpv": 1,
         "battery_investiment_cost": 1,
+        "battery_capacity_rcpv": 1,
         "battery_rebate": 1,
     },
 )
@@ -15054,8 +15083,8 @@ def battery_incentive_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "share_of_batteries_nonres": 2,
         "total_battery_adoption_res": 2,
+        "share_of_batteries_nonres": 2,
         "probability_adoption_battery_average": 1,
     },
 )
@@ -15073,7 +15102,7 @@ def total_battery_adoption_nonres():
 
 @component.add(name="Battery Rebate", comp_type="Constant", comp_subtype="Normal")
 def battery_rebate():
-    return 0.5
+    return 0
 
 
 @component.add(
@@ -15082,9 +15111,9 @@ def battery_rebate():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
-        "average_battery_size_30_100_kw": 1,
         "battery_investiment_cost": 1,
+        "average_battery_size_30_100_kw": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_30_100_kw():
@@ -15103,9 +15132,9 @@ def battery_incentive_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
         "average_battery_size_30_kw": 1,
         "battery_investiment_cost": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_30_kw():
@@ -15125,9 +15154,9 @@ def battery_incentive_30_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
-        "battery_capacity": 1,
         "battery_investiment_cost": 1,
+        "battery_capacity": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive():
@@ -15180,9 +15209,9 @@ def probability_adoption_battery_average():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "battery_rebate": 1,
-        "average_battery_size_100_kw": 1,
         "battery_investiment_cost": 1,
+        "average_battery_size_100_kw": 1,
+        "battery_rebate": 1,
     },
 )
 def battery_incentive_100_kw():
@@ -16621,10 +16650,10 @@ def total_federal_demand_grid():
     depends_on={
         "time": 4,
         "reference_cantonal_levy": 1,
-        "computed_cantonal_levy_avg_2030_fixed": 1,
         "computed_cantonal_levy_avg_2040_fixed": 1,
-        "computed_cantonal_levy_avg_2035_fixed": 1,
+        "computed_cantonal_levy_avg_2030_fixed": 1,
         "computed_cantonal_levy_avg_2045_fixed": 1,
+        "computed_cantonal_levy_avg_2035_fixed": 1,
     },
 )
 def cantonal_levy_evolution():
@@ -17195,10 +17224,10 @@ def battery_adoption_100_kw():
     depends_on={
         "time": 1,
         "additional_power_district_with_battery_30_100_kw": 2,
-        "self_consumption_degree_with_storage_100_kw": 1,
-        "yearly_installed_capacity_pv_30_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
         "average_sc_30_100_kw": 1,
+        "self_consumption_degree_with_storage_100_kw": 1,
+        "pv_annual_generation_per_kw": 2,
+        "yearly_installed_capacity_pv_30_100_kw": 1,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30_100_kw():
@@ -17227,13 +17256,13 @@ def additional_annual_pv_kwh_self_consumed_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "self_consumption_degree_with_storage_30_kw": 1,
         "average_sc_30_kw": 1,
-        "share_additional_power_30_kw": 1,
-        "additional_annual_pv_kwh_produced_by_archetype": 1,
         "additional_annual_rcpv_kwh_produced_by_archetype": 1,
         "pv_annual_generation_per_kw": 2,
-        "self_consumption_degree_with_storage_30_kw": 1,
         "additional_power_district_with_battery_30_kw": 2,
+        "additional_annual_pv_kwh_produced_by_archetype": 1,
+        "share_additional_power_30_kw": 1,
     },
 )
 def additional_annual_pv_kwh_self_consumed_30():
@@ -17287,10 +17316,10 @@ def additional_annual_pv_kwh_self_consumed_30():
     depends_on={
         "time": 1,
         "self_consumption_degree_with_storage_100_kw": 1,
+        "pv_annual_generation_per_kw": 2,
+        "average_sc_100_kw": 1,
         "yearly_installed_capacity_pv_100_kw": 1,
         "additional_power_district_with_battery_100_kw": 2,
-        "average_sc_100_kw": 1,
-        "pv_annual_generation_per_kw": 2,
     },
 )
 def additional_annual_pv_kwh_self_consumed_100_kw():
@@ -17471,7 +17500,7 @@ def sc_10_kwhmwh_30_kw():
 @component.add(
     name="Adoption Battery Type",
     subscripts=["Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "consumers_adopting_pv_yes_with_battery": 3,
@@ -17649,8 +17678,8 @@ def battery_adoption_30_kw():
         "kwh_over_mwh_of_demand_30_100_kw": 4,
         "average_sc_30_100_kw": 3,
         "sc_05_kwhmwh_30_100_kw": 3,
-        "sc_15_kwhmwh_30_100_kw": 1,
         "sc_10_kwhmwh_30_100_kw": 3,
+        "sc_15_kwhmwh_30_100_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_30_100_kw():
@@ -17751,10 +17780,10 @@ def kwh_over_mwh_of_demand_30_kw():
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_30_kw": 4,
-        "average_sc_30_kw": 3,
         "sc_05_kwhmwh_30_kw": 3,
-        "sc_15_kwhmwh_30_kw": 1,
+        "average_sc_30_kw": 3,
         "sc_10_kwhmwh_30_kw": 3,
+        "sc_15_kwhmwh_30_kw": 1,
     },
 )
 def self_consumption_degree_with_storage_30_kw():
@@ -17905,7 +17934,7 @@ def sc_10_kwhmwh_30_100_kw():
 @component.add(
     name="Consumers adopting PV yes with battery",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"consumers_adopting_pv_yes": 2, "probability_adoption_battery": 2},
 )
@@ -17947,7 +17976,7 @@ def consumers_adopting_pv_yes_with_battery():
 @component.add(
     name="Consumers adopting RCPv yes",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"owners_adopting_rcpv": 1, "renters_adopting_rcpv": 1},
 )
@@ -17976,7 +18005,7 @@ def consumers_adopting_rcpv_yes():
     name="Consumers adopting RCPv yes with battery",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "consumers_adopting_rcpv_yes": 2,
@@ -18029,8 +18058,8 @@ def consumers_adopting_rcpv_yes_with_battery():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually_rcpv": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "battery_lifetime": 1,
         "interest_rate": 2,
     },
@@ -18130,8 +18159,8 @@ def battery_economic_utility_rcpv():
         "additional_annual_pv_kwh_produced_by_archetype": 2,
         "self_consumption_degree": 1,
         "self_consumption_degree_with_storage": 1,
-        "self_consumption_degree_rcpv": 1,
         "additional_annual_rcpv_kwh_produced_by_archetype": 2,
+        "self_consumption_degree_rcpv": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
     },
 )
@@ -18410,8 +18439,8 @@ _delayfixed_pv_adoptions_by_archetype = DelayFixed(
     comp_subtype="Normal",
     depends_on={
         "kwh_over_mwh_of_demand_rcpv": 5,
-        "sc_05_kwhmwh_rcpv": 3,
         "self_consumption_degree_rcpv": 2,
+        "sc_05_kwhmwh_rcpv": 3,
         "sc_15_kwhmwh_rcpv": 1,
         "sc_10_kwhmwh_rcpv": 3,
     },
@@ -18455,8 +18484,8 @@ def utility_battery_exp_rcpv():
     comp_subtype="Normal",
     depends_on={
         "el_consumption_per_building": 1,
-        "self_consumption_degree_rcpv": 1,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "self_consumption_degree_rcpv": 1,
         "decentralized_storage_efficiency": 1,
     },
 )
@@ -19093,8 +19122,8 @@ def sc_degree_difference_by_type():
     comp_subtype="Normal",
     depends_on={
         "utility_pv_100_kw": 2,
-        "capacity_potential_pv_100_kw": 1,
         "capacity_pv_100_kw": 1,
+        "capacity_potential_pv_100_kw": 1,
         "share_pv_capacity_installed_per_district": 1,
     },
 )
@@ -19204,9 +19233,9 @@ def delta_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "buildings_pv_bno_district": 1,
         "adoption_battery_district_data": 2,
         "probability_of_adoption_battery_district": 2,
-        "buildings_pv_bno_district": 1,
     },
 )
 def battery_district_log_likelihood():
@@ -19359,8 +19388,8 @@ def probability_of_adoption_battery_district():
     comp_subtype="Normal",
     depends_on={
         "utility_pv_30_100_kw": 2,
-        "capacity_potential_pv_30_100_kw": 1,
         "capacity_pv_30_100_kw": 1,
+        "capacity_potential_pv_30_100_kw": 1,
         "share_pv_capacity_installed_per_district": 1,
     },
 )
@@ -19470,7 +19499,7 @@ def hs_veryold_demolited():
     name="Buildings construction with battery",
     units="building",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 6,
@@ -20201,8 +20230,8 @@ def battery_lifetime():
     comp_subtype="Normal",
     depends_on={
         "saved_energy_annually": 1,
-        "electricity_price": 1,
         "pv_cumulative_compensation_price": 1,
+        "electricity_price": 1,
         "battery_lifetime": 1,
         "interest_rate": 2,
     },
@@ -20219,7 +20248,7 @@ def battery_total_savings():
 @component.add(
     name="Initial Heating Solution battery",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"initial_heating_solution": 1},
 )
@@ -20276,8 +20305,8 @@ def buildings_by_performance_mfh():
         "kwh_over_mwh_of_demand": 5,
         "sc_05_kwhmwh": 3,
         "self_consumption_degree": 2,
-        "sc_10_kwhmwh": 3,
         "sc_15_kwhmwh": 1,
+        "sc_10_kwhmwh": 3,
     },
 )
 def self_consumption_degree_with_storage():
@@ -20504,7 +20533,7 @@ def residential_electricity_cons_sh_by_arch():
 @component.add(
     name="Res total construction by Perf Type District",
     subscripts=["Performance", "Type", "District"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"overall_constructed_buildings": 3, "heating_solution": 12},
 )
@@ -21101,11 +21130,11 @@ _integ_owned_buildings_with_rcpv_pvno = Integ(
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 3,
-        "owned_buildings_with_rcp": 1,
         "share_of_owned_houses": 1,
+        "owned_buildings_with_rcp": 1,
         "building_construction_by_archetype": 1,
-        "owners_adopting_pv": 2,
         "owned_buildings_with_rcpv": 1,
+        "owners_adopting_pv": 2,
     },
 )
 def owners_adopting_pv_flow():
@@ -21150,10 +21179,10 @@ def owners_adopting_pv_flow():
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 2,
-        "owned_buildings_with_rcp": 2,
-        "share_of_owned_houses": 1,
-        "building_construction_by_archetype": 1,
         "owners_adopting_rcp": 2,
+        "share_of_owned_houses": 1,
+        "owned_buildings_with_rcp": 2,
+        "building_construction_by_archetype": 1,
         "owned_buildings_with_rcpv": 1,
     },
 )
@@ -21274,8 +21303,8 @@ def renters_adopting_pv_flow():
         "share_of_owned_houses": 1,
         "building_construction_by_archetype": 1,
         "rented_buildings_with_rcpv": 1,
-        "rented_buildings_with_rcp": 2,
         "renters_adopting_rcp": 2,
+        "rented_buildings_with_rcp": 2,
     },
 )
 def renters_adopting_rcp_flow():
@@ -21631,10 +21660,10 @@ def adoption_pv_district():
     comp_subtype="Normal",
     depends_on={
         "owned_buildings_with_pv": 2,
-        "owned_buildings_with_rcp": 1,
         "share_of_owned_houses": 1,
-        "building_construction_by_archetype": 1,
+        "owned_buildings_with_rcp": 1,
         "owners_adopting_rcpv": 2,
+        "building_construction_by_archetype": 1,
         "owned_buildings_with_rcpv": 2,
     },
 )
@@ -22430,8 +22459,8 @@ def a_param_30_100_kw():
     comp_subtype="Normal",
     depends_on={
         "b_param_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "a_param_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_30_100_kw_investment_cost():
@@ -22519,7 +22548,7 @@ def irr_100_kw():
 @component.add(
     name="Coeff Low",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_low": 1},
 )
@@ -22547,7 +22576,7 @@ def coeff_low():
 @component.add(
     name="Coeff VeryLow",
     subscripts=["Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"coeff_verylow": 1},
 )
@@ -23149,7 +23178,7 @@ _integ_hs_middleage = Integ(
 @component.add(
     name="Historical carrier cost",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 56},
 )
@@ -23407,7 +23436,7 @@ def pv_for_hp_weight():
 @component.add(
     name="Dummy HS",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "dummy_oil": 2,
@@ -23637,10 +23666,10 @@ def adoption_nohp_pvpanel_data():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_nohp_pvpanel_data": 1,
-        "adoption_hp_pvpanel_data": 1,
-        "average_ms_hp_pvpanel": 1,
         "average_ms_nohp_pvpanel": 1,
+        "average_ms_hp_pvpanel": 1,
+        "adoption_hp_pvpanel_data": 1,
+        "adoption_nohp_pvpanel_data": 1,
     },
 )
 def hp_pvpanel_log_likelihood():
@@ -23685,9 +23714,9 @@ _ext_data_adoption_pv_heatpump_data = ExtData(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "buildings_no_heatpump": 1,
         "probability_of_adoption_pv_no_heatpump": 2,
         "adoption_pv_no_heatpump_data": 2,
+        "buildings_no_heatpump": 1,
     },
 )
 def pv_no_heatpump_log_likelihood():
@@ -23859,9 +23888,9 @@ def buildings_construction_total():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_pv_type_data": 2,
         "probability_of_adoption_pv_type": 2,
         "buildings_type": 1,
+        "adoption_pv_type_data": 2,
     },
 )
 def pv_type_log_likelihood():
@@ -24110,9 +24139,9 @@ def probability_of_adoption_pv_district():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "adoption_pv_performance_data": 2,
-        "probability_of_adoption_pv_performance": 2,
         "buildings_performance": 1,
+        "probability_of_adoption_pv_performance": 2,
+        "adoption_pv_performance_data": 2,
     },
 )
 def pv_performance_log_likelihood():
@@ -24177,9 +24206,9 @@ def average_ms_nohp_performance():
     depends_on={
         "time": 1,
         "adoption_nohp_type_data": 1,
+        "average_ms_nohp_type": 1,
         "average_ms_hp_type": 1,
         "adoption_hp_type_data": 1,
-        "average_ms_nohp_type": 1,
     },
 )
 def hp_type_log_likelihood():
@@ -24221,8 +24250,8 @@ def probability_of_adoption_pv_type():
     depends_on={
         "time": 1,
         "adoption_pv_district_data": 2,
-        "probability_of_adoption_pv_district": 2,
         "buildings_district": 1,
+        "probability_of_adoption_pv_district": 2,
     },
 )
 def pv_district_log_likelihood():
@@ -24328,8 +24357,8 @@ _ext_data_buildings_type = ExtData(
     depends_on={
         "time": 1,
         "average_ms_hp_performance": 1,
-        "adoption_nohp_performance_data": 1,
         "average_ms_nohp_performance": 1,
+        "adoption_nohp_performance_data": 1,
         "adoption_hp_performance_data": 1,
     },
 )
@@ -24427,14 +24456,14 @@ def share_of_consumers_considering_pv_weight():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_annual_generation_30_100_kw": 5,
-        "pv_annual_mantainance_cost": 2,
         "pv_fit_30_100_kw": 1,
         "interest_rate": 4,
+        "pv_annual_mantainance_cost": 2,
+        "pv_annual_generation_30_100_kw": 5,
+        "average_sc_30_100_kw": 2,
+        "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
         "pv_lifetime": 1,
-        "pv_cumulative_compensation_price": 1,
-        "average_sc_30_100_kw": 2,
     },
 )
 def pv_total_earnings_30_100_kw():
@@ -24473,12 +24502,12 @@ def pv_total_earnings_30_100_kw():
     depends_on={
         "time": 1,
         "pv_fit_100_kw": 1,
+        "interest_rate": 4,
         "pv_annual_generation_100_kw": 5,
         "pv_annual_mantainance_cost": 2,
-        "interest_rate": 4,
         "electricity_price": 1,
-        "pv_lifetime": 1,
         "pv_cumulative_compensation_price": 1,
+        "pv_lifetime": 1,
         "average_sc_100_kw": 2,
     },
 )
@@ -25419,14 +25448,14 @@ def total_hydro_monthly_production():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
-        "hourly_phs_production": 3,
-        "share_phs": 2,
-        "hourly_electricity_grid_demand": 1,
         "rr_hourly_supply": 1,
         "wind_hourly_supply": 1,
-        "pv_hourly_supply": 1,
-        "hourly_total_inflow_for_ticino": 1,
+        "share_phs": 2,
         "waste_hourly_supply": 1,
+        "hourly_total_inflow_for_ticino": 1,
+        "hourly_phs_production": 3,
+        "pv_hourly_supply": 1,
+        "hourly_electricity_grid_demand": 1,
     },
 )
 def phs_hourly_decrease():
@@ -25564,14 +25593,14 @@ def hourly_available_supply_by_supplier():
     comp_subtype="Normal",
     depends_on={
         "pv_hourly_difference": 3,
-        "share_hs": 2,
-        "hourly_phs_production": 1,
-        "hourly_electricity_grid_demand": 1,
         "rr_hourly_supply": 1,
         "wind_hourly_supply": 1,
-        "pv_hourly_supply": 1,
         "hourly_total_inflow_for_ticino": 3,
         "waste_hourly_supply": 1,
+        "share_hs": 2,
+        "hourly_phs_production": 1,
+        "pv_hourly_supply": 1,
+        "hourly_electricity_grid_demand": 1,
     },
 )
 def hs_hourly_decrease():
@@ -25694,25 +25723,6 @@ def monthly_electricity_demand():
         sum(hourly_electricity_grid_demand().rename({"Hour": "Hour!"}), dim=["Hour!"])
         * 365
         / 12
-    )
-
-
-@component.add(
-    name="Hourly electricity grid demand",
-    subscripts=["Month", "Hour"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"pv_hourly_sc": 2, "hourly_electricity_demand": 2},
-)
-def hourly_electricity_grid_demand():
-    return if_then_else(
-        pv_hourly_sc() < hourly_electricity_demand(),
-        lambda: hourly_electricity_demand() - pv_hourly_sc(),
-        lambda: xr.DataArray(
-            0,
-            {"Month": _subscript_dict["Month"], "Hour": _subscript_dict["Hour"]},
-            ["Month", "Hour"],
-        ),
     )
 
 
@@ -26277,8 +26287,8 @@ def delta_100_kw():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_100_kw": 1,
-        "pv_capacity_federal_subsidy_100_kw": 1,
         "average_power_pv_100_kw": 1,
+        "pv_capacity_federal_subsidy_100_kw": 1,
     },
 )
 def pv_federal_subsidy_100_kw():
@@ -26323,8 +26333,8 @@ _integ_capacity_pv_100_kw = Integ(
     depends_on={
         "time": 1,
         "pv_100_kw_investment_cost_time_adj": 2,
-        "pv_cantonal_subsidy_100_kw_check": 1,
         "pv_federal_subsidy_100_kw_check": 1,
+        "pv_cantonal_subsidy_100_kw_check": 1,
     },
 )
 def investment_pv_100_kw():
@@ -26479,8 +26489,8 @@ _integ_capacity_pv_30_100_kw = Integ(
     depends_on={
         "time": 1,
         "pv_30_100_kw_investment_cost_time_adj": 2,
-        "pv_cantonal_subsidy_30_100_kw_check": 1,
         "pv_federal_subsidy_30_100_kw_check": 1,
+        "pv_cantonal_subsidy_30_100_kw_check": 1,
     },
 )
 def investment_pv_30_100_kw():
@@ -26584,8 +26594,8 @@ def pv_30_100_kw_specific_investment_cost_initial():
     comp_subtype="Normal",
     depends_on={
         "pv_federal_grant_30_100_kw": 1,
-        "average_power_pv_30_100_kw": 1,
         "pv_capacity_federal_subsidy_30_100_kw": 1,
+        "average_power_pv_30_100_kw": 1,
     },
 )
 def pv_federal_subsidy_30_100_kw():
@@ -30770,12 +30780,12 @@ def probability_adoption_pv_owners():
     depends_on={
         "market_share_hs": 1,
         "dh_and_gas_suitability": 1,
-        "market_share_hs_nogas": 1,
         "dh_only_suitability": 1,
-        "market_share_hs_nodh": 1,
+        "market_share_hs_nogas": 1,
         "gas_only_suitability": 1,
-        "no_suitability": 1,
+        "market_share_hs_nodh": 1,
         "market_share_hs_nodh_nogas": 1,
+        "no_suitability": 1,
     },
 )
 def market_share_hs_filtered():
@@ -31234,9 +31244,9 @@ def annural_cantonal_subsidy_cu_by_archetype():
     depends_on={
         "time": 4,
         "initial_dso_charge": 4,
-        "total_annual_grid_upgrading_cost_by_dso_smooth": 4,
         "total_annual_grid_demand_districts": 8,
         "initial_dso_expenses": 4,
+        "total_annual_grid_upgrading_cost_by_dso_smooth": 4,
         "dso_charge": 4,
     },
 )
@@ -31407,9 +31417,9 @@ _integ_res_verylow_buildings = Integ(
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "res_verylow_buildings": 2,
-        "overall_demolited_buildings": 2,
         "res_buildings_share": 2,
+        "overall_demolited_buildings": 2,
+        "res_verylow_buildings": 2,
     },
 )
 def res_verylow_demolition():
@@ -31998,12 +32008,12 @@ def equivalent_lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
+        "pv_investment_cost": 4,
         "dwellings_per_building": 4,
         "tax_deduction_investment": 4,
-        "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
-        "kwp_installed_per_building": 1,
         "pv_cantonal_subsidy": 2,
+        "kwp_installed_per_building": 1,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_owner():
@@ -32091,11 +32101,11 @@ def green_utility_hs():
         "carrier_used_cost_per_kwh": 19,
         "annual_sh_demand": 17,
         "annual_mantainance_costs_hs": 14,
-        "lifetime": 14,
         "interest_rate": 28,
+        "lifetime": 14,
         "efficiency_dhw_storage": 10,
-        "self_sufficiency_degree": 6,
         "pv_cumulative_compensation_price": 3,
+        "self_sufficiency_degree": 6,
     },
 )
 def total_variable_costs_hs():
@@ -36210,8 +36220,8 @@ def initial_kwp_installed_by_archetype():
     depends_on={
         "pv_adoptions_by_archetype": 1,
         "kwp_installed_per_building": 1,
-        "rcpv_adoptions_by_archetype": 1,
         "kwp_installed_per_building_rcpv": 1,
+        "rcpv_adoptions_by_archetype": 1,
     },
 )
 def annual_pv_kw_installation_by_archetype():
@@ -36389,7 +36399,7 @@ _integ_res_veryhigh_buildings = Integ(
 @component.add(
     name="Buildings HS Renovation From",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "res_verylow_low_renovation": 1,
@@ -36398,10 +36408,10 @@ _integ_res_veryhigh_buildings = Integ(
         "res_verylow_veryhigh_renovation": 1,
         "share_hs_by_archetype": 4,
         "res_low_to_moderate_renovation": 1,
-        "res_low_veryhigh_renovation": 1,
         "res_low_high_renovation": 1,
-        "res_moderate_high_renovation": 1,
+        "res_low_veryhigh_renovation": 1,
         "res_moderate_veryhigh_renovation": 1,
+        "res_moderate_high_renovation": 1,
         "res_high_veryhigh_renovation": 1,
     },
 )
@@ -36516,20 +36526,20 @@ _integ_res_moderate_buildings = Integ(
 @component.add(
     name="Buildings HS Renovation To",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "res_verylow_low_renovation": 1,
         "share_hs_by_archetype": 10,
-        "res_low_to_moderate_renovation": 1,
         "res_verylow_moderate_renovation": 1,
-        "res_verylow_high_renovation": 1,
+        "res_low_to_moderate_renovation": 1,
         "res_low_high_renovation": 1,
+        "res_verylow_high_renovation": 1,
         "res_moderate_high_renovation": 1,
-        "res_low_veryhigh_renovation": 1,
-        "res_verylow_veryhigh_renovation": 1,
-        "res_moderate_veryhigh_renovation": 1,
         "res_high_veryhigh_renovation": 1,
+        "res_verylow_veryhigh_renovation": 1,
+        "res_low_veryhigh_renovation": 1,
+        "res_moderate_veryhigh_renovation": 1,
     },
 )
 def buildings_hs_renovation_to():
@@ -37753,9 +37763,76 @@ def emissions_per_kwh_carrier_used():
 
 
 @component.add(
+    name="Electricity consumed",
+    units="GWh",
+    subscripts=["Month", "Hour", "Supplier"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"electricity_dispatched": 2, "pv_hourly_sc_computed": 1},
+)
+def electricity_consumed():
+    value = xr.DataArray(
+        np.nan,
+        {
+            "Month": _subscript_dict["Month"],
+            "Hour": _subscript_dict["Hour"],
+            "Supplier": _subscript_dict["Supplier"],
+        },
+        ["Month", "Hour", "Supplier"],
+    )
+    value.loc[:, :, ["Solar"]] = (
+        (
+            electricity_dispatched().loc[:, :, "Solar"].reset_coords(drop=True)
+            + pv_hourly_sc_computed()
+        )
+        .expand_dims({"Supplier": ["Solar"]}, 2)
+        .values
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[:, :, ["Solar"]] = False
+    value.values[except_subs.values] = electricity_dispatched().values[
+        except_subs.values
+    ]
+    return value
+
+
+@component.add(
+    name="Vehicle range factor change",
+    subscripts=["Vechicle"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"time": 4},
+)
+def vehicle_range_factor_change():
+    """
+    -0.0256 -0.0164 -0.0166 -0.0148 -0.0105
+    """
+    value = xr.DataArray(
+        np.nan, {"Vechicle": _subscript_dict["Vechicle"]}, ["Vechicle"]
+    )
+    value.loc[["BEV"]] = if_then_else(
+        time() < 2015,
+        lambda: 0.1339,
+        lambda: if_then_else(
+            time() < 2020,
+            lambda: 0.0857,
+            lambda: if_then_else(
+                time() < 2030,
+                lambda: 0.0714,
+                lambda: if_then_else(time() < 2040, lambda: 0.0429, lambda: 0.0286),
+            ),
+        ),
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[["BEV"]] = False
+    value.values[except_subs.values] = 0
+    return value
+
+
+@component.add(
     name="HS Log Likelihood",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 3, "adoption_heating_solutions_data": 3, "average_ms_by_hs": 3},
 )
@@ -37800,7 +37877,7 @@ def hs_log_likelihood():
 @component.add(
     name="Market Share HS noDH noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_nodh": 3},
 )
@@ -37837,7 +37914,7 @@ def market_share_hs_nodh_nogas():
 @component.add(
     name="Market Share HS noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs": 3},
 )
@@ -37874,7 +37951,7 @@ def market_share_hs_nogas():
 @component.add(
     name="Market Share HS no incentives noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives": 3},
 )
@@ -37973,7 +38050,7 @@ def peer_effect_hs_factor():
 @component.add(
     name="Market Share HS no incentives noDH noGas",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives_nodh": 3},
 )
@@ -38004,39 +38081,6 @@ def market_share_hs_no_incentives_nodh_nogas():
         )
     ).values[except_subs.values]
     value.loc[:, _subscript_dict["WithGas"], :, :, :] = 0
-    return value
-
-
-@component.add(
-    name="Vehicle range factor change",
-    subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={"time": 4},
-)
-def vehicle_range_factor_change():
-    """
-    -0.0256 -0.0164 -0.0166 -0.0148 -0.0105
-    """
-    value = xr.DataArray(
-        np.nan, {"Vechicle": _subscript_dict["Vechicle"]}, ["Vechicle"]
-    )
-    value.loc[["BEV"]] = if_then_else(
-        time() < 2015,
-        lambda: 0.1339,
-        lambda: if_then_else(
-            time() < 2020,
-            lambda: 0.0857,
-            lambda: if_then_else(
-                time() < 2030,
-                lambda: 0.0714,
-                lambda: if_then_else(time() < 2040, lambda: 0.0429, lambda: 0.0286),
-            ),
-        ),
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[["BEV"]] = False
-    value.values[except_subs.values] = 0
     return value
 
 
@@ -38367,40 +38411,6 @@ def ev_buying_incentive():
 
 
 @component.add(
-    name="Electricity consumed",
-    units="GWh",
-    subscripts=["Month", "Hour", "Supplier"],
-    comp_type="Auxiliary",
-    comp_subtype="Normal",
-    depends_on={"electricity_dispatched": 2, "pv_hourly_sc": 1},
-)
-def electricity_consumed():
-    value = xr.DataArray(
-        np.nan,
-        {
-            "Month": _subscript_dict["Month"],
-            "Hour": _subscript_dict["Hour"],
-            "Supplier": _subscript_dict["Supplier"],
-        },
-        ["Month", "Hour", "Supplier"],
-    )
-    value.loc[:, :, ["Solar"]] = (
-        (
-            electricity_dispatched().loc[:, :, "Solar"].reset_coords(drop=True)
-            + pv_hourly_sc()
-        )
-        .expand_dims({"Supplier": ["Solar"]}, 2)
-        .values
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[:, :, ["Solar"]] = False
-    value.values[except_subs.values] = electricity_dispatched().values[
-        except_subs.values
-    ]
-    return value
-
-
-@component.add(
     name="Consumers leaving vehicle",
     subscripts=["District", "Vechicle"],
     comp_type="Auxiliary",
@@ -38617,8 +38627,8 @@ def total_annualised_cost_vehicle():
         "initial_purchase_cost_vehicle": 7,
         "vehicle_purchase_cost_factor": 7,
         "ev_buying_incentive": 5,
-        "private_charging_station_cost": 3,
         "private_charging_station_incentive": 3,
+        "private_charging_station_cost": 3,
         "federal_tax_deduction_import_ev": 1,
     },
 )
@@ -38890,8 +38900,8 @@ def green_utility_v():
         "fuel_consumption_per_km": 6,
         "emissions_per_mwh_petrol": 3,
         "emissions_per_mwh_diesel": 3,
-        "el_consumption_per_km": 3,
         "emissions_per_kwh_carrier_used": 3,
+        "el_consumption_per_km": 3,
     },
 )
 def co2eq_per_km():
@@ -39235,7 +39245,7 @@ def vehicle_efficiency_factor_i():
 @component.add(
     name="Vehicle electric consumption per km factor change",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 12},
 )
@@ -39330,7 +39340,7 @@ _integ_vehicle_fuel_consumption_per_km_factor = Integ(
 @component.add(
     name="Vehicle fuel consumption per km factor change",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 8},
 )
@@ -39511,7 +39521,7 @@ def infrastructure_utility_factor():
 @component.add(
     name="Infrastructure Utility",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"public_charging_stations": 9},
 )
@@ -39633,13 +39643,13 @@ def charged_electricity_per_year():
     name="Cost per km fuel",
     units="CHF/km",
     subscripts=["Vechicle"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "fuel_consumption_per_km": 6,
         "petrol_price": 3,
-        "density_petrol": 3,
         "lhv_petrol": 3,
+        "density_petrol": 3,
         "lhv_diesel": 3,
         "diesel_price": 3,
         "denity_diesel": 3,
@@ -40309,7 +40319,7 @@ def utility_hs_no_incentives():
 @component.add(
     name="Market Share HS noDH",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs": 3},
 )
@@ -40341,7 +40351,7 @@ def market_share_hs_nodh():
 @component.add(
     name="Market Share HS no incentives noDH",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"market_share_hs_no_incentives": 3},
 )
@@ -40531,10 +40541,10 @@ def market_share_hs():
     depends_on={
         "verylow_changing_roof": 1,
         "roof_verylow_probabilities": 1,
-        "wall_verylow_probabilities": 1,
         "verylow_changing_wall": 1,
-        "verylow_changing_ground": 1,
+        "wall_verylow_probabilities": 1,
         "ground_verylow_probabilities": 1,
+        "verylow_changing_ground": 1,
     },
 )
 def verylow_to_performance():
@@ -40553,16 +40563,16 @@ def verylow_to_performance():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "dwellings_per_building": 5,
-        "pv_annual_generation_per_building": 12,
-        "kwp_installed_per_building": 2,
-        "interest_rate": 10,
         "pv_fit_10_kw": 1,
-        "pv_fit_10_30_kw": 2,
         "pv_annual_mantainance_cost": 5,
+        "pv_annual_generation_per_building": 12,
+        "dwellings_per_building": 5,
+        "interest_rate": 10,
+        "pv_fit_10_30_kw": 2,
+        "kwp_installed_per_building": 2,
         "electricity_price": 2,
-        "pv_lifetime": 2,
         "pv_cumulative_compensation_price": 2,
+        "pv_lifetime": 2,
         "self_consumption_degree": 4,
     },
 )
@@ -40675,8 +40685,8 @@ def pv_federal_subsidy_check():
     depends_on={
         "heating_solution": 2,
         "equivalent_lifetime": 1,
-        "consumers_adopting_pv_no": 1,
         "building_demolition_by_archetype": 1,
+        "consumers_adopting_pv_no": 1,
         "buildings_hs_renovation_from": 1,
     },
 )
@@ -40994,25 +41004,25 @@ def pv_differential_cost_change():
 
 
 @component.add(
-    name="Owners adopting RCPv",
+    name="Requested Owners adopting RCPv",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "owned_buildings_with_pv": 1,
-        "owned_buildings_with_rcp": 1,
-        "share_of_owned_houses": 1,
-        "share_urban_buildings": 1,
         "probability_adoption_rcpv_owners": 1,
-        "heating_solution": 3,
-        "owned_buildings_with_rcpv_pvno": 1,
+        "share_of_owned_houses": 1,
         "share_of_buildings_with_suitable_roof": 1,
+        "owned_buildings_with_rcp": 1,
+        "heating_solution": 3,
         "owned_buildings_with_rcpv": 1,
+        "share_urban_buildings": 1,
+        "owned_buildings_with_pv": 1,
+        "owned_buildings_with_rcpv_pvno": 1,
         "energy_community_scenario": 1,
     },
 )
-def owners_adopting_rcpv():
+def requested_owners_adopting_rcpv():
     return np.maximum(
         if_then_else(
             time() < 2025,
@@ -41071,25 +41081,25 @@ def owners_adopting_rcpv():
 
 
 @component.add(
-    name="Renters adopting RCPv",
+    name="Requested Renters adopting RCPv",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
+        "rented_buildings_with_pv": 1,
         "share_of_owned_houses": 1,
-        "share_urban_buildings": 1,
+        "share_of_buildings_with_suitable_roof": 1,
+        "probability_adoption_rcpv_renters": 1,
+        "heating_solution": 3,
         "rented_buildings_with_rcpv": 1,
+        "share_urban_buildings": 1,
         "rented_buildings_with_rcp": 1,
         "rented_buildings_with_rcpv_pvno": 1,
-        "heating_solution": 3,
-        "share_of_buildings_with_suitable_roof": 1,
-        "rented_buildings_with_pv": 1,
-        "probability_adoption_rcpv_renters": 1,
         "energy_community_scenario": 1,
     },
 )
-def renters_adopting_rcpv():
+def requested_renters_adopting_rcpv():
     return np.maximum(
         if_then_else(
             time() < 2025,
@@ -41908,7 +41918,7 @@ def utility_hs():
 @component.add(
     name="Consumers adopting PV no",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel", "Battery"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "owners_adopting_pv": 1,
@@ -41953,7 +41963,7 @@ def consumers_adopting_pv_no():
 @component.add(
     name="Consumers adopting PV yes",
     subscripts=["District", "HS", "Performance", "Type", "PVpanel"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "owners_adopting_pv": 1,
@@ -42028,9 +42038,71 @@ def green_utility_weight():
 
 
 @component.add(
+    name="Retrofit Moderate SFH Log Likelihood",
+    subscripts=["Performance"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "moderate_to_performance_sfh_ms": 1,
+        "retrofit_moderate_sfh_data": 1,
+    },
+)
+def retrofit_moderate_sfh_log_likelihood():
+    """
+    IF THEN ELSE( Time < 2020 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) + Retrofit Low SFH Data[High] * LN( Low to High SFH MS ) + Retrofit Low SFH Data[VeryHigh] * LN( Low to VeryHigh SFH MS ) , 0 ) )
+    """
+    value = xr.DataArray(
+        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
+    value.values[except_subs.values] = if_then_else(
+        time() < 2025,
+        lambda: retrofit_moderate_sfh_data() * np.log(moderate_to_performance_sfh_ms()),
+        lambda: xr.DataArray(
+            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+        ),
+    ).values[except_subs.values]
+    value.loc[_subscript_dict["PerformanceLow"]] = 0
+    return value
+
+
+@component.add(
+    name="Retrofit Moderate MFH Log Likelihood",
+    subscripts=["Performance"],
+    comp_type="Constant, Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "time": 1,
+        "moderate_to_performance_mfh_ms": 1,
+        "retrofit_moderate_mfh_data": 1,
+    },
+)
+def retrofit_moderate_mfh_log_likelihood():
+    """
+    IF THEN ELSE( Time < 2020 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) + Retrofit Low MFH Data[High] * LN( Low to High MFH MS ) + Retrofit Low MFH Data[VeryHigh] * LN( Low to VeryHigh MFH MS ) , 0 ) )
+    """
+    value = xr.DataArray(
+        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+    )
+    except_subs = xr.ones_like(value, dtype=bool)
+    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
+    value.values[except_subs.values] = if_then_else(
+        time() < 2025,
+        lambda: retrofit_moderate_mfh_data() * np.log(moderate_to_performance_mfh_ms()),
+        lambda: xr.DataArray(
+            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
+        ),
+    ).values[except_subs.values]
+    value.loc[_subscript_dict["PerformanceLow"]] = 0
+    return value
+
+
+@component.add(
     name="Wall Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_low_scaled": 1},
 )
@@ -42056,12 +42128,12 @@ def wall_low_exp():
 @component.add(
     name="Retrofit High SFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "high_to_performance_sfh_ms": 1,
         "retrofit_high_sfh_data": 1,
+        "high_to_performance_sfh_ms": 1,
     },
 )
 def retrofit_high_sfh_log_likelihood():
@@ -42098,7 +42170,7 @@ def retrofit_high_sfh_log_likelihood():
 @component.add(
     name="Ground Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_low_scaled": 1},
 )
@@ -42124,7 +42196,7 @@ def ground_low_exp():
 @component.add(
     name="Retrofit High MFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 1,
@@ -42215,68 +42287,6 @@ def pv_investment_cost_rcpv():
 
 
 @component.add(
-    name="Retrofit Moderate SFH Log Likelihood",
-    subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "time": 1,
-        "retrofit_moderate_sfh_data": 1,
-        "moderate_to_performance_sfh_ms": 1,
-    },
-)
-def retrofit_moderate_sfh_log_likelihood():
-    """
-    IF THEN ELSE( Time < 2020 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low SFH Data[Low] * LN( Low to Low SFH MS ) + Retrofit Low SFH Data[Moderate] * LN( Low to Moderate SFH MS ) + Retrofit Low SFH Data[High] * LN( Low to High SFH MS ) + Retrofit Low SFH Data[VeryHigh] * LN( Low to VeryHigh SFH MS ) , 0 ) )
-    """
-    value = xr.DataArray(
-        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
-    value.values[except_subs.values] = if_then_else(
-        time() < 2025,
-        lambda: retrofit_moderate_sfh_data() * np.log(moderate_to_performance_sfh_ms()),
-        lambda: xr.DataArray(
-            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-        ),
-    ).values[except_subs.values]
-    value.loc[_subscript_dict["PerformanceLow"]] = 0
-    return value
-
-
-@component.add(
-    name="Retrofit Moderate MFH Log Likelihood",
-    subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
-    comp_subtype="Normal",
-    depends_on={
-        "time": 1,
-        "moderate_to_performance_mfh_ms": 1,
-        "retrofit_moderate_mfh_data": 1,
-    },
-)
-def retrofit_moderate_mfh_log_likelihood():
-    """
-    IF THEN ELSE( Time < 2020 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) , IF THEN ELSE( Time < 2024 , Retrofit Low MFH Data[Low] * LN( Low to Low MFH MS ) + Retrofit Low MFH Data[Moderate] * LN( Low to Moderate MFH MS ) + Retrofit Low MFH Data[High] * LN( Low to High MFH MS ) + Retrofit Low MFH Data[VeryHigh] * LN( Low to VeryHigh MFH MS ) , 0 ) )
-    """
-    value = xr.DataArray(
-        np.nan, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-    )
-    except_subs = xr.ones_like(value, dtype=bool)
-    except_subs.loc[_subscript_dict["PerformanceLow"]] = False
-    value.values[except_subs.values] = if_then_else(
-        time() < 2025,
-        lambda: retrofit_moderate_mfh_data() * np.log(moderate_to_performance_mfh_ms()),
-        lambda: xr.DataArray(
-            0, {"Performance": _subscript_dict["Performance"]}, ["Performance"]
-        ),
-    ).values[except_subs.values]
-    value.loc[_subscript_dict["PerformanceLow"]] = 0
-    return value
-
-
-@component.add(
     name="Battery capacity",
     subscripts=["District", "HS", "Performance", "Type"],
     comp_type="Auxiliary",
@@ -42324,14 +42334,14 @@ def battery_capacity_1_rcpv():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "pv_annual_generation_per_building": 10,
-        "kwp_installed_per_building": 2,
-        "interest_rate": 10,
         "pv_fit_10_kw": 1,
-        "pv_fit_10_30_kw": 2,
         "pv_annual_mantainance_cost": 5,
-        "pv_lifetime": 2,
+        "pv_annual_generation_per_building": 10,
+        "interest_rate": 10,
+        "pv_fit_10_30_kw": 2,
+        "kwp_installed_per_building": 2,
         "pv_cumulative_compensation_price": 2,
+        "pv_lifetime": 2,
     },
 )
 def pv_total_savings_renter():
@@ -42455,14 +42465,14 @@ def rcpv_eco_utility_renter():
     depends_on={
         "time": 1,
         "pv_annual_generation_per_building_rcpv": 4,
-        "dwellings_per_building": 1,
-        "self_consumption_degree_rcpv": 3,
-        "buildings_pvno_connected_to_rcpv": 1,
+        "pv_annual_mantainance_cost": 1,
         "pv_cumulative_compensation_price": 1,
         "electricity_price": 2,
-        "pv_annual_mantainance_cost": 1,
-        "pv_lifetime": 1,
+        "dwellings_per_building": 1,
+        "buildings_pvno_connected_to_rcpv": 1,
+        "self_consumption_degree_rcpv": 3,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcpv_total_savings_owner():
@@ -42519,11 +42529,11 @@ def rcpv_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "time": 2,
-        "tax_deduction_investment": 4,
         "pv_investment_cost": 4,
-        "pv_federal_subsidy_check": 2,
-        "kwp_installed_per_building": 1,
+        "tax_deduction_investment": 4,
         "pv_cantonal_subsidy": 2,
+        "kwp_installed_per_building": 1,
+        "pv_federal_subsidy_check": 2,
     },
 )
 def initial_investment_pv_renter():
@@ -42826,8 +42836,8 @@ def pv_eco_utility_renter():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building_rcpv": 3,
-        "b_param_10_kw": 1,
         "a_param_10_kw": 1,
+        "b_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -42850,13 +42860,13 @@ def pv_initial_investment_cost_rcpv():
     depends_on={
         "time": 1,
         "pv_annual_generation_per_building_rcpv": 3,
-        "self_consumption_degree_rcpv": 2,
-        "buildings_pvno_connected_to_rcpv": 2,
+        "pv_annual_mantainance_cost": 1,
         "pv_cumulative_compensation_price": 1,
         "electricity_price": 1,
-        "pv_annual_mantainance_cost": 1,
-        "pv_lifetime": 1,
+        "buildings_pvno_connected_to_rcpv": 2,
+        "self_consumption_degree_rcpv": 2,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcpv_total_savings_renter():
@@ -43191,7 +43201,7 @@ def ground_high_scaled():
 @component.add(
     name="Roof High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_high_scaled": 1},
 )
@@ -43223,7 +43233,7 @@ def roof_high_exp():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"roof_high_scaled": 2, "roof_high": 3, "coeff_high": 1},
+    depends_on={"roof_high_scaled": 2, "coeff_high": 1, "roof_high": 3},
 )
 def roof_high_scaled():
     value = xr.DataArray(
@@ -43282,7 +43292,7 @@ def roof_high_scaled():
 @component.add(
     name="Wall High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"wall_high_scaled": 1},
 )
@@ -43312,7 +43322,7 @@ def wall_high_exp():
 @component.add(
     name="Ground High exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"ground_high_scaled": 1},
 )
@@ -43344,7 +43354,7 @@ def ground_high_exp():
     subscripts=["District", "Type", "Performance"],
     comp_type="Auxiliary",
     comp_subtype="Normal",
-    depends_on={"wall_high_scaled": 2, "wall_high": 3, "coeff_high": 1},
+    depends_on={"wall_high_scaled": 2, "coeff_high": 1, "wall_high": 3},
 )
 def wall_high_scaled():
     value = xr.DataArray(
@@ -43403,9 +43413,9 @@ def wall_high_scaled():
 @component.add(
     name="Retrofit Low SFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "low_to_performance_sfh_ms": 1, "retrofit_low_sfh_data": 1},
+    depends_on={"time": 1, "retrofit_low_sfh_data": 1, "low_to_performance_sfh_ms": 1},
 )
 def retrofit_low_sfh_log_likelihood():
     """
@@ -43430,9 +43440,9 @@ def retrofit_low_sfh_log_likelihood():
 @component.add(
     name="Retrofit Low MFH Log Likelihood",
     subscripts=["Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
-    depends_on={"time": 1, "retrofit_low_mfh_data": 1, "low_to_performance_mfh_ms": 1},
+    depends_on={"time": 1, "low_to_performance_mfh_ms": 1, "retrofit_low_mfh_data": 1},
 )
 def retrofit_low_mfh_log_likelihood():
     """
@@ -43782,16 +43792,16 @@ def annual_mantainance_costs_hs():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "cantonal_levy_evolution": 4,
-        "rented_buildings_with_rcpv_pvno": 1,
-        "self_consumption_degree_rcpv": 2,
-        "owned_buildings_with_rcpv_pvno": 1,
         "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
+        "self_consumption_degree_rcpv": 2,
+        "rented_buildings_with_rcpv_pvno": 1,
         "share_primary_houses": 3,
-        "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
-        "self_consumption_degree_with_storage": 1,
-        "time": 2,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "self_consumption_degree_with_storage": 1,
+        "pv_annual_generation_per_building": 2,
+        "time": 2,
+        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree": 1,
     },
 )
@@ -43944,16 +43954,16 @@ def annual_cost_cantonal_levy_by_arch():
         "heating_solution": 7,
         "el_consumption_per_building": 7,
         "levy_evolution": 4,
-        "rented_buildings_with_rcpv_pvno": 1,
-        "self_consumption_degree_rcpv": 2,
-        "owned_buildings_with_rcpv_pvno": 1,
         "pv_annual_generation_per_building_rcpv": 3,
+        "owned_buildings_with_rcpv_pvno": 1,
+        "self_consumption_degree_rcpv": 2,
+        "rented_buildings_with_rcpv_pvno": 1,
         "share_primary_houses": 3,
-        "pv_annual_generation_per_building": 2,
-        "buildings_rcpv_by_archetype": 4,
-        "self_consumption_degree_with_storage": 1,
-        "time": 2,
         "self_consumption_degree_with_storage_rcpv": 1,
+        "self_consumption_degree_with_storage": 1,
+        "pv_annual_generation_per_building": 2,
+        "time": 2,
+        "buildings_rcpv_by_archetype": 4,
         "self_consumption_degree": 1,
     },
 )
@@ -44116,14 +44126,14 @@ def pv_annual_generation_per_building():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "dwellings_per_building": 1,
-        "pv_annual_generation_per_building": 3,
-        "pv_cumulative_compensation_price": 1,
-        "electricity_price": 1,
         "pv_annual_mantainance_cost": 1,
+        "pv_cumulative_compensation_price": 1,
+        "pv_annual_generation_per_building": 3,
+        "electricity_price": 1,
+        "dwellings_per_building": 1,
         "self_consumption_degree": 2,
-        "pv_lifetime": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcp_total_savings_owner():
@@ -44168,8 +44178,8 @@ def rcp_total_savings_owner():
     comp_subtype="Normal",
     depends_on={
         "kwp_installed_per_building": 3,
-        "b_param_10_kw": 1,
         "a_param_10_kw": 1,
+        "b_param_10_kw": 1,
         "a_param_10_30_kw": 1,
         "b_param_10_30_kw": 1,
     },
@@ -44190,13 +44200,13 @@ def pv_initial_investment_cost():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "pv_annual_generation_per_building": 3,
-        "pv_cumulative_compensation_price": 1,
-        "electricity_price": 1,
         "pv_annual_mantainance_cost": 1,
+        "pv_cumulative_compensation_price": 1,
+        "pv_annual_generation_per_building": 3,
+        "electricity_price": 1,
         "self_consumption_degree": 2,
-        "pv_lifetime": 1,
         "interest_rate": 2,
+        "pv_lifetime": 1,
     },
 )
 def rcp_total_savings_renter():
@@ -44434,7 +44444,7 @@ def utility_battery_rcpv():
 @component.add(
     name="Roof Low exp",
     subscripts=["District", "Type", "Performance"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"roof_low_scaled": 1},
 )
@@ -44508,7 +44518,7 @@ def utility_battery():
     name="Carrier used cost per kWh",
     units="CHF/l",
     subscripts=["District", "Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "time": 6,
@@ -44580,7 +44590,7 @@ def carrier_used_cost_per_kwh():
     name="Efficiency",
     units="Dmnl",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"hp_efficiency_uncertainty_factor": 1},
 )
@@ -44600,7 +44610,7 @@ def efficiency():
     name="Lifetime",
     units="year",
     subscripts=["HS"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "oilgas_lifetime_uncertainty_factor": 4,
@@ -44631,11 +44641,11 @@ def lifetime():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
+        "technology_dhw_installed_capacity_sh_and_dhw": 3,
         "investment_grant_per_kw_15_kw_1": 1,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44672,9 +44682,9 @@ def grant_pelletboiler_pellet():
     depends_on={
         "time": 1,
         "technology_sh_installed_capacity_just_sh": 3,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44702,10 +44712,10 @@ def grant_pelletboiler_woodst():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "investment_grant_per_kw_dh": 1,
         "technology_dhw_installed_capacity_sh_and_dhw": 1,
-        "technology_sh_installed_capacity_sh_and_dhw": 1,
+        "investment_grant_per_kw_dh": 1,
         "initial_grant_dh": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 1,
         "grant_absolute": 1,
     },
 )
@@ -44729,11 +44739,11 @@ def grant_dh():
     comp_subtype="Normal",
     depends_on={
         "time": 1,
-        "technology_dhw_installed_capacity_sh_and_dhw": 3,
-        "technology_sh_installed_capacity_sh_and_dhw": 3,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
+        "technology_sh_installed_capacity_sh_and_dhw": 3,
+        "technology_dhw_installed_capacity_sh_and_dhw": 3,
         "investment_grant_per_kw_15_kw_1": 1,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44770,9 +44780,9 @@ def grant_hp_heatpump():
     depends_on={
         "time": 1,
         "technology_sh_installed_capacity_just_sh": 3,
-        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw": 1,
         "investment_grant_per_kw_15_kw_1": 1,
+        "investment_grant_per_kw_15_kw": 1,
         "initial_grant_15_kw_1": 1,
         "grant_absolute": 1,
     },
@@ -44804,13 +44814,13 @@ def grant_hp_hpst():
         "emissions_per_capacity_installed": 15,
         "lifetime": 15,
         "technology_sh_installed_capacity_just_sh": 4,
-        "annual_sh_demand": 11,
         "emissions_per_kwh_carrier_used": 11,
         "efficiency": 10,
         "st_share_of_total_heat_production": 4,
+        "annual_sh_demand": 11,
         "annual_dhw_demand": 11,
-        "efficiency_dhw_storage": 6,
         "technology_dhw_installed_capacity_sh_and_dhw": 7,
+        "efficiency_dhw_storage": 6,
         "technology_sh_installed_capacity_sh_and_dhw": 7,
     },
 )
@@ -45072,7 +45082,7 @@ def annual_gwp_heating_solution():
     units="CHF",
     subscripts=["HS", "District", "Performance", "Type"],
     comp_type="Auxiliary",
-    comp_subtype="Normal, with Lookup",
+    comp_subtype="with Lookup, Normal",
     depends_on={
         "technology_sh_installed_capacity_sh_and_dhw": 7,
         "technology_dhw_installed_capacity_sh_and_dhw": 7,
@@ -45434,7 +45444,7 @@ def annualized_total_cost_hs():
     name="Residential electricity cons DHW per building",
     units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={
         "annual_dhw_demand": 3,
@@ -45668,7 +45678,7 @@ def annual_dhw_demand():
     name="Residential electricity cons SH per building",
     units="kWh",
     subscripts=["District", "HS", "Performance", "Type"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"annual_sh_demand": 3, "efficiency": 3},
 )
@@ -45831,7 +45841,7 @@ def annual_variable_costs_sh():
     name='"Initial grant < 15 kW"',
     units="CHF",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 10},
 )
@@ -45879,7 +45889,7 @@ def initial_grant_15_kw_1():
     name='"Investment grant per kW < 15 kW"',
     units="CHF/kW",
     subscripts=["Tech"],
-    comp_type="Auxiliary, Constant",
+    comp_type="Constant, Auxiliary",
     comp_subtype="Normal",
     depends_on={"time": 9},
 )
@@ -45939,3 +45949,293 @@ def emissions_per_capacity_installed():
     value.loc[["ST"]] = 221.2
     value.loc[["WoodBoiler"]] = 21.1
     return value
+
+
+@component.add(
+    name="Available PV adoption",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "heating_solution": 1,
+        "time_step": 1,
+        "building_demolition_by_archetype": 1,
+        "buildings_hs_renovation_from": 1,
+    },
+)
+def available_pv_adoption():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(
+        0,
+        heating_solution().loc[:, :, :, :, "PVno", "Bno"].reset_coords(drop=True)
+        / time_step()
+        - np.maximum(
+            0,
+            building_demolition_by_archetype()
+            .loc[:, :, :, :, "PVno", "Bno"]
+            .reset_coords(drop=True),
+        )
+        - np.maximum(
+            0,
+            buildings_hs_renovation_from()
+            .loc[:, :, :, :, "PVno", "Bno"]
+            .reset_coords(drop=True),
+        ),
+    )
+
+
+@component.add(
+    name="Total PV request",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_pv": 1,
+        "requested_owners_adopting_rcp": 1,
+        "requested_owners_adopting_rcpv": 1,
+        "requested_renters_adopting_pv": 1,
+        "requested_renters_adopting_rcp": 1,
+        "requested_renters_adopting_rcpv": 1,
+    },
+)
+def total_pv_request():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return (
+        np.maximum(0, requested_owners_adopting_pv())
+        + np.maximum(0, requested_owners_adopting_rcp())
+        + np.maximum(0, requested_owners_adopting_rcpv())
+        + np.maximum(0, requested_renters_adopting_pv())
+        + np.maximum(0, requested_renters_adopting_rcp())
+        + np.maximum(0, requested_renters_adopting_rcpv())
+    )
+
+
+@component.add(
+    name="Accepted PV adoption",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={"available_pv_adoption": 1, "total_pv_request": 1},
+)
+def accepted_pv_adoption():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.minimum(available_pv_adoption(), total_pv_request())
+
+
+@component.add(
+    name="Owners adopting PV",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_pv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def owners_adopting_pv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Owners adopting RCP",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_rcp": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def owners_adopting_rcp():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Owners adopting RCPv",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_owners_adopting_rcpv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def owners_adopting_rcpv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_owners_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting PV",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_pv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def renters_adopting_pv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_pv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting RCP",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_rcp": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def renters_adopting_rcp():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_rcp()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
+
+
+@component.add(
+    name="Renters adopting RCPv",
+    units="building/year",
+    subscripts=["District", "HS", "Performance", "Type"],
+    comp_type="Auxiliary",
+    comp_subtype="Normal",
+    depends_on={
+        "requested_renters_adopting_rcpv": 1,
+        "total_pv_request": 2,
+        "accepted_pv_adoption": 1,
+    },
+)
+def renters_adopting_rcpv():
+    """
+    sure-v6-pv-budget-2: shared PV source budget.
+    """
+    return np.maximum(0, requested_renters_adopting_rcpv()) * (
+        accepted_pv_adoption()
+        / if_then_else(
+            total_pv_request() > 0,
+            lambda: total_pv_request(),
+            lambda: xr.DataArray(
+                1,
+                {
+                    "District": _subscript_dict["District"],
+                    "HS": _subscript_dict["HS"],
+                    "Performance": _subscript_dict["Performance"],
+                    "Type": _subscript_dict["Type"],
+                },
+                ["District", "HS", "Performance", "Type"],
+            ),
+        )
+    )
