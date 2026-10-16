@@ -8,14 +8,16 @@ bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
 Il modello è sviluppato in Vensim e tradotto con
 [PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
-simulazioni live di SURE v6 con Julia; il backend Python resta selezionabile.
-La release `v0.3.0` usa il modello corretto `sure-v6-pv-budget-2` e i dati
-`data-v1.2.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
+simulazioni live di SURE v7 con Julia; il backend Python resta selezionabile.
+La release `v0.4.0` usa il modello `sure-v7-dispatch-1` e i dati
+`data-v2.0.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
 incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
-Il limite condiviso delle adozioni FV impedisce di prelevare edifici oltre
-la disponibilità della categoria di origine. Validazione e provenienza sono
-descritte nel [rapporto del modello corretto](docs/validation/PV_BUDGET_RESULTS.md)
-e nel [rapporto dei 100 campioni](docs/validation/POLICY_MIX_RESULTS.md).
+La v7 integra la correzione del contributo cantonale FER, la calibrazione
+ricevuta il 16 ottobre 2026 e il dispatch per priorità. Il budget condiviso
+limita le adozioni PV agli edifici disponibili. Tutti i 418 confronti
+Python–Julia e i controlli fisici del batch sono superati; restano documentati
+i piccoli scarti dell’allocatore nativo Vensim nella
+[diagnosi e validazione v7](docs/validation/dispatch-correction.md).
 
 ## Riconoscimenti
 
@@ -79,7 +81,7 @@ aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
 ## Docker
 
 Per provare le modifiche dell'interfaccia con il runtime Julia e i dati della
-release `v0.3.1`, senza ricompilare il modello:
+release `v0.4.0`, senza ricompilare il modello:
 
 ```bash
 docker compose -f docker-compose.local.yml up -d
@@ -118,9 +120,9 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.3.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.4.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0 e v0.3.0 usano v6.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`; v0.4.0 usa v7.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
@@ -203,23 +205,24 @@ nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
 
 ## Sorgenti del modello e manutenzione
 
-Il modello eseguito è `SURE_pysd_v6_pvbounded`, con revisione
-`sure-v6-pv-budget-2`. I sorgenti `SURE.mdl`, `SURE_pysd_v6.mdl` e
-`SURE_pysd_v6.py` rimangono come input e riferimento per la generazione e
-la verifica della correzione; non sono modelli alternativi da eseguire nell’app.
-I loro checksum fanno parte della provenienza della release dati.
+Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v7.mdl` e `.py`
+sono i derivati usati per il runtime `sure-v7-dispatch-1`. Le cinque
+calibrazioni originali sono conservate in `Vensim/calibration/`, con manifest
+e checksum; `constants_ref_v7.pkl` contiene 33 gruppi in Float64 derivati da
+56 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.
 
-La correzione riproducibile si genera e si controlla con:
+I controlli riproducibili del budget PV e della calibrazione sono:
 
 ```bash
-PYTHONHASHSEED=0 python -m sure_julia.pv_budget --check
+python -m sure_julia.pv_budget --check
+python scripts/import_calibration.py --check
 ```
 
 La pipeline `retranslate_sure_pipeline.py` e i relativi script preparano un
 nuovo sorgente upstream da Vensim: non producono da soli un modello validato
 per l’app. Una modifica alle equazioni richiede la procedura completa nella
 [guida Julia](docs/julia-production.md), inclusa la rigenerazione dei dati.
-Senza `SURE_VARIANT` viene selezionata la base supportata `v6`.
+Senza `SURE_VARIANT` viene selezionata la base supportata `v7`.
 
 La [mappa del repository](docs/repository-inventory.md) distingue file necessari,
 strumenti di manutenzione e materiale storico rimosso. Le vecchie versioni e

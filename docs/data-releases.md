@@ -4,7 +4,7 @@
 
 Il codice contiene `data-release.json`, che fissa un tag `data-vX.Y.Z`, il nome
 dell'archivio e il suo SHA-256. L'archivio della release dati contiene i 9
-Parquet pre-calcolati, i 6 input Vensim `.vdfx`, `SURE.vpmx` e un manifest con
+Parquet pre-calcolati, i 6 input Vensim `.vdfx` e un manifest con
 dimensione e SHA-256 di ciascun file. La prima release è
 [`data-v1.0.0`](https://github.com/supsi-dacd-isaac/SEneCa/releases/tag/data-v1.0.0),
 preparata riusando i file esistenti senza rigenerarli.
@@ -12,7 +12,10 @@ preparata riusando i file esistenti senza rigenerarli.
 Dalla release `data-v1.1.0` sono richiesti anche
 `provenance/scenarios.parquet` e `provenance/build.json`: registrano i 40
 parametri effettivi, il modello, i checksum e le evidenze della validazione.
-I sette binari Vensim restano archivi storici, distinti dai nuovi output Julia.
+Dalla release `data-v2.0.0` il vecchio `SURE.vpmx` è escluso e i sei VDFX
+sono ricostruiti dai CSV correnti della v7. La riesportazione nativa è
+verificata su tutte le serie e gli anni; sorgenti e checksum sono registrati
+in `provenance/build.json`. Gli archivi v1 restano immutabili e leggibili.
 
 Il download non richiede Git LFS o Vensim:
 
@@ -37,21 +40,21 @@ dall'asset dati allegato alla release.
 2. Installare `requirements.txt` e preparare un tag dati mai usato, per esempio:
 
    ```bash
-   python scripts/data_release.py pack --tag data-v1.1.0 --source-commit "$(git rev-parse HEAD)"
+   python scripts/data_release.py pack --tag data-v2.0.0 --source-commit "$(git rev-parse HEAD)"
    ```
 
-   `pack` richiede tutti i 18 file (16 per lo snapshot storico `data-v1.0.0`), rifiuta puntatori LFS e Parquet vuoti o
+   `pack` richiede 17 file per v2, 18 per v1.1–v1.2 e 16 per v1.0.0, rifiuta puntatori LFS e Parquet vuoti o
    illeggibili, e produce in `dist/data-release/` l'archivio, `SHA256SUMS.txt`
    e un nuovo `data-release.json`. I percorsi dei file rimangono quelli attesi
    dal codice; se cambiano, aggiornare e testare insieme il tool e l'app.
 3. Pubblicare gli asset sullo **stesso repository**, con un tag dati nuovo:
 
    ```bash
-   gh release create data-v1.1.0 \
-     dist/data-release/seneca-data-v1.1.0.tar.gz \
+   gh release create data-v2.0.0 \
+     dist/data-release/seneca-data-v2.0.0.tar.gz \
      dist/data-release/SHA256SUMS.txt \
      --target "$(git rev-parse HEAD)" \
-     --title "SEneCa data v1.1.0" \
+     --title "SEneCa data v2.0.0" \
      --notes-file dist/data-release/release-notes.md
    ```
 

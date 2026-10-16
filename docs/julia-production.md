@@ -16,16 +16,18 @@ fixed annual Euler steps from 2011 through 2050. A Julia failure is reported
 and never silently retried with Python. Switching the live backend does not
 replace the precomputed dataset.
 
-Release `v0.2.0` pins `data-v1.1.0`, generated from the corrected model.
-Release `v0.3.0` pins `data-v1.2.0`: 100 uncertainty samples per policy mix,
-nine indicators and the same numerical model. See the
-[completed generation report](validation/POLICY_MIX_RESULTS.md).
-On 2026-10-14 the owner authorized data/code publication and deployment,
-including Elettra production, after reporting positive initial native Vensim
-tests. Complete native equivalence is not certified: detailed native results
-for the full suite have not been supplied. The release criteria are the
-completed Python–Julia validation, physical checks and audited regeneration.
-See [the native handoff](validation/PV_BUDGET_VENSIM.md).
+Release `v0.4.0` pins `data-v2.0.0`, regenerated with this v7 model and the
+five supplied calibration OUT files. The run `v7-calibrated-001` completed
+14,571 unique simulations on 16 October 2026 at 20:28 Europe/Zurich. All 418
+Python–Julia cases, state-isolation checks, serial/parallel pilots and the
+final physical/data audit passed. See the
+[v7 report](validation/dispatch-correction.md).
+
+The original native Vensim allocator retains small numerical differences in
+the high scenario. An equivalent diagnostic allocation isolates their cause;
+this is not a certificate of native equivalence across arbitrary scenarios.
+Release acceptance uses strict Python–Julia agreement and physical checks.
+Previous v6 releases (`v0.2.0`–`v0.3.1`) and their data remain immutable.
 
 `python -m sure_julia.pv_budget --check` verifies that the canonical native and
 preprocessed v7 sources contain the same shared PV budget. It does not generate
@@ -46,15 +48,15 @@ the host because the worktree's Git administration directory is not mounted
 inside the container:
 
 ```sh
-task_source_commit=$(git -C /ssd2/elettra/seneca-v7-release rev-parse HEAD)
-docker run -d --init --name seneca-v7-release-new \
+task_source_commit=$(git -C /ssd2/elettra/seneca-v7-calibrated rev-parse HEAD)
+docker run -d --init --name seneca-v7-calibrated-new \
   --cpuset-cpus=0-31 --memory=128g --memory-swap=128g \
   -e SURE_SOURCE_COMMIT="$task_source_commit" \
-  -v /ssd2/elettra/seneca-v7-release:/app \
+  -v /ssd2/elettra/seneca-v7-calibrated:/app \
   -v /ssd2/elettra/seneca-runtime:/runtime \
   -v /ssd2/elettra/seneca-runs:/runs \
   seneca-julia-runtime:production sh -c \
-  'cd /app && sh scripts/prepare_model_release.sh policy-mix-100-new > /runs/policy-mix-100-new-launch.log 2>&1'
+  'cd /app && sh scripts/prepare_model_release.sh v7-calibrated-new > /runs/v7-calibrated-new-launch.log 2>&1'
 ```
 
 Progress, exit status and memory samples are written under `/runs/<run-id>`.
@@ -100,7 +102,7 @@ directory. Model and data identity are part of the bounded web result cache.
 
 ## Elettra
 
-The current worktree is `/ssd2/elettra/seneca-v7-release`, with runtime/depot
+The current worktree is `/ssd2/elettra/seneca-v7-calibrated`, with runtime/depot
 in `/ssd2/elettra/seneca-runtime` and results in `/ssd2/elettra/seneca-runs`.
 The earlier model worktree is `/ssd2/elettra/seneca-julia-production`;
 `/home/elettra/projects/SEneCa` manages the production deployment on `main`.
@@ -147,9 +149,9 @@ The small initial fine/coarse input discrepancy is recorded and its offset
 must remain constant. Nonfinite values or missing diagnostics fail the run.
 
 The batch stages nine application Parquets plus provenance separately from
-the installed dataset. The seven Vensim reference/input archives remain
-historical files from `data-v1.0.0`. `data-v1.1.0` adds complete effective
-parameters and build provenance; `v0.2.0` pins that immutable data release.
+the installed dataset. Release `data-v2.0.0` includes six native input VDFX rebuilt from the current
+CSVs and excludes the obsolete published VPMX. Native source hashes and
+roundtrip checks accompany the Julia scenario/build provenance.
 
 ## Release checks and rollback
 

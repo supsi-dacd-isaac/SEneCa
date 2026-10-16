@@ -1,0 +1,84 @@
+{
+  "pass": true,
+  "model_revision": "sure-v7-dispatch-1",
+  "files": {
+    "precomputed/pv_batteries_scenarios.parquet": {
+      "rows": 12960,
+      "bytes": 18230811,
+      "sha256": "716107bac20c2855d67f52629d967927e87b1d94c1571dc9e11b5339841c8e17"
+    },
+    "precomputed/risanamento_scenarios.parquet": {
+      "rows": 48600,
+      "bytes": 15217077,
+      "sha256": "df62ddba789e3bf31e257f95961d78ec2b7a9afa497780933d44d6ebfdbaf58d"
+    },
+    "precomputed/veicoli_scenarios.parquet": {
+      "rows": 5760,
+      "bytes": 2144946,
+      "sha256": "2d50f19debe3cc915e8578ccf127bc5da7cfafb8308f7037a52ad5eb7f4b5d5d"
+    },
+    "precomputed/elettricita_hourly.parquet": {
+      "rows": 40919040,
+      "bytes": 107622587,
+      "sha256": "ad85b661b7c6524a1e08db39025bbe2e9dfcf0b6e096030614bd040ba973df9b"
+    },
+    "precomputed/elettricita_combo_index.parquet": {
+      "rows": 96,
+      "bytes": 4512,
+      "sha256": "a46d8e9f97952eb3d65700f618d1336bed3fd8b352cefff35bef8053de1ffba4"
+    },
+    "precomputed/exploratory_kpis.parquet": {
+      "rows": 12800,
+      "bytes": 58662259,
+      "sha256": "e4ee89c4bda655f3e8651f85a4a2110fa132fa04e064b96ddf201e206118b8ee"
+    },
+    "precomputed/pv_batteries_gmd.parquet": {
+      "rows": 324,
+      "bytes": 631248,
+      "sha256": "0594d1aea40dcb7c5c2350213a8ba704e5a69acc2ce3a245ca14b7d1c7fc5cc8"
+    },
+    "precomputed/risanamento_gmd.parquet": {
+      "rows": 1215,
+      "bytes": 2106821,
+      "sha256": "34af0352e20a6da0b2ddb1f7891ec05990a912a6670fba7c9ce71eb02a4473c8"
+    },
+    "precomputed/exploratory/uncertainty_samples.parquet": {
+      "rows": 100,
+      "bytes": 29035,
+      "sha256": "d27dcf0c7e8d60b619f5a566ad6ea955eeba296344cc9f35b4f159519f543677"
+    },
+    "provenance/scenarios.parquet": {
+      "rows": 14571,
+      "bytes": 9953017,
+      "sha256": "fbca9542b4c2de2b90f6d8a84f68787c1880a6df3a862bca816cf52124189467"
+    }
+  },
+  "scenarios": 14571,
+  "configurations": {
+    "pv_batteries": 324,
+    "elettricita": 96,
+    "risanamento": 1215,
+    "veicoli": 144,
+    "exploratory": 12800
+  },
+  "batch": {
+    "complete": true,
+    "scenarios": 14571,
+    "seconds": 7659.036645594984,
+    "workers": 32
+  },
+  "scenario_seconds": {
+    "mean": 16.334373324630878,
+    "median": 16.11713312752545,
+    "min": 13.344296410679817,
+    "max": 25.60964739881456
+  },
+  "jit_after_warmup_seconds": 0.0,
+  "gmd_audit": {
+    "scenarios_with_roundoff_weights": 4396,
+    "scenarios_with_substantive_negative_weights": 0,
+    "minimum_weight": -1.616484723854228e-14
+  },
+  "finished_utc": "2026-10-16T18:28:10.400843+00:00",
+  "sampled_peak_container_memory_bytes": 39105413120
+}

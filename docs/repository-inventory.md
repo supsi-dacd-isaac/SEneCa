@@ -1,8 +1,8 @@
 # File del repository e modello supportato
 
-La release in preparazione usa **sure-v7-dispatch-1** e la calibrazione
+La release `v0.4.0` usa **sure-v7-dispatch-1** e la calibrazione
 ricevuta il 16 ottobre 2026. I dati v6 già pubblicati restano immutabili;
-la v7 richiede una rigenerazione e una nuova release dati prima del deploy.
+la v7 usa il dataset rigenerato `data-v2.0.0`.
 Tutto il materiale rimosso resta recuperabile nel
 [tag v0.3.1](https://github.com/supsi-dacd-isaac/SEneCa/tree/v0.3.1).
 
@@ -60,11 +60,9 @@ modello Vensim restano disponibili in `scripts/`.
 
 ## Dati e file locali
 
-`precomputed/`, `provenance/`, i `.vdfx` e `SURE.vpmx` sono installati dalla
-release dati. Anche i binari nativi storici sono inclusi nel suo manifest:
-rimuoverli dall’installazione farebbe fallire la verifica del dataset.
-Per eliminarli dalla distribuzione serve una nuova release dati, distinta
-dalla pulizia del codice.
+`precomputed/`, `provenance/` e sei `.vdfx` ricostruiti dai CSV v7 sono
+installati da `data-v2.0.0`. Il vecchio `SURE.vpmx` è escluso dal nuovo
+manifest. I dataset v1 e i relativi manifest restano immutabili.
 
 `sure_julia/generated/` viene costruita da Docker. `dist/`, ambienti virtuali,
 cache e risultati locali non sono versionati e non vengono eliminati da
@@ -73,7 +71,12 @@ anche `.DS_Store` e `.agents/` sono ignorati.
 
 ## Verifiche della pulizia
 
-Controlli del 15 ottobre 2026:
+Controlli v7 del 16 ottobre 2026: 418 confronti Python–Julia superati,
+14.571 simulazioni complete, pilot seriale/parallelo identico e audit finale
+superato. Evidenze in `v7-data-audit-20261016.json`, `v7-validation-20261016.json`
+e `v7-pilot-20261016.json` sotto `docs/validation/`.
+
+Controlli storici della pulizia v6, 15 ottobre 2026:
 
 - 81 test Python dell’app e dei componenti numerici superati.
 - 20 controlli dell’API Julia dei 40 parametri superati.

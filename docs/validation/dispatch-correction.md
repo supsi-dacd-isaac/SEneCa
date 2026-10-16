@@ -31,6 +31,30 @@ in `dist/dispatch-precision-20261016/`; il pacchetto ricevuto ha SHA256
 HPinput.csv e il VDFX dello ZIP differiscono in 482 celle: per questa release
 il CSV corrente, coerente con la traduzione v7, è la sorgente autorevole.
 
+## Validazione e generazione della release v0.4.0
+
+Il run `v7-calibrated-001`, sorgenti al commit
+`7fe01997c9778ed163aa7207be7a1fe6c25459ca`, ha completato il 16 ottobre 2026:
+
+- 418/418 confronti Python–Julia, soglia per cella
+  `1e-10 * max(1, scala) + 1e-8 * abs(Python)`, con etichette e anni identici;
+- casi sintetici, inclusi 881 controlli dell’allocatore per priorità;
+- isolamento degli stati, ripetibilità e recupero dopo arresto del worker;
+- 100 scenari pilot seriali/paralleli, con risultati identici;
+- 14.571 simulazioni Julia per 14.579 configurazioni (12.800 policy/campioni);
+- audit di tutti i file e invarianti fisici, zero pesi GMD negativi sostanziali,
+  zero compilazione dopo il riscaldamento dei processi.
+
+Il batch completo ha richiesto 7.659 secondi con 32 processi, terminando
+con audit superato alle 20:28 Europe/Zurich. I sei VDFX sono stati rigenerati
+dai CSV correnti e riesportati: zero differenze su tutte le serie e gli anni
+alla precisione di esportazione di sei cifre significative.
+
+Il dataset `data-v2.0.0` contiene i nuovi output, la provenienza e questi sei
+input nativi; il VPMX obsoleto non è più distribuito. Le evidenze machine-readable
+sono i file `v7-*-20261016.json` in questa cartella. I report v6 sono storici
+e non sostituiscono i controlli v7 qui descritti.
+
 ## Nota originaria del candidato (stato precedente alla diagnosi)
 
 # Dispatch candidate — 16 October 2026

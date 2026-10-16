@@ -3,7 +3,7 @@
 name: seneca-local
 services:
   streamlit-app:
-    image: ghcr.io/supsi-dacd-isaac/seneca:v0.3.1
+    image: ghcr.io/supsi-dacd-isaac/seneca:v0.4.0
     ports:
       - "127.0.0.1:${SENECA_LOCAL_PORT:-8502}:8501"
     environment:
