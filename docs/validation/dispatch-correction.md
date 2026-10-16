@@ -55,6 +55,12 @@ input nativi; il VPMX obsoleto non è più distribuito. Le evidenze machine-read
 sono i file `v7-*-20261016.json` in questa cartella. I report v6 sono storici
 e non sostituiscono i controlli v7 qui descritti.
 
+Le curve statiche della pagina Calibrazione sono esportate dalla stessa
+baseline v7 con `scripts/export_calibration_plot.py`. L’aggiunta delle tre
+serie aggregate di adozione conserva esattamente tutti i 137 output del
+riferimento Python e supera il confronto con la baseline Julia validata.
+CSV e manifest sostituiscono il vecchio riferimento v3 nell’app.
+
 ## Nota originaria del candidato (stato precedente alla diagnosi)
 
 # Dispatch candidate — 16 October 2026

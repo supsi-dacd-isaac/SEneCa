@@ -19,7 +19,7 @@ Tutto il materiale rimosso resta recuperabile nel
 | `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v7.pkl` | Cinque file ricevuti, 56 assegnazioni originali e 33 gruppi ricostruiti in Float64. |
 | CSV nativi in `Vensim/` | Storici mostrati nell’app e sorgenti dei dati preparati per PySD. |
 | `content/system_dynamics/` restante | Immagini, mappa, storici e priorità del workshop effettivamente letti dalle pagine. |
-| `calibration_sim_adoptions_v3.csv` | Riferimento simulato storico ancora usato dal confronto di calibrazione; il suffisso descrive la provenienza, non il motore live. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `calibration_sim_adoptions_v7.csv` e `.json` | Curve della baseline v7 per il confronto di calibrazione, con provenienza e verifica contro la baseline validata. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
 | `Input and Output Streamlit.xlsx` | Specifica delle leve e degli output, verificata dai test e registrata nella provenienza del batch. |
 | `SEneCa_documentation.pdf` | Documento scaricabile dalla home. |
 | `data-release.json`, `scripts/data_release.py` | Identità, download e verifica del dataset immutabile. |
