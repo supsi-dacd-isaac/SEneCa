@@ -54,7 +54,7 @@ OUTPUTS = [
      "title": "Immatricolazioni annue per tipo",
      "cumulative_title": "Immatricolazioni cumulate per tipo",
      "time_basis": "flow", "history": "vehicle_adoptions",
-     "history_note": "Immatricolazioni storiche da EVinput.csv, 2011–2024. "
+     "history_note": "Immatricolazioni storiche da EVinput.csv. "
                      "Il cumulato somma le immatricolazioni dal 2011; non è il parco circolante.",
      "legend": "bottom"},
     {"base": "Vehicles by type", "kind": "line", "unit": "veicoli",

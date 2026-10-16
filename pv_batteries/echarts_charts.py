@@ -598,6 +598,8 @@ def _render_echarts_series(
         if st.checkbox("Mostra dati storici di calibrazione", key=f"{key}_history"):
             historical = historical_series(source)
             historical = historical.loc[historical.index >= start]
+            if not historical.empty:
+                st.caption(f"Dati disponibili: {historical.index.min()}–{historical.index.max()}.")
             historical = transform_series(historical, meta.get("time_basis"), mode).reindex(years)
             net = meta.get("time_basis") == "stock" and mode == "annual"
             add_historical_options(options, historical, net_change=net)

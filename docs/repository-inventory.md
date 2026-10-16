@@ -32,6 +32,15 @@ Le versioni v6, le copie `pvbounded`, il vecchio pickle e gli script di
 `model_checks/dispatch_vectors.npy` e il ponte Windows in `vensim_windows.py`.
 La provenienza del nuovo batch registra tutti i sorgenti v7 e i file OUT.
 
+Dalla patch `v0.4.1`, i grafici di calibrazione ricavano il periodo dai valori
+disponibili per ogni tecnologia: PV e pompe di calore includono il 2025,
+batterie e veicoli si fermano al 2024. Il CSV delle curve simulate copre
+l'unione di questi anni; ogni grafico mostra soltanto il proprio periodo
+osservato. I valori mancanti restano mancanti, anche nei cumulati.
+Le serie di potenza PV riportano tutti i punti presenti nell'input, fino al
+2026; la variazione fra due punti consecutivi è disponibile fino al 2025.
+La patch conserva modello, calibrazione e dataset `data-v2.0.0` della v0.4.0.
+
 ## Materiale rimosso dal checkout
 
 | Gruppo | Contenuto e sostituzione |
