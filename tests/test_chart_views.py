@@ -67,6 +67,81 @@ render_echarts_line(df, {'base':'PV', 'kind':'line', 'title':'PV', 'unit':'MW',
         self.assertEqual(annual.loc[2025].tolist(), [7815., 13478.])
         self.assertTrue(annual.loc[2026:].isna().all().all())
 
+    def test_vehicle_history_only_overlays_bev_and_keeps_other_simulated_types(self):
+        history = historical_series("vehicle_adoptions")
+        self.assertEqual(list(history), ["BEV"])
+        raw = pd.read_csv(Path(__file__).resolve().parents[1] / "Vensim/EVinput.csv", index_col=0)
+        expected = available_history(raw, ["Adoption Vehicles[BEV]"])
+        self.assertEqual(history.BEV.tolist(), expected.iloc[:, 0].tolist())
+        script = '''
+import pandas as pd
+from echarts_charts import render_echarts_line
+from veicoli_config import OUTPUTS
+df = pd.DataFrame({'Adoption Vehicles[BEV]': [100., 120.],
+                   'Adoption Vehicles[PHEV]': [50., 60.],
+                   'Adoption Vehicles[ICE]': [1000., 900.]}, index=[2023, 2024])
+render_echarts_line(df, OUTPUTS[0], chart_key='vehicles', df_base=df * 0.9)
+'''
+        with patch("echarts_charts.render_echarts") as render:
+            app = AppTest.from_string(script).run()
+            app.checkbox[0].check().run()
+            self.assertFalse(app.exception)
+            series = render.call_args.args[0]["series"]
+            self.assertEqual([s["name"] for s in series if s["type"] == "scatter"], ["BEV (storico)"])
+            self.assertEqual({s["name"] for s in series if s["type"] == "line"},
+                             {"BEV", "PHEV", "ICE", "BEV (Base)", "PHEV (Base)", "ICE (Base)"})
+
+    def test_annual_only_charts_ignore_an_old_cumulative_selection(self):
+        cases = [
+            ("veicoli_config", "Adoption Vehicles", "render_echarts_line",
+             {"Adoption Vehicles[BEV]": [2., 3.]}),
+            ("pv_batteries_config", "Energia PV annuale", "render_echarts_line_composite",
+             {"Total PV electricity production": [2., 3.],
+              "Total PV electricity injected in the grid": [1., 2.],
+              "Total PV electricity SC": [1., 1.]}),
+        ]
+        for config, name, renderer, data in cases:
+            with self.subTest(chart=name), patch("echarts_charts.render_echarts") as render:
+                script = f'''
+import pandas as pd
+import streamlit as st
+from echarts_charts import {renderer}
+from {config} import OUTPUTS
+st.session_state['test_time_view'] = 'cumulative'
+meta = next(m for m in OUTPUTS if m.get('base', m['title']) == {name!r})
+df = pd.DataFrame({data!r}, index=[2023, 2024])
+{renderer}(df, meta, chart_key='test', df_base=df * 0.5)
+'''
+                app = AppTest.from_string(script).run()
+                app.checkbox[0].check().run()
+                self.assertFalse(app.exception)
+                self.assertFalse(app.get("button_group"))
+                series = render.call_args.args[0]["series"]
+                self.assertEqual(series[0]["data"], [2., 3.])
+                baseline = next(s for s in series if s["name"] == series[0]["name"] + " (Base)")
+                self.assertEqual(baseline["data"], [1., 1.5])
+
+    def test_nonresidential_history_controls_stay_below_chart_after_toggle(self):
+        script = '''
+import pandas as pd
+from echarts_charts import render_echarts_line_composite
+from pv_batteries_config import OUTPUTS
+meta = next(m for m in OUTPUTS if m['title'] == 'Potenza PV non residenziale')
+df = pd.DataFrame({'"Capacity PV 30 - 100 kW total"': [100., 120.],
+                   '"Capacity PV > 100 kW total"': [200., 240.]}, index=[2023, 2024])
+render_echarts_line_composite(df, meta, chart_key='nonresidential')
+'''
+        app = AppTest.from_string(script).run()
+        for checked in (False, True, False):
+            app.checkbox[0].set_value(checked).run()
+            self.assertFalse(app.exception)
+            elements = list(app.main)
+            chart_pos = next(i for i, el in enumerate(elements) if el.type == "iframe")
+            check_pos = next(i for i, el in enumerate(elements) if el.type == "checkbox")
+            self.assertLess(chart_pos, check_pos)
+            if checked:
+                self.assertTrue(all(i > check_pos for i, el in enumerate(elements) if el.type == "caption"))
+
     def test_calibration_uses_model_inputs_for_every_year(self):
         years, series = load_calibration_series("Fotovoltaico")
         raw = pd.read_csv(PV_INPUT_CSV, index_col=0)

@@ -76,6 +76,7 @@ OUTPUTS = [
      "time_basis": "stock", "stock_label": "Potenza totale installata",
      "annual_label": "Nuova potenza installata nell’anno",
      "history": "pv_capacity",
+     "history_position": "bottom",
      "history_note": "Dati di input da PVinput.csv, disponibili per 30–100 e >100 kW. "
                      "La classe <30 kW non ha una serie storica separata.",
      "series": [
@@ -145,8 +146,7 @@ OUTPUTS = [
      "tooltip_decimals": 3},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Energia PV annuale",
-     "cumulative_title": "Energia PV cumulata",
-     "time_basis": "flow", "history": "pv_production",
+     "history": "pv_production",
      "history_note": "Produzione PV storica cantonale in GWh, disponibile fino al 2023. "
                      "Non sono disponibili serie storiche separate per autoconsumo e immissione in rete.",
      "desc": "Totale energia prodotta, iniettata in rete e autoconsumata",
