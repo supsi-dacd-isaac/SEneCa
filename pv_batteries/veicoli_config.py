@@ -50,12 +50,11 @@ BASE_SCENARIO: dict[str, float] = {
 INPUT_META = input_metadata(INPUT_ORDER)
 
 OUTPUTS = [
-    {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli",
+    {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli/anno",
      "title": "Immatricolazioni annue per tipo",
-     "cumulative_title": "Immatricolazioni cumulate per tipo",
-     "time_basis": "flow", "history": "vehicle_adoptions",
-     "history_note": "Immatricolazioni storiche da EVinput.csv. "
-                     "Il cumulato somma le immatricolazioni dal 2011; non è il parco circolante.",
+     "history": "vehicle_adoptions",
+     "history_note": "Immatricolazioni storiche dei soli veicoli elettrici a batteria (BEV), "
+                     "da EVinput.csv.",
      "legend": "bottom"},
     {"base": "Vehicles by type", "kind": "line", "unit": "veicoli",
      "title": "Parco veicoli per tipo",

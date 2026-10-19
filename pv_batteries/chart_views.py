@@ -63,8 +63,7 @@ def historical_series(source: str) -> pd.DataFrame:
         rows = {'"Capacity PV 30 - 100 kW"': "30–100 kW",
                 '"Capacity PV > 100 kW"': "> 100 kW"}
     elif source == "vehicle_adoptions":
-        rows = {c: c[len("Adoption Vehicles["):-1] for c in raw.index
-                if c.startswith("Adoption Vehicles[")}
+        rows = {"Adoption Vehicles[BEV]": "BEV"}
     else:
         raise ValueError(f"Fonte storica sconosciuta: {source}")
     result = available_history(raw, list(rows))

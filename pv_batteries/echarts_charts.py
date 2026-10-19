@@ -5,6 +5,7 @@ import importlib
 import json
 import math
 import re
+from contextlib import nullcontext
 from copy import deepcopy
 
 import pandas as pd
@@ -594,6 +595,9 @@ def _render_echarts_series(
         compare=compare,
         y_min=meta.get("y_min"),
     )
+    # Reserve the chart before its optional history controls so adjacent charts
+    # stay aligned, including when the history notes become visible on a rerun.
+    chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
     if source := meta.get("history"):
         if st.checkbox("Mostra dati storici di calibrazione", key=f"{key}_history"):
             historical = historical_series(source)
@@ -611,15 +615,16 @@ def _render_echarts_series(
         " — " + meta.get("annual_label", "variazione annua").lower()
         if mode == "annual" else "")
     display_title = meta.get("cumulative_title", title + suffix) if mode == "cumulative" else title + suffix
-    render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
-    if note:
-        st.caption(note)
-    render_echarts(
-        options,
-        chart_key=chart_key or _chart_key(meta),
-        height=meta.get("height", 400),
-        tooltip_decimals=meta.get("tooltip_decimals", 2),
-    )
+    with chart_slot:
+        render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
+        if note:
+            st.caption(note)
+        render_echarts(
+            options,
+            chart_key=chart_key or _chart_key(meta),
+            height=meta.get("height", 400),
+            tooltip_decimals=meta.get("tooltip_decimals", 2),
+        )
 
 
 def render_echarts_line(
