@@ -52,6 +52,25 @@ Streamlit non espone un punto di inserimento per widget nella propria barra. Il 
 - I punti storici BEV nelle immatricolazioni restano disponibili **dal 2011 al 2024 anche in percentuale**: `EVinput.csv` contiene le sette serie `Adoption Vehicles[...]` e il denominatore è il loro totale nell’anno. Non si usa il totale simulato per normalizzare le osservazioni. Si tratta dello storico delle immatricolazioni, non del parco in circolazione.
 - La conversione riguarda soltanto la visualizzazione: modello, parquet, CSV di input e schema delle esportazioni grezze non cambiano.
 
+### Estensione delle quote a energia e superficie
+
+Gli stessi componenti sono usati dalle pagine precalcolate e dalle simulazioni live:
+
+| Grafico | Denominatore della vista relativa |
+| --- | --- |
+| Mix elettrico per fonte | Totale del flusso selezionato: dispacciamento, consumo, esportazione oppure offerta locale. L'offerta esclude le importazioni, come la vista assoluta. |
+| Consumo per vettore di riscaldamento | Somma degli otto vettori, incluso il calore ambiente delle pompe di calore. |
+| Superficie riscaldata per efficienza | Somma delle superfici di tutte le classi di efficienza nell'anno. |
+| Energia PV annuale | Produzione PV annuale; le sole componenti sono autoconsumo e immissione in rete. La produzione non viene sommata nuovamente alle componenti. |
+
+Le quote elettriche annuali/mensili sono calcolate **dopo** l'aggregazione dell'energia, non come media delle percentuali orarie. Analogamente, nelle viste cumulate si normalizzano i valori cumulati. Le viste annuali e orarie usano aree impilate al 100%; quella mensile barre impilate al 100%. Il pompaggio, che mostra un unico flusso di domanda, mantiene la vista assoluta.
+
+Il confronto relativo con la Base ha pannelli separati, con denominatore proprio e scala comune 0–100%. I periodi con totale nullo non hanno quote definite. La vista assoluta conserva i grafici precedenti e ripristina i limiti automatici anche per le barre mensili/orarie. Il controllo dello storico PV viene disabilitato soltanto nella vista relativa: esistono osservazioni di produzione totale, non della sua ripartizione in autoconsumo e immissione. Tornando alla vista assoluta lo storico è nuovamente disponibile.
+
+Test mirati: `python -m unittest discover -s tests -p 'test_energy_relative_views.py' -v`. Coprono denominatore PV, storico, baseline, cumulati energetici, superfici, esclusione delle importazioni dall'offerta, totali nulli e ritorno alla scala assoluta in tutte le viste elettriche.
+
+Verifica dell'estensione (23 ottobre 2026): 42 test pertinenti superati, inclusi i cinque nuovi controlli sui denominatori; ripetuti anche i tre test multilingue dopo l'adattamento della griglia PV. Nel browser sono stati verificati i quattro casi a 1280 e 1024 pixel, il ritorno ai GWh (anche mensili), i pannelli Base e una corsa Julia live con contributo cantonale PV all'11%. Tutte le quattro viste sono state aperte anche sui risultati live; il cambio IT→FR→DE conserva risultati e vista relativa. La griglia PV condivisa ora va a capo secondo la larghezza disponibile, anche nella pagina live.
+
 ## Verifica visiva della preview (23 ottobre 2026)
 
 Controllo nel browser a 1440×900 e 1280×800 (desktop/laptop), 1024×768 e 768×1024 (tablet), 853×600 e 390×844. La larghezza di 853 pixel verifica anche lo spazio CSS disponibile su un laptop da 1280 pixel con zoom 150%; è una verifica equivalente del layout, non una prova dello zoom nativo o di un tablet fisico. Sono stati controllati KPI e delta, radar, boxplot, grafici temporali e a torta, selettori, sidebar aperta/chiusa e toolbar durante una simulazione.

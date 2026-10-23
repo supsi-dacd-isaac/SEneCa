@@ -30,11 +30,21 @@ def transform_series(frame: pd.DataFrame, basis: str | None, mode: str) -> pd.Da
     return frame.copy()
 
 
-def relative_series(frame: pd.DataFrame) -> pd.DataFrame:
+def relative_series(frame: pd.DataFrame, denominator: pd.Series | None = None) -> pd.DataFrame:
     """Percent of the complete row total; zero/missing totals have no share."""
-    total = frame.sum(axis=1, min_count=len(frame.columns))
+    total = (frame.sum(axis=1, min_count=len(frame.columns))
+             if denominator is None else denominator.reindex(frame.index))
     valid = frame.notna().all(axis=1) & frame.ge(0).all(axis=1) & total.gt(0)
     return frame.div(total.where(valid), axis=0).mul(100)
+
+
+def composition_series(frame: pd.DataFrame, meta: dict) -> pd.DataFrame:
+    """Normalize disjoint components, optionally against an explicit total."""
+    components = meta.get("relative_components", list(frame.columns))
+    denominator = None
+    if total_label := meta.get("relative_denominator"):
+        denominator = frame.reindex(columns=[total_label]).iloc[:, 0]
+    return relative_series(frame.reindex(columns=components), denominator)
 
 
 def composition_controls(meta: dict, key: str) -> bool:
@@ -45,7 +55,9 @@ def composition_controls(meta: dict, key: str) -> bool:
                                  format_func=labels.get, default="absolute",
                                  key=f"{key}_composition")
     if value == "relative":
-        st.caption(tr("Quota sul totale di tutti i tipi nell’anno, calcolata separatamente per ogni scenario. Nascondere una serie non cambia il denominatore."))
+        st.caption(tr(meta.get("relative_note", "Quota sul totale di tutti i tipi nell’anno, calcolata separatamente per ogni scenario. Nascondere una serie non cambia il denominatore.")))
+        if meta.get("relative_note"):
+            st.caption(tr("Ogni scenario usa il proprio totale. Nascondere una serie non cambia il denominatore. Un totale nullo non ha una quota definita."))
     return value == "relative"
 
 
@@ -77,6 +89,8 @@ def temporal_controls(meta: dict, key: str, start: int) -> tuple[str, str, str]:
 @st.cache_data(show_spinner=False, max_entries=3)
 def historical_series(source: str, relative: bool = False) -> pd.DataFrame:
     if source == "pv_production":
+        if relative:
+            return pd.DataFrame()  # No observed self-consumption/export split.
         raw = pd.read_csv(ROOT / "content/system_dynamics/plots_data/Historical electricity production.csv", sep=";")
         return raw.set_index("year")[["Fotovoltaico"]].rename(columns={"Fotovoltaico": "Produzione"})
     filename = "EVinput.csv" if source == "vehicle_adoptions" else "PVinput.csv"

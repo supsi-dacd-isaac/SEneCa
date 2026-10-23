@@ -5,10 +5,12 @@ import pandas as pd
 import streamlit as st
 from pv_batteries.responsive import wrapping_columns
 from pv_batteries.i18n import tr, display_frame
+from chart_views import composition_controls, relative_series
 
 from echarts_charts import (
     _to_float_list,
     build_line_options,
+    build_share_options,
     build_stacked_bar_options,
     pivot_to_stacked_series,
     render_echarts,
@@ -166,9 +168,30 @@ def render_stacked_bar(
     )
 
 
+def render_supplier_shares(
+    pivot: pd.DataFrame, *, chart_key: str,
+    baseline: pd.DataFrame | None = None, bars: bool = False,
+    data_zoom: bool = False, height: int = 380,
+) -> None:
+    """Normalize after aggregation; baseline is an independent composition."""
+    frames = [("Scenario selezionato", pivot, chart_key)]
+    if baseline is not None:
+        frames.append(("Scenario Base", baseline.reindex(index=pivot.index, columns=pivot.columns), f"{chart_key}_relative_base"))
+    for caption, frame, key in frames:
+        if baseline is not None:
+            st.caption(tr(caption))
+        categories, series = pivot_to_stacked_series(relative_series(frame))
+        if bars:
+            options = build_stacked_bar_options(categories, series, unit="%")
+            options["yAxis"].update(min=0, max=100)
+        else:
+            options = build_share_options(categories, series, data_zoom=data_zoom)
+        render_echarts(options, chart_key=key, height=height)
+
+
 def render_annual_supplier_line(
     df: pd.DataFrame, meta: dict, cfg,
-    *, df_base: pd.DataFrame | None = None,
+    *, df_base: pd.DataFrame | None = None, relative: bool = False,
 ) -> None:
     annual = _label_supplier_frame(
         aggregate_annual_supplier(
@@ -186,12 +209,26 @@ def render_annual_supplier_line(
     mode, unit, note = temporal_controls({"time_basis": "flow", "unit": meta["unit"]},
                                        f"{meta['base']}_annual_supplier", start)
     annual = transform_series(annual, "flow", mode)
+    annual_base = None
+    if df_base is not None:
+        annual_base = _label_supplier_frame(
+            aggregate_annual_supplier(df_base, meta["base"], meta.get("exclude_suppliers")), cfg,
+        )
+        annual_base = transform_series(annual_base, "flow", mode).reindex(annual.index)
+    if relative:
+        unit = "%"
     if mode == "cumulative":
         title = title.replace("totale annuo", f"cumulato dal {start}")
     st.markdown(
         tr('**{v0}** ({v1}) — {v2}-{v3}', v0=title, v1=unit, v2=int(cfg.YEARS.start), v3=cfg.FINAL_YEAR)
     )
     st.caption(tr(note or "Somma di tutte le ore e mesi dell'anno."))
+
+    if relative:
+        render_supplier_shares(annual, baseline=annual_base,
+                               chart_key=f"{meta['base']}_annual_supplier",
+                               data_zoom=meta.get("annual_data_zoom", False), height=460)
+        return
 
     if meta.get("annual_echarts"):
         years = [int(y) for y in annual.index.tolist()]
@@ -200,14 +237,7 @@ def render_annual_supplier_line(
             for col in annual.columns
         }
         compare = None
-        if df_base is not None:
-            annual_base = _label_supplier_frame(
-                aggregate_annual_supplier(
-                    df_base, meta["base"], meta.get("exclude_suppliers"),
-                ),
-                cfg,
-            )
-            annual_base = transform_series(annual_base, "flow", mode).reindex(annual.index)
+        if annual_base is not None:
             compare = _compare_from_pivot(annual_base, list(series.keys()))
         options = build_line_options(
             years,
@@ -232,6 +262,7 @@ def render_annual_supplier_line(
 
 def render_monthly_supplier_bars(
     df: pd.DataFrame, meta: dict, cfg,
+    *, df_base: pd.DataFrame | None = None, relative: bool = False,
 ) -> None:
     st.markdown(tr("**Profilo mensile per supplier**"))
     prefix = _chart_label_prefix(meta)
@@ -248,6 +279,14 @@ def render_monthly_supplier_bars(
                 cfg,
             )
             title = f"{prefix} | {year}"
+            if relative:
+                baseline = None if df_base is None else _label_supplier_frame(
+                    aggregate_monthly_supplier(df_base, meta["base"], year, meta.get("exclude_suppliers"), months=cfg.ALL_MONTHS), cfg,
+                )
+                st.markdown(tr('**{v0}** ({v1})', v0=title, v1="%"))
+                render_supplier_shares(monthly, baseline=baseline, bars=True,
+                                       chart_key=f"{meta['base']}_monthly_{year}")
+                continue
             render_stacked_bar(
                 monthly,
                 title,
@@ -259,6 +298,7 @@ def render_monthly_supplier_bars(
 
 def render_hourly_section(
     df: pd.DataFrame, meta: dict, cfg,
+    *, df_base: pd.DataFrame | None = None, relative: bool = False,
 ) -> None:
     st.markdown(tr("**Profilo orario**"))
     prefix = _chart_label_prefix(meta)
@@ -278,6 +318,13 @@ def render_hourly_section(
                 )
                 title = f"{prefix} | {month} | {year}"
                 chart_key = f"{meta['base']}_hourly_{month}_{year}"
+                if relative:
+                    baseline = None if df_base is None else _label_supplier_frame(
+                        hourly_snapshot(df_base, meta["base"], month, year, meta["has_supplier"], meta.get("exclude_suppliers")), cfg,
+                    )
+                    st.markdown(tr('**{v0}** ({v1})', v0=title, v1="%"))
+                    render_supplier_shares(snap, baseline=baseline, chart_key=chart_key)
+                    continue
                 if use_area:
                     render_area_line(
                         snap, title, meta["unit"], chart_key=chart_key,
@@ -307,12 +354,14 @@ def _render_output(
     if len(views) > 1:
         view = st.selectbox(tr("Grafico"), views, format_func={value: tr(value) for value in views}.get, key=f"elec_view_{meta['base']}")
 
+    relative = composition_controls(meta, f"elec_{meta['base']}")
+
     if view == VIEW_ANNUAL:
-        render_annual_supplier_line(df, meta, cfg, df_base=df_base)
+        render_annual_supplier_line(df, meta, cfg, df_base=df_base, relative=relative)
     elif view == VIEW_MONTHLY:
-        render_monthly_supplier_bars(df, meta, cfg)
+        render_monthly_supplier_bars(df, meta, cfg, df_base=df_base, relative=relative)
     else:
-        render_hourly_section(df, meta, cfg)
+        render_hourly_section(df, meta, cfg, df_base=df_base, relative=relative)
 
 
 def render_electricity_section(

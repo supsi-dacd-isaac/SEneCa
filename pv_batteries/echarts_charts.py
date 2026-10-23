@@ -142,13 +142,14 @@ def build_share_options(
     series: dict[str, list[float | None]],
     *,
     series_order: list[str] | None = None,
+    data_zoom: bool = False,
 ) -> dict:
     """One scenario's already-normalized shares as a 100% stacked area."""
     order = list(series_order or series)
     # BEV observations can be compared directly with the first area's boundary.
     if "BEV" in order:
         order = ["BEV", *(label for label in order if label != "BEV")]
-    options = build_line_options(years, series, unit="%", series_order=order, y_min=0)
+    options = build_line_options(years, series, unit="%", series_order=order, y_min=0, data_zoom=data_zoom)
     options["yAxis"]["max"] = 100
     options["xAxis"]["boundaryGap"] = False
     options["toolbox"]["feature"].pop("magicType", None)
@@ -161,11 +162,11 @@ def build_share_options(
 
 def pivot_to_stacked_series(
     pivot: pd.DataFrame,
-) -> tuple[list[str], dict[str, list[float]]]:
+) -> tuple[list[str], dict[str, list[float | None]]]:
     """Pivot (indice categorie, colonne serie) -> assi ECharts stacked bar."""
     categories = [str(i) for i in pivot.index.tolist()]
     series = {
-        str(col): [float(v) for v in pivot[col].tolist()]
+        str(col): _to_float_list(pivot[col].tolist())
         for col in pivot.columns
     }
     return categories, series
@@ -212,7 +213,7 @@ def build_stacked_bar_options(
         "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
         "legend": legend_opts,
         "xAxis": {"type": "category", "data": categories},
-        "yAxis": {"type": "value", "name": unit},
+        "yAxis": {"type": "value", "name": unit, "min": None, "max": None},
         "grid": {"bottom": "22%", "left": "12%", "right": "4%"},
         "series": echarts_series,
     }
@@ -622,7 +623,7 @@ def _render_echarts_series(
         st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     from chart_views import (add_historical_options, historical_series,
-                             temporal_controls, transform_series, composition_controls, relative_series)
+                             temporal_controls, transform_series, composition_controls, composition_series)
     key = chart_key or _chart_key(meta)
     frame = pd.DataFrame(series, index=df.index.astype(int)).sort_index()
     start = meta.get("start_year", int(frame.index.min()))
@@ -631,13 +632,15 @@ def _render_echarts_series(
     mode, unit, note = temporal_controls(meta, key, start)
     frame = transform_series(frame, meta.get("time_basis"), mode)
     if relative:
-        frame = relative_series(frame)
+        frame = composition_series(frame, meta)
         unit = "%"
     years = [int(y) for y in frame.index]
     series = {c: _to_float_list(frame[c]) for c in frame}
     series_order = meta.get("type_order")
     if meta.get("kind") == "line_composite":
         series_order = [spec["label"] for spec in meta["series"]]
+    if relative and meta.get("relative_components"):
+        series_order = meta["relative_components"]
     compare_raw = compare_fn(df_base, meta) if df_base is not None and compare_fn else None
     compare = None
     if compare_raw:
@@ -645,7 +648,7 @@ def _render_echarts_series(
         base_frame = base_frame.loc[base_frame.index >= start]
         base_frame = transform_series(base_frame, meta.get("time_basis"), mode).reindex(years)
         if relative:
-            base_frame = relative_series(base_frame)
+            base_frame = composition_series(base_frame, meta)
         compare = {c: _to_float_list(base_frame[c]) for c in base_frame if c in series}
     if relative:
         options = build_share_options(years, series, series_order=series_order)
@@ -662,7 +665,11 @@ def _render_echarts_series(
     # stay aligned, including when the history notes become visible on a rerun.
     chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
     if source := meta.get("history"):
-        if st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history"):
+        history_unavailable = relative and source == "pv_production"
+        show_history = st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history", disabled=history_unavailable)
+        if history_unavailable:
+            st.caption(tr("Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate separate di autoconsumo e immissione in rete per calcolarne le quote."))
+        if show_history and not history_unavailable:
             historical = historical_series(source, relative=relative)
             historical = historical.loc[historical.index >= start]
             if not historical.empty:

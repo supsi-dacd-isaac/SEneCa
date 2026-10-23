@@ -3395,3 +3395,30 @@ msgid ""
 msgstr ""
 "Anteil aller Typen im jeweiligen Jahr, für jedes Szenario separat berechnet. Das Ausblenden einer"
 " Reihe verändert den Nenner nicht."
+
+msgid "Ogni scenario usa il proprio totale. Nascondere una serie non cambia il denominatore. Un totale nullo non ha una quota definita."
+msgstr "Jedes Szenario verwendet seine eigene Summe. Das Ausblenden einer Reihe ändert den Nenner nicht. Bei einer Summe von null sind die Anteile nicht definiert."
+
+msgid "Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate separate di autoconsumo e immissione in rete per calcolarne le quote."
+msgstr "Historische PV-Produktion ist in der absoluten Ansicht verfügbar. Getrennte Beobachtungsreihen für Eigenverbrauch und Netzeinspeisung fehlen zur Berechnung ihrer Anteile."
+
+msgid "Autoconsumo e immissione in rete in percentuale della produzione PV annuale. La produzione è il denominatore, non una terza componente."
+msgstr "Eigenverbrauch und Netzeinspeisung als Anteile der jährlichen PV-Produktion. Die Produktion ist der Nenner, keine dritte Komponente."
+
+msgid "Quota di ciascun vettore sul consumo totale per il riscaldamento, incluso il calore ambiente. Nella vista cumulata, le quote sono calcolate sui consumi cumulati."
+msgstr "Anteil jedes Energieträgers am gesamten Heizenergieverbrauch, einschliesslich Umweltwärme. In der kumulierten Ansicht werden die Anteile aus dem kumulierten Verbrauch berechnet."
+
+msgid "Quota di ciascuna classe di efficienza sulla superficie riscaldata totale nell’anno."
+msgstr "Anteil jeder Effizienzklasse an der gesamten beheizten Fläche des jeweiligen Jahres."
+
+msgid "Quota di ciascuna fonte sull’elettricità dispacciata nel periodo selezionato, incluse le importazioni."
+msgstr "Anteil jeder Quelle an der im gewählten Zeitraum bereitgestellten Elektrizität, einschliesslich Importen."
+
+msgid "Quota di ciascuna fonte sull’elettricità esportata nel periodo selezionato."
+msgstr "Anteil jeder Quelle an der im gewählten Zeitraum exportierten Elektrizität."
+
+msgid "Quota di ciascuna fonte sull’elettricità consumata nel periodo selezionato, incluse le importazioni."
+msgstr "Anteil jeder Quelle an der im gewählten Zeitraum verbrauchten Elektrizität, einschliesslich Importen."
+
+msgid "Quota di ciascuna fonte sull’offerta locale nel periodo selezionato. Le importazioni sono escluse dal totale."
+msgstr "Anteil jeder Quelle am lokalen Stromangebot im gewählten Zeitraum. Importe sind von der Summe ausgeschlossen."

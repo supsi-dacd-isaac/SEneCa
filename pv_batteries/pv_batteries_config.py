@@ -146,6 +146,10 @@ OUTPUTS = [
      "tooltip_decimals": 3},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Energia PV annuale",
+     "relative_view": True,
+     "relative_components": ["Autoconsumo (SC)", "In rete"],
+     "relative_denominator": "Produzione",
+     "relative_note": "Autoconsumo e immissione in rete in percentuale della produzione PV annuale. La produzione è il denominatore, non una terza componente.",
      "history": "pv_production",
      "history_note": "Produzione PV storica cantonale in GWh, disponibile fino al 2023. "
                      "Non sono disponibili serie storiche separate per autoconsumo e immissione in rete.",

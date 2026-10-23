@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.responsive import wrapping_columns
 from pv_batteries.i18n import tr, chart_text
 
 from echarts_charts import (
@@ -267,7 +268,7 @@ def _render_chart_grid(df, charts: list[dict], df_base, group_title: str) -> Non
                 # un grafico spaiato a mezza larghezza lascia mezza riga vuota
                 _render_chart(df, row[0], df_base, group_title)
                 continue
-            cols = st.columns(2)
+            cols = wrapping_columns(2, key=f"pv_{group_title}_{_chart_key(row[0])}")
             for col, meta in zip(cols, row):
                 with col:
                     _render_chart(df, meta, df_base, group_title)
@@ -351,8 +352,9 @@ def render_pv_topic_sections(
         column_rows = group.get("column_rows") or (
             [group["columns"]] if group.get("columns") else []
         )
-        for subgroups in column_rows:
-            for col, sub in zip(st.columns(len(subgroups)), subgroups):
+        for row_index, subgroups in enumerate(column_rows):
+            cols = wrapping_columns(len(subgroups), key=f"pv_groups_{_group_name(group)}_{row_index}")
+            for col, sub in zip(cols, subgroups):
                 with col:
                     if sub_title := sub.get("title"):
                         st.subheader(tr(sub_title))
