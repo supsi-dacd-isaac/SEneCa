@@ -62,17 +62,17 @@ class TranslationTests(unittest.TestCase):
         code = "from pv_batteries.i18n import language_selector, tr\nimport streamlit as st\nlanguage_selector()\nst.title(tr('Potenza PV totale'))"
         a = AppTest.from_string(code).run()
         b = AppTest.from_string(code).run()
-        a.selectbox(key='ui_language').select('en').run()
+        a.radio(key='ui_language').set_value('en').run()
         self.assertEqual(a.title[0].value, 'Total PV capacity')
         b.run()
         self.assertEqual(b.title[0].value, 'Potenza PV totale')
 
     def test_home_language_switch(self):
         at = AppTest.from_file(str(ROOT/'app.py'), default_timeout=30).run()
-        at.selectbox(key='ui_language').select('en').run()
+        at.radio(key='ui_language').set_value('en').run()
         self.assertFalse(at.exception)
         self.assertEqual(at.title[0].value, 'The SEneCa model for Ticino')
-        at.selectbox(key='ui_language').select('it').run()
+        at.radio(key='ui_language').set_value('it').run()
         self.assertEqual(at.title[0].value, 'Modello SEneCa per il Ticino')
 
     @unittest.skipUnless(cfg.CONSOLIDATED_TRAJ.exists(), 'Install the pinned data release for the PV integration test')
@@ -100,7 +100,7 @@ class TranslationTests(unittest.TestCase):
             self.assertFalse(at.exception)
             values = [m.value for m in at.metric]
             frame = at.dataframe[0].value.copy()
-            at.selectbox(key='ui_language').select('en').run()
+            at.radio(key='ui_language').set_value('en').run()
             self.assertFalse(at.exception)
             self.assertEqual(at.session_state['pv_section'], section)
             self.assertEqual(at.select_slider(key='pv_input_PV rebate cantonal').value,.2)
@@ -109,7 +109,7 @@ class TranslationTests(unittest.TestCase):
             self.assertEqual([m.value for m in at.metric],values)
             pd.testing.assert_frame_equal(at.dataframe[0].value,frame)
             self.assertEqual(at.title[0].value,'PV & decentralised batteries')
-            at.selectbox(key='ui_language').select('it').run()
+            at.radio(key='ui_language').set_value('it').run()
             self.assertFalse(at.exception)
             self.assertEqual([m.value for m in at.metric],values)
             pd.testing.assert_frame_equal(at.dataframe[0].value,frame)

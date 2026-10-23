@@ -5,7 +5,7 @@ Branch: `interfaccia-multilingue`. Nessuna modifica al modello, alla calibrazion
 
 ## Perimetro del primo passo
 
-- Selettore **Lingua / Language** nella barra laterale; italiano predefinito.
+- Menu **🌐** in alto a destra, sopra il titolo, comune a tutte le pagine; italiano predefinito. Il menu mostra le lingue per esteso e può accogliere francese e tedesco quando saranno disponibili i relativi cataloghi.
 - Navigazione, pagina iniziale e pagina **PV e Batterie** nelle due lingue.
 - Tutte le quattro sottosezioni PV: adozione PV, batterie, produzione/consumi, prezzi/costi.
 - Leve, aiuti, indicatori, spiegazioni, storico e calibrazione, legende, assi e comandi ECharts.

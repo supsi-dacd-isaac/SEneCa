@@ -34,8 +34,17 @@ def tr(message, **values):
 
 
 def language_selector():
-    st.sidebar.selectbox("Lingua / Language", list(LANGUAGES),
-                         format_func=LANGUAGES.get, key="ui_language")
+    # Keep this in the shared entrypoint so language persists across pages.
+    # The vertical menu also accommodates future French/German catalogs.
+    with st.container(horizontal=True, horizontal_alignment="right"):
+        with st.popover(
+            "🌐", help="Lingua / Language", type="tertiary", key="language_menu",
+        ):
+            with st.container(width=200):
+                st.radio(
+                    "Lingua / Language", list(LANGUAGES),
+                    format_func=LANGUAGES.get, key="ui_language",
+                )
 
 
 def chart_text(value):
