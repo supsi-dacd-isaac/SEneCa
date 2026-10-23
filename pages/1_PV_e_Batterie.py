@@ -152,7 +152,7 @@ if sim_incomplete:
     )
 
 # --- Indicatori principali (2050) -------------------------------------
-st.subheader(tr("Indicatori principali ({year})", year=FINAL_YEAR))
+st.subheader(tr("Indicatori principali ({v0})", v0=FINAL_YEAR))
 with st.expander(tr("Cosa misurano questi indicatori")):
     st.markdown(tr(KPI_EXPLANATION))
 gmd_bounds = gmd_bounds_for_spec(gmd_store, GMD_SPEC)

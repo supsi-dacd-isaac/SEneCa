@@ -202,6 +202,10 @@ def render_configured_summary_metrics(
                     help=tr(GMD_DISPLAY_CAPTION if i == last_gmd else None),
                 )
 
+    for note in dict.fromkeys(spec["period_note"] for spec in metrics if spec.get("period_note")):
+        st.caption(tr(note))
+    if last_gmd is not None:
+        st.caption(tr("Equità: scala 0–1 dei precalcolati; più alto = più equo. Non è una percentuale."))
     if radar:
         render_kpi_radar(entries, chart_key=radar_chart_key)
 

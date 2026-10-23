@@ -147,7 +147,7 @@ render_hourly_summary_metrics(
 st.divider()
 
 st.caption(
-    tr('Profili mensili e orari negli anni {v0}; giorno tipo per {v1}.', v0=', '.join((str(y) for y in cfg.DISPLAY_YEARS)), v1=', '.join(cfg.DISPLAY_MONTHS))
+    tr('Profili mensili e orari negli anni {v0}; giorno tipo per {v1}.', v0=', '.join((str(y) for y in cfg.DISPLAY_YEARS)), v1=', '.join(tr(m) for m in cfg.DISPLAY_MONTHS))
 )
 
 render_electricity_section(

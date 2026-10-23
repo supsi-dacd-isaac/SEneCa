@@ -377,6 +377,7 @@ msgstr "#### :material/menu_book: Technische Dokumentation"
 msgid "#### :round_pushpin: Il caso Ticino, WP13"
 msgstr "#### :round_pushpin: Die Tessiner Fallstudie, WP13"
 
+#, python-format
 msgid "% del costo"
 msgstr "% der Kosten"
 
@@ -424,6 +425,7 @@ msgstr ""
 "Annahme zur jährlichen Senkung des Kaufpreises batterieelektrischer Fahrzeuge, bezogen auf den "
 "Vorjahrespreis."
 
+#, python-format
 msgid ""
 "Attiva insieme due componenti: contributo del 10% del costo d’investimento dal 2026 e supplemento"
 " di 5 ct./kWh sull’elettricità PV immessa in rete dal 2025, secondo le decorrenze del modello."
@@ -460,6 +462,7 @@ msgstr "Weiter"
 msgid "Barre"
 msgstr "Balkendiagramm"
 
+#, python-format
 msgid "Barre in GWh sull'asse sinistro, quote % sulla domanda sull'asse destro"
 msgstr "Balken in GWh auf der linken Achse; Nachfrageanteile (%) auf der rechten Achse"
 
@@ -1525,7 +1528,7 @@ msgstr ""
 msgid "Composizione dei {v0} policy mix migliori"
 msgstr "Zusammensetzung der {v0} besten Kombinationen"
 
-#, python-brace-format
+#, python-brace-format, python-format
 msgid ""
 "Per ogni leva: che percentuale dei mix in classifica assume il valore alto/presente. Esempio: "
 "100% su Autoconsumo virtuale significa che tutti e {v0} i migliori la attivano; 20% sugli "
@@ -2538,6 +2541,7 @@ msgstr "HTML-Karte nicht gefunden: `{v0}`"
 msgid "Warming the Julia worker before accepting simulations"
 msgstr "Julia-Prozess wird vor den Simulationen aufgewärmt"
 
+#, python-format
 msgid "Julia worker ready: pid=%s, warmup=%.3fs, compilation=%.3fs"
 msgstr "Julia-Prozess bereit: pid=%s, Aufwärmen=%.3fs, Kompilierung=%.3fs"
 
@@ -3292,6 +3296,7 @@ msgstr "Anzahl Szenarien"
 msgid "scalato (1 = migliore)"
 msgstr "skaliert (1 = bester Wert)"
 
+#, python-format
 msgid "% dei 5 migliori"
 msgstr "% der besten 5"
 
@@ -3396,29 +3401,646 @@ msgstr ""
 "Anteil aller Typen im jeweiligen Jahr, für jedes Szenario separat berechnet. Das Ausblenden einer"
 " Reihe verändert den Nenner nicht."
 
-msgid "Ogni scenario usa il proprio totale. Nascondere una serie non cambia il denominatore. Un totale nullo non ha una quota definita."
-msgstr "Jedes Szenario verwendet seine eigene Summe. Das Ausblenden einer Reihe ändert den Nenner nicht. Bei einer Summe von null sind die Anteile nicht definiert."
+msgid ""
+"Ogni scenario usa il proprio totale. Nascondere una serie non cambia il denominatore. Un totale "
+"nullo non ha una quota definita."
+msgstr ""
+"Jedes Szenario verwendet seine eigene Summe. Das Ausblenden einer Reihe ändert den Nenner nicht. "
+"Bei einer Summe von null sind die Anteile nicht definiert."
 
-msgid "Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate separate di autoconsumo e immissione in rete per calcolarne le quote."
-msgstr "Historische PV-Produktion ist in der absoluten Ansicht verfügbar. Getrennte Beobachtungsreihen für Eigenverbrauch und Netzeinspeisung fehlen zur Berechnung ihrer Anteile."
+msgid ""
+"Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate "
+"separate di autoconsumo e immissione in rete per calcolarne le quote."
+msgstr ""
+"Historische PV-Produktion ist in der absoluten Ansicht verfügbar. Getrennte Beobachtungsreihen "
+"für Eigenverbrauch und Netzeinspeisung fehlen zur Berechnung ihrer Anteile."
 
-msgid "Autoconsumo e immissione in rete in percentuale della produzione PV annuale. La produzione è il denominatore, non una terza componente."
-msgstr "Eigenverbrauch und Netzeinspeisung als Anteile der jährlichen PV-Produktion. Die Produktion ist der Nenner, keine dritte Komponente."
+msgid ""
+"Autoconsumo e immissione in rete in percentuale della produzione PV annuale. La produzione è il "
+"denominatore, non una terza componente."
+msgstr ""
+"Eigenverbrauch und Netzeinspeisung als Anteile der jährlichen PV-Produktion. Die Produktion ist "
+"der Nenner, keine dritte Komponente."
 
-msgid "Quota di ciascun vettore sul consumo totale per il riscaldamento, incluso il calore ambiente. Nella vista cumulata, le quote sono calcolate sui consumi cumulati."
-msgstr "Anteil jedes Energieträgers am gesamten Heizenergieverbrauch, einschliesslich Umweltwärme. In der kumulierten Ansicht werden die Anteile aus dem kumulierten Verbrauch berechnet."
+msgid ""
+"Quota di ciascun vettore sul consumo totale per il riscaldamento, incluso il calore ambiente. "
+"Nella vista cumulata, le quote sono calcolate sui consumi cumulati."
+msgstr ""
+"Anteil jedes Energieträgers am gesamten Heizenergieverbrauch, einschliesslich Umweltwärme. In der"
+" kumulierten Ansicht werden die Anteile aus dem kumulierten Verbrauch berechnet."
 
 msgid "Quota di ciascuna classe di efficienza sulla superficie riscaldata totale nell’anno."
 msgstr "Anteil jeder Effizienzklasse an der gesamten beheizten Fläche des jeweiligen Jahres."
 
-msgid "Quota di ciascuna fonte sull’elettricità dispacciata nel periodo selezionato, incluse le importazioni."
-msgstr "Anteil jeder Quelle an der im gewählten Zeitraum bereitgestellten Elektrizität, einschliesslich Importen."
+msgid ""
+"Quota di ciascuna fonte sull’elettricità dispacciata nel periodo selezionato, incluse le "
+"importazioni."
+msgstr ""
+"Anteil jeder Quelle an der im gewählten Zeitraum bereitgestellten Elektrizität, einschliesslich "
+"Importen."
 
 msgid "Quota di ciascuna fonte sull’elettricità esportata nel periodo selezionato."
 msgstr "Anteil jeder Quelle an der im gewählten Zeitraum exportierten Elektrizität."
 
-msgid "Quota di ciascuna fonte sull’elettricità consumata nel periodo selezionato, incluse le importazioni."
-msgstr "Anteil jeder Quelle an der im gewählten Zeitraum verbrauchten Elektrizität, einschliesslich Importen."
+msgid ""
+"Quota di ciascuna fonte sull’elettricità consumata nel periodo selezionato, incluse le "
+"importazioni."
+msgstr ""
+"Anteil jeder Quelle an der im gewählten Zeitraum verbrauchten Elektrizität, einschliesslich "
+"Importen."
 
-msgid "Quota di ciascuna fonte sull’offerta locale nel periodo selezionato. Le importazioni sono escluse dal totale."
-msgstr "Anteil jeder Quelle am lokalen Stromangebot im gewählten Zeitraum. Importe sind von der Summe ausgeschlossen."
+msgid ""
+"Quota di ciascuna fonte sull’offerta locale nel periodo selezionato. Le importazioni sono escluse"
+" dal totale."
+msgstr ""
+"Anteil jeder Quelle am lokalen Stromangebot im gewählten Zeitraum. Importe sind von der Summe "
+"ausgeschlossen."
+
+msgid "Unifamiliari (SFH)"
+msgstr "Einfamilienhäuser (SFH)"
+
+msgid "Bifamiliari (DFH)"
+msgstr "Zweifamilienhäuser (DFH)"
+
+msgid "Plurifamiliari (MFH)"
+msgstr "Mehrfamilienhäuser (MFH)"
+
+msgid "Elettrici a batteria (BEV)"
+msgstr "Batterieelektrisch (BEV)"
+
+msgid "Ibridi diesel (HEV)"
+msgstr "Dieselhybride (HEV)"
+
+msgid "Ibridi benzina (HEV)"
+msgstr "Benzinhybride (HEV)"
+
+msgid "Ibridi plug-in diesel (PHEV)"
+msgstr "Diesel-Plug-in-Hybride (PHEV)"
+
+msgid "Ibridi plug-in benzina (PHEV)"
+msgstr "Benzin-Plug-in-Hybride (PHEV)"
+
+msgid "Benzina"
+msgstr "Benzin"
+
+msgid "Molto bassa"
+msgstr "Sehr niedrig"
+
+msgid "Bassa"
+msgstr "Niedrig"
+
+msgid "Media"
+msgstr "Mittel"
+
+msgid "Alta"
+msgstr "Hoch"
+
+msgid "Molto alta"
+msgstr "Sehr hoch"
+
+msgid "Olio combustibile"
+msgstr "Heizöl"
+
+msgid "Riscaldamento elettrico diretto"
+msgstr "Elektrodirektheizung"
+
+msgid "Elettricità per pompe di calore"
+msgstr "Strom für Wärmepumpen"
+
+msgid "Solare termico"
+msgstr "Solarthermie"
+
+msgid "Autoconsumo"
+msgstr "Eigenverbrauch"
+
+msgid "Fabbisogno coperto dall’autoconsumo [%]"
+msgstr "Durch Eigenverbrauch gedeckter Bedarf [%]"
+
+msgid "Produzione PV / fabbisogno [%]"
+msgstr "PV-Erzeugung / Bedarf [%]"
+
+msgid "Edifici con PV per tipologia"
+msgstr "Gebäude mit PV nach Typ"
+
+msgid "Edifici con PV per distretto"
+msgstr "Gebäude mit PV nach Bezirk"
+
+msgid "Edifici con batteria per tipologia"
+msgstr "Gebäude mit Batterie nach Typ"
+
+msgid "Potenza PV per tipologia di edificio"
+msgstr "PV-Leistung nach Gebäudetyp"
+
+msgid "Capacità batterie per tipologia di edificio"
+msgstr "Batteriekapazität nach Gebäudetyp"
+
+msgid "Capacità batterie non residenziali"
+msgstr "Batteriekapazität in Nichtwohngebäuden"
+
+msgid "Capacità batterie per distretto"
+msgstr "Batteriekapazität nach Bezirk"
+
+msgid "Immatricolazioni per motorizzazione"
+msgstr "Neuzulassungen nach Antrieb"
+
+msgid "Parco veicoli per motorizzazione"
+msgstr "Fahrzeugbestand nach Antrieb"
+
+msgid "Veicoli elettrici a batteria"
+msgstr "Batterieelektrische Fahrzeuge"
+
+msgid "Quota di elettrici a batteria"
+msgstr "Anteil batterieelektrischer Fahrzeuge"
+
+msgid "Elettrici a batteria per distretto"
+msgstr "Batterieelektrische Fahrzeuge nach Bezirk"
+
+msgid "Consumo di riscaldamento per m²"
+msgstr "Heizenergieverbrauch pro m²"
+
+msgid "Consumi di riscaldamento per fonte"
+msgstr "Heizenergieverbrauch nach Quelle"
+
+msgid "Consumi di riscaldamento cumulati"
+msgstr "Kumulierter Heizenergieverbrauch"
+
+msgid "Produzione PV totale"
+msgstr "Gesamte PV-Erzeugung"
+
+msgid "Costo annuo medio per famiglia"
+msgstr "Mittlere jährliche Haushaltskosten"
+
+msgid "Riscaldamento netto per m²"
+msgstr "Nettoheizenergie pro m²"
+
+msgid "Equità dei costi"
+msgstr "Kostengerechtigkeit"
+
+msgid "Emissioni annue di CO₂"
+msgstr "Jährliche CO₂-Emissionen"
+
+msgid "Emissioni cumulate di CO₂"
+msgstr "Kumulierte CO₂-Emissionen"
+
+msgid "Equità della tassa CO₂"
+msgstr "Gerechtigkeit der CO₂-Abgabe"
+
+msgid "kWh/(m²·anno)"
+msgstr "kWh/(m²·Jahr)"
+
+msgid "CHF/(abitazione·anno)"
+msgstr "CHF/(Wohnung·Jahr)"
+
+msgid "Mio m²"
+msgstr "Mio. m²"
+
+msgid "Mt CO₂"
+msgstr "Mt CO₂"
+
+msgid "Mt CO₂/anno"
+msgstr "Mt CO₂/Jahr"
+
+msgid "Misure e incertezza"
+msgstr "Massnahmen und Unsicherheit"
+
+msgid "Combinazione di misure"
+msgstr "Massnahmenkombination"
+
+msgid "Esplora una combinazione di misure"
+msgstr "Massnahmenkombination erkunden"
+
+msgid "Migliori combinazioni di misure"
+msgstr "Beste Massnahmenkombinationen"
+
+msgid "Classifica delle 128 combinazioni"
+msgstr "Rangliste der 128 Kombinationen"
+
+msgid "Punteggio"
+msgstr "Bewertung"
+
+msgid "Posizione"
+msgstr "Rang"
+
+msgid "Variabilità del punteggio"
+msgstr "Streuung der Bewertung"
+
+msgid "Scenari"
+msgstr "Szenarien"
+
+msgid "Punteggio [0–1; 1 = migliore]"
+msgstr "Bewertung [0–1; 1 = beste]"
+
+msgid "Risultati simulati"
+msgstr "Simulationsergebnisse"
+
+msgid "Valori estremi"
+msgstr "Ausreisser"
+
+msgid "**Profilo mensile per fonte**"
+msgstr "**Monatsprofil nach Quelle**"
+
+#, python-brace-format
+msgid "Indicatori principali al {v0}"
+msgstr "Kennzahlen {v0}"
+
+#, python-brace-format
+msgid "**{v0}** [{v1}]"
+msgstr "**{v0}** [{v1}]"
+
+#, python-brace-format
+msgid "**{v0}** [{v1}] — {v2}–{v3}"
+msgstr "**{v0}** [{v1}] — {v2}–{v3}"
+
+msgid "Gennaio"
+msgstr "Januar"
+
+msgid "Febbraio"
+msgstr "Februar"
+
+msgid "Marzo"
+msgstr "März"
+
+msgid "Aprile"
+msgstr "April"
+
+msgid "Maggio"
+msgstr "Mai"
+
+msgid "Giugno"
+msgstr "Juni"
+
+msgid "Luglio"
+msgstr "Juli"
+
+msgid "Agosto"
+msgstr "August"
+
+msgid "Settembre"
+msgstr "September"
+
+msgid "Ottobre"
+msgstr "Oktober"
+
+msgid "Novembre"
+msgstr "November"
+
+msgid "Dicembre"
+msgstr "Dezember"
+
+#, python-brace-format
+msgid "Ora {year}"
+msgstr "Stunde {year}"
+
+#, python-brace-format
+msgid "al {year}"
+msgstr "{year}"
+
+msgid "totale annuo per fonte"
+msgstr "Jahressumme nach Quelle"
+
+#, python-brace-format
+msgid "cumulato dal {year} per fonte"
+msgstr "kumuliert seit {year} nach Quelle"
+
+msgid "Potenza PV — unifamiliari"
+msgstr "PV-Leistung — Einfamilienhäuser"
+
+msgid "Potenza PV — bifamiliari"
+msgstr "PV-Leistung — Zweifamilienhäuser"
+
+msgid "Potenza PV — plurifamiliari"
+msgstr "PV-Leistung — Mehrfamilienhäuser"
+
+msgid "Emissioni annue residenziali"
+msgstr "Jährliche Emissionen der Wohngebäude"
+
+msgid "Emissioni residenziali cumulate dal 2026"
+msgstr "Kumulierte Wohngebäudeemissionen seit 2026"
+
+msgid "Riscaldamento finale per m²"
+msgstr "Endheizenergie pro m²"
+
+msgid "Variazione"
+msgstr "Änderung"
+
+msgid "Variazione [%]"
+msgstr "Änderung [%]"
+
+msgid ""
+"Confronto con lo scenario Base: linee tratteggiate nei grafici assoluti, pannelli separati nelle "
+"viste relative."
+msgstr "Referenzvergleich: gestrichelte Linien bei absoluten Werten, getrennte Diagramme bei Anteilen."
+
+msgid "Variazione = scenario scelto − Base. La percentuale non è definita se il Base è zero."
+msgstr "Änderung = gewähltes Szenario − Referenz. Bei Referenzwert null ist kein Prozentsatz definiert."
+
+msgid "Potenza installata negli edifici residenziali ticinesi, per tipologia."
+msgstr "Installierte Leistung in Tessiner Wohngebäuden nach Typ."
+
+msgid "Totale cantonale; le classi indicano la potenza del singolo impianto."
+msgstr "Kantonssumme; die Klassen bezeichnen die Leistung einzelner Anlagen."
+
+msgid "Percentuale degli edifici di ciascuna tipologia con PV."
+msgstr "Anteil der Gebäude mit PV innerhalb jedes Gebäudetyps."
+
+msgid "Percentuale degli edifici di ciascun distretto con PV."
+msgstr "Anteil der Gebäude mit PV innerhalb jedes Bezirks."
+
+msgid "Energia accumulabile nelle batterie residenziali, per tipologia di edificio."
+msgstr "Speicherbare Energie in Wohngebäudebatterien nach Gebäudetyp."
+
+msgid "Energia accumulabile; le classi in kW si riferiscono agli impianti PV."
+msgstr "Speicherbare Energie; die kW-Klassen beziehen sich auf die PV-Anlagen."
+
+msgid "Energia accumulabile nelle batterie di ciascun distretto."
+msgstr "Speicherbare Energie in den Batterien jedes Bezirks."
+
+msgid "Percentuale degli edifici di ciascuna tipologia con batteria."
+msgstr "Anteil der Gebäude mit Batterie innerhalb jedes Gebäudetyps."
+
+msgid "Importo federale aggiunto al prezzo di ogni kWh consumato."
+msgstr "Bundeszuschlag pro verbrauchter kWh."
+
+msgid "Importo cantonale aggiunto al prezzo di ogni kWh consumato."
+msgstr "Kantonszuschlag pro verbrauchter kWh."
+
+msgid "Produzione PV = autoconsumo + immissione in rete, in Ticino."
+msgstr "PV-Erzeugung = Eigenverbrauch + Netzeinspeisung, im Tessin."
+
+msgid ""
+"Barre: energia annua. Linee: produzione e autoconsumo rispetto al fabbisogno elettrico del "
+"distretto."
+msgstr ""
+"Balken: Jahresenergie. Linien: Erzeugung und Eigenverbrauch im Verhältnis zum Strombedarf des "
+"Bezirks."
+
+msgid ""
+"Consumo annuo per m² riscaldato. Il consumo netto esclude il calore ambiente delle pompe di "
+"calore."
+msgstr "Jahresverbrauch pro beheiztem m². Der Nettoverbrauch schliesst Umweltwärme der Wärmepumpen aus."
+
+msgid "Riscaldamento e acqua calda in Ticino, incluso il calore ambiente delle pompe di calore."
+msgstr "Heizung und Warmwasser im Tessin, einschliesslich Umweltwärme der Wärmepumpen."
+
+msgid "Classi di prestazione dell’involucro: da molto bassa a molto alta."
+msgstr "Leistungsklassen der Gebäudehülle: von sehr niedrig bis sehr hoch."
+
+msgid "Incentivi pagati e quota finanziata dal Cantone, al netto dei fondi federali."
+msgstr "Ausbezahlte Fördermittel und Kantonsanteil nach Abzug der Bundesmittel."
+
+msgid "Nuove immatricolazioni annue in Ticino. HEV: ibridi; PHEV: ibridi ricaricabili."
+msgstr "Jährliche Neuzulassungen im Tessin. HEV: Hybride; PHEV: Plug-in-Hybride."
+
+msgid "Veicoli in circolazione in Ticino, per motorizzazione."
+msgstr "Fahrzeuge im Tessin nach Antriebsart."
+
+msgid "Emissioni dei veicoli in Ticino; la serie inizia nel 2026."
+msgstr "Fahrzeugemissionen im Tessin; die Reihe beginnt 2026."
+
+msgid "Veicoli elettrici a batteria in circolazione; esclusi gli ibridi plug-in."
+msgstr "Batterieelektrische Fahrzeuge im Bestand; ohne Plug-in-Hybride."
+
+msgid "Elettricità distribuita dalla rete"
+msgstr "Vom Netz gelieferter Strom"
+
+msgid "Offerta elettrica locale"
+msgstr "Lokales Stromangebot"
+
+msgid "Elettricità per il pompaggio"
+msgstr "Strom für Pumpspeicherung"
+
+msgid "Elettricità fornita dalla rete, per fonte; include le importazioni."
+msgstr "Vom Netz gelieferter Strom nach Quelle, einschliesslich Importen."
+
+msgid "Elettricità prodotta in Ticino e destinata fuori cantone."
+msgstr "Im Tessin erzeugter und ausserhalb des Kantons genutzter Strom."
+
+msgid "Elettricità usata in Ticino: rete e autoconsumo PV."
+msgstr "Stromverbrauch im Tessin: Netzbezug und PV-Eigenverbrauch."
+
+msgid "Produzione locale disponibile, prima della scelta delle fonti da utilizzare."
+msgstr "Verfügbare lokale Erzeugung vor der Auswahl der eingesetzten Quellen."
+
+msgid "Elettricità assorbita per pompare acqua nei bacini di accumulo."
+msgstr "Strom zum Hochpumpen von Wasser in Speicherbecken."
+
+msgid "Totali annui; cumulati se selezionato."
+msgstr "Jahressummen; kumuliert bei entsprechender Auswahl."
+
+msgid "Totali mensili stimati da un giorno tipo per mese (365/12 giorni)."
+msgstr "Monatssummen aus einem repräsentativen Tag pro Monat (365/12 Tage)."
+
+msgid "Energia in ciascuna ora di un giorno tipo, non potenza istantanea."
+msgstr "Energie je Stunde eines repräsentativen Tages, keine Momentanleistung."
+
+msgid "Emissioni cumulate dal 2026; fondi cantonali cumulati dal 2011, al 2050."
+msgstr "Emissionen seit 2026; Kantonsmittel seit 2011, Stand 2050."
+
+msgid "Emissioni cumulate dal 2026; parco e quota al 2050."
+msgstr "Emissionen seit 2026; Bestand und Anteil 2050."
+
+msgid "Equità: scala 0–1 dei precalcolati; più alto = più equo. Non è una percentuale."
+msgstr "Gerechtigkeit: vorberechnete Skala 0–1; höher = gerechter. Kein Prozentsatz."
+
+msgid ""
+"Costo per famiglia: elettricità, riscaldamento e risanamento. Equità: scala 0–1 dei precalcolati,"
+" più alto = più equo."
+msgstr ""
+"Haushaltskosten: Strom, Heizung und Sanierung. Gerechtigkeit: vorberechnete Skala 0–1, höher = "
+"gerechter."
+
+#, python-format
+msgid ""
+"P10–P90: 80% centrale dei risultati simulati, non probabilità del futuro. Equità: 0–1, più alto ="
+" migliore tra gli scenari."
+msgstr ""
+"P10–P90: mittlere 80% der Simulationsergebnisse, keine Zukunftswahrscheinlichkeiten. "
+"Gerechtigkeit: 0–1, höher = besser im Szenarienvergleich."
+
+msgid "Scegli le misure e confronta i risultati: **0 = peggiore, 1 = migliore** tra gli scenari."
+msgstr ""
+"Massnahmen wählen und Ergebnisse vergleichen: **0 = schlechteste, 1 = beste** im "
+"Szenarienvergleich."
+
+msgid "Mediana e P10–P90 su 100 scenari, al 2050. Emissioni cumulate dal 2026; spesa cantonale dal 2025."
+msgstr "Median und P10–P90 aus 100 Szenarien, Stand 2050. Emissionen seit 2026; Kantonsausgaben seit 2025."
+
+#, python-brace-format
+msgid ""
+"Assegna un peso a ogni indicatore: la classifica mostra le **{v0} combinazioni** con il punteggio"
+" medio migliore sui 100 scenari."
+msgstr ""
+"Indikatoren gewichten: die Rangliste zeigt die **{v0} Kombinationen** mit der besten mittleren "
+"Bewertung aus 100 Szenarien."
+
+#, python-brace-format
+msgid "Ogni asse è un indicatore: 1 = migliore. Valori medi sui {v0} scenari."
+msgstr "Jede Achse ist ein Indikator: 1 = beste. Mittelwerte aus {v0} Szenarien."
+
+msgid "Confronta combinazioni di incentivi e regole in diversi futuri possibili."
+msgstr "Kombinationen von Förderungen und Regeln in möglichen Zukünften vergleichen."
+
+msgid "#### :material/tune: Misure"
+msgstr "#### :material/tune: Massnahmen"
+
+msgid "**7 misure**, ciascuna su due livelli: **128 combinazioni** di incentivi e regole."
+msgstr "**7 Massnahmen** mit je zwei Stufen: **128 Kombinationen** von Förderungen und Regeln."
+
+msgid "**100 scenari** di costi, domanda, tassi e vita utile, uguali per tutte le combinazioni."
+msgstr "**100 Szenarien** für Kosten, Bedarf, Zinsen und Lebensdauer, gleich für alle Kombinationen."
+
+msgid "**9 indicatori** di costi, equità, emissioni, produzione PV e consumi."
+msgstr "**9 Indikatoren** für Kosten, Gerechtigkeit, Emissionen, PV-Erzeugung und Verbrauch."
+
+#, python-brace-format
+msgid "{count} simulazioni · {mixes} combinazioni × {samples} scenari"
+msgstr "{count} Simulationen · {mixes} Kombinationen × {samples} Szenarien"
+
+#, python-format
+msgid "Scatola: 50% centrale; linea: mediana; punti: valori estremi."
+msgstr "Box: mittlere 50%; Linie: Median; Punkte: Ausreisser."
+
+msgid ""
+"Incertezza: 17 parametri campionati con Latin hypercube, uniformi nei rispettivi intervalli. I "
+"pesi esprimono le priorità di chi esplora."
+msgstr ""
+"Unsicherheit: 17 Parameter mit Latin-Hypercube-Stichproben, gleichverteilt in ihren Bereichen. "
+"Gewichte drücken Ihre Prioritäten aus."
+
+msgid ""
+"Equità del saldo tra supplementi in bolletta e incentivi PV, tra famiglie. Scala 0–1: più alto = "
+"più equo tra gli scenari."
+msgstr ""
+"Gerechtigkeit des Saldos aus Stromzuschlägen und PV-Förderung zwischen Haushalten. Skala 0–1: "
+"höher = gerechter im Szenarienvergleich."
+
+msgid ""
+"Equità del saldo tra tassa CO₂ e incentivi, tra famiglie. Scala 0–1: più alto = più equo tra gli "
+"scenari."
+msgstr ""
+"Gerechtigkeit des Saldos aus CO₂-Abgabe und Förderung zwischen Haushalten. Skala 0–1: höher = "
+"gerechter im Szenarienvergleich."
+
+msgid ""
+"Equità dei costi annui di energia e risanamento, tra famiglie. Scala 0–1: più alto = più equo tra"
+" gli scenari."
+msgstr ""
+"Gerechtigkeit der jährlichen Energie- und Sanierungskosten zwischen Haushalten. Skala 0–1: höher "
+"= gerechter im Szenarienvergleich."
+
+msgid ""
+"Il modello usa **un giorno tipo per mese**, con queste grandezze:\n"
+"\n"
+"- **Offerta locale**: elettricità che gli impianti ticinesi possono produrre.\n"
+"- **Distribuita dalla rete (dispacciata)**: elettricità assegnata alle fonti per coprire la "
+"domanda, incluso il pompaggio.\n"
+"- **Consumata**: elettricità distribuita dalla rete più autoconsumo PV.\n"
+"- **Esportata**: produzione locale disponibile che non viene usata in Ticino.\n"
+"- **Pompaggio**: elettricità per riportare acqua nei bacini di accumulo.\n"
+"\n"
+"I totali mensili e annui sono stimati dai giorni tipo, con **365/12 giorni per mese**."
+msgstr ""
+"Das Modell nutzt **einen repräsentativen Tag pro Monat**:\n"
+"\n"
+"- **Lokales Angebot**: Strom, den Tessiner Anlagen erzeugen können.\n"
+"- **Netzlieferung (Dispatch)**: den Quellen zugeteilter Strom zur Deckung des Bedarfs, "
+"einschliesslich Pumpbetrieb.\n"
+"- **Verbrauch**: Netzlieferung plus PV-Eigenverbrauch.\n"
+"- **Export**: verfügbare lokale Erzeugung, die im Tessin nicht genutzt wird.\n"
+"- **Pumpbetrieb**: Strom zum Hochpumpen von Wasser in Speicherbecken.\n"
+"\n"
+"Monats- und Jahressummen werden aus den repräsentativen Tagen mit **365/12 Tagen pro Monat** "
+"geschätzt."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Potenza PV**: totale installato residenziale e non residenziale [MW].\n"
+"- **Produzione PV**: energia prodotta al 2050 [GWh].\n"
+"- **Capacità batterie**: energia accumulabile [MWh].\n"
+"- **Costo annuo per famiglia**: elettricità, riscaldamento e investimenti annualizzati per "
+"impianti e risanamento [CHF].\n"
+"- **Equità**: confronta gli oneri tra famiglie, non il loro livello medio. Per il supplemento "
+"considera pagamenti meno incentivi PV; per i costi considera energia e risanamento.\n"
+"\n"
+"Gli indici di equità derivano dalla disuguaglianza monetaria (GMD), riscalata sui precalcolati: "
+"**0 = meno equo, 1 = più equo**. La scala è relativa agli scenari, non una percentuale."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **PV-Leistung**: installierte Gesamtleistung in Wohn- und Nichtwohngebäuden [MW].\n"
+"- **PV-Erzeugung**: 2050 erzeugte Energie [GWh].\n"
+"- **Batteriekapazität**: speicherbare Energie [MWh].\n"
+"- **Jährliche Haushaltskosten**: Strom, Heizung und annualisierte Investitionen in Anlagen und "
+"Sanierung [CHF].\n"
+"- **Gerechtigkeit**: vergleicht Belastungen zwischen Haushalten, nicht deren Mittelwert. Beim "
+"Zuschlag: Zahlungen minus PV-Förderung; bei Kosten: Energie und Sanierung.\n"
+"\n"
+"Die Indizes normieren die monetäre Ungleichheit (GMD) anhand der vorberechneten Szenarien: **0 = "
+"am wenigsten gerecht, 1 = am gerechtesten**. Eine relative Skala, kein Prozentsatz."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate**: emissioni residenziali accumulate dal 2026 [Mt CO₂].\n"
+"- **Fondi cantonali cumulati**: incentivi finanziati dal Cantone, al netto dei fondi federali, "
+"sommati dal 2011 [Mio CHF].\n"
+"- **Equità della tassa CO₂**: confronta tra famiglie il saldo tra tassa pagata e incentivi "
+"ricevuti.\n"
+"\n"
+"L’equità riscalata sui precalcolati va da **0 (meno equo) a 1 (più equo)**. Misura le differenze "
+"tra famiglie, non quanto pagano in media; non è una percentuale."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Kumulierte Emissionen**: Wohngebäudeemissionen seit 2026 [Mt CO₂].\n"
+"- **Kumulierte Kantonsmittel**: kantonal finanzierte Förderungen nach Abzug der Bundesmittel, "
+"summiert seit 2011 [Mio. CHF].\n"
+"- **Gerechtigkeit der CO₂-Abgabe**: vergleicht gezahlte Abgaben minus erhaltene Förderungen "
+"zwischen Haushalten.\n"
+"\n"
+"Normierung auf die vorberechneten Szenarien: **0 (am wenigsten gerecht) bis 1 (am "
+"gerechtesten)**. Gemessen werden Haushaltsunterschiede, nicht die mittlere Zahlung; kein "
+"Prozentsatz."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate**: emissioni dei veicoli accumulate dal 2026 [Mt CO₂].\n"
+"- **Elettrici a batteria**: BEV in circolazione, esclusi gli ibridi plug-in.\n"
+"- **Quota di elettrici a batteria**: BEV sul totale dei veicoli [%].\n"
+"\n"
+"Il parco totale è fissato dal modello. Numero e quota dei BEV variano quindi allo stesso modo: "
+"nel radar compare solo il numero."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Kumulierte Emissionen**: Fahrzeugemissionen seit 2026 [Mt CO₂].\n"
+"- **Batterieelektrische Fahrzeuge**: BEV im Bestand, ohne Plug-in-Hybride.\n"
+"- **Batterieelektrischer Anteil**: BEV am gesamten Fahrzeugbestand [%].\n"
+"\n"
+"Der Gesamtbestand ist im Modell vorgegeben. BEV-Anzahl und -Anteil ändern sich daher gleich; im "
+"Radar erscheint nur die Anzahl."
+
+msgid ""
+"Totali annui **al 2050** [GWh]; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Offerta locale**: produzione disponibile in Ticino, senza importazioni.\n"
+"- **Offerta solare**: componente PV dell’offerta locale.\n"
+"- **Consumo**: elettricità usata, rete più autoconsumo PV.\n"
+"- **Esportazioni**: produzione locale disponibile in eccesso rispetto alla domanda.\n"
+"- **Importazioni**: elettricità proveniente da fuori cantone.\n"
+"\n"
+"Importazioni ed esportazioni possono coesistere: produzione e domanda cambiano da un’ora "
+"all’altra."
+msgstr ""
+"Jahressummen **2050** [GWh]; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Lokales Angebot**: verfügbare Erzeugung im Tessin, ohne Importe.\n"
+"- **Solarangebot**: PV-Anteil des lokalen Angebots.\n"
+"- **Verbrauch**: genutzter Strom, Netzlieferung plus PV-Eigenverbrauch.\n"
+"- **Exporte**: verfügbare lokale Erzeugung über dem Bedarf.\n"
+"- **Importe**: Strom von ausserhalb des Kantons.\n"
+"\n"
+"Importe und Exporte können gleichzeitig auftreten: Erzeugung und Bedarf ändern sich von Stunde zu"
+" Stunde."

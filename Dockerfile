@@ -28,6 +28,8 @@ RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instanti
 COPY sure_julia /app/sure_julia
 COPY Vensim /app/Vensim
 COPY pv_batteries/__init__.py pv_batteries/*_config.py pv_batteries/policy_labels.py /app/pv_batteries/
+# Policy metadata imports presentation helpers, even when building headlessly.
+COPY pv_batteries/i18n.py pv_batteries/display_labels.py /app/pv_batteries/
 COPY constants_ref_v7.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py /app/
 RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
 

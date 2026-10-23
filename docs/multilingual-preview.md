@@ -79,6 +79,24 @@ La prova live completa usa il modello v7 invariato, con RCPv attivato prima del 
 
 Esito: 50 test pertinenti superati (11 i18n, 3 sulle quattro lingue, 3 sulle quote, 19 sui grafici, 5 sulla sintesi live e 9 sull’analisi esplorativa), oltre alla simulazione live e ai controlli visivi descritti sopra.
 
+## Etichette, unità e didascalie (23 ottobre 2026)
+
+Revisione di leggibilità applicata in italiano, inglese, francese e tedesco, sia alle pagine precalcolate sia ai risultati live:
+
+- Tipologie abitative e motorizzazioni esplicitate nelle legende; BEV distinto dagli ibridi. Classi di efficienza, pompe di calore e solare termico hanno nomi leggibili.
+- Titoli brevi, unità tra parentesi quadre e una didascalia per spiegare perimetro, denominatore delle quote e periodo dei cumulati. I mesi sono nominati; i grafici elettrici distinguono energia oraria, totale mensile e totale annuo.
+- Costi per famiglia e anno, autoconsumo e copertura del fabbisogno sono definiti separatamente. I testi principali usano «al 2050»; i dettagli restano negli espansori.
+- La tabella live espone una colonna delle unità e nomi leggibili, conservando la precisione dei valori piccoli. Le tabelle esplorative mostrano l'equità sulla stessa scala 0–1 dei grafici, con i quantili calcolati sulla scala visualizzata. I GMD grezzi e i calcoli di classificazione restano invariati.
+- Le spiegazioni di scenari, punteggio, boxplot e P10–P90 sono più brevi. P10–P90 descrive l'intervallo centrale dei risultati simulati, non una probabilità assegnata al futuro.
+
+Verifiche: 58 test pertinenti superati (traduzioni, quote, grafici, storico, confronto live e analisi esplorativa); ripetuti i due test UI esplorativi dopo l'allargamento della colonna delle unità. Controlli browser a 1280×900 e 1024×768 su KPI, legende, tabelle e didascalie, incluse le etichette tedesche. Una simulazione Julia v7 è completata nella preview; il passaggio DE→FR conserva valori e selezioni, e il profilo orario mostra nomi dei mesi e unità corretti. Modello, calibrazioni e risultati precalcolati non sono modificati.
+
+## Verifica per la release v0.5.0
+
+La fase Docker `model-builder` include ora anche `i18n.py` e `display_labels.py`, richiesti dagli import dei cataloghi di parametri e output. Un test ricostruisce il contesto dai `COPY` effettivi del Dockerfile e verifica gli import isolati e l'identità dei cataloghi numerici.
+
+Prima della pubblicazione: 124 test Python superati; `scripts/data_release.py verify` conferma `data-v2.0.0`; `scripts/verify_julia_release.py` conferma la provenienza degli artefatti Julia. Modello, calibrazioni, dipendenze numeriche e pin dei dati coincidono con v0.4.2. La pipeline Docker ripete i controlli sulle immagini native AMD64 e ARM64 prima di pubblicarle.
+
 ## Avvio locale
 
 Preparare l'ambiente e i dati secondo il README della release. Con gli artefatti Julia v7 disponibili, impostare `SURE_BACKEND=julia`, `SURE_VARIANT=v7` e, se necessario, `SURE_JULIA_BIN` e `JULIA_DEPOT_PATH` per la propria installazione. Non ereditare un `SURE_JULIA_MODEL` di un esperimento diverso.

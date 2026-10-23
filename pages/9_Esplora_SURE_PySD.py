@@ -42,7 +42,7 @@ from explore_results_charts import (  # noqa: E402
     render_veicoli_section,
 )
 from section_ui import render_section_picker  # noqa: E402
-from live_summary import render_live_summary  # noqa: E402
+from live_summary import render_live_summary, build_comparison_table  # noqa: E402
 import risanamento_config as ris_cfg  # noqa: E402
 import veicoli_config as vei_cfg  # noqa: E402
 
@@ -57,17 +57,6 @@ EXPLORE_SECTION_KEY = "explore_section"
 # Bump per invalidare @st.cache_resource dopo cambio OUTPUTS / prune
 ENGINE_CACHE_VERSION = "results_charts_v2_elec"
 
-DELTA_COLS = [
-    "PV residential power by Type[SFH]",
-    "PV residential power by Type[DFH]",
-    "PV residential power by Type[MFH]",
-    "Levy Evolution",
-    "Annual CO2 emissions",
-    "Cumulative CO2 emissions",
-    "Specific net final consumption",
-    "Specific final consumption",
-    "Vehicles by type[BEV]",
-]
 YEARS = range(2011, 2051)
 
 
@@ -224,24 +213,6 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
 # =============================================================
 # PLOTS
 # =============================================================
-def _delta_table(base_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
-    year = 2050.0
-    rows = []
-    for col in DELTA_COLS:
-        if col not in base_df.columns or col not in user_df.columns:
-            continue
-        b = float(base_df.loc[year, col]) if year in base_df.index else float("nan")
-        u = float(user_df.loc[year, col]) if year in user_df.index else float("nan")
-        d = u - b
-        rel = d / b if abs(b) > 1e-12 else float("nan")
-        rows.append({
-            "Variabile": col,
-            "Base 2050": b,
-            "Scelta 2050": u,
-            "Delta": d,
-            "Delta %": rel * 100.0,
-        })
-    return pd.DataFrame(rows)
 
 
 def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.DataFrame,
@@ -249,7 +220,7 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
     st.subheader(tr("Scenario scelto vs scenario base"))
     st.caption(tr('**Scelta** ({v0}): {v1}', v0=src_user, v1=cfg.format_ui_summary(ui)))
     st.caption(
-        tr('**Base** ({v0}): valori BASE delle pagine Simulazioni SEneCa (mappati su PySD). Linee tratteggiate = Base (stesso stile delle sezioni Simulazioni SEneCa).', v0=src_base)
+        tr('Confronto con lo scenario Base: linee tratteggiate nei grafici assoluti, pannelli separati nelle viste relative.')
     )
 
     # Sottopagine al posto delle tab: ogni blocco impagina i risultati come la
@@ -288,13 +259,15 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 
     st.divider()
     st.markdown(tr("**Differenza al 2050** (indicatori chiave)"))
-    delta = _delta_table(base_df, user_df)
+    delta = build_comparison_table(base_df, user_df)
     if not delta.empty:
-        shown = delta.copy()
-        for col in ("Base 2050", "Scelta 2050", "Delta"):
-            shown[col] = shown[col].map(lambda x: f"{x:.4g}")
-        shown["Delta %"] = shown["Delta %"].map(lambda x: f"{x:.2f}")
-        st.dataframe(display_frame(shown), width="stretch", hide_index=True)
+        st.dataframe(display_frame(delta), width="stretch", hide_index=True,
+                     column_config={
+                         **{tr(col): st.column_config.NumberColumn(format="localized", step=0.0001)
+                            for col in ("Base 2050", "Scelta 2050", "Variazione")},
+                         tr("Variazione [%]"): st.column_config.NumberColumn(format="%.1f"),
+                     })
+        st.caption(tr("Variazione = scenario scelto − Base. La percentuale non è definita se il Base è zero."))
     else:
         st.caption(tr("Nessuna colonna delta disponibile in questo DataFrame."))
 

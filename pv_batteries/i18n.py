@@ -9,6 +9,7 @@ import textwrap
 from pathlib import Path
 
 import streamlit as st
+from pv_batteries.display_labels import LABELS
 
 LOCALES = Path(__file__).resolve().parents[1] / "locales"
 LANGUAGES = {"it": "Italiano", "en": "English", "fr": "Français", "de": "Deutsch"}
@@ -30,7 +31,7 @@ def catalog(lang: str):
 def tr(message, **values):
     if message is None:
         return None
-    translated = catalog(language()).gettext(message)
+    translated = catalog(language()).gettext(LABELS.get(message, message))
     return translated.format(**{
         key: chart_text(value) if isinstance(value, str) else value
         for key, value in values.items()
@@ -102,7 +103,9 @@ def chart_text(value):
     if " | " in value:
         return " | ".join(chart_text(part) for part in value.split(" | "))
     for pattern, template in (
+        (r"H(\d{1,2})", "Ora {year}"),
         (r"cumulato dal (\d{4})", "cumulato dal {year}"),
+        (r"cumulato dal (\d{4}) per fonte", "cumulato dal {year} per fonte"),
         (r"cumulato dal (\d{4}) per supplier", "cumulato dal {year} per supplier"),
         (r"Ripartizione (\d{4})", "Ripartizione {year}"),
         (r"Preparazione dei risultati: anno (\d{4}) \(fase 3/4\)",

@@ -139,8 +139,14 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
             chart_pos = next(i for i, el in enumerate(elements) if el.type == "iframe")
             check_pos = next(i for i, el in enumerate(elements) if el.type == "checkbox")
             self.assertLess(chart_pos, check_pos)
+            self.assertTrue(all(i > chart_pos for i, el in enumerate(elements) if el.type == "caption"))
             if checked:
-                self.assertTrue(all(i > check_pos for i, el in enumerate(elements) if el.type == "caption"))
+                history_captions = [
+                    i for i, el in enumerate(elements)
+                    if el.type == "caption" and el.value.startswith(("Dati disponibili:", "Dati di input"))
+                ]
+                self.assertEqual(len(history_captions), 2)
+                self.assertTrue(all(i > check_pos for i in history_captions))
 
     def test_calibration_uses_model_inputs_for_every_year(self):
         years, series = load_calibration_series("Fotovoltaico")

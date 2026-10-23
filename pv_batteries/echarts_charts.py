@@ -24,7 +24,7 @@ _ECHARTS_CDN = "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
 
 def render_chart_header(title: str, unit: str, desc: str | None, suffix: str = "") -> None:
     """Titolo del grafico; la didascalia si stampa solo se aggiunge informazione."""
-    st.markdown(f"**{chart_text(title)}** ({chart_text(unit)}){suffix}")
+    st.markdown(f"**{chart_text(title)}** [{chart_text(unit)}]{suffix}")
     if desc:
         st.caption(tr(desc))
 
@@ -688,7 +688,7 @@ def _render_echarts_series(
         if mode == "annual" else "")
     display_title = meta.get("cumulative_title", title + suffix) if mode == "cumulative" else title + suffix
     with chart_slot:
-        render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
+        render_chart_header(display_title, unit, None)
         if note:
             st.caption(tr(note))
         if base_options is not None:
@@ -706,6 +706,8 @@ def _render_echarts_series(
                 height=meta.get("height", 400),
                 tooltip_decimals=meta.get("tooltip_decimals", 2),
             )
+        if desc := meta.get("desc"):
+            st.caption(tr(desc))
 
 
 def render_echarts_line(
@@ -977,13 +979,15 @@ def render_echarts_bar_category(
         y_max=meta.get("y_max"),
         compare_values=compare_values,
     )
-    render_chart_header(title, meta["unit"], meta.get("desc"), f" - {year}")
+    render_chart_header(title, meta["unit"], None, " — " + tr("al {year}", year=year))
     render_echarts(
         options,
         chart_key=chart_key or _chart_key(meta),
         height=meta.get("height", 400),
         tooltip_decimals=meta.get("tooltip_decimals", 2),
     )
+    if desc := meta.get("desc"):
+        st.caption(tr(desc))
 
 
 def build_grouped_bar_options(
@@ -1094,10 +1098,12 @@ def render_echarts_bar_grouped(
         compare_share=compare_share,
     )
     render_chart_header(
-        title, meta["unit"], meta.get("desc"), f" - {meta.get('year', 2050)}")
+        title, meta["unit"], None, " — " + tr("al {year}", year=meta.get('year', 2050)))
     render_echarts(
         options,
         chart_key=chart_key or _chart_key(meta),
         height=meta.get("height", 450),
         tooltip_decimals=meta.get("tooltip_decimals", 2),
     )
+    if desc := meta.get("desc"):
+        st.caption(tr(desc))

@@ -60,6 +60,7 @@ MUKEN_LABEL_TO_VALUE: dict[str, float] = {label: val for val, label in MUKEN_LAB
 OUTPUTS = [
     {"kind": "line_composite", "unit": "kWh/m2y",
      "title": "Consumo specifico finale",
+     "desc": "Consumo annuo per m² riscaldato. Il consumo netto esclude il calore ambiente delle pompe di calore.",
      "explain": "consumo", "legend": "bottom",
      "series": [
          {"label": "Consumo finale", "bases": ["Specific final consumption"]},
@@ -67,9 +68,10 @@ OUTPUTS = [
      ]},
     {"kind": "line_composite", "unit": "GWh",
      "title": "Consumi annuali per vettore",
+     "desc": "Riscaldamento e acqua calda in Ticino, incluso il calore ambiente delle pompe di calore.",
      "relative_view": True,
      "relative_note": "Quota di ciascun vettore sul consumo totale per il riscaldamento, incluso il calore ambiente. Nella vista cumulata, le quote sono calcolate sui consumi cumulati.",
-     "relative_components": ["Olio", "Gas", "Legna", "Elettricità resistenza", "Elettricità PC", "Calore ambiente", "Solare", "Rete termica"],
+     "relative_components": ["Olio", "Gas", "Legna", "Elettricità resistenza", "Elettricità PC", "Calore ambiente", "Solare termico", "Rete termica"],
      "cumulative_title": "Consumi cumulati per vettore",
      "time_basis": "flow",
      "legend": "bottom", "y_min": 0,
@@ -80,16 +82,18 @@ OUTPUTS = [
          {"label": "Elettricità resistenza", "bases": ["Annual consumption Electricity EH"]},
          {"label": "Elettricità PC", "bases": ["Annual consumption Electricity HP"]},
          {"label": "Calore ambiente", "bases": ["Annual consumption Ambient Heat"]},
-         {"label": "Solare", "bases": ["Annual consumption Solar"]},
+         {"label": "Solare termico", "bases": ["Annual consumption Solar"]},
          {"label": "Rete termica", "bases": ["Annual consumption DH"]},
      ]},
     {"base": "Building area by Performance", "kind": "line", "unit": "Mio m2",
      "title": "Superficie riscaldata per efficienza energetica",
+     "desc": "Classi di prestazione dell’involucro: da molto bassa a molto alta.",
      "relative_view": True,
      "relative_note": "Quota di ciascuna classe di efficienza sulla superficie riscaldata totale nell’anno.",
      "legend": "bottom"},
     {"kind": "line_composite", "unit": "Mio CHF",
      "title": "Incentivi e fondi cantonali",
+     "desc": "Incentivi pagati e quota finanziata dal Cantone, al netto dei fondi federali.",
      "cumulative_title": "Incentivi e fondi cantonali cumulati",
      "time_basis": "flow",
      "explain": "incentivi", "legend": "bottom",
@@ -164,6 +168,7 @@ EXPLANATIONS: dict[str, tuple[str, str]] = {
 SUMMARY_METRICS = [
     {
         "label": "Emissioni cumulate CO2",
+        "period_note": 'Emissioni cumulate dal 2026; fondi cantonali cumulati dal 2011, al 2050.',
         "base": "Cumulative CO2 emissions",
         "unit": "MtonCO2",
         "decimals": 0,
@@ -185,41 +190,13 @@ SUMMARY_METRICS = [
     },
 ]
 
-KPI_EXPLANATION = rf"""
-La variazione percentuale sotto ogni valore è il confronto con lo scenario Base.
+KPI_EXPLANATION = """Valori **al 2050**; variazioni rispetto allo scenario Base.
 
-- **Emissioni cumulate CO2** — emissioni degli edifici residenziali accumulate lungo
-  tutto l'orizzonte di simulazione, fino al {FINAL_YEAR}. Essendo un totale cumulato
-  conta l'intero percorso e non solo il punto di arrivo: ritardare gli interventi
-  peggiora l'indicatore anche a parità di situazione finale.
-- **Fondi cantonali cumulati** — somma su tutti gli anni dei fondi che il Cantone deve
-  stanziare per finanziare gli incentivi, cioè il costo complessivo della politica per
-  le casse cantonali.
+- **Emissioni cumulate**: emissioni residenziali accumulate dal 2026 [Mt CO₂].
+- **Fondi cantonali cumulati**: incentivi finanziati dal Cantone, al netto dei fondi federali, sommati dal 2011 [Mio CHF].
+- **Equità della tassa CO₂**: confronta tra famiglie il saldo tra tassa pagata e incentivi ricevuti.
 
-### L'indice di equità
-
-**Equità tassa CO2** misura *quanto diversamente* il peso della transizione ricade sulle
-famiglie, non quanto è alto in assoluto. La grandezza confrontata è, per ogni archetipo
-di famiglia, il saldo fra **tassa CO2 pagata e incentivi ricevuti**: un archetipo che
-scalda a olio e non risana paga molto e incassa poco, uno che passa alla pompa di calore
-incassa l'incentivo e smette di pagare la tassa.
-
-Il punto di partenza è la *Gini Mean Difference* pesata, cioè la differenza media in
-valore assoluto fra tutte le coppie di archetipi, pesata per quante famiglie ciascuno
-rappresenta:
-
-$$\mathrm{{GMD}} = \frac{{\sum_i \sum_j w_i w_j\, |x_i - x_j|}}{{2\,W^2}}$$
-
-Vale zero quando tutti gli archetipi sopportano esattamente lo stesso saldo, e cresce
-via via che le situazioni divergono.
-
-**Come leggere il numero.** Il GMD grezzo è in CHF per abitazione e poco interpretabile
-da solo, quindi viene riscalato da 0 a 1 usando il minimo e il massimo osservati
-**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo fra
-quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di
-scenari e non una misura assoluta: 0.5 significa "a metà strada fra lo scenario migliore
-e quello peggiore", e i valori cambierebbero cambiando la griglia degli scenari.
-"""
+L’equità riscalata sui precalcolati va da **0 (meno equo) a 1 (più equo)**. Misura le differenze tra famiglie, non quanto pagano in media; non è una percentuale."""
 
 _bases: list[str] = []
 for o in OUTPUTS:

@@ -28,6 +28,15 @@ class ExploratoryUITests(unittest.TestCase):
             self.assertFalse(app.error)
             table = app.dataframe[0].value
             self.assertEqual(len(table), 9)
+            from pv_batteries.exploratory import scale_kpis
+            from pv_batteries.i18n import chart_text
+            expected = scale_kpis(synthetic_store())
+            for key in cfg.GMD_SPEC:
+                equity = table.loc[table['Indicatore'] == chart_text(cfg.KPI_SPEC[key]['label'])].iloc[0]
+                self.assertEqual(equity['Unità'], '0–1')
+                self.assertAlmostEqual(equity['Mediana'], expected.loc[expected.policy_id == 0, key + '_s'].median())
+                self.assertTrue(0 <= equity['P10'] <= equity['Mediana'] <= equity['P90'] <= 1)
+
             row = table.loc[table['Indicatore'] == cfg.KPI_SPEC['pv_self_coverage']['label']].iloc[0]
             self.assertEqual(row['Unità'], '%')
             self.assertAlmostEqual(row['Mediana'], 10.495)
@@ -41,7 +50,7 @@ class ExploratoryUITests(unittest.TestCase):
             self.assertFalse(app.error)
             ranking = app.dataframe[0].value
             self.assertEqual(len(ranking), 128)
-            self.assertTrue((ranking['N scenari'] == 100).all())
+            self.assertTrue((ranking['Scenari'] == 100).all())
             label = cfg.KPI_SPEC['pv_self_coverage']['label'] + ' (%)'
             self.assertAlmostEqual(ranking.iloc[0][label], 60.495)
             self.assertIn('Spesa cantonale cumulata (Mio CHF)', ranking.columns)

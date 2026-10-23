@@ -199,7 +199,7 @@ def render_annual_supplier_line(
         ),
         cfg,
     )
-    title = meta.get("title", f"{meta['base']} | totale annuo per supplier")
+    title = meta.get("title", f"{meta['base']} | totale annuo per fonte")
     if annual.empty:
         st.info(tr('Nessun dato annuale per {v0}', v0=meta['desc']))
         return
@@ -362,6 +362,12 @@ def _render_output(
         render_monthly_supplier_bars(df, meta, cfg, df_base=df_base, relative=relative)
     else:
         render_hourly_section(df, meta, cfg, df_base=df_base, relative=relative)
+    period = {
+        VIEW_ANNUAL: "Totali annui; cumulati se selezionato.",
+        VIEW_MONTHLY: "Totali mensili stimati da un giorno tipo per mese (365/12 giorni).",
+        VIEW_HOURLY: "Energia in ciascuna ora di un giorno tipo, non potenza istantanea.",
+    }[view]
+    st.caption(tr(meta["caption"]) + " " + tr(period))
 
 
 def render_electricity_section(

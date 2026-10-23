@@ -58,6 +58,20 @@ class TranslationTests(unittest.TestCase):
                          ['Generation', 'Generation (Baseline)', 'Generation (observed)'])
         self.assertEqual(translated['legend']['data'], [s['name'] for s in translated['series']])
 
+    def test_readable_series_keep_colours_data_and_baseline_matching(self):
+        from echarts_charts import build_line_options
+        original = build_line_options([2024, 2025], {'SFH': [1., 2.], 'MFH': [3., 4.]},
+                                      unit='MW', compare={'SFH': [2., 3.], 'MFH': [4., 5.]})
+        for lang in ('it', 'en', 'fr', 'de'):
+            with patch.object(i18n, 'language', return_value=lang):
+                translated = i18n.chart_options(original)
+            self.assertEqual(numeric_chart(original), numeric_chart(translated))
+            self.assertNotIn('SFH', translated['legend']['data'])
+            self.assertEqual(translated['legend']['data'], [s['name'] for s in translated['series']])
+            for before, after in zip(original['series'], translated['series']):
+                self.assertEqual(before['lineStyle'], after['lineStyle'])
+                self.assertEqual(before['itemStyle'], after['itemStyle'])
+
     def test_language_is_session_local(self):
         code = "from pv_batteries.i18n import language_selector, tr\nimport streamlit as st\nlanguage_selector()\nst.title(tr('Potenza PV totale'))"
         a = AppTest.from_string(code).run()

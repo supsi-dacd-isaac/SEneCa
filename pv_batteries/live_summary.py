@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import streamlit as st
+import pandas as pd
+from pv_batteries.display_labels import LIVE_INDICATORS
 from pv_batteries.i18n import tr
 
 import pv_batteries_config as pv
@@ -46,3 +48,25 @@ def render_live_summary(section: str, df, df_base) -> None:
         st.caption(tr("Questo scenario supera l’intervallo di equità dei precalcolati: "
                    "gli indici possono essere inferiori a 0 o superiori a 1. "
                    "La scala di riferimento resta la stessa; i valori non sono troncati."))
+
+
+def build_comparison_table(base_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
+    year = 2050.0
+    rows = []
+    for col in LIVE_INDICATORS:
+        if col not in base_df.columns or col not in user_df.columns:
+            continue
+        b = float(base_df.loc[year, col]) if year in base_df.index else float("nan")
+        u = float(user_df.loc[year, col]) if year in user_df.index else float("nan")
+        d = u - b
+        rel = d / b if abs(b) > 1e-12 else float("nan")
+        label, unit = LIVE_INDICATORS[col]
+        rows.append({
+            "Indicatore": label,
+            "Unità": unit,
+            "Base 2050": b,
+            "Scelta 2050": u,
+            "Variazione": d,
+            "Variazione [%]": rel * 100.0,
+        })
+    return pd.DataFrame(rows)
