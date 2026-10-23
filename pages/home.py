@@ -189,7 +189,7 @@ modello, lo rende utilizzabile.
 
     for col, (icon, title, body) in zip(st.columns(3), WEBAPP_ADVANTAGES):
         with col.container(border=True):
-            st.markdown(f"#### {icon} {tr(title)}")
+            st.markdown(tr('#### {v0} {v1}', v0=icon, v1=tr(title)))
             st.markdown(tr(body))
 
 with st.expander(tr("Vuoi saperne di più?"), expanded=False):

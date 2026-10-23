@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, display_frame
 
 from echarts_charts import (
     _to_float_list,
@@ -84,7 +85,7 @@ def render_hourly_summary_metrics(
         with col:
             with st.container(border=True):
                 st.metric(
-                    spec["label"],
+                    tr(spec["label"]),
                     fmt_metric_value(
                         value, spec.get("unit"), decimals=spec.get("decimals", 0),
                     ),
@@ -125,10 +126,10 @@ def render_area_line(
     series_label: str = "Domanda",
 ) -> None:
     if pivot.empty:
-        st.info(f"Nessun dato per {title}")
+        st.info(tr('Nessun dato per {v0}', v0=title))
         return
 
-    st.markdown(f"**{title}** ({unit})")
+    st.markdown(tr('**{v0}** ({v1})', v0=title, v1=unit))
     categories, series = pivot_to_stacked_series(pivot)
     if len(series) == 1:
         series = {series_label: next(iter(series.values()))}
@@ -145,10 +146,10 @@ def render_stacked_bar(
     use_echarts: bool = False,
 ) -> None:
     if pivot.empty:
-        st.info(f"Nessun dato per {title}")
+        st.info(tr('Nessun dato per {v0}', v0=title))
         return
 
-    st.markdown(f"**{title}** ({unit})")
+    st.markdown(tr('**{v0}** ({v1})', v0=title, v1=unit))
 
     if use_echarts:
         categories, series = pivot_to_stacked_series(pivot)
@@ -158,7 +159,7 @@ def render_stacked_bar(
 
     n = len(pivot.columns)
     st.bar_chart(
-        pivot,
+        display_frame(pivot),
         color=[data_color(i, str(col), n=n) for i, col in enumerate(pivot.columns)],
         sort=False,
     )
@@ -176,7 +177,7 @@ def render_annual_supplier_line(
     )
     title = meta.get("title", f"{meta['base']} | totale annuo per supplier")
     if annual.empty:
-        st.info(f"Nessun dato annuale per {meta['desc']}")
+        st.info(tr('Nessun dato annuale per {v0}', v0=meta['desc']))
         return
 
     from chart_views import temporal_controls, transform_series
@@ -187,10 +188,9 @@ def render_annual_supplier_line(
     if mode == "cumulative":
         title = title.replace("totale annuo", f"cumulato dal {start}")
     st.markdown(
-        f"**{title}** ({unit}) — "
-        f"{int(cfg.YEARS.start)}-{cfg.FINAL_YEAR}"
+        tr('**{v0}** ({v1}) — {v2}-{v3}', v0=title, v1=unit, v2=int(cfg.YEARS.start), v3=cfg.FINAL_YEAR)
     )
-    st.caption(note or "Somma di tutte le ore e mesi dell'anno.")
+    st.caption(tr(note or "Somma di tutte le ore e mesi dell'anno."))
 
     if meta.get("annual_echarts"):
         years = [int(y) for y in annual.index.tolist()]
@@ -224,7 +224,7 @@ def render_annual_supplier_line(
 
     n = len(annual.columns)
     st.line_chart(
-        annual,
+        display_frame(annual),
         color=[line_color(i, str(col), n=n) for i, col in enumerate(annual.columns)],
     )
 
@@ -232,7 +232,7 @@ def render_annual_supplier_line(
 def render_monthly_supplier_bars(
     df: pd.DataFrame, meta: dict, cfg,
 ) -> None:
-    st.markdown("**Profilo mensile per supplier**")
+    st.markdown(tr("**Profilo mensile per supplier**"))
     prefix = _chart_label_prefix(meta)
     use_echarts = meta.get("stacked_echarts", False)
     cols = st.columns(len(cfg.DISPLAY_YEARS))
@@ -259,7 +259,7 @@ def render_monthly_supplier_bars(
 def render_hourly_section(
     df: pd.DataFrame, meta: dict, cfg,
 ) -> None:
-    st.markdown("**Profilo orario**")
+    st.markdown(tr("**Profilo orario**"))
     prefix = _chart_label_prefix(meta)
     use_stacked = meta.get("stacked_echarts", False)
     use_area = meta.get("hourly_area_echarts", False)
@@ -304,7 +304,7 @@ def _render_output(
     views = _available_views(meta)
     view = views[0]
     if len(views) > 1:
-        view = st.selectbox("Grafico", views, key=f"elec_view_{meta['base']}")
+        view = st.selectbox(tr("Grafico"), views, format_func={value: tr(value) for value in views}.get, key=f"elec_view_{meta['base']}")
 
     if view == VIEW_ANNUAL:
         render_annual_supplier_line(df, meta, cfg, df_base=df_base)
@@ -333,7 +333,7 @@ def render_electricity_section(
         outputs = [cfg.OUTPUTS[labels.index(active)]]
 
     for meta in outputs:
-        st.subheader(meta["desc"])
+        st.subheader(tr(meta["desc"]))
         _render_output(df, meta, cfg, df_base=df_base)
 
     if labels:

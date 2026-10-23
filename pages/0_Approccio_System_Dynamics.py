@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+from pv_batteries.i18n import tr
 
 ROOT = Path(__file__).resolve().parent.parent
 PVBAT = ROOT / "pv_batteries"
@@ -46,24 +47,25 @@ def _go_to_step(offset: int) -> None:
     st.session_state[STEP_KEY] = STEP_LABELS[target]
 
 
-st.title("Metodologia")
-st.subheader("Approccio System Dynamics")
+st.title(tr("Metodologia"))
+st.subheader(tr("Approccio System Dynamics"))
 
 render_sd_intro()
 
 st.divider()
 
-st.markdown("### Lo sviluppo del modello in quattro passi")
+st.markdown(tr("### Lo sviluppo del modello in quattro passi"))
 st.markdown(
-    "Dalla definizione del problema con gli stakeholder ai modelli "
+    tr("Dalla definizione del problema con gli stakeholder ai modelli "
     "qualitativi, ai dati storici e alla calibrazione. Il percorso prepara "
-    "alla lettura delle sezioni Simulazioni SEneCa."
+    "alla lettura delle sezioni Simulazioni SEneCa.")
 )
 
 st.session_state.setdefault(STEP_KEY, STEP_LABELS[0])
 choice = st.segmented_control(
-    "Passo del percorso",
+    tr("Passo del percorso"),
     STEP_LABELS,
+    format_func={value: tr(value) for value in STEP_LABELS}.get,
     key=STEP_KEY,
     label_visibility="collapsed",
 )
@@ -78,7 +80,7 @@ st.divider()
 index = STEP_LABELS.index(active)
 col_prev, col_next = st.columns(2)
 col_prev.button(
-    "Indietro",
+    tr("Indietro"),
     icon=":material/arrow_back:",
     disabled=index == 0,
     on_click=_go_to_step,
@@ -86,7 +88,7 @@ col_prev.button(
     width="stretch",
 )
 col_next.button(
-    "Avanti",
+    tr("Avanti"),
     icon=":material/arrow_forward:",
     disabled=index == len(STEP_LABELS) - 1,
     on_click=_go_to_step,

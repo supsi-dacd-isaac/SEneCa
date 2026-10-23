@@ -6,11 +6,9 @@ simulazione live).
 from __future__ import annotations
 
 import streamlit as st
-from pv_batteries.i18n import tr, language, language_selector
+from pv_batteries.i18n import tr, language_selector
 
 st.set_page_config(page_title="SEneCa", layout="wide")
-
-language_selector()
 
 pages = {
     tr("Home"): [
@@ -42,6 +40,7 @@ pages = {
 }
 
 pg = st.navigation(pages, position="sidebar")
-if language() == "en" and pg.url_path not in ("", "PV_e_Batterie"):
-    st.info("English preview: navigation and PV & Batteries are translated. This section is still being translated.")
+# Register navigation before shared widgets, including on the first cold visit.
+# Otherwise the initial widget identity can be based on the legacy page context.
+language_selector()
 pg.run()

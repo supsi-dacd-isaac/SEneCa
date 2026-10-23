@@ -46,7 +46,7 @@ def fmt_metric_value(
         return tr("n/d")
     if unit is None:
         return fmt_scaled_gmd(value)
-    return f"{value:.{decimals}f} {unit}"
+    return f"{value:.{decimals}f} {tr(unit)}"
 
 
 def metric_delta_vs_base(
@@ -194,11 +194,11 @@ def render_configured_summary_metrics(
         with col:
             with st.container(border=True):
                 st.metric(
-                    spec["label"],
+                    tr(spec["label"]),
                     display,
                     delta=delta,
                     delta_color=delta_color,
-                    help=GMD_DISPLAY_CAPTION if i == last_gmd else None,
+                    help=tr(GMD_DISPLAY_CAPTION if i == last_gmd else None),
                 )
 
     if radar:
@@ -286,7 +286,7 @@ def render_gmd_metrics(
                 else:
                     delta = f"{change:+.3f} vs {tr('Base')}"
         col.metric(
-            label, fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
+            tr(label), fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
         )
 
 
@@ -328,7 +328,7 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
     if line_outs:
         if show_titles:
             st.subheader(
-                f"Andamenti temporali ({int(df.index.min())}-{int(df.index.max())})")
+                tr('Andamenti temporali ({v0}-{v1})', v0=int(df.index.min()), v1=int(df.index.max())))
         for i in range(0, len(line_outs), 2):
             cols = st.columns(2)
             for j, meta in enumerate(line_outs[i:i + 2]):
@@ -340,7 +340,7 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
                         render_line(df, meta, df_base=df_base)
     if bar_outs:
         if show_titles:
-            st.subheader(f"Valori al {final_year}")
+            st.subheader(tr('Valori al {v0}', v0=final_year))
         for i in range(0, len(bar_outs), 2):
             cols = st.columns(2)
             for j, meta in enumerate(bar_outs[i:i + 2]):
@@ -371,7 +371,7 @@ def render_section_layout(
             meta = by_base.get(base)
             with col:
                 if meta is None:
-                    st.info(f"Grafico non configurato: {base}")
+                    st.info(tr('Grafico non configurato: {v0}', v0=base))
                 else:
                     _render_output_chart(
                         df, meta, final_year, df_base=df_base,

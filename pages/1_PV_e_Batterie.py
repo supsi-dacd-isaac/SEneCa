@@ -62,9 +62,9 @@ def _format_input_value(name: str, value: float) -> str:
 def _render_binary_input(label: str, *, key: str, default: float = 0.0,
                          help: str | None = None) -> float:
     selected = st.segmented_control(
-        label, options=[0.0, 1.0], default=default, key=key,
+        tr(label), options=[0.0, 1.0], default=default, key=key,
         format_func={0.0: tr("No"), 1.0: tr("Sì")}.get,
-        help=help,
+        help=tr(help),
     )
     return 0.0 if selected is None else selected
 
@@ -90,14 +90,14 @@ with st.sidebar:
         label = control_label(meta)
         if name in BINARY_INPUTS:
             val = _render_binary_input(
-                label, key=f"pv_input_{name}", default=BASE_SCENARIO[name], help=tr(meta.get("help")) or None,
+                label, key=f"pv_input_{name}", default=BASE_SCENARIO[name], help=tr(tr(meta.get("help")) or None),
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
             val = st.select_slider(
-                label, options=opts, value=BASE_SCENARIO[name], key=f"pv_input_{name}",
+                tr(label), options=opts, value=BASE_SCENARIO[name], key=f"pv_input_{name}",
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
-                help=tr(meta.get("help")) or None,
+                help=tr(tr(meta.get("help")) or None),
             )
         values.append(val)
 
@@ -108,11 +108,11 @@ with st.sidebar:
             base_val = BASE_SCENARIO[name]
             if name in BINARY_INPUTS:
                 st.markdown(
-                    f"- {tr(imeta['label'])}: **{_format_input_value(name, base_val)}**"
+                    tr('- {v0}: **{v1}**', v0=tr(imeta['label']), v1=_format_input_value(name, base_val))
                 )
             else:
                 st.markdown(
-                    f"- {tr(imeta['label'])}: **{format_value(imeta, base_val)}**"
+                    tr('- {v0}: **{v1}**', v0=tr(imeta['label']), v1=format_value(imeta, base_val))
                 )
 
 key = combo_key(values)

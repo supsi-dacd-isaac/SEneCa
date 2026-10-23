@@ -4,6 +4,7 @@ import time
 from contextvars import copy_context
 
 import streamlit as st
+from pv_batteries.i18n import tr
 
 import sure_backend as backend
 from sure_pysd import LIVE_OUTPUTS as OUTPUTS
@@ -39,10 +40,10 @@ def get_engine(engine_id: str):
 def run_with_progress(operation, scenario="Scenario"):
     """Keep transient UI updates outside the cached result's replay context."""
     from sure_julia.progress import label
-    bar = st.progress(0., text=f"{scenario}: in attesa della simulazione…")
+    bar = st.progress(0., text=tr("{scenario}: in attesa della simulazione…", scenario=scenario))
     context = copy_context()
     def update(event):
-        bar.progress(event["value"], text=f"{scenario}: {label(event)}")
+        bar.progress(event["value"], text=tr("{scenario}: {status}", scenario=scenario, status=label(event)))
     try:
         return operation(lambda event: context.run(update, event))
     finally:

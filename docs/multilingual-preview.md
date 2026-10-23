@@ -3,14 +3,14 @@
 Base: **v0.4.2**, commit `94b7db1b81604566a2441af01aa0988692328b52`, dati **data-v2.0.0**.
 Branch: `interfaccia-multilingue`. Nessuna modifica al modello, alla calibrazione, ai dati o alle equazioni di calcolo.
 
-## Perimetro del primo passo
+## Pagine e contenuti tradotti
 
-- Menu **🌐** in alto a destra, sopra il titolo, comune a tutte le pagine; italiano predefinito. Il menu mostra le lingue per esteso e può accogliere francese e tedesco quando saranno disponibili i relativi cataloghi.
-- Navigazione, pagina iniziale e pagina **PV e Batterie** nelle due lingue.
+- Menu lingua (icona globo) nella barra superiore a destra, comune a tutte le pagine; italiano predefinito. Il pulsante Deploy è nascosto tramite `client.toolbarMode = "viewer"`. Il menu mostra le lingue per esteso e può accogliere francese e tedesco quando saranno disponibili i relativi cataloghi.
+- Navigazione, contesto iniziale, metodologia, PV e batterie, riscaldamento e risanamento, veicoli, elettricità, analisi esplorativa e simulazione live nelle due lingue.
 - Tutte le quattro sottosezioni PV: adozione PV, batterie, produzione/consumi, prezzi/costi.
 - Leve, aiuti, indicatori, spiegazioni, storico e calibrazione, legende, assi e comandi ECharts.
-- Le altre pagine conservano i contenuti italiani; in inglese un avviso segnala che sono fuori dal primo perimetro. Alcune etichette condivise sono già tradotte.
-- Il PDF della documentazione e i nomi tecnici nelle tabelle/esportazioni grezze conservano lingua e identificatori originali. I controlli interni di Streamlit non sono tradotti da questo catalogo.
+- Anche spiegazioni estese, priorità dei workshop, profili elettrici, selettori, graduatorie, pesi, messaggi di avanzamento live e tabelle di sintesi sono tradotti.
+- Il PDF della documentazione, le immagini originali dei workshop/modello e i nomi tecnici nelle tabelle/esportazioni grezze conservano lingua e identificatori originali. Il CSV della graduatoria esplorativa segue invece la lingua della tabella di sintesi. I controlli interni di Streamlit non sono tradotti da questo catalogo.
 
 ## Struttura
 
@@ -28,14 +28,17 @@ La traduzione avviene al momento della visualizzazione. Le opzioni dei selettori
 
 ```sh
 python scripts/compile_translations.py
-python -m unittest discover -s tests -p 'test_i18n.py' -v
+python -m unittest discover -s tests -p 'test_i18n*.py' -v
 python -m unittest discover -s tests -p 'test_chart*.py' -v
-python -m unittest discover -s tests -p 'test_live_summary.py' -v
+python -m unittest discover -s tests -p 'test_live*.py' -v
+python -m unittest discover -s tests -p 'test_exploratory_ui.py' -v
 ```
 
-Il test integrato PV richiede i parquet della release fissata in `data-release.json`; se non sono installati viene segnalato come saltato. Nell'anteprima locale è stato eseguito con i dati reali verificati tramite checksum.
+I test integrati delle pagine richiedono i parquet della release fissata in `data-release.json`; il test PV segnala esplicitamente se mancano; i test delle altre pagine richiedono lo store completo. Nell'anteprima locale è stato eseguito con i dati reali verificati tramite checksum.
 
-I controlli coprono isolamento fra utenti, ripiego per testi mancanti, purezza della traduzione dei grafici, passaggi IT→EN→IT, persistenza di leve/scenario/sezione e identità delle tabelle e dei valori degli indicatori in tutte le quattro sottosezioni. La verifica nel browser comprende navigazione e impaginazione dei grafici.
+I controlli coprono isolamento fra utenti, ripiego per testi mancanti, purezza della traduzione dei grafici, passaggi IT→EN→IT, persistenza di leve/scenario/sezione, valori degli indicatori e dati numerici identici. Sono coperti tutti i passi della metodologia, le viste annuali/mensili/orarie, le classifiche esplorative e gli input live senza avviare il motore al cambio lingua. La verifica nel browser comprende navigazione, impaginazione e una simulazione live.
+
+Streamlit non espone un punto di inserimento per widget nella propria barra. Il contenitore `language_toolbar` è perciò posizionato sulla barra, con altezza e allineamento centrati; un padding sulla classe semantica `.stAppToolbar` gli riserva una corsia, separata dall’indicatore Running, dal pulsante Stop e dal menu. Non si usano classi CSS generate né si nascondono i controlli di esecuzione. Popover e selezione delle lingue restano nativi. Ricontrollare allineamento e assenza di sovrapposizioni, anche durante una simulazione, dopo aggiornamenti di Streamlit.
 
 ## Avvio locale
 

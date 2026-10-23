@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 
 import streamlit as st
+from pv_batteries.i18n import tr
 
 ROOT = Path(__file__).resolve().parent.parent
 PVBAT = ROOT / "pv_batteries"
@@ -45,15 +46,17 @@ def _render_muken_input(label: str, *, default: float = 0.0) -> float:
     options = [cfg.MUKEN_LABELS[v] for v in cfg.INPUT_GRID["MuKEn scenario"]]
     default_label = cfg.MUKEN_LABELS[default]
     selected = st.radio(
-        label,
+        tr(label),
         options=options,
+        format_func={value: tr(value) for value in options}.get,
+        key="heat_input_MuKEn scenario",
         index=options.index(default_label),
-        help=cfg.INPUT_META["MuKEn scenario"]["help"],
+        help=tr(cfg.INPUT_META["MuKEn scenario"]["help"]),
     )
     return cfg.MUKEN_LABEL_TO_VALUE[selected]
 
 
-@st.cache_resource(show_spinner="Caricamento scenari pre-calcolati...")
+@st.cache_resource(show_spinner=False)
 def _traj(section: str):
     return load_traj_store(cfg)
 
@@ -63,20 +66,20 @@ def _gmd(section: str):
     return load_gmd_store(cfg)
 
 
-st.title("Riscaldamento e Risanamento")
+st.title(tr("Riscaldamento e Risanamento"))
 
 store = _traj(cfg.SECTION)
 gmd_store = _gmd(cfg.SECTION)
 
 if not store:
     st.warning(
-        "Scenari pre-calcolati non disponibili. "
-        "Contatta l’amministratore per ripristinare i dati della release."
+        tr("Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release.")
     )
     st.stop()
 
 with st.sidebar:
-    st.header("Scenario selezionato")
+    st.header(tr("Scenario selezionato"))
     values = []
     for name in cfg.INPUT_ORDER:
         meta = cfg.INPUT_META[name]
@@ -86,29 +89,29 @@ with st.sidebar:
             val = _render_muken_input(label, default=cfg.BASE_SCENARIO[name])
         else:
             val = st.select_slider(
-                label, options=opts, value=cfg.BASE_SCENARIO[name],
+                tr(label), options=opts, value=cfg.BASE_SCENARIO[name], key=f"heat_input_{name}",
                 format_func=lambda x, meta=meta: format_value(meta, x, with_unit=False),
-                help=meta.get("help") or None,
+                help=tr(meta.get("help") or None),
             )
         values.append(val)
 
-    compare_base = st.checkbox("Confronta con scenario Base", value=False)
-    with st.expander("Scenario Base"):
+    compare_base = st.checkbox(tr("Confronta con scenario Base"), value=False, key="heat_compare_base")
+    with st.expander(tr("Scenario Base")):
         for name in cfg.INPUT_ORDER:
             imeta = cfg.INPUT_META[name]
             base_val = cfg.BASE_SCENARIO[name]
             if name == "MuKEn scenario":
-                st.markdown(f"- {imeta['label']}: **{_format_base_value(name, base_val)}**")
+                st.markdown(tr('- {v0}: **{v1}**', v0=imeta['label'], v1=_format_base_value(name, base_val)))
             else:
-                st.markdown(f"- {imeta['label']}: {_format_base_value(name, base_val)}")
+                st.markdown(tr('- {v0}: {v1}', v0=imeta['label'], v1=_format_base_value(name, base_val)))
 
 key = combo_key(values)
 base_key = base_combo_key(cfg)
 
 if key not in store:
     st.warning(
-        "Questa combinazione non e' ancora disponibile nello store "
-        "(il pre-calcolo potrebbe essere ancora in corso). Riprova piu' tardi."
+        tr("Questa combinazione non e' ancora disponibile nello store "
+        "(il pre-calcolo potrebbe essere ancora in corso). Riprova piu' tardi.")
     )
     st.stop()
 
@@ -117,23 +120,21 @@ df = store[key]
 df_base = None
 if compare_base:
     if key == base_key:
-        st.info("Scenario identico al Base.")
+        st.info(tr("Scenario identico al Base."))
     elif base_key not in store:
-        st.warning("Scenario Base non disponibile nello store.")
+        st.warning(tr("Scenario Base non disponibile nello store."))
     else:
         df_base = store[base_key]
 
 if sim_incomplete(df, cfg.FINAL_YEAR):
     last_ok = int(df.dropna(how="all").index.max())
     st.warning(
-        f"Per questa combinazione il modello Vensim non converge fino al "
-        f"{cfg.FINAL_YEAR}: la simulazione si ferma al {last_ok}. I valori al "
-        f"{cfg.FINAL_YEAR} e la misura di equity non sono disponibili."
+        tr('Per questa combinazione il modello Vensim non converge fino al {v0}: la simulazione si ferma al {v1}. I valori al {v2} e la misura di equity non sono disponibili.', v0=cfg.FINAL_YEAR, v1=last_ok, v2=cfg.FINAL_YEAR)
     )
 
-st.subheader(f"Indicatori principali ({cfg.FINAL_YEAR})")
-with st.expander("Cosa misurano questi indicatori"):
-    st.markdown(cfg.KPI_EXPLANATION)
+st.subheader(tr('Indicatori principali ({v0})', v0=cfg.FINAL_YEAR))
+with st.expander(tr("Cosa misurano questi indicatori")):
+    st.markdown(tr(cfg.KPI_EXPLANATION))
 gmd_bounds = gmd_bounds_for_spec(gmd_store, cfg.GMD_SPEC)
 metrics_base_key = base_key if key != base_key else None
 metrics_df_base = store.get(base_key) if metrics_base_key else None
@@ -157,8 +158,8 @@ render_section(
     calibration_technology="Pompe di calore",
 )
 
-with st.expander("Dati grezzi (traiettorie)"):
+with st.expander(tr("Dati grezzi (traiettorie)")):
     st.dataframe(df, width="stretch")
     st.download_button(
-        "Scarica CSV", df.to_csv().encode("utf-8"),
+        tr("Scarica CSV"), df.to_csv().encode("utf-8"),
         file_name=f"risanamento_{key}.csv", mime="text/csv")

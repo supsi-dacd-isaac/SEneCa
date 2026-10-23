@@ -4,6 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 from functools import lru_cache
 import gettext
+import re
 import textwrap
 from pathlib import Path
 
@@ -30,15 +31,41 @@ def tr(message, **values):
     if message is None:
         return None
     translated = catalog(language()).gettext(message)
-    return translated.format(**values) if values else translated
+    return translated.format(**{
+        key: chart_text(value) if isinstance(value, str) else value
+        for key, value in values.items()
+    }) if values else translated
+
+
+def display_frame(frame):
+    """Localize a presentation copy, leaving calculation/export schemas intact."""
+    return frame.rename(columns=chart_text).map(
+        lambda value: chart_text(value) if isinstance(value, str) else value
+    )
 
 
 def language_selector():
     # Keep this in the shared entrypoint so language persists across pages.
     # The vertical menu also accommodates future French/German catalogs.
-    with st.container(horizontal=True, horizontal_alignment="right"):
+    # Streamlit has no public API for adding widgets to its toolbar. Position
+    # our own keyed container there, reserving a lane in the native toolbar so
+    # its running indicator, Stop control and menu cannot overlap the selector.
+    # Only the stable semantic toolbar class is used, never generated classes.
+    st.html("""<style>
+        .stAppToolbar { padding-right: 2.5rem; }
+        .st-key-language_toolbar {
+            position: fixed;
+            top: 0;
+            right: 1.25rem;
+            height: 3.75rem;
+            align-items: center;
+            width: max-content;
+            z-index: 1000000;
+        }
+    </style>""")
+    with st.container(key="language_toolbar", horizontal=True, horizontal_alignment="right"):
         with st.popover(
-            "🌐", help="Lingua / Language", type="tertiary", key="language_menu",
+            ":material/language:", help="Lingua / Language", type="tertiary", key="language_menu",
         ):
             with st.container(width=200):
                 st.radio(
@@ -59,6 +86,19 @@ def chart_text(value):
             return chart_text(value[:-len(suffix)]) + tr(suffix)
     if " — " in value:
         return " — ".join(chart_text(part) for part in value.split(" — "))
+    if " | " in value:
+        return " | ".join(chart_text(part) for part in value.split(" | "))
+    for pattern, template in (
+        (r"cumulato dal (\d{4})", "cumulato dal {year}"),
+        (r"cumulato dal (\d{4}) per supplier", "cumulato dal {year} per supplier"),
+        (r"Ripartizione (\d{4})", "Ripartizione {year}"),
+        (r"Preparazione dei risultati: anno (\d{4}) \(fase 3/4\)",
+         "Preparazione dei risultati: anno {year} (fase 3/4)"),
+    ):
+        if match := re.fullmatch(pattern, value):
+            return tr(template, year=match.group(1))
+    if match := re.fullmatch(r"(.+) \(([^()]*)\)", value):
+        return f"{chart_text(match.group(1))} ({chart_text(match.group(2))})"
     if value.endswith("/anno"):
         return chart_text(value[:-5]) + tr("/anno")
     return value

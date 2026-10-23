@@ -4,6 +4,7 @@ Dopo la ritraduzione da SURE.mdl, tutte le leve Risultati esistono come costanti
 omonime in SURE_pysd.py e si applicano direttamente via params.
 """
 from __future__ import annotations
+from pv_batteries.i18n import tr
 
 import sys
 from dataclasses import dataclass
@@ -155,5 +156,5 @@ def format_ui_summary(ui: dict[str, float]) -> str:
         if not inp.supported:
             continue
         v = float(ui.get(inp.name, inp.default))
-        parts.append(f"{inp.label}={format_value(POLICY_LABELS[inp.name], v)}")
+        parts.append(f"{tr(inp.label)}={format_value(POLICY_LABELS[inp.name], v)}")
     return " | ".join(parts)

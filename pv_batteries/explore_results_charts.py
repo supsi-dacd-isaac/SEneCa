@@ -131,7 +131,7 @@ def render_bar_fallback(df: pd.DataFrame, meta: dict) -> None:
         row = row * scale
     labels = [elem_label(c, base) for c in cols]
     bar = pd.DataFrame({title: row.values}, index=labels)
-    st.markdown(f"**{title}** ({meta['unit']}) - {year}")
+    st.markdown(f"**{chart_text(title)}** ({chart_text(meta['unit'])}) - {year}")
     st.caption(tr(meta.get("desc", "")))
     st.bar_chart(bar, color=data_color(0), sort=False)
 
@@ -464,7 +464,7 @@ def render_elettricita_from_pysd(
     if df_base_wide is not None and df_has_elec_columns(df_base_wide):
         long_base = pysd_wide_to_hourly_long(df_base_wide, elec_cfg.OUTPUT_BASES)
 
-    st.subheader(f"Indicatori principali ({elec_cfg.FINAL_YEAR})")
+    st.subheader(tr("Indicatori principali ({v0})", v0=elec_cfg.FINAL_YEAR))
     with st.expander(tr("Cosa misurano questi indicatori")):
         st.markdown(tr(elec_cfg.KPI_EXPLANATION))
     render_hourly_summary_metrics(elec_cfg.SUMMARY_METRICS, long_df,
