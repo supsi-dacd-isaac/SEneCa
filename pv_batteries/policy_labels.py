@@ -1,5 +1,6 @@
 """Shared presentation of policy levers; names and values stay in model units."""
 from __future__ import annotations
+from pv_batteries.i18n import tr
 
 BILL_SURCHARGE_EQUITY_LABEL = "Equità del supplemento in bolletta"
 BILL_SURCHARGE_EQUITY_RADAR_LABEL = "Equità\nsupplemento\nin bolletta"
@@ -193,18 +194,18 @@ def input_metadata(names):
 
 
 def control_label(meta, *, with_unit=True):
-    label = meta.get("control_label", meta["label"])
-    unit = meta.get("unit", "-")
+    label = tr(meta.get("control_label", meta["label"]))
+    unit = tr(meta.get("unit", "-"))
     return f"{label} [{unit}]" if with_unit and unit != "-" else label
 
 
 def format_value(meta, value, *, with_unit=True):
     if meta.get("kind") == "binary":
-        return "Sì" if float(value) >= .5 else "No"
+        return tr("Sì") if float(value) >= .5 else tr("No")
     if meta.get("choices"):
-        return meta["choices"].get(float(value), f"{value:g}")
+        return tr(meta["choices"].get(float(value), f"{value:g}"))
     text = f"{float(value) * meta.get('scale', 1):g}"
-    unit = meta.get("unit", "-")
+    unit = tr(meta.get("unit", "-"))
     if not with_unit or unit == "-":
         return text
     return text + ("" if unit.startswith("%") else " ") + unit

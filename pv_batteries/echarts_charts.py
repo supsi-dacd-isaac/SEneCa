@@ -10,6 +10,7 @@ from copy import deepcopy
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, chart_text, chart_options
 
 import ui_colors
 importlib.reload(ui_colors)
@@ -23,9 +24,9 @@ _ECHARTS_CDN = "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
 
 def render_chart_header(title: str, unit: str, desc: str | None, suffix: str = "") -> None:
     """Titolo del grafico; la didascalia si stampa solo se aggiunge informazione."""
-    st.markdown(f"**{title}** ({unit}){suffix}")
+    st.markdown(f"**{chart_text(title)}** [{chart_text(unit)}]{suffix}")
     if desc:
-        st.caption(desc)
+        st.caption(tr(desc))
 
 
 def _safe_dom_id(key: str) -> str:
@@ -53,7 +54,7 @@ def place_line_legend(options: dict) -> None:
         "show": len(labels) > 1,
         "top": "auto", "bottom": "9%" if zoom else 0,
         "left": 0, "right": 0,
-        "type": "scroll" if len(labels) > 4 else "plain",
+        "type": "scroll",
         "data": labels,
     }
     # Esplicitare anche top azzera il vecchio layout durante le transizioni.
@@ -116,11 +117,10 @@ def build_line_options(
         "xAxis": {
             "type": "category",
             "data": [str(y) for y in years],
-            "axisLabel": {"margin": 10},
+            "axisLabel": {"margin": 10, "hideOverlap": True},
         },
-        "yAxis": {"type": "value", "name": unit, **(
-            {} if y_min is None else {"min": y_min}
-        )},
+        # Explicit nulls clear limits retained by ECharts during merged updates.
+        "yAxis": {"type": "value", "name": unit, "min": y_min, "max": None},
         "series": echarts_series,
     }
     if data_zoom:
@@ -137,13 +137,36 @@ def build_line_options(
     return options
 
 
+def build_share_options(
+    years: list[int | str],
+    series: dict[str, list[float | None]],
+    *,
+    series_order: list[str] | None = None,
+    data_zoom: bool = False,
+) -> dict:
+    """One scenario's already-normalized shares as a 100% stacked area."""
+    order = list(series_order or series)
+    # BEV observations can be compared directly with the first area's boundary.
+    if "BEV" in order:
+        order = ["BEV", *(label for label in order if label != "BEV")]
+    options = build_line_options(years, series, unit="%", series_order=order, y_min=0, data_zoom=data_zoom)
+    options["yAxis"]["max"] = 100
+    options["xAxis"]["boundaryGap"] = False
+    options["toolbox"]["feature"].pop("magicType", None)
+    for item in options["series"]:
+        item.update(stack="shares", smooth=False, showSymbol=False,
+                    areaStyle={"opacity": 0.9})
+        item["lineStyle"]["width"] = 0.5
+    return options
+
+
 def pivot_to_stacked_series(
     pivot: pd.DataFrame,
-) -> tuple[list[str], dict[str, list[float]]]:
+) -> tuple[list[str], dict[str, list[float | None]]]:
     """Pivot (indice categorie, colonne serie) -> assi ECharts stacked bar."""
     categories = [str(i) for i in pivot.index.tolist()]
     series = {
-        str(col): [float(v) for v in pivot[col].tolist()]
+        str(col): _to_float_list(pivot[col].tolist())
         for col in pivot.columns
     }
     return categories, series
@@ -190,7 +213,7 @@ def build_stacked_bar_options(
         "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
         "legend": legend_opts,
         "xAxis": {"type": "category", "data": categories},
-        "yAxis": {"type": "value", "name": unit},
+        "yAxis": {"type": "value", "name": unit, "min": None, "max": None},
         "grid": {"bottom": "22%", "left": "12%", "right": "4%"},
         "series": echarts_series,
     }
@@ -320,7 +343,7 @@ def build_boxplot_options(
         "name": "Outlier",
         "type": "scatter",
         "itemStyle": {"color": data_color(2)},
-        "data": outliers or [],
+        "data": [[value, index] for index, value in (outliers or [])],
         "symbolSize": 6,
         "animationDurationUpdate": 0,
     }]
@@ -339,13 +362,12 @@ def build_boxplot_options(
         },
         "tooltip": {"trigger": "item"},
         "legend": {"show": bool(outliers), "bottom": 0},
-        "xAxis": {
-            "type": "category",
-            "data": categories,
-            "axisLabel": {"interval": 0, "rotate": 28},
+        "xAxis": {**y_axis, "nameLocation": "middle", "nameGap": 28},
+        "yAxis": {
+            "type": "category", "data": categories, "inverse": True,
+            "axisLabel": {"interval": 0, "width": 150, "overflow": "break"},
         },
-        "yAxis": y_axis,
-        "grid": {"bottom": "26%", "left": "10%", "right": "4%", "top": "8%"},
+        "grid": {"bottom": 65, "left": 8, "right": 20, "top": 45, "containLabel": True},
         "series": series,
     }
 
@@ -417,6 +439,8 @@ def _transition_compatible(previous: dict, current: dict) -> bool:
             new.get("id", new.get("name")), new.get("type")
         ):
             return False
+        if old.get("stack") != new.get("stack") or ("areaStyle" in old) != ("areaStyle" in new):
+            return False
         if old.get("type") == "pie":
             if [item.get("name") for item in old.get("data", [])] != [
                 item.get("name") for item in new.get("data", [])
@@ -436,7 +460,7 @@ def _transition_compatible(previous: dict, current: dict) -> bool:
         if len(old_axes) != len(new_axes):
             return False
         for old, new in zip(old_axes, new_axes, strict=True):
-            if old.get("type") != new.get("type"):
+            if any(old.get(field) != new.get(field) for field in ("type", "name", "min", "max")):
                 return False
             if old.get("type") == "category" and old.get("data") != new.get("data"):
                 return False
@@ -462,7 +486,7 @@ def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2,
 ) -> None:
     """Renderizza ECharts in iframe, animando solo se assi e serie coincidono."""
-    options = deepcopy(options)
+    options = chart_options(options)
     options.setdefault("color", list(palette_for(_categorical_count(options))))
     options.setdefault("backgroundColor", "#FFFFFF")
     options.setdefault("textStyle", {"color": CHART_TEXT})
@@ -515,12 +539,43 @@ def render_echarts(
       requestAnimationFrame(() => requestAnimationFrame(() => {{
         options.animation = true;
         chart.setOption(options);
+        fitChart();
       }}));
     }} else {{
       options.animation = false;
       chart.setOption(options);
     }}
-    window.addEventListener("resize", function() {{ chart.resize(); }});
+    function fitChart() {{
+      const width = el.clientWidth;
+      const layout = {{ tooltip: {{confine: true}} }};
+      if (options.radar) {{
+        const labelWidth = Math.min(135, Math.max(75, width * 0.23));
+        const radius = Math.max(45, Math.min({height} * 0.28, width / 2 - labelWidth - 18));
+        layout.radar = {{ radius, axisName: {{width: labelWidth, overflow: 'break', fontSize: 11}} }};
+        layout.legend = {{type: 'scroll', top: 'auto', left: 0, right: 0, bottom: 0}};
+      }} else if (options.series?.[0]?.type === 'pie') {{
+        layout.legend = {{type: 'scroll', top: 'auto', left: 0, right: 0, bottom: 0}};
+        layout.series = [{{radius: width < 500 ? '48%' : '60%',
+          label: {{alignTo: 'edge', edgeDistance: 8, width: Math.min(140, width * 0.24), overflow: 'break'}},
+          labelLayout: {{hideOverlap: true}}}}];
+      }} else if (options.grid) {{
+        layout.grid = {{containLabel: true, left: 8, right: 20}};
+        if (options.yAxis && options.yAxis.type === 'category') {{
+          layout.yAxis = {{axisLabel: {{width: Math.min(170, width * 0.34), overflow: 'break', interval: 0}}}};
+        }}
+        const categories = options.xAxis?.data;
+        if (options.xAxis?.type === 'category' && categories?.length <= 12 &&
+            categories.some(value => !/^\\d{{4}}$/.test(String(value)))) {{
+          layout.xAxis = {{axisLabel: {{interval: 0, overflow: 'break',
+            width: Math.max(40, (width - 100) / categories.length - 6), fontSize: 11}}}};
+        }}
+        if (options.legend) layout.legend = {{type: 'scroll', top: 'auto', bottom: options.legend.bottom ?? 0, left: 0, right: 0}};
+      }}
+      chart.resize();
+      chart.setOption(layout);
+    }}
+    fitChart();
+    new ResizeObserver(fitChart).observe(el);
   </script>
 </body>
 </html>"""
@@ -565,66 +620,94 @@ def _render_echarts_series(
     compare_fn=None,
 ) -> None:
     if not series:
-        st.info(f"Nessun dato per '{title}'.")
+        st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     from chart_views import (add_historical_options, historical_series,
-                             temporal_controls, transform_series)
+                             temporal_controls, transform_series, composition_controls, composition_series)
     key = chart_key or _chart_key(meta)
     frame = pd.DataFrame(series, index=df.index.astype(int)).sort_index()
     start = meta.get("start_year", int(frame.index.min()))
     frame = frame.loc[frame.index >= start]
+    relative = composition_controls(meta, key)
     mode, unit, note = temporal_controls(meta, key, start)
     frame = transform_series(frame, meta.get("time_basis"), mode)
+    if relative:
+        frame = composition_series(frame, meta)
+        unit = "%"
     years = [int(y) for y in frame.index]
     series = {c: _to_float_list(frame[c]) for c in frame}
     series_order = meta.get("type_order")
     if meta.get("kind") == "line_composite":
         series_order = [spec["label"] for spec in meta["series"]]
+    if relative and meta.get("relative_components"):
+        series_order = meta["relative_components"]
     compare_raw = compare_fn(df_base, meta) if df_base is not None and compare_fn else None
     compare = None
     if compare_raw:
         base_frame = pd.DataFrame(compare_raw, index=df_base.index.astype(int)).sort_index()
         base_frame = base_frame.loc[base_frame.index >= start]
         base_frame = transform_series(base_frame, meta.get("time_basis"), mode).reindex(years)
+        if relative:
+            base_frame = composition_series(base_frame, meta)
         compare = {c: _to_float_list(base_frame[c]) for c in base_frame if c in series}
-    options = build_line_options(
-        years,
-        series,
-        unit=unit,
-        series_order=series_order,
-        compare=compare,
-        y_min=meta.get("y_min"),
-    )
+    if relative:
+        options = build_share_options(years, series, series_order=series_order)
+        # Two independent 100% areas avoid adding the baseline to the selected
+        # scenario or overlaying opaque areas with ambiguous boundaries.
+        base_options = build_share_options(years, compare, series_order=series_order) if compare else None
+    else:
+        options = build_line_options(
+            years, series, unit=unit, series_order=series_order,
+            compare=compare, y_min=meta.get("y_min"),
+        )
+        base_options = None
     # Reserve the chart before its optional history controls so adjacent charts
     # stay aligned, including when the history notes become visible on a rerun.
     chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
     if source := meta.get("history"):
-        if st.checkbox("Mostra dati storici di calibrazione", key=f"{key}_history"):
-            historical = historical_series(source)
+        history_unavailable = relative and source == "pv_production"
+        show_history = st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history", disabled=history_unavailable)
+        if history_unavailable:
+            st.caption(tr("Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate separate di autoconsumo e immissione in rete per calcolarne le quote."))
+        if show_history and not history_unavailable:
+            historical = historical_series(source, relative=relative)
             historical = historical.loc[historical.index >= start]
             if not historical.empty:
-                st.caption(f"Dati disponibili: {historical.index.min()}–{historical.index.max()}.")
+                st.caption(tr("Dati disponibili: {start}–{end}.", start=historical.index.min(), end=historical.index.max()))
             historical = transform_series(historical, meta.get("time_basis"), mode).reindex(years)
             net = meta.get("time_basis") == "stock" and mode == "annual"
             add_historical_options(options, historical, net_change=net)
-            st.caption(meta["history_note"])
+            if base_options is not None:
+                add_historical_options(base_options, historical, net_change=net)
+            st.caption(tr(meta["history_note"]))
             if net:
-                st.caption("Per lo storico, la differenza fra anni misura l’incremento netto "
-                           "di potenza; non separa installazioni e dismissioni.")
+                st.caption(tr("Per lo storico, la differenza fra anni misura l’incremento netto "
+                           "di potenza; non separa installazioni e dismissioni."))
     suffix = " — cumulato" if mode == "cumulative" else (
         " — " + meta.get("annual_label", "variazione annua").lower()
         if mode == "annual" else "")
     display_title = meta.get("cumulative_title", title + suffix) if mode == "cumulative" else title + suffix
     with chart_slot:
-        render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
+        render_chart_header(display_title, unit, None)
         if note:
-            st.caption(note)
+            st.caption(tr(note))
+        if base_options is not None:
+            st.caption(tr("Scenario selezionato"))
         render_echarts(
             options,
             chart_key=chart_key or _chart_key(meta),
             height=meta.get("height", 400),
             tooltip_decimals=meta.get("tooltip_decimals", 2),
         )
+        if base_options is not None:
+            st.caption(tr("Scenario Base"))
+            render_echarts(
+                base_options, chart_key=f"{key}_relative_base",
+                height=meta.get("height", 400),
+                tooltip_decimals=meta.get("tooltip_decimals", 2),
+            )
+        if desc := meta.get("desc"):
+            st.caption(tr(desc))
 
 
 def render_echarts_line(
@@ -835,7 +918,7 @@ def build_category_bar_options(
             }
         },
         "tooltip": {"trigger": "axis"},
-        "legend": {"bottom": 0, "data": [s["name"] for s in echarts_series]} if compare_values else {},
+        "legend": {"bottom": 0, "data": [s["name"] for s in echarts_series]} if compare_values else {"show": False},
         "xAxis": {"type": "category", "data": categories},
         "yAxis": yaxis,
         "grid": {"bottom": "12%" if compare_values else "8%"},
@@ -883,7 +966,7 @@ def render_echarts_bar_category(
     year = meta.get("year", 2050)
     categories, values = _category_values_from_bar(df, meta)
     if not categories:
-        st.info(f"Nessun dato {year} per '{title}'.")
+        st.info(tr("Nessun dato {year} per '{title}'.", year=year, title=chart_text(title)))
         return
     compare_values = None
     if df_base is not None:
@@ -896,13 +979,15 @@ def render_echarts_bar_category(
         y_max=meta.get("y_max"),
         compare_values=compare_values,
     )
-    render_chart_header(title, meta["unit"], meta.get("desc"), f" - {year}")
+    render_chart_header(title, meta["unit"], None, " — " + tr("al {year}", year=year))
     render_echarts(
         options,
         chart_key=chart_key or _chart_key(meta),
         height=meta.get("height", 400),
         tooltip_decimals=meta.get("tooltip_decimals", 2),
     )
+    if desc := meta.get("desc"):
+        st.caption(tr(desc))
 
 
 def build_grouped_bar_options(
@@ -992,7 +1077,7 @@ def render_echarts_bar_grouped(
     title = chart_title(meta)
     districts, series = _series_from_bar_grouped(df, meta)
     if not districts or not series:
-        st.info(f"Nessun dato per '{title}'.")
+        st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     bar_order = [spec["label"] for spec in meta["series"]]
     share_series = _demand_share_series(series)
@@ -1013,10 +1098,12 @@ def render_echarts_bar_grouped(
         compare_share=compare_share,
     )
     render_chart_header(
-        title, meta["unit"], meta.get("desc"), f" - {meta.get('year', 2050)}")
+        title, meta["unit"], None, " — " + tr("al {year}", year=meta.get('year', 2050)))
     render_echarts(
         options,
         chart_key=chart_key or _chart_key(meta),
         height=meta.get("height", 450),
         tooltip_decimals=meta.get("tooltip_decimals", 2),
     )
+    if desc := meta.get("desc"):
+        st.caption(tr(desc))

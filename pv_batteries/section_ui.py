@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr
+from pv_batteries.responsive import wrapping_columns
 
 from gmd import gmd_bounds_for_spec, scale_gmd_equity
 
@@ -27,7 +29,7 @@ def elem_label(col: str, base: str) -> str:
 
 
 def fmt(x, spec: str) -> str:
-    return format(x, spec) if x is not None and pd.notna(x) else "n/d"
+    return format(x, spec) if x is not None and pd.notna(x) else tr("n/d")
 
 
 def sim_incomplete(df: pd.DataFrame, final_year: int) -> bool:
@@ -42,10 +44,10 @@ def fmt_metric_value(
     value: float | None, unit: str | None = None, *, decimals: int = 0,
 ) -> str:
     if value is None:
-        return "n/d"
+        return tr("n/d")
     if unit is None:
         return fmt_scaled_gmd(value)
-    return f"{value:.{decimals}f} {unit}"
+    return f"{value:.{decimals}f} {tr(unit)}"
 
 
 def metric_delta_vs_base(
@@ -56,14 +58,14 @@ def metric_delta_vs_base(
         return None, delta_color
     if base == 0:
         if cur == 0:
-            return "0% vs Base", "off"
+            return f"0% vs {tr('Base')}", "off"
         return None, delta_color
     pct = (cur - base) / base * 100.0
     pct_display = f"{pct:.1f}"
     if float(pct_display) == 0:
-        return "0.0% vs Base", "off"
+        return f"0.0% vs {tr('Base')}", "off"
     sign = "+" if pct > 0 else ""
-    return f"{sign}{pct_display}% vs Base", delta_color
+    return f"{sign}{pct_display}% vs {tr('Base')}", delta_color
 
 
 def pct_delta_vs_base(cur: float | None, base: float | None) -> str | None:
@@ -130,19 +132,19 @@ def render_kpi_radar(
     if len(usable) < 3:
         return
 
-    st.markdown("**Confronto con lo scenario Base**")
+    st.markdown(tr("**Confronto con lo scenario Base**"))
     st.caption(
-        "Ogni asse è normalizzato sul valore dello scenario Base (100%): il "
+        tr("Ogni asse è normalizzato sul valore dello scenario Base (100%): il "
         "poligono tratteggiato è il Base, quello pieno lo scenario selezionato. "
         "Attenzione al verso: per emissioni, costi e importazioni un valore "
-        "più alto è peggiore."
+        "più alto è peggiore.")
     )
     options = build_radar_options(
         [label for label, _, _ in usable],
         [value for _, value, _ in usable],
         [base for _, _, base in usable],
     )
-    _, center, _ = st.columns([1, 2, 1])
+    center = st.container()
     with center:
         render_echarts(options, chart_key=chart_key, height=height)
 
@@ -169,7 +171,7 @@ def render_configured_summary_metrics(
         (i for i, spec in enumerate(metrics) if spec.get("gmd")),
         default=None,
     )
-    cols = st.columns(len(metrics))
+    cols = wrapping_columns(len(metrics), key=radar_chart_key, metrics=True)
     for i, (col, spec) in enumerate(zip(cols, metrics, strict=True)):
         value_num = _metric_numeric_value(
             spec, df, year=year, gmd_row=gmd_row, gmd_bounds=gmd_bounds,
@@ -193,13 +195,17 @@ def render_configured_summary_metrics(
         with col:
             with st.container(border=True):
                 st.metric(
-                    spec["label"],
+                    tr(spec["label"]),
                     display,
                     delta=delta,
                     delta_color=delta_color,
-                    help=GMD_DISPLAY_CAPTION if i == last_gmd else None,
+                    help=tr(GMD_DISPLAY_CAPTION if i == last_gmd else None),
                 )
 
+    for note in dict.fromkeys(spec["period_note"] for spec in metrics if spec.get("period_note")):
+        st.caption(tr(note))
+    if last_gmd is not None:
+        st.caption(tr("Equità: scala 0–1 dei precalcolati; più alto = più equo. Non è una percentuale."))
     if radar:
         render_kpi_radar(entries, chart_key=radar_chart_key)
 
@@ -208,8 +214,9 @@ def render_section_picker(labels: list[str], *, key: str) -> str:
     """Selettore di sottosezione: mostra un blocco di risultati alla volta."""
     st.session_state.setdefault(key, labels[0])
     choice = st.segmented_control(
-        "Sezione dei risultati",
+        tr("Sezione dei risultati"),
         labels,
+        format_func={label: tr(label) for label in labels}.get,
         key=key,
         label_visibility="collapsed",
     )
@@ -228,7 +235,7 @@ def render_section_nav(labels: list[str], active: str, *, key: str) -> None:
     index = labels.index(active)
     col_prev, col_next = st.columns(2)
     col_prev.button(
-        "Indietro",
+        tr("Indietro"),
         icon=":material/arrow_back:",
         disabled=index == 0,
         on_click=_go_to_section,
@@ -237,7 +244,7 @@ def render_section_nav(labels: list[str], active: str, *, key: str) -> None:
         key=f"{key}_prev",
     )
     col_next.button(
-        "Avanti",
+        tr("Avanti"),
         icon=":material/arrow_forward:",
         disabled=index == len(labels) - 1,
         on_click=_go_to_section,
@@ -269,7 +276,7 @@ def render_gmd_metrics(
     row = gmd_store.get(key, {})
     base_row = gmd_store.get(base_key, {}) if base_key and base_key != key else {}
     items = list(labels.items())
-    cols = st.columns(len(items))
+    cols = wrapping_columns(len(items), key="gmd", metrics=True)
     for col, (measure, label) in zip(cols, items):
         vmin, vmax = bounds[measure]
         scaled = scale_gmd_equity(row.get(measure), vmin, vmax)
@@ -280,11 +287,11 @@ def render_gmd_metrics(
             if scaled is not None and scaled_base is not None:
                 change = scaled - scaled_base
                 if float(f"{change:.3f}") == 0:
-                    delta, delta_color = "0.000 vs Base", "off"
+                    delta, delta_color = f"0.000 vs {tr('Base')}", "off"
                 else:
-                    delta = f"{change:+.3f} vs Base"
+                    delta = f"{change:+.3f} vs {tr('Base')}"
         col.metric(
-            label, fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
+            tr(label), fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
         )
 
 
@@ -308,8 +315,8 @@ def render_explanation(meta: dict, explanations: dict[str, tuple[str, str]]) -> 
     """Expander esplicativo associato al grafico tramite la chiave `explain`."""
     if note := explanations.get(meta.get("explain")):
         label, body = note
-        with st.expander(label):
-            st.markdown(body)
+        with st.expander(tr(label)):
+            st.markdown(tr(body))
 
 
 def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
@@ -326,9 +333,9 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
     if line_outs:
         if show_titles:
             st.subheader(
-                f"Andamenti temporali ({int(df.index.min())}-{int(df.index.max())})")
+                tr('Andamenti temporali ({v0}-{v1})', v0=int(df.index.min()), v1=int(df.index.max())))
         for i in range(0, len(line_outs), 2):
-            cols = st.columns(2)
+            cols = wrapping_columns(2, key=f"lines_{i}")
             for j, meta in enumerate(line_outs[i:i + 2]):
                 with cols[j]:
                     render_explanation(meta, explanations)
@@ -338,9 +345,9 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
                         render_line(df, meta, df_base=df_base)
     if bar_outs:
         if show_titles:
-            st.subheader(f"Valori al {final_year}")
+            st.subheader(tr('Valori al {v0}', v0=final_year))
         for i in range(0, len(bar_outs), 2):
-            cols = st.columns(2)
+            cols = wrapping_columns(2, key=f"bars_{i}")
             for j, meta in enumerate(bar_outs[i:i + 2]):
                 with cols[j]:
                     render_explanation(meta, explanations)
@@ -363,13 +370,13 @@ def render_section_layout(
 ) -> None:
     """Griglia custom: ogni riga elenca le base Vensim da affiancare."""
     by_base = {o["base"]: o for o in outputs if "base" in o}
-    for row in layout:
-        cols = st.columns(len(row))
+    for row_index, row in enumerate(layout):
+        cols = wrapping_columns(len(row), key=f"layout_{row_index}")
         for col, base in zip(cols, row, strict=True):
             meta = by_base.get(base)
             with col:
                 if meta is None:
-                    st.info(f"Grafico non configurato: {base}")
+                    st.info(tr('Grafico non configurato: {v0}', v0=base))
                 else:
                     _render_output_chart(
                         df, meta, final_year, df_base=df_base,

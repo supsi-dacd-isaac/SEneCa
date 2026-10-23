@@ -110,37 +110,45 @@ DISPLAY_YEARS = [2024, 2035, 2050]
 
 OUTPUTS = [
 
-    {"base": "Electricity dispatched", "has_supplier": True, "unit": "GWh",
-     "title": "Elettricita' dispacciata | totale annuo per supplier",
+    {"base": "Electricity dispatched", "caption": 'Elettricità fornita dalla rete, per fonte; include le importazioni.', "has_supplier": True, "unit": "GWh",
+     "title": "Elettricità distribuita dalla rete | totale annuo per fonte",
      "desc": "Elettricità oraria dispacciata in rete",
+     "relative_view": True,
+     "relative_note": "Quota di ciascuna fonte sull’elettricità dispacciata nel periodo selezionato, incluse le importazioni.",
      "extended_layout": True,
      "annual_echarts": True, "annual_data_zoom": True,
      "stacked_echarts": True},
 
-    {"base": "Hourly exported electricity", "has_supplier": True, "unit": "GWh",
-     "title": "Elettricita' esportata | totale annuo per supplier",
+    {"base": "Hourly exported electricity", "caption": 'Elettricità prodotta in Ticino e destinata fuori cantone.', "has_supplier": True, "unit": "GWh",
+     "title": "Elettricità esportata | totale annuo per fonte",
      "desc": "Elettricità oraria esportata",
+     "relative_view": True,
+     "relative_note": "Quota di ciascuna fonte sull’elettricità esportata nel periodo selezionato.",
      "extended_layout": True,
      "annual_echarts": True, "annual_data_zoom": True,
      "stacked_echarts": True},
 
-    {"base": "Electricity consumed", "has_supplier": True, "unit": "GWh",
-     "title": "Elettricita' consumata | totale annuo per supplier",
+    {"base": "Electricity consumed", "caption": 'Elettricità usata in Ticino: rete e autoconsumo PV.', "has_supplier": True, "unit": "GWh",
+     "title": "Elettricità consumata | totale annuo per fonte",
      "desc": "Elettricità oraria consumata",
+     "relative_view": True,
+     "relative_note": "Quota di ciascuna fonte sull’elettricità consumata nel periodo selezionato, incluse le importazioni.",
      "extended_layout": True,
      "annual_echarts": True, "annual_data_zoom": True,
      "stacked_echarts": True},
 
-    {"base": "Hourly available supply by Supplier", "has_supplier": True, "unit": "GWh",
-     "title": "Elettricita' offerta nel mercato | totale annuo per supplier",
+    {"base": "Hourly available supply by Supplier", "caption": 'Produzione locale disponibile, prima della scelta delle fonti da utilizzare.', "has_supplier": True, "unit": "GWh",
+     "title": "Offerta elettrica locale | totale annuo per fonte",
      "desc": "Elettricità oraria offerta nel mercato",
+     "relative_view": True,
+     "relative_note": "Quota di ciascuna fonte sull’offerta locale nel periodo selezionato. Le importazioni sono escluse dal totale.",
      "exclude_suppliers": ["Import"],
      "extended_layout": True,
      "annual_echarts": True, "annual_data_zoom": True,
      "stacked_echarts": True},
 
-    {"base": "PHS hourly demand", "has_supplier": False, "unit": "GWh",
-     "title": "Domanda oraria PHS",
+    {"base": "PHS hourly demand", "caption": 'Elettricità assorbita per pompare acqua nei bacini di accumulo.', "has_supplier": False, "unit": "GWh",
+     "title": "Elettricità per il pompaggio",
      "desc": "Domanda oraria PHS",
      "hourly_area_echarts": True},
 
@@ -190,62 +198,25 @@ SUMMARY_METRICS = [
     },
 ]
 
-CONCEPTS_EXPLANATION = """
-Le quattro grandezze descrivono lo stesso kWh in momenti diversi del suo percorso. Il
-modello simula **un giorno tipo per ogni mese**, ora per ora, distinguendo le fonti
-(*supplier*): solare, eolico, nucleare, acqua fluente, bacini idroelettrici,
-pompaggio, rifiuti, carbone e importazioni.
+CONCEPTS_EXPLANATION = """Il modello usa **un giorno tipo per mese**, con queste grandezze:
 
-- ⚡ **Offerta (produzione disponibile)** — quanta elettricità ciascuna fonte
-  *potrebbe* mettere a disposizione in quell'ora, dati gli impianti installati e le
-  condizioni di sole, vento e portate. È un potenziale, non ancora un consumo. Nei
-  grafici di questa pagina le importazioni sono escluse, quindi va letta come
-  **offerta locale**.
-- 🔀 **Dispacciata** — la parte di quell'offerta che viene effettivamente immessa in
-  rete per coprire la domanda di quell'ora. Il modello la assegna seguendo un ordine
-  di priorità fra le fonti, fino a coprire il fabbisogno: consumo degli utenti più
-  l'assorbimento degli impianti di pompaggio.
-- 🏠 **Consumata** — l'elettricità realmente utilizzata in Ticino: la dispacciata più
-  l'**autoconsumo fotovoltaico**, cioè la quota di produzione PV usata direttamente
-  nell'edificio senza mai passare dalla rete.
-- 🌍 **Esportata** — il surplus, cioè `offerta − dispacciata`. È l'energia che le fonti
-  locali potrebbero produrre ma che in quell'ora nessuno consuma qui, e che quindi
-  esce dal cantone.
+- **Offerta locale**: elettricità che gli impianti ticinesi possono produrre.
+- **Distribuita dalla rete (dispacciata)**: elettricità assegnata alle fonti per coprire la domanda, incluso il pompaggio.
+- **Consumata**: elettricità distribuita dalla rete più autoconsumo PV.
+- **Esportata**: produzione locale disponibile che non viene usata in Ticino.
+- **Pompaggio**: elettricità per riportare acqua nei bacini di accumulo.
 
-In sintesi: **offerta = dispacciata + esportata**, mentre la **consumata** aggiunge
-alla dispacciata l'autoconsumo fotovoltaico, che non transita dalla rete.
+I totali mensili e annui sono stimati dai giorni tipo, con **365/12 giorni per mese**."""
 
-🔄 **Domanda oraria PHS** — sta a parte rispetto alle quattro: è l'elettricità che gli
-impianti di pompaggio *assorbono* per risalire l'acqua nei bacini. Non è un consumo
-finale ma un accumulo, e rientra nella domanda che il dispacciamento deve coprire.
+KPI_EXPLANATION = """Totali annui **al 2050** [GWh]; variazioni rispetto allo scenario Base.
 
-📅 **Nota sulle quantità.** Poiché il modello calcola un giorno rappresentativo per
-mese, i totali mensili e annuali mostrati qui sono riscalati sui giorni di un mese
-medio (365/12 ≈ 30.4). I profili orari sono invece il giorno tipo così com'è.
-"""
+- **Offerta locale**: produzione disponibile in Ticino, senza importazioni.
+- **Offerta solare**: componente PV dell’offerta locale.
+- **Consumo**: elettricità usata, rete più autoconsumo PV.
+- **Esportazioni**: produzione locale disponibile in eccesso rispetto alla domanda.
+- **Importazioni**: elettricità proveniente da fuori cantone.
 
-KPI_EXPLANATION = f"""
-Tutti gli indicatori sono totali dell'anno **{FINAL_YEAR}**; la variazione percentuale
-sotto ogni valore è il confronto con lo scenario Base.
-
-- **Offerta locale** — elettricità che le fonti in Ticino potrebbero produrre
-  nell'anno, **escluse le importazioni**. Cresce con il fotovoltaico e con i
-  provvedimenti PECC sull'idroelettrico.
-- **Offerta solare** — la sola quota fotovoltaica dell'indicatore precedente: è la
-  parte su cui agiscono direttamente la rimunerazione dell'elettricità e il rimborso
-  PV federale.
-- **Elettricità consumata** — quanto viene effettivamente usato in Ticino, cioè rete
-  più autoconsumo fotovoltaico.
-- **Elettricità esportata** — il surplus che esce dal cantone perché prodotto in ore
-  in cui non c'è domanda locale. Una crescita marcata segnala che la produzione
-  aggiuntiva non trova sbocco nel momento in cui viene generata.
-- **Importazioni** — elettricità dispacciata proveniente da fuori cantone, cioè le ore
-  in cui la produzione locale non basta a coprire la domanda.
-
-Letti insieme, esportazioni e importazioni raccontano il **disallineamento temporale**
-fra produzione e consumo: nello stesso scenario possono crescere entrambe, perché si
-riferiscono a ore diverse dell'anno.
-"""
+Importazioni ed esportazioni possono coesistere: produzione e domanda cambiano da un’ora all’altra."""
 
 OUTPUT_BASES = [o["base"] for o in OUTPUTS]
 

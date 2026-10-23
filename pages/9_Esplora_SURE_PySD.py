@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, display_frame
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 PVBAT = PROJECT_DIR / "pv_batteries"
@@ -41,7 +42,7 @@ from explore_results_charts import (  # noqa: E402
     render_veicoli_section,
 )
 from section_ui import render_section_picker  # noqa: E402
-from live_summary import render_live_summary  # noqa: E402
+from live_summary import render_live_summary, build_comparison_table  # noqa: E402
 import risanamento_config as ris_cfg  # noqa: E402
 import veicoli_config as vei_cfg  # noqa: E402
 
@@ -56,17 +57,6 @@ EXPLORE_SECTION_KEY = "explore_section"
 # Bump per invalidare @st.cache_resource dopo cambio OUTPUTS / prune
 ENGINE_CACHE_VERSION = "results_charts_v2_elec"
 
-DELTA_COLS = [
-    "PV residential power by Type[SFH]",
-    "PV residential power by Type[DFH]",
-    "PV residential power by Type[MFH]",
-    "Levy Evolution",
-    "Annual CO2 emissions",
-    "Cumulative CO2 emissions",
-    "Specific net final consumption",
-    "Specific final consumption",
-    "Vehicles by type[BEV]",
-]
 YEARS = range(2011, 2051)
 
 
@@ -101,7 +91,7 @@ def get_scenario(ui: dict[str, float], variant: str, title="Scenario") -> tuple[
             engine_id, _params_fingerprint(params), json.dumps(params, sort_keys=True, allow_nan=False),
             get_engine(engine_id), update), title)
     else:
-        with st.spinner("Simulazione in corso..."):
+        with st.spinner(tr("Simulazione in corso...")):
             df = run_live(engine_id, _params_fingerprint(params),
                           json.dumps(params, sort_keys=True, allow_nan=False), get_engine(engine_id))
     return df, "live"
@@ -126,54 +116,55 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
     variant = default_variant()
     paths.set_variant(variant)
 
-    st.sidebar.header("Input di policy")
+    st.sidebar.header(tr("Input di policy"))
     n_ok = sum(1 for i in cfg.ALL_INPUTS if i.supported)
     n_tot = len(cfg.ALL_INPUTS)
     st.sidebar.caption(
-        f"Sezioni allineate alle pagine Simulazioni SEneCa. "
-        f"**{n_ok}/{n_tot}** leve applicate al modello SURE v7."
+        tr('Sezioni allineate alle pagine Simulazioni SEneCa. **{v0}/{v1}** leve applicate al modello SURE v7.', v0=n_ok, v1=n_tot)
     )
     ui: dict[str, float] = {}
 
     for section_title, inputs in cfg.SECTIONS:
-        with st.sidebar.expander(section_title, expanded=(section_title.startswith("1."))):
+        with st.sidebar.expander(tr(section_title), expanded=(section_title.startswith("1."))):
             for inp in inputs:
                 key = f"exp_{inp.name}"
                 help_txt = inp.note or None
-                label = inp.control_label or inp.label
+                label = tr(inp.control_label or inp.label)
                 if inp.unit:
-                    label = f"{label} [{inp.unit}]" if inp.unit != "-" else label
+                    label = f"{label} [{tr(inp.unit)}]" if inp.unit != "-" else label
 
                 if not inp.supported:
                     if inp.choice_labels:
                         st.selectbox(
-                            label,
+                            tr(label),
                             options=[inp.choice_labels[v] for v in inp.values
                                      if v in inp.choice_labels],
+                            format_func={value: tr(value) for value in inp.choice_labels.values()}.get,
                             index=None if key in st.session_state else
                             (list(inp.values).index(inp.default) if inp.default in inp.values else 0),
                             disabled=True,
-                            help=help_txt or "Non disponibile in PySD",
+                            help=tr(help_txt or "Non disponibile in PySD"),
                             key=key,
                         )
                     elif inp.binary:
                         st.radio(
-                            label, ("No", "Sì"),
+                            tr(label), ("No", "Sì"),
+                            format_func={value: tr(value) for value in ("No", "Sì")}.get,
                             index=None if key in st.session_state else int(inp.default),
                             horizontal=True,
                             disabled=True,
-                            help=help_txt or "Non disponibile in PySD",
+                            help=tr(help_txt or "Non disponibile in PySD"),
                             key=key,
                         )
                     else:
                         scale = inp.scale
                         st.select_slider(
-                            label,
+                            tr(label),
                             options=inp.live_values,
                             value=None if key in st.session_state else inp.default,
                             format_func=lambda x, scale=scale: f"{x * scale:g}",
                             disabled=True,
-                            help=help_txt or "Non disponibile in PySD",
+                            help=tr(help_txt or "Non disponibile in PySD"),
                             key=key,
                         )
                     ui[inp.name] = float(inp.default)
@@ -188,32 +179,33 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         inp.default, labels[0] if labels else "")
                     idx = labels.index(default_label) if default_label in labels else 0
                     chosen = st.selectbox(
-                        label, options=labels, index=None if key in st.session_state else idx,
-                        help=help_txt, key=key,
+                        tr(label), options=labels, format_func={value: tr(value) for value in labels}.get, index=None if key in st.session_state else idx,
+                        help=tr(help_txt), key=key,
                     )
                     ui[inp.name] = float(inv[chosen])
                 elif inp.binary:
                     choice = st.radio(
-                        label, ("No", "Sì"),
+                        tr(label), ("No", "Sì"),
+                        format_func={value: tr(value) for value in ("No", "Sì")}.get,
                         index=None if key in st.session_state else int(inp.default),
                         horizontal=True,
-                        help=help_txt, key=key,
+                        help=tr(help_txt), key=key,
                     )
                     ui[inp.name] = 1.0 if choice == "Sì" else 0.0
                 else:
                     scale = inp.scale
                     ui[inp.name] = float(st.select_slider(
-                        label,
+                        tr(label),
                         options=inp.live_values,
                         value=None if key in st.session_state else inp.default,
                         format_func=lambda x, scale=scale: f"{x * scale:g}",
-                        help=help_txt, key=key,
+                        help=tr(help_txt), key=key,
                     ))
 
-    st.sidebar.button("Ripristina scenario base", width="stretch", on_click=reset_policy_inputs)
+    st.sidebar.button(tr("Ripristina scenario base"), width="stretch", on_click=reset_policy_inputs)
 
     run_clicked = st.sidebar.button(
-        "Simula e confronta vs base", type="primary", width="stretch",
+        tr("Simula e confronta vs base"), type="primary", width="stretch",
     )
     return ui, run_clicked, variant
 
@@ -221,39 +213,20 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
 # =============================================================
 # PLOTS
 # =============================================================
-def _delta_table(base_df: pd.DataFrame, user_df: pd.DataFrame) -> pd.DataFrame:
-    year = 2050.0
-    rows = []
-    for col in DELTA_COLS:
-        if col not in base_df.columns or col not in user_df.columns:
-            continue
-        b = float(base_df.loc[year, col]) if year in base_df.index else float("nan")
-        u = float(user_df.loc[year, col]) if year in user_df.index else float("nan")
-        d = u - b
-        rel = d / b if abs(b) > 1e-12 else float("nan")
-        rows.append({
-            "Variabile": col,
-            "Base 2050": b,
-            "Scelta 2050": u,
-            "Delta": d,
-            "Delta %": rel * 100.0,
-        })
-    return pd.DataFrame(rows)
 
 
 def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.DataFrame,
                    src_user: str, src_base: str):
-    st.subheader("Scenario scelto vs scenario base")
-    st.caption(f"**Scelta** ({src_user}): {cfg.format_ui_summary(ui)}")
+    st.subheader(tr("Scenario scelto vs scenario base"))
+    st.caption(tr('**Scelta** ({v0}): {v1}', v0=src_user, v1=cfg.format_ui_summary(ui)))
     st.caption(
-        f"**Base** ({src_base}): valori BASE delle pagine Simulazioni SEneCa (mappati su PySD). "
-        "Linee tratteggiate = Base (stesso stile delle sezioni Simulazioni SEneCa)."
+        tr('Confronto con lo scenario Base: linee tratteggiate nei grafici assoluti, pannelli separati nelle viste relative.')
     )
 
     # Sottopagine al posto delle tab: ogni blocco impagina i risultati come la
     # pagina omonima, selettori interni inclusi.
     active = render_section_picker(SUBPAGES, key=EXPLORE_SECTION_KEY)
-    st.subheader(active)
+    st.subheader(tr(active))
 
     if active != SUBPAGE_ELEC:
         render_live_summary(active, user_df, base_df)
@@ -262,8 +235,8 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
     if active == SUBPAGE_PV:
         if not df_has_results_columns(user_df):
             st.warning(
-                "Colonne Risultati assenti dalla simulazione: la traduzione PySD "
-                "caricata non contiene le variabili di questa sezione."
+                tr("Colonne Risultati assenti dalla simulazione: la traduzione PySD "
+                "caricata non contiene le variabili di questa sezione.")
             )
         else:
             render_pv_topic_sections(
@@ -285,21 +258,23 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
         )
 
     st.divider()
-    st.markdown("**Differenza al 2050** (indicatori chiave)")
-    delta = _delta_table(base_df, user_df)
+    st.markdown(tr("**Differenza al 2050** (indicatori chiave)"))
+    delta = build_comparison_table(base_df, user_df)
     if not delta.empty:
-        shown = delta.copy()
-        for col in ("Base 2050", "Scelta 2050", "Delta"):
-            shown[col] = shown[col].map(lambda x: f"{x:.4g}")
-        shown["Delta %"] = shown["Delta %"].map(lambda x: f"{x:.2f}")
-        st.dataframe(shown, width="stretch", hide_index=True)
+        st.dataframe(display_frame(delta), width="stretch", hide_index=True,
+                     column_config={
+                         **{tr(col): st.column_config.NumberColumn(format="localized", step=0.0001)
+                            for col in ("Base 2050", "Scelta 2050", "Variazione")},
+                         tr("Variazione [%]"): st.column_config.NumberColumn(format="%.1f"),
+                     })
+        st.caption(tr("Variazione = scenario scelto − Base. La percentuale non è definita se il Base è zero."))
     else:
-        st.caption("Nessuna colonna delta disponibile in questo DataFrame.")
+        st.caption(tr("Nessuna colonna delta disponibile in questo DataFrame."))
 
-    with st.expander("Tabella completa scenario scelto"):
+    with st.expander(tr("Tabella completa scenario scelto")):
         st.dataframe(user_df, width="stretch")
         st.download_button(
-            "Scarica CSV scenario scelto",
+            tr("Scarica CSV scenario scelto"),
             user_df.to_csv().encode("utf-8"),
             file_name="scenario_scelto.csv",
             mime="text/csv",
@@ -309,10 +284,9 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 # =============================================================
 # MAIN
 # =============================================================
-st.title("Simulazione in tempo reale")
+st.title(tr("Simulazione in tempo reale"))
 st.caption(
-    f"Simulazione live con {len(sp.LIVE_OUTPUTS)} output Risultati "
-    "(PV / Risanamento / Veicoli / Elettricità)."
+    tr('Simulazione live con {v0} output Risultati (PV / Risanamento / Veicoli / Elettricità).', v0=len(sp.LIVE_OUTPUTS))
 )
 
 ui, run_clicked, variant = render_sidebar()
@@ -337,8 +311,8 @@ if "exp_user_df" in st.session_state:
     )
 else:
     st.info(
-        "Imposta gli input nella barra laterale (sezioni 1–4) e premi "
+        tr("Imposta gli input nella barra laterale (sezioni 1–4) e premi "
         "**Simula e confronta vs base**. I grafici (incl. Elettricità oraria) "
         "appaiono nelle quattro sottopagine allineate alle pagine Simulazioni SEneCa. "
-        "Se hai risultati in cache da prima dell'aggiornamento, rilancia la simulazione."
+        "Se hai risultati in cache da prima dell'aggiornamento, rilancia la simulazione.")
     )

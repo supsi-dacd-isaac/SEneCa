@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr
+from pv_batteries.responsive import wrapping_columns
 
 from pv_batteries.policy_labels import (
     BILL_SURCHARGE_EQUITY_HELP, BILL_SURCHARGE_EQUITY_LABEL,
@@ -61,7 +63,7 @@ def avg_annual_cost_chf(df: pd.DataFrame, year: int) -> float | None:
 
 def _fmt_metric(value: float | None, unit: str, *, decimals: int = 0) -> str:
     if value is None:
-        return "n/d"
+        return tr("n/d")
     return f"{value:.{decimals}f} {unit}"
 
 
@@ -124,7 +126,7 @@ def render_summary_metrics(
          gmd_cost_base, "normal"),
     )
     for row in (items[:3], items[3:]):
-        cols = st.columns(len(row))
+        cols = wrapping_columns(len(row), key=f"pv_metrics_{row[0][0]}", metrics=True)
         for col, (label, display, value, value_base, color) in zip(
             cols, row, strict=True,
         ):
@@ -144,12 +146,13 @@ def render_summary_metrics(
             with col:
                 with st.container(border=True, height="stretch"):
                     # Native Markdown wraps longer indicator names without truncation.
-                    st.markdown(label, help=help_text)
+                    st.markdown(tr(label), help=tr(help_text))
                     st.metric(
-                        label, display, delta=delta, delta_color=delta_color,
+                        tr(label), display, delta=delta, delta_color=delta_color,
                         label_visibility="collapsed",
                     )
 
+    st.caption(tr("Costo per famiglia: elettricità, riscaldamento e risanamento. Equità: scala 0–1 dei precalcolati, più alto = più equo."))
     render_kpi_radar(
         [(BILL_SURCHARGE_EQUITY_RADAR_LABEL if label == BILL_SURCHARGE_EQUITY_LABEL else label,
           value, value_base) for label, _, value, value_base, _ in items],
@@ -157,44 +160,12 @@ def render_summary_metrics(
     )
 
 
-KPI_EXPLANATION = f"""
-Tutti gli indicatori sono riferiti al **{FINAL_YEAR}**; la variazione percentuale sotto
-ogni valore è il confronto con lo scenario Base.
+KPI_EXPLANATION = """Valori **al 2050**; variazioni rispetto allo scenario Base.
 
-- **Potenza PV totale** — potenza fotovoltaica installata sul territorio, somma degli
-  impianti residenziali e di quelli non residenziali di ogni taglia.
-- **Produzione PV totale** — energia elettrica prodotta dagli impianti fotovoltaici
-  nell'anno, in GWh.
-- **Capacità batterie totale** — capacità di accumulo installata, sommata sugli otto
-  distretti.
-- **Costo medio annuale** — spesa media di una famiglia per elettricità, riscaldamento
-  e risanamento dell'edificio.
+- **Potenza PV**: totale installato residenziale e non residenziale [MW].
+- **Produzione PV**: energia prodotta al 2050 [GWh].
+- **Capacità batterie**: energia accumulabile [MWh].
+- **Costo annuo per famiglia**: elettricità, riscaldamento e investimenti annualizzati per impianti e risanamento [CHF].
+- **Equità**: confronta gli oneri tra famiglie, non il loro livello medio. Per il supplemento considera pagamenti meno incentivi PV; per i costi considera energia e risanamento.
 
-### Gli indici di equità
-
-I due indici di equità misurano **quanto diversamente il costo della transizione ricade
-sulle famiglie**, non quanto è alto. Partono dalla *Gini Mean Difference* pesata,
-cioè la differenza media in valore assoluto fra tutte le coppie di archetipi di
-famiglia, pesata per quante famiglie rappresenta ciascun archetipo:
-
-$$\\mathrm{{GMD}} = \\frac{{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}}{{2\\,W^2}}$$
-
-Vale zero quando tutti gli archetipi sopportano esattamente lo stesso onere, e cresce
-via via che le situazioni divergono.
-
-- **{BILL_SURCHARGE_EQUITY_LABEL}** — il supplemento sulla bolletta elettrica finanzia
-  gli incentivi e gli altri oneri rappresentati nel modello. La grandezza $x$ è il
-  saldo cumulato fra supplementi pagati e incentivi PV ricevuti da ciascun archetipo.
-  Risponde alla domanda: chi finanzia gli incentivi e
-  chi invece li incassa?
-- **Equità costo** — la grandezza $x$ è il costo annuo totale per energia e risanamento
-  di ciascun archetipo.
-
-**Come leggere il numero.** Il GMD grezzo è in CHF e poco interpretabile da solo, quindi
-viene riscalato su una scala da 0 a 1 usando il valore minimo e massimo osservati
-**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo
-fra quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di
-scenari, non una misura assoluta di equità: un valore di 0.5 significa "a metà strada
-fra lo scenario migliore e quello peggiore", e i valori cambierebbero se si cambiasse
-la griglia degli scenari.
-"""
+Gli indici di equità derivano dalla disuguaglianza monetaria (GMD), riscalata sui precalcolati: **0 = meno equo, 1 = più equo**. La scala è relativa agli scenari, non una percentuale."""

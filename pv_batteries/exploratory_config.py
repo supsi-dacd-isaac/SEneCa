@@ -108,7 +108,7 @@ KPI_SPEC: dict[str, dict] = {
     },
     "avg_cost": {
         "label": "Costo medio energia per famiglia",
-        "unit": "CHF/abitazione",
+        "unit": "CHF/(abitazione·anno)",
         "higher_is_better": False,
         "help": "Costo medio annuo per elettricità, riscaldamento e risanamento "
                 "al 2050.",
@@ -121,7 +121,7 @@ KPI_SPEC: dict[str, dict] = {
     },
     "net_consumption": {
         "label": "Consumo netto specifico medio",
-        "unit": "kWh/m²",
+        "unit": "kWh/(m²·anno)",
         "higher_is_better": False,
         "help": "Consumo specifico netto di riscaldamento al 2050 "
                 "(senza calore ambiente).",
@@ -149,6 +149,14 @@ KPI_SPEC: dict[str, dict] = {
                 "Non è la quota autoconsumata della produzione PV.",
     },
 }
+# The public table uses the normalized equity columns; raw GMD stays in the store.
+for _key in ("gmd_levy", "gmd_tax", "gmd_cost"):
+    KPI_SPEC[_key]["help"] = {
+        "gmd_levy": "Equità del saldo tra supplementi in bolletta e incentivi PV, tra famiglie.",
+        "gmd_tax": "Equità del saldo tra tassa CO₂ e incentivi, tra famiglie.",
+        "gmd_cost": "Equità dei costi annui di energia e risanamento, tra famiglie.",
+    }[_key] + " Scala 0–1: più alto = più equo tra gli scenari."
+
 KPI_ORDER = list(KPI_SPEC.keys())
 
 SCALAR_OUTPUTS = {

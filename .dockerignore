@@ -65,8 +65,7 @@ credentials.json
 .aws/
 .ssh/
 
-# Docker
-Dockerfile
+# Docker (keep Dockerfile for the build-context regression test)
 docker-compose.yml
 .dockerignore
 

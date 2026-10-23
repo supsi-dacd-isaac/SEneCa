@@ -1,0 +1,4046 @@
+# German translations for SEneCa.
+# Copyright (C) 2026 SEneCa contributors
+# This file is distributed under the same license as the SEneCa project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: SEneCa local-preview\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 15:51+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid ""
+"\n"
+"**Il modello simula, non prevede e non ottimizza.** Permette di formulare\n"
+"esperimenti *what-if*: si modificano politiche, regolamentazioni e ipotesi di\n"
+"contesto e si osservano le conseguenze dinamiche che ne derivano, inclusi\n"
+"effetti indiretti e inattesi tra settori. Il suo valore non sta nell'indicare\n"
+"un unico percorso «corretto», ma nel fornire un ambiente trasparente in cui\n"
+"confrontare alternative e capire quali relazioni causali generano le differenze\n"
+"tra scenari.\n"
+msgstr ""
+"**Das Modell simuliert; es prognostiziert und optimiert nicht.** Es ermöglicht *Was-wäre-"
+"wenn*-Experimente: Politikmassnahmen, Vorschriften und Rahmenannahmen ändern und anschliessend "
+"die dynamischen Folgen untersuchen, einschliesslich indirekter und unerwarteter "
+"sektorübergreifender Effekte. Sein Nutzen liegt in einem transparenten Rahmen zum Vergleich von "
+"Alternativen und zum Verständnis der kausalen Zusammenhänge hinter den Szenariounterschieden, "
+"nicht in der Bestimmung eines einzigen «richtigen» Pfads."
+
+msgid ""
+"\n"
+"**SEneCa** (Sistema Energetico Cantonale) è il simulatore con cui si esplora\n"
+"la transizione energetica ticinese. Mostra come le politiche e i fattori\n"
+"esterni di oggi possono plasmarne l'evoluzione fino al 2050: diffusione del\n"
+"fotovoltaico, risanamento degli edifici, mobilità elettrica, domanda di\n"
+"elettricità, costi per gli utenti ed equità tra distretti.\n"
+msgstr ""
+"**SEneCa** (Kantonales Energiesystem) ist ein Simulator zur Untersuchung der Tessiner "
+"Energiewende. Er zeigt, wie heutige Politikmassnahmen und externe Einflussgrössen die Entwicklung"
+" bis 2050 prägen könnten: PV-Verbreitung, Gebäudesanierung, Elektromobilität, Stromnachfrage, "
+"Kosten für die Nutzenden und Verteilungsgerechtigkeit zwischen Bezirken."
+
+msgid ""
+"\n"
+"Consorzio del programma federale **SWEET** (Call 1-2020), dieci partner di\n"
+"ricerca guidati dal **Paul Scherrer Institute**. Valuta in modo integrato\n"
+"sostenibilità e resilienza della transizione lungo più dimensioni: impatti\n"
+"ambientali, uso delle risorse, salute pubblica, costi e benefici economici,\n"
+"sicurezza dell'approvvigionamento e benessere sociale.\n"
+"\n"
+"Non si limita a identificare le configurazioni future possibili, ma indaga\n"
+"**attraverso quali dinamiche** vi si arriva, quali compromessi emergono tra\n"
+"obiettivi ambientali, economici e sociali, quanto i percorsi siano vulnerabili\n"
+"agli shock e quali strategie reggano in una pluralità di futuri plausibili.\n"
+msgstr ""
+"Ein Konsortium des Bundesprogramms **SWEET** (Ausschreibung 1-2020) mit zehn Forschungspartnern "
+"unter der Leitung des **Paul Scherrer Instituts**. Es bewertet Nachhaltigkeit und Resilienz der "
+"Energiewende gemeinsam anhand von Umweltwirkungen, Ressourcenverbrauch, öffentlicher Gesundheit, "
+"wirtschaftlichen Kosten und Nutzen, Versorgungssicherheit und gesellschaftlichem Wohlergehen.\n"
+"\n"
+"Neben möglichen zukünftigen Konfigurationen untersucht es **die Dynamiken, die zu ihnen führen**,"
+" Zielkonflikte zwischen Umwelt, Wirtschaft und Gesellschaft, die Anfälligkeit gegenüber Schocks "
+"und Strategien, die sich in mehreren plausiblen Zukunftsszenarien bewähren."
+
+msgid ""
+"\n"
+"Il modello SEneCa è sviluppato in **Vensim**: usarlo direttamente richiede\n"
+"di conoscerne la struttura interna e di disporre del relativo ambiente\n"
+"software. Questa applicazione è lo **strato di accesso e comunicazione** che\n"
+"apre le capacità di analisi del modello anche a utenti non specializzati:\n"
+"limita la modifica agli input rilevanti, automatizza l'esecuzione delle\n"
+"simulazioni e presenta i risultati in forma interpretabile. Non sostituisce il\n"
+"modello, lo rende utilizzabile.\n"
+msgstr ""
+"Das SEneCa-Modell wird in **Vensim** entwickelt: Die direkte Nutzung erfordert Kenntnisse seiner "
+"internen Struktur und Zugang zur Software. Diese Anwendung bildet die **Zugangs- und "
+"Kommunikationsebene**, die seine Analysemöglichkeiten auch Nichtfachleuten erschliesst. Sie "
+"beschränkt Änderungen auf relevante Eingaben, automatisiert Simulationen und stellt verständliche"
+" Ergebnisse dar. Sie macht das Modell nutzbar, ohne es zu ersetzen."
+
+msgid ""
+"\n"
+"Il prezzo pagato dal consumatore finale è la somma di più voci. Dal menu qui sotto\n"
+"puoi vedere l'andamento del prezzo finale, dell'energia e della rete locale.\n"
+"\n"
+"- ⚡ **Energia** — il costo di acquisto vero e proprio. Varia da distretto a distretto\n"
+"  perché dipende dal portafoglio di approvvigionamento dell'azienda distributrice.\n"
+"  Fino al 2026 sono i valori storici osservati; dal 2027 il modello li riscala sul\n"
+"  prezzo medio di mercato che calcola nella simulazione oraria.\n"
+"- 🏘️ **Rete di distribuzione (DSO)** — la rete locale. Fino al 2026 vale la tariffa\n"
+"  storica; dal 2027 il modello la ricalcola come *(spese di base del distributore +\n"
+"  costi di rinforzo rete) / kWh transitati in rete nel distretto*. I cinque distretti\n"
+"  serviti dallo stesso distributore (Locarno, Vallemaggia, Leventina, Blenio e\n"
+"  Riviera) condividono quindi la stessa tariffa.\n"
+"- 🇨🇭 **Supplemento federale** e 🏛️ **supplemento cantonale** — finanziano gli\n"
+"  incentivi; il dettaglio è nei riquadri dei due supplementi.\n"
+"- 🧾 **Tasse cantonali e comunali** — voce fissa a 0.018 CHF/kWh.\n"
+msgstr ""
+"Der Endkundenpreis setzt sich aus mehreren Komponenten zusammen. Im Menü unten lassen sich "
+"Endpreis, Energie- und lokale Netzkomponente anzeigen.\n"
+"\n"
+"- ⚡ **Energie** — die eigentlichen Beschaffungskosten. Sie unterscheiden sich je nach Bezirk "
+"aufgrund des Beschaffungsportfolios des jeweiligen Verteilers. Bis 2026 gelten beobachtete "
+"historische Werte; ab 2027 skaliert das Modell sie anhand des mittleren Marktpreises aus seiner "
+"stündlichen Simulation.\n"
+"- 🏘️ **Verteilnetz (VNB)** — das lokale Netz. Bis 2026 gelten historische Tarife. Ab 2027 "
+"berechnet das Modell sie als *(Grundausgaben des Versorgers + Netzverstärkungskosten) / "
+"Strommenge durch das Bezirksnetz*. Die fünf Bezirke desselben Versorgers (Locarno, Vallemaggia, "
+"Leventina, Blenio und Riviera) haben daher denselben Tarif.\n"
+"- 🇨🇭 **Nationaler Netzzuschlag** und 🏛️ **kantonaler Netzzuschlag** — finanzieren Förderbeiträge;"
+" Einzelheiten stehen in den beiden Zuschlagsbereichen.\n"
+"- 🧾 **Kantonale und kommunale Abgaben** — eine feste Komponente von 0.018 CHF/kWh."
+
+msgid ""
+"\n"
+"Il supplemento in bolletta non è un parametro esogeno: il modello lo **ricalcola** in modo\n"
+"che il gettito copra esattamente gli incentivi erogati, con la formula\n"
+"`supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.\n"
+"Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.\n"
+"\n"
+"Finanzia:\n"
+"\n"
+"- la **rimunerazione unica** per i grandi impianti PV (RUG, oltre 100 kW);\n"
+"- la **rimunerazione unica** per i piccoli impianti PV (RUP, sotto 100 kW);\n"
+"- i contratti della **vecchia RIC** ancora in essere;\n"
+"- gli **altri costi Pronovo**, fissi a 59.4 Mio CHF all'anno.\n"
+"\n"
+"La domanda al denominatore è quella **svizzera**, che si assume proporzionale a\n"
+"quella ticinese.\n"
+msgstr ""
+"Der Netzzuschlag ist kein exogener Parameter: Das Modell **berechnet ihn neu**, sodass die "
+"Einnahmen die ausbezahlten Förderbeiträge genau decken:\n"
+"`Zuschlag [CHF/kWh] = Finanzierungsbedarf / zuschlagspflichtige Nachfrage`.\n"
+"Finanzierung und Nachfrage werden über die vorangegangenen fünf Jahre gemittelt, um Schwankungen "
+"zu glätten.\n"
+"\n"
+"Er finanziert:\n"
+"\n"
+"- **Einmalvergütungen** für grosse PV-Anlagen (GREIV, über 100 kW).\n"
+"- **Einmalvergütungen** für kleine PV-Anlagen (KLEIV, unter 100 kW).\n"
+"- Laufende Verträge der **früheren kostendeckenden Einspeisevergütung (KEV)**.\n"
+"- **Weitere Pronovo-Kosten**, festgelegt auf 59.4 Mio. CHF pro Jahr.\n"
+"\n"
+"Die Nachfrage im Nenner ist die **gesamtschweizerische Nachfrage**, die als proportional zur "
+"Tessiner Nachfrage angenommen wird."
+
+msgid ""
+"\n"
+"Il supplemento in bolletta non è un parametro esogeno: il modello lo **ricalcola** in modo\n"
+"che il gettito copra esattamente gli incentivi erogati, con la formula\n"
+"`supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.\n"
+"Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.\n"
+"\n"
+"Finanzia:\n"
+"\n"
+"- la quota ticinese della **RIC cantonale**;\n"
+"- il **contributo unico cantonale** sugli impianti PV, residenziali e non;\n"
+"- la **rimunerazione dell'elettricità**, attiva dal 2025 e pari all'energia PV\n"
+"  immessa in rete moltiplicata per il valore scelto nello scenario;\n"
+"- l'**incentivo sulle batterie**, residenziali e non residenziali.\n"
+"\n"
+"Da questa somma vengono sottratti gli oneri per la centrale a carbone di Lünen.\n"
+"La domanda al denominatore è quella **ticinese che transita in rete**, cioè il\n"
+"consumo totale meno l'autoconsumo fotovoltaico.\n"
+"\n"
+"Da qui un effetto di retroazione importante: più fotovoltaico significa più\n"
+"autoconsumo, quindi **meno kWh su cui ripartire gli incentivi** e un supplemento\n"
+"unitario più alto, anche a parità di incentivi erogati.\n"
+msgstr ""
+"Der Netzzuschlag ist kein exogener Parameter: Das Modell **berechnet ihn neu**, sodass die "
+"Einnahmen die ausbezahlten Förderbeiträge genau decken:\n"
+"`Zuschlag [CHF/kWh] = Finanzierungsbedarf / zuschlagspflichtige Nachfrage`.\n"
+"Finanzierung und Nachfrage werden über die vorangegangenen fünf Jahre gemittelt, um Schwankungen "
+"zu glätten.\n"
+"\n"
+"Er finanziert:\n"
+"\n"
+"- Den Tessiner Anteil der **kantonalen Einspeisevergütung (KEV)**.\n"
+"- Den **kantonalen Einmalbeitrag** für PV im Wohn- und Nichtwohnbereich.\n"
+"- Die **Stromvergütung**, aktiv ab 2025: PV-Netzeinspeisung multipliziert mit dem Szenariowert.\n"
+"- **Batterieförderbeiträge** im Wohn- und Nichtwohnbereich.\n"
+"\n"
+"Die Lasten des Kohlekraftwerks Lünen werden von dieser Summe abgezogen. Im Nenner steht der "
+"**Stromdurchsatz im Tessiner Netz**: Gesamtverbrauch abzüglich PV-Eigenverbrauch.\n"
+"\n"
+"Daraus entsteht eine wichtige Rückkopplung: Mehr PV bedeutet mehr Eigenverbrauch, also **weniger "
+"kWh zur Verteilung der Förderkosten** und einen höheren Zuschlag pro kWh, selbst bei "
+"unveränderten Förderausgaben."
+
+msgid ""
+"\n"
+"La transizione energetica svizzera non dipende soltanto dall'introduzione di\n"
+"tecnologie a basse emissioni: richiede che il sistema resti sicuro,\n"
+"economicamente sostenibile e socialmente accettabile lungo l'intero percorso.\n"
+"È la domanda a cui risponde il progetto **SURE — Sustainable and Resilient\n"
+"Energy for Switzerland**, di cui il caso ticinese è la declinazione cantonale.\n"
+msgstr ""
+"Die Schweizer Energiewende erfordert mehr als emissionsarme Technologien: Das System muss während"
+" des gesamten Übergangs sicher, wirtschaftlich tragfähig und gesellschaftlich akzeptiert bleiben."
+" **SURE — Sustainable and Resilient Energy for Switzerland** befasst sich mit dieser "
+"Herausforderung; das Tessin dient als kantonale Fallstudie."
+
+msgid ""
+"\n"
+"Nella struttura federale svizzera gli obiettivi climatici sono definiti a\n"
+"Berna, ma sono i **Cantoni** ad avere le competenze attuative: devono tradurli\n"
+"in percorsi di decarbonizzazione compatibili con risorse, infrastrutture e\n"
+"accettazione politica e sociale del territorio.\n"
+"\n"
+"Il WP13, condotto da **SUPSI**, costruisce lo strumento che collega i due\n"
+"livelli. Il modello nasce da un percorso **partecipativo** con gli stakeholder\n"
+"cantonali (amministrazione, aziende elettriche, associazioni, politica) che\n"
+"ne hanno definito il problema, le variabili rilevanti e gli indicatori. Non è\n"
+"quindi una semplice regionalizzazione di dati nazionali.\n"
+msgstr ""
+"Im föderalen System der Schweiz werden Klimaziele in Bern festgelegt, während die **Kantone** "
+"Umsetzungskompetenzen haben. Sie müssen diese Ziele in Dekarbonisierungspfade übersetzen, die mit"
+" lokalen Ressourcen, Infrastruktur sowie politischer und gesellschaftlicher Akzeptanz vereinbar "
+"sind.\n"
+"\n"
+"Das von der **SUPSI** geleitete WP13 entwickelt das Werkzeug, das diese Ebenen verbindet. Das "
+"Modell entstand in einem **partizipativen** Prozess mit kantonalen Akteuren (Verwaltung, "
+"Versorgungsunternehmen, Verbänden und politischen Vertretungen), die Problemstellung, relevante "
+"Variablen und Indikatoren mitbestimmten. Es ist damit mehr als eine Regionalisierung nationaler "
+"Daten."
+
+msgid ""
+"\n"
+"Sviluppato da **SUPSI** nell'ambito del progetto **SURE — Sustainable and\n"
+"Resilient Energy for Switzerland**, il modello è uno strumento di analisi di\n"
+"scenari. Questa webapp lo rende consultabile: si provano nuove politiche o\n"
+"cambiamenti dei fattori esterni e si osserva come il sistema cantonale\n"
+"potrebbe evolvere, compresi gli effetti che si propagano da un settore\n"
+"all'altro.\n"
+msgstr ""
+"Das von der **SUPSI** im Rahmen von **SURE — Sustainable and Resilient Energy for Switzerland** "
+"entwickelte Modell dient der Szenarioanalyse. Diese Webanwendung macht es zugänglich: Nutzende "
+"können Politikmassnahmen oder Änderungen externer Einflussgrössen erproben und die mögliche "
+"Entwicklung des kantonalen Systems einschliesslich sektorübergreifender Effekte beobachten."
+
+#, python-brace-format
+msgid ""
+"\n"
+"Tutti gli indicatori sono riferiti al **2050**; la variazione percentuale sotto\n"
+"ogni valore è il confronto con lo scenario Base.\n"
+"\n"
+"- **Potenza PV totale** — potenza fotovoltaica installata sul territorio, somma degli\n"
+"  impianti residenziali e di quelli non residenziali di ogni taglia.\n"
+"- **Produzione PV totale** — energia elettrica prodotta dagli impianti fotovoltaici\n"
+"  nell'anno, in GWh.\n"
+"- **Capacità batterie totale** — capacità di accumulo installata, sommata sugli otto\n"
+"  distretti.\n"
+"- **Costo medio annuale** — spesa media di una famiglia per elettricità, riscaldamento\n"
+"  e risanamento dell'edificio.\n"
+"\n"
+"### Gli indici di equità\n"
+"\n"
+"I due indici di equità misurano **quanto diversamente il costo della transizione ricade\n"
+"sulle famiglie**, non quanto è alto. Partono dalla *Gini Mean Difference* pesata,\n"
+"cioè la differenza media in valore assoluto fra tutte le coppie di archetipi di\n"
+"famiglia, pesata per quante famiglie rappresenta ciascun archetipo:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"Vale zero quando tutti gli archetipi sopportano esattamente lo stesso onere, e cresce\n"
+"via via che le situazioni divergono.\n"
+"\n"
+"- **Equità del supplemento in bolletta** — il supplemento sulla bolletta elettrica finanzia\n"
+"  gli incentivi e gli altri oneri rappresentati nel modello. La grandezza $x$ è il\n"
+"  saldo cumulato fra supplementi pagati e incentivi PV ricevuti da ciascun archetipo.\n"
+"  Risponde alla domanda: chi finanzia gli incentivi e\n"
+"  chi invece li incassa?\n"
+"- **Equità costo** — la grandezza $x$ è il costo annuo totale per energia e risanamento\n"
+"  di ciascun archetipo.\n"
+"\n"
+"**Come leggere il numero.** Il GMD grezzo è in CHF e poco interpretabile da solo, quindi\n"
+"viene riscalato su una scala da 0 a 1 usando il valore minimo e massimo osservati\n"
+"**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo\n"
+"fra quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di\n"
+"scenari, non una misura assoluta di equità: un valore di 0.5 significa \"a metà strada\n"
+"fra lo scenario migliore e quello peggiore\", e i valori cambierebbero se si cambiasse\n"
+"la griglia degli scenari.\n"
+msgstr ""
+"Alle Indikatoren beziehen sich auf **2050**; die Prozentangabe unter jedem Wert vergleicht ihn "
+"mit dem Basisszenario.\n"
+"\n"
+"- **Gesamte PV-Leistung** — installierte Leistung im ganzen Kanton, einschliesslich Anlagen aller"
+" Grössen im Wohn- und Nichtwohnbereich.\n"
+"- **Gesamte PV-Produktion** — während des Jahres erzeugter PV-Strom in GWh.\n"
+"- **Gesamte Batteriekapazität** — installierte Speicherkapazität über alle acht Bezirke.\n"
+"- **Mittlere jährliche Kosten** — mittlere Haushaltsausgaben für Strom, Heizung und "
+"Gebäudesanierung.\n"
+"\n"
+"### Gerechtigkeitsindizes\n"
+"\n"
+"Die beiden Indizes messen, **wie unterschiedlich die Kosten der Energiewende auf Haushalte "
+"verteilt sind**, nicht deren Höhe. Ausgangspunkt ist die gewichtete *Gini Mean Difference*: die "
+"mittlere absolute Differenz zwischen allen Paaren von Haushaltsarchetypen, gewichtet nach der "
+"Anzahl der jeweils repräsentierten Haushalte:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"Sie ist null, wenn alle Archetypen genau dieselbe Last tragen, und steigt, wenn ihre Situationen "
+"auseinandergehen.\n"
+"\n"
+"- **Gerechtigkeit des Netzzuschlags** — der Zuschlag finanziert Förderbeiträge und weitere im "
+"Modell abgebildete Lasten. $x$ ist hier der kumulierte Saldo aus bezahlten Zuschlägen und "
+"erhaltenen PV-Beiträgen je Archetyp: Wer finanziert die Förderung, wer erhält sie?\n"
+"- **Kostengerechtigkeit** — $x$ sind die jährlichen Energie- und Sanierungskosten des jeweiligen "
+"Archetyps.\n"
+"\n"
+"**Interpretation.** Die rohe GMD wird in CHF gemessen und ist für sich schwer interpretierbar. "
+"Sie wird daher anhand des Minimums und Maximums **aller vorausberechneten Szenarien** auf 0 bis 1"
+" skaliert: 1 bezeichnet das gerechteste verfügbare Szenario, 0 das ungerechteste. Der Index ist "
+"**relativ** zur Szenariomenge, kein absolutes Gerechtigkeitsmass. 0.5 liegt in der Mitte zwischen"
+" bestem und schlechtestem Szenario; ein anderes Szenarioraster würde diese Werte verändern."
+
+msgid ""
+"\n"
+"È l'investimento annuo necessario a potenziare la rete a bassa tensione di ciascun\n"
+"distretto, in milioni di franchi. Nasce da tre spinte che il modello segue\n"
+"separatamente:\n"
+"\n"
+"- 🔥 **pompe di calore**, che alzano i picchi di prelievo invernali;\n"
+"- ☀️ **fotovoltaico**, che nelle ore centrali inverte il flusso verso la rete;\n"
+"- 🚗 **ricarica dei veicoli elettrici**, che concentra domanda nelle ore serali.\n"
+"\n"
+"Il valore mostrato è una media mobile su 5 anni, perché i potenziamenti di rete si\n"
+"pianificano su più esercizi e non seguono le oscillazioni di un singolo anno.\n"
+"\n"
+"⚠️ Questi costi confluiscono nella componente DSO del\n"
+"prezzo. Un distretto che elettrifica in fretta vede quindi **aumentare la propria\n"
+"tariffa di rete**, ed è uno dei motivi per cui le curve del prezzo finale divergono fra\n"
+"distretti.\n"
+msgstr ""
+"Jährliche Investitionen zur Verstärkung des Niederspannungsnetzes je Bezirk in Mio. CHF. Das "
+"Modell unterscheidet drei Treiber:\n"
+"\n"
+"- 🔥 **Wärmepumpen**, die die winterliche Lastspitze erhöhen.\n"
+"- ☀️ **PV**, die mittags den Stromfluss in Richtung Netz umkehrt.\n"
+"- 🚗 **Laden von Elektrofahrzeugen**, das die Nachfrage am Abend bündelt.\n"
+"\n"
+"Der angezeigte Wert ist ein gleitender Fünfjahresmittelwert: Netzverstärkungen werden über "
+"mehrere Jahre geplant, statt einzelnen Jahresschwankungen zu folgen.\n"
+"\n"
+"⚠️ Diese Kosten gehen in die VNB-Preiskomponente ein. In einem Bezirk mit rascher "
+"Elektrifizierung steigt daher der **Netztarif**; dies erklärt einen Teil der Endpreisunterschiede"
+" zwischen Bezirken."
+
+msgid " (Base)"
+msgstr " (Basis)"
+
+msgid " (storico)"
+msgstr " (beobachtet)"
+
+msgid " (storico: incremento netto)"
+msgstr " (beobachtet: Nettozuwachs)"
+
+msgid "#### :earth_africa: SURE, livello nazionale"
+msgstr "#### :earth_africa: SURE auf nationaler Ebene"
+
+msgid "#### :material/link: Il progetto SWEET SURE"
+msgstr "#### :material/link: Das Projekt SWEET SURE"
+
+msgid "#### :material/menu_book: Documentazione tecnica"
+msgstr "#### :material/menu_book: Technische Dokumentation"
+
+msgid "#### :round_pushpin: Il caso Ticino, WP13"
+msgstr "#### :round_pushpin: Die Tessiner Fallstudie, WP13"
+
+#, python-format
+msgid "% del costo"
+msgstr "% der Kosten"
+
+msgid "%/anno"
+msgstr "%/Jahr"
+
+#, python-brace-format
+msgid "**Calibrazione delle adozioni — {technology}** ({unit})"
+msgstr "**Kalibrierung der Neuinstallationen — {technology}** ({unit})"
+
+msgid "**Confronto con lo scenario Base**"
+msgstr "**Vergleich mit dem Basisszenario**"
+
+msgid "**La chiave per comprendere la transizione energetica del Canton Ticino**"
+msgstr "**Die Energiewende im Kanton Tessin verstehen**"
+
+msgid "/anno"
+msgstr "/Jahr"
+
+msgid ":green-badge[:material/check_circle: Può contribuire a rispondere a]"
+msgstr ":green-badge[:material/check_circle: Kann bei folgenden Fragen helfen]"
+
+msgid ":red-badge[:material/block: Non è destinato a]"
+msgstr ":red-badge[:material/block: Nicht vorgesehen für]"
+
+msgid "Accumulatori"
+msgstr "Batterien"
+
+msgid "Adozione batterie"
+msgstr "Batterieverbreitung"
+
+msgid "Adozione fotovoltaico"
+msgstr "PV-Verbreitung"
+
+msgid "Aggiorna"
+msgstr "Aktualisieren"
+
+msgid "Analisi esplorativa"
+msgstr "Explorative Analyse"
+
+msgid ""
+"Assunzione sulla riduzione annua del prezzo d’acquisto dei veicoli elettrici a batteria, "
+"applicata al prezzo dell’anno precedente."
+msgstr ""
+"Annahme zur jährlichen Senkung des Kaufpreises batterieelektrischer Fahrzeuge, bezogen auf den "
+"Vorjahrespreis."
+
+#, python-format
+msgid ""
+"Attiva insieme due componenti: contributo del 10% del costo d’investimento dal 2026 e supplemento"
+" di 5 ct./kWh sull’elettricità PV immessa in rete dal 2025, secondo le decorrenze del modello."
+msgstr ""
+"Aktiviert zwei Komponenten gemeinsam: einen Beitrag von 10% der Investitionskosten ab 2026 und "
+"eine zusätzliche Vergütung von 5 Rp./kWh für PV-Netzeinspeisung ab 2025, gemäss den "
+"Umsetzungsdaten im Modell."
+
+msgid "Attiva nel modello l’obbligo di installare impianti PV sui nuovi edifici."
+msgstr "Aktiviert im Modell die PV-Pflicht für Neubauten."
+
+msgid ""
+"Aumento della capacità di accumulazione invernale dei bacini idroelettrici esistenti. Nel modello"
+" trasferisce fino a 89 GWh dalla stagione estiva a quella invernale nel 2050."
+msgstr ""
+"Erhöhung der Winterspeicherung in bestehenden Stauseen. Das Modell verschiebt 2050 bis zu 89 GWh "
+"vom Sommer in den Winter."
+
+msgid "Autoconsumo (SC)"
+msgstr "Eigenverbrauch"
+
+msgid "Autoconsumo / domanda (%)"
+msgstr "Eigenverbrauch / Nachfrage (%)"
+
+msgid "Autoconsumo collettivo virtuale (RCPv)"
+msgstr "Virtueller Eigenverbrauchszusammenschluss (vZEV)"
+
+msgid "Autoconsumo virtuale"
+msgstr "Virtueller Eigenverbrauch"
+
+msgid "Avanti"
+msgstr "Weiter"
+
+msgid "Barre"
+msgstr "Balkendiagramm"
+
+#, python-format
+msgid "Barre in GWh sull'asse sinistro, quote % sulla domanda sull'asse destro"
+msgstr "Balken in GWh auf der linken Achse; Nachfrageanteile (%) auf der rechten Achse"
+
+msgid "Base"
+msgstr "Basis"
+
+msgid "CHF/punto"
+msgstr "CHF/Ladepunkt"
+
+msgid "Capacita' batterie non residenziale"
+msgstr "Batteriekapazität im Nichtwohnbereich"
+
+msgid "Capacita' batterie per distretto"
+msgstr "Batteriekapazität nach Bezirk"
+
+msgid "Capacita' batterie residenziale per tipo"
+msgstr "Batteriekapazität in Wohngebäuden nach Gebäudetyp"
+
+msgid "Capacità batterie totale"
+msgstr "Gesamte Batteriekapazität"
+
+msgid "Capacità totale installata"
+msgstr "Installierte Kapazität"
+
+msgid "Che cosa sono questi costi"
+msgstr "Was diese Kosten darstellen"
+
+msgid "Chiudi"
+msgstr "Schliessen"
+
+msgid "Coefficiente CO₂ della tassa di circolazione"
+msgstr "CO₂-Koeffizient der Motorfahrzeugsteuer"
+
+msgid ""
+"Coefficiente applicato ai veicoli a combustione. Nel modello la tassa è 0,1 × massa + "
+"coefficiente × potenza: la leva modifica il termine legato alla potenza e non moltiplica l’intero"
+" importo della tassa."
+msgstr ""
+"Koeffizient für Verbrennungsfahrzeuge. Im Modell beträgt die Steuer 0.1 × Masse + Koeffizient × "
+"Leistung: Die Stellgrösse verändert den leistungsbezogenen Anteil, nicht die gesamte Steuer."
+
+msgid "Coefficiente tassa veicoli"
+msgstr "Koeffizient der Motorfahrzeugsteuer"
+
+msgid ""
+"Come **autoconsumo e produzione decentralizzata** incidono sulla domanda servita dalla rete, sui "
+"costi di distribuzione e sul prezzo dell'elettricità."
+msgstr ""
+"Wie **Eigenverbrauch und dezentrale Erzeugung** den Netzbezug, die Verteilkosten und die "
+"Strompreise beeinflussen."
+
+msgid ""
+"Come evolvono **produzione cantonale, import/export e autosufficienza** sotto differenti scenari "
+"di domanda e offerta."
+msgstr ""
+"Wie sich **kantonale Erzeugung, Importe/Exporte und Selbstversorgung** bei unterschiedlicher "
+"Nachfrage und Versorgung entwickeln."
+
+msgid ""
+"Come l'**elettrificazione di riscaldamento e trasporti** modifica la domanda elettrica cantonale "
+"e la sua ripartizione tra settori."
+msgstr ""
+"Wie die **Elektrifizierung von Heizung und Verkehr** die kantonale Stromnachfrage und ihre "
+"sektorale Verteilung verändert."
+
+msgid ""
+"Come possono evolvere nel lungo periodo la diffusione di **fotovoltaico, pompe di calore, "
+"risanamenti, batterie e veicoli elettrici** sotto differenti condizioni regolatorie."
+msgstr ""
+"Wie sich **PV, Wärmepumpen, Sanierungen, Batterien und Elektrofahrzeuge** unter verschiedenen "
+"regulatorischen Bedingungen langfristig verbreiten könnten."
+
+msgid "Come viene calcolato il supplemento cantonale in bolletta"
+msgstr "Berechnung des kantonalen Netzzuschlags"
+
+msgid "Come viene calcolato il supplemento federale in bolletta"
+msgstr "Berechnung des nationalen Netzzuschlags"
+
+msgid "Componente del prezzo"
+msgstr "Preiskomponente"
+
+msgid "Componente energia"
+msgstr "Energiekomponente"
+
+msgid "Componente rete di distribuzione (DSO)"
+msgstr "Verteilnetzkomponente (VNB)"
+
+msgid "Componente rete di trasporto (TSO)"
+msgstr "Übertragungsnetzkomponente (ÜNB)"
+
+msgid "Confronta con scenario Base"
+msgstr "Mit Basis vergleichen"
+
+msgid ""
+"Consorzio, partner di ricerca, pubblicazioni e risultati a livello nazionale sul sito ufficiale "
+"del progetto."
+msgstr ""
+"Konsortium, Forschungspartner, Publikationen und nationale Ergebnisse auf der offiziellen "
+"Projektwebsite."
+
+msgid "Contesto del progetto SURE"
+msgstr "Kontext des SURE-Projekts"
+
+msgid "Contesto e scopo"
+msgstr "Kontext und Zielsetzung"
+
+msgid "Contributo PV cantonale"
+msgstr "Kantonaler PV-Beitrag"
+
+msgid "Contributo PV federale"
+msgstr "PV-Beitrag des Bundes"
+
+msgid "Contributo al riscaldamento rinnovabile"
+msgstr "Förderung erneuerbarer Heizungen"
+
+msgid "Contributo allacciamento a reti termiche"
+msgstr "Förderung des Wärmenetzanschlusses"
+
+msgid "Contributo all’installazione di un punto di ricarica privato per veicoli elettrici."
+msgstr "Beitrag zur Installation eines privaten Ladepunkts für Elektrofahrzeuge."
+
+msgid "Contributo all’investimento in batterie"
+msgstr "Investitionsbeitrag für Batterien"
+
+msgid "Contributo base al risanamento dell’involucro"
+msgstr "Grundbeitrag zur Gebäudehüllensanierung"
+
+msgid "Contributo base per il risanamento dell’involucro"
+msgstr "Grundbeitrag zur Sanierung der Gebäudehülle"
+
+msgid ""
+"Contributo base per metro quadrato di elemento dell’involucro risanato. Nel modello alimenta "
+"anche gli importi maggiorati secondo il livello di risanamento raggiunto (CECE e Minergie)."
+msgstr ""
+"Grundbeitrag pro Quadratmeter saniertem Gebäudehüllenelement. Im Modell bestimmt er auch die "
+"höheren Beiträge je nach erreichtem Sanierungsstandard (GEAK und Minergie)."
+
+msgid "Contributo batterie"
+msgstr "Batterieförderung"
+
+msgid "Contributo legna e pellet"
+msgstr "Holz- und Pelletförderung"
+
+msgid "Contributo per allacciamento a reti termiche"
+msgstr "Förderung des Wärmenetzanschlusses"
+
+msgid "Contributo per caldaie a legna e pellet"
+msgstr "Förderung von Holz- und Pelletkesseln"
+
+msgid "Contributo per la ricarica privata"
+msgstr "Förderung privater E-Ladepunkte"
+
+msgid "Contributo per le batterie"
+msgstr "Batterieförderung"
+
+msgid "Contributo per pompe di calore"
+msgstr "Wärmepumpenförderung"
+
+msgid "Contributo per sistemi di riscaldamento rinnovabili"
+msgstr "Förderung erneuerbarer Heizsysteme"
+
+msgid "Contributo per un punto di ricarica privato"
+msgstr "Förderung privater Ladepunkte für Elektrofahrzeuge"
+
+msgid "Contributo pompe di calore"
+msgstr "Wärmepumpenförderung"
+
+msgid "Contributo reti termiche"
+msgstr "Wärmenetzförderung"
+
+msgid "Contributo ricarica privata"
+msgstr "Förderung privater Ladepunkte"
+
+msgid "Contributo risanamento"
+msgstr "Sanierungsförderung"
+
+msgid "Contributo riscaldamento"
+msgstr "Heizungsförderung"
+
+msgid "Contributo unico PV cantonale (FER)"
+msgstr "Kantonaler PV-Einmalbeitrag (FER)"
+
+msgid ""
+"Contributo unico cantonale per il PV finanziato dal FER. Nel modello è rappresentato come "
+"percentuale del costo d’investimento."
+msgstr ""
+"Kantonaler PV-Einmalbeitrag aus dem FER. Das Modell bildet ihn als Prozentsatz der "
+"Investitionskosten ab."
+
+msgid "Cosa misurano questi indicatori"
+msgstr "Was diese Indikatoren messen"
+
+msgid "Costi di rinforzo rete per distretto"
+msgstr "Netzverstärkungskosten nach Bezirk"
+
+msgid "Costo della rete ad alta tensione, uguale per tutti i distretti"
+msgstr "Kosten des Hochspannungsnetzes, in allen Bezirken gleich"
+
+msgid "Costo della rete di distribuzione locale, per distretto"
+msgstr "Kosten des lokalen Verteilnetzes nach Bezirk"
+
+msgid "Costo di acquisto dell'energia, per distretto"
+msgstr "Energiebeschaffungskosten nach Bezirk"
+
+msgid "Costo medio annuale"
+msgstr "Mittlere jährliche Kosten"
+
+msgid ""
+"Costo medio per economia domestica: comprende elettricità, riscaldamento e i costi annualizzati "
+"di investimento per tecnologie e risanamento."
+msgstr ""
+"Mittlere Haushaltskosten: Strom, Heizung und annualisierte Investitionskosten für Technologien "
+"und Sanierung."
+
+#, python-brace-format
+msgid "Cumulati dal {year}"
+msgstr "Kumuliert seit {year}"
+
+msgid "Da cosa è composto il prezzo"
+msgstr "Zusammensetzung des Preises"
+
+msgid "Dati"
+msgstr "Daten"
+
+msgid ""
+"Dati di input da PVinput.csv, disponibili per 30–100 e >100 kW. La classe <30 kW non ha una serie"
+" storica separata."
+msgstr ""
+"Eingabedaten aus PVinput.csv für 30–100 und >100 kW. Für die Klasse <30 kW gibt es keine separate"
+" historische Reihe."
+
+#, python-brace-format
+msgid "Dati disponibili: {start}–{end}."
+msgstr "Verfügbare Daten: {start}–{end}."
+
+msgid "Dati grezzi (traiettorie)"
+msgstr "Rohdaten (Verläufe)"
+
+msgid ""
+"Dimensionare impianti o svolgere valutazioni tecnico-economiche riferite a un **singolo "
+"edificio**."
+msgstr ""
+"Systeme dimensionieren oder technische und wirtschaftliche Bewertungen für ein **einzelnes "
+"Gebäude** durchführen."
+
+msgid "Documentazione non trovata."
+msgstr "Dokumentation nicht gefunden."
+
+msgid "Domanda"
+msgstr "Nachfrage"
+
+msgid "Domanda e PV per distretto"
+msgstr "Nachfrage und PV nach Bezirk"
+
+msgid "Domande alle quali il modello può e non può contribuire:"
+msgstr "Fragen, bei denen das Modell helfen kann – und solche ausserhalb seines Zwecks:"
+
+msgid "Elettricità"
+msgstr "Elektrizität"
+
+msgid "Energia PV annuale"
+msgstr "Jährlicher PV-Strom"
+
+msgid ""
+"Equità\n"
+"supplemento\n"
+"in bolletta"
+msgstr ""
+"Gerechtigkeit\n"
+"des Netz-\n"
+"zuschlags"
+
+msgid "Equità costo (GMD)"
+msgstr "Kostengerechtigkeit (GMD)"
+
+msgid "Equità del supplemento in bolletta"
+msgstr "Gerechtigkeit des Netzzuschlags"
+
+msgid ""
+"Eseguire il modello non richiede più di conoscerne la struttura interna né di disporre "
+"dell'ambiente Vensim."
+msgstr "Die Nutzung des Modells erfordert weder Kenntnisse seiner internen Struktur noch Zugang zu Vensim."
+
+msgid "Esplora le simulazioni"
+msgstr "Simulationen erkunden"
+
+msgid "Fotovoltaico"
+msgstr "PV"
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "Il modello SEneCa - Sistema Energetico Cantonale"
+msgstr "Das SEneCa-Modell – Kantonales Energiesystem"
+
+msgid ""
+"Il punto dell’anno t indica la variazione tra t e t+1. L’ultimo anno non è disponibile senza il "
+"punto successivo."
+msgstr ""
+"Der Punkt im Jahr t zeigt die Veränderung zwischen t und t+1. Ohne Folgepunkt ist das letzte Jahr"
+" nicht verfügbar."
+
+msgid ""
+"Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri oneri rappresentati "
+"nel modello. L’indice confronta il saldo cumulato fra supplementi pagati e incentivi PV ricevuti "
+"dai diversi tipi di famiglia, ponderato per il numero di famiglie rappresentate."
+msgstr ""
+"Der Zuschlag auf der Stromrechnung finanziert Förderbeiträge und weitere Modelllasten. Der Index "
+"vergleicht den kumulierten Saldo aus bezahlten Zuschlägen und erhaltenen PV-Beiträgen zwischen "
+"Haushaltstypen, gewichtet nach der Anzahl repräsentierter Haushalte."
+
+msgid ""
+"Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri oneri rappresentati "
+"nel modello. L’indice confronta il saldo cumulato fra supplementi pagati e incentivi PV ricevuti "
+"dai diversi tipi di famiglia, ponderato per il numero di famiglie rappresentate. Indice di equità"
+" normalizzato sullo store pre-calcolato (0 = maggiore disuguaglianza, 1 = minore disuguaglianza)."
+msgstr ""
+"Der Zuschlag auf der Stromrechnung finanziert Förderbeiträge und weitere Modelllasten. Der Index "
+"vergleicht den kumulierten Saldo aus bezahlten Zuschlägen und erhaltenen PV-Beiträgen zwischen "
+"Haushaltstypen, gewichtet nach ihrer Anzahl. Er ist anhand der vorausberechneten Szenarien "
+"normiert (0 = mehr Ungleichheit, 1 = weniger Ungleichheit)."
+
+msgid "In rete"
+msgstr "Netzeinspeisung"
+
+msgid "Incentivi PV cantonali"
+msgstr "Kantonale PV-Förderung"
+
+msgid "Incentivi cantonali PV"
+msgstr "Kantonale PV-Förderung"
+
+msgid "Incentivi cantonali PV (investimento e immissione in rete)"
+msgstr "Kantonale PV-Förderung (Investition und Einspeisung)"
+
+msgid ""
+"Indicatori e visualizzazioni standardizzate facilitano il confronto tra utenti con competenze "
+"differenti."
+msgstr ""
+"Einheitliche Indikatoren und Darstellungen unterstützen den Austausch zwischen Nutzenden "
+"unterschiedlicher Fachrichtungen."
+
+#, python-brace-format
+msgid "Indicatori principali ({year})"
+msgstr "Wichtigste Kennzahlen ({year})"
+
+msgid ""
+"Indice di equità normalizzato sullo store pre-calcolato (0 = maggiore disuguaglianza, 1 = minore "
+"disuguaglianza)."
+msgstr ""
+"Gerechtigkeitsindex, normiert anhand der vorausberechneten Szenarien (0 = mehr Ungleichheit, 1 = "
+"weniger Ungleichheit)."
+
+msgid "Indietro"
+msgstr "Zurück"
+
+msgid ""
+"Individuare automaticamente la combinazione **«ottimale»** di tecnologie o politiche minimizzando"
+" una funzione obiettivo."
+msgstr ""
+"Automatisch die **«optimale»** Kombination von Technologien oder Politikmassnahmen durch "
+"Minimierung einer Zielfunktion bestimmen."
+
+msgid "Investimenti cumulati di rinforzo rete per distretto"
+msgstr "Kumulierte Netzverstärkungsinvestitionen nach Bezirk"
+
+msgid "Investimento annuo per potenziare la rete a bassa tensione"
+msgstr "Jährliche Investitionen zur Niederspannungsnetzverstärkung"
+
+msgid ""
+"La definizione di uno scenario si riduce a un insieme di leve selezionate, semplice da "
+"ricostruire e condividere."
+msgstr ""
+"Ein Szenario wird durch ausgewählte politische Stellgrössen definiert und lässt sich dadurch "
+"leicht reproduzieren und teilen."
+
+msgid "Linee"
+msgstr "Liniendiagramm"
+
+msgid "Meno competenze tecniche"
+msgstr "Weniger technische Voraussetzungen"
+
+msgid "Metodologia"
+msgstr "Methodik"
+
+msgid "Mio CHF"
+msgstr "Mio. CHF"
+
+msgid "Modello SEneCa per il Ticino"
+msgstr "Das SEneCa-Modell für das Tessin"
+
+#, python-brace-format
+msgid "Mostra calibrazione — {technology}"
+msgstr "Kalibrierung anzeigen – {technology}"
+
+msgid "Mostra dati storici di calibrazione"
+msgstr "Historische Kalibrierungsdaten anzeigen"
+
+#, python-brace-format
+msgid "Nessun dato per '{title}'."
+msgstr "Keine Daten für «{title}»."
+
+#, python-brace-format
+msgid "Nessun dato {year} per '{title}'."
+msgstr "Keine Daten aus {year} für «{title}»."
+
+msgid "Nessun grafico configurato per questa sezione."
+msgstr "Für diesen Bereich ist kein Diagramm konfiguriert."
+
+msgid "Nessuno"
+msgstr "Keine"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "Nuova potenza installata nell’anno"
+msgstr "Neu im laufenden Jahr"
+
+msgid ""
+"Nuovi impianti di pompaggio-turbinaggio. Nel modello la produzione aggiuntiva arriva a 637 GWh "
+"nel 2050, con 430 GWh di consumo per il pompaggio."
+msgstr ""
+"Neue Pumpspeicherkraftwerke. Im Modell erreicht die zusätzliche Erzeugung 2050 637 GWh bei 430 "
+"GWh Pumpstromverbrauch."
+
+msgid ""
+"Nuovi piccoli impianti idroelettrici, rappresentati nel modello come impianti ad acqua fluente. "
+"Aggiunge fino a 80 GWh annui nel 2050."
+msgstr ""
+"Neue Kleinwasserkraftwerke, im Modell als Laufwasserkraftwerke abgebildet. Bis zu 80 GWh "
+"zusätzliche Jahreserzeugung im Jahr 2050."
+
+msgid "Obbligo PV nuovi edifici"
+msgstr "PV-Pflicht für Neubauten"
+
+msgid "Obbligo PV sui nuovi edifici"
+msgstr "PV-Pflicht für Neubauten"
+
+msgid "Obbligo di installazione PV sui nuovi edifici"
+msgstr "Verpflichtende PV-Installation auf Neubauten"
+
+msgid ""
+"Ogni asse è normalizzato sul valore dello scenario Base (100%): il poligono tratteggiato è il "
+"Base, quello pieno lo scenario selezionato. Attenzione al verso: per emissioni, costi e "
+"importazioni un valore più alto è peggiore."
+msgstr ""
+"Jede Achse ist auf das Basisszenario normiert (100%): Das gestrichelte Polygon zeigt die Basis, "
+"das durchgezogene das gewählte Szenario. Die Richtung beachten: Höhere Emissionen, Kosten und "
+"Importe sind ungünstiger."
+
+msgid "Osservato"
+msgstr "Beobachtet"
+
+msgid ""
+"Osservato: input del modello. Simulato: corsa di calibrazione della documentazione, distinta "
+"dallo scenario selezionato. Il confronto è sul numero di adozioni, non sulla potenza installata."
+msgstr ""
+"Beobachtet: Modelleingabe. Simuliert: dokumentierter Kalibrierungslauf, getrennt vom gewählten "
+"Szenario. Verglichen wird die Anzahl der Neuinstallationen, nicht die installierte Leistung."
+
+msgid "PECC P.1.2 – Rinnovo"
+msgstr "PECC P.1.2 – Erneuerung"
+
+msgid "PECC P.1.2 – Rinnovo e ottimizzazione degli impianti idroelettrici esistenti"
+msgstr "PECC P.1.2 – Erneuerung und Optimierung bestehender Wasserkraftwerke"
+
+msgid "PECC P.1.2 – Rinnovo idroelettrico"
+msgstr "PECC P.1.2 – Wasserkrafterneuerung"
+
+msgid "PECC P.1.3 – Nuovi impianti di pompaggio-turbinaggio"
+msgstr "PECC P.1.3 – Neue Pumpspeicherkraftwerke"
+
+msgid "PECC P.1.3 – Pompaggio"
+msgstr "PECC P.1.3 – Pumpspeicherung"
+
+msgid "PECC P.1.3 – Pompaggio e turbinaggio"
+msgstr "PECC P.1.3 – Pumpspeicherung"
+
+msgid "PECC P.1.4 – Nuovi piccoli impianti idroelettrici"
+msgstr "PECC P.1.4 – Neue Kleinwasserkraftwerke"
+
+msgid "PECC P.1.4 – Piccoli impianti"
+msgstr "PECC P.1.4 – Kleinkraftwerke"
+
+msgid "PECC P.1.4 – Piccolo idroelettrico"
+msgstr "PECC P.1.4 – Kleinwasserkraft"
+
+msgid "PECC P.1.7 – Accumulo"
+msgstr "PECC P.1.7 – Speicherung"
+
+msgid "PECC P.1.7 – Accumulo invernale"
+msgstr "PECC P.1.7 – Winterspeicherung"
+
+msgid "PECC P.1.7 – Aumento dell’accumulo invernale nei bacini idroelettrici"
+msgstr "PECC P.1.7 – Mehr Winterspeicherung in Stauseen"
+
+msgid "PV e Batterie decentralizzate"
+msgstr "PV und dezentrale Batterien"
+
+msgid "PV e batterie"
+msgstr "PV und Batterien"
+
+msgid "PV reg scenario"
+msgstr "PV-Pflicht"
+
+msgid ""
+"Per lo storico, la differenza fra anni misura l’incremento netto di potenza; non separa "
+"installazioni e dismissioni."
+msgstr ""
+"Bei historischen Daten misst die Jahresdifferenz den Nettoleistungszuwachs; Installationen und "
+"Stilllegungen werden nicht getrennt."
+
+#, python-brace-format
+msgid ""
+"Per questa combinazione (incentivi estremi) il modello Vensim non converge fino al {year}: la "
+"simulazione si ferma al {last}. I valori al {year} e le misure di equity non sono disponibili."
+msgstr ""
+"Für diese Kombination (extreme Förderung) konvergiert das Vensim-Modell nicht bis {year}: Die "
+"Simulation endet {last}. Werte für {year} und Gerechtigkeitsmasse sind nicht verfügbar."
+
+msgid ""
+"Percentuale del costo d’investimento coperta dal contributo. La leva comune comprende pompe di "
+"calore, caldaie a legna e pellet e allacciamenti alle reti termiche rappresentati nel modello."
+msgstr ""
+"Anteil der Investitionskosten, den die Förderung deckt. Diese gemeinsame Stellgrösse umfasst "
+"Wärmepumpen, Holz- und Pelletkessel sowie Wärmenetzanschlüsse im Modell."
+
+msgid ""
+"Percentuale del costo d’investimento coperta dal contributo. La leva riguarda le caldaie a pellet"
+" e la componente a legna dei sistemi abbinati al solare termico."
+msgstr ""
+"Geförderter Anteil der Investitionskosten. Diese Stellgrösse gilt für Pelletkessel und den "
+"Holzanteil von Systemen mit Solarthermie."
+
+msgid "Percentuale del costo d’investimento nella pompa di calore coperta dal contributo."
+msgstr "Geförderter Anteil der Investitionskosten von Wärmepumpen."
+
+msgid "Percentuale del costo d’investimento nelle batterie coperta dal contributo."
+msgstr "Geförderter Anteil der Investitionskosten von Batterien."
+
+msgid ""
+"Percentuale del costo d’investimento per l’allacciamento a una rete termica coperta dal "
+"contributo."
+msgstr "Geförderter Anteil der Investitionskosten eines Wärmenetzanschlusses."
+
+msgid "Perché una web application"
+msgstr "Warum eine Webanwendung"
+
+msgid "Policy mix e incertezza"
+msgstr "Massnahmenmix und Unsicherheit"
+
+msgid "Potenza PV non residenziale"
+msgstr "PV-Leistung im Nichtwohnbereich"
+
+msgid "Potenza PV residenziale per tipo"
+msgstr "PV-Leistung in Wohngebäuden nach Gebäudetyp"
+
+msgid "Potenza PV totale"
+msgstr "Gesamte PV-Leistung"
+
+msgid "Potenza totale installata"
+msgstr "Installierte Leistung"
+
+msgid "Prevedere con precisione l'**anno o il numero esatto** di future installazioni tecnologiche."
+msgstr "Das **Jahr oder die genaue Anzahl** zukünftiger Technologieinstallationen präzise vorhersagen."
+
+msgid "Prezzo benzina e diesel"
+msgstr "Benzin- und Dieselpreis"
+
+msgid "Prezzo di benzina e diesel"
+msgstr "Benzin- und Dieselpreis"
+
+msgid "Prezzo elettricità e costi"
+msgstr "Strompreise und Kosten"
+
+msgid "Prezzo finale al consumatore"
+msgstr "Endkundenpreis"
+
+msgid "Prezzo per litro assunto nel modello, uguale per benzina e diesel."
+msgstr "Angenommener Literpreis im Modell, für Benzin und Diesel identisch."
+
+msgid "Produzione"
+msgstr "Erzeugung"
+
+msgid "Produzione / domanda (%)"
+msgstr "Erzeugung / Nachfrage (%)"
+
+msgid "Produzione PV"
+msgstr "PV-Erzeugung"
+
+msgid ""
+"Produzione PV storica cantonale in GWh, disponibile fino al 2023. Non sono disponibili serie "
+"storiche separate per autoconsumo e immissione in rete."
+msgstr ""
+"Historische kantonale PV-Erzeugung in GWh bis 2023. Separate historische Reihen für "
+"Eigenverbrauch und Einspeisung sind nicht verfügbar."
+
+msgid "Produzione PV totale (GWh)"
+msgstr "Gesamte PV-Erzeugung (GWh)"
+
+msgid "Produzione e consumi"
+msgstr "Erzeugung und Verbrauch"
+
+msgid ""
+"Quale effetto ha un **policy mix** su consumi, emissioni, costi per gli utenti, **equità "
+"distributiva** e differenze tra distretti."
+msgstr ""
+"Die Wirkung eines **Massnahmenmixes** auf Verbrauch, Emissionen, Kosten der Nutzenden, "
+"**Verteilungsgerechtigkeit** und Unterschiede zwischen Bezirken."
+
+msgid ""
+"Quali **interazioni** emergono tra strumenti di policy e meccanismi di finanziamento: incentivi "
+"PV e supplementi, tassa CO₂ e Programma Edifici."
+msgstr ""
+"Die **Wechselwirkungen** zwischen politischen Instrumenten und Finanzierung: PV-Beiträge und "
+"Netzzuschläge, CO₂-Abgabe und Gebäudeprogramm."
+
+msgid ""
+"Quali effetti producono diverse combinazioni di **incentivi, tasse, supplementi sulla rete e "
+"regolamentazioni**."
+msgstr ""
+"Die Wirkungen verschiedener Kombinationen von **Förderbeiträgen, Abgaben, Netzzuschlägen und "
+"Vorschriften**."
+
+msgid ""
+"Questa combinazione non e' ancora disponibile nello store (il pre-calcolo potrebbe essere ancora "
+"in corso). Riprova piu' tardi."
+msgstr ""
+"Diese Kombination ist noch nicht verfügbar (die Vorausberechnung läuft möglicherweise noch). "
+"Bitte später erneut versuchen."
+
+msgid ""
+"Raggruppamento ai fini del consumo proprio virtuale (RCPv). Sì abilita questa possibilità nel "
+"modello; le adesioni sono simulate."
+msgstr ""
+"Virtueller Zusammenschluss zum Eigenverbrauch (vZEV). Ja aktiviert diese Option im Modell; die "
+"Teilnahme wird simuliert."
+
+msgid ""
+"Rappresentare in modo endogeno **cambiamenti macroeconomici** o trasformazioni strutturali "
+"dell'industria."
+msgstr "**Makroökonomische Veränderungen** oder strukturellen Wandel in der Industrie endogen abbilden."
+
+msgid "Rappresentare le **decisioni individuali** di singole famiglie, imprese o proprietari di edifici."
+msgstr "**Individuelle Entscheidungen** bestimmter Haushalte, Unternehmen oder Gebäudeeigentümer abbilden."
+
+msgid "Requisiti MoPEC"
+msgstr "MuKEn-Anforderungen"
+
+msgid "Requisiti energetici per il riscaldamento (MoPEC)"
+msgstr "Energetische Heizungsanforderungen (MuKEn)"
+
+msgid "Requisiti per il riscaldamento (MoPEC)"
+msgstr "Heizungsanforderungen (MuKEn)"
+
+msgid "Riduzione annua del prezzo dei veicoli elettrici"
+msgstr "Jährliche E-Fahrzeug-Preissenkung"
+
+msgid "Riduzione annua del prezzo d’acquisto dei veicoli elettrici"
+msgstr "Jährliche Senkung der Kaufpreise von Elektrofahrzeugen"
+
+msgid "Riduzione prezzo elettriche"
+msgstr "Preissenkung bei E-Fahrzeugen"
+
+msgid "Rimunerazione unica PV federale (RU)"
+msgstr "PV-Einmalvergütung des Bundes (EIV)"
+
+msgid ""
+"Rimunerazione unica federale per il PV. Nel modello lo scenario è espresso come percentuale del "
+"costo d’investimento."
+msgstr ""
+"Einmalvergütung des Bundes für PV. Die Modellszenarien drücken sie als Prozentsatz der "
+"Investitionskosten aus."
+
+msgid ""
+"Rinnovo e ottimizzazione degli impianti idroelettrici esistenti. Nel modello aumenta l’apporto "
+"all’idroelettrico ad accumulo fino a 214 GWh annui aggiuntivi nel 2050 rispetto alla traiettoria "
+"di riferimento."
+msgstr ""
+"Erneuerung und Optimierung bestehender Wasserkraftwerke. Bis 2050 bis zu 214 GWh zusätzliche "
+"Jahreserzeugung aus Speicherkraftwerken gegenüber dem Referenzpfad."
+
+msgid "Ripristina"
+msgstr "Zurücksetzen"
+
+msgid "Riscaldamento e risanamento"
+msgstr "Heizung und Sanierung"
+
+msgid "Risultati discutibili"
+msgstr "Ergebnisse zur Diskussion"
+
+msgid "Salva immagine"
+msgstr "Bild speichern"
+
+msgid "Scarica CSV"
+msgstr "CSV herunterladen"
+
+msgid "Scarica la documentazione (PDF)"
+msgstr "Dokumentation herunterladen (PDF)"
+
+msgid "Scelta"
+msgstr "Ausgewählt"
+
+msgid ""
+"Scenari pre-calcolati non disponibili. Contatta l’amministratore per ripristinare i dati della "
+"release."
+msgstr ""
+"Vorausberechnete Szenarien nicht verfügbar. Die Administration muss die Versionsdaten "
+"wiederherstellen."
+
+msgid "Scenari riproducibili"
+msgstr "Reproduzierbare Szenarien"
+
+msgid "Scenario"
+msgstr "Szenario"
+
+msgid "Scenario Base"
+msgstr "Basisszenario"
+
+msgid "Scenario Base (100%)"
+msgstr "Basisszenario (100%)"
+
+msgid "Scenario Base non disponibile nello store."
+msgstr "Das Basisszenario ist im Datensatz nicht verfügbar."
+
+msgid ""
+"Scenario di applicazione del Modello di prescrizioni energetiche dei Cantoni (MoPEC), con gli "
+"effetti sul riscaldamento rappresentati nel modello."
+msgstr ""
+"Szenario zur Anwendung der Mustervorschriften der Kantone im Energiebereich (MuKEn) mit den im "
+"Modell abgebildeten Heizungswirkungen."
+
+msgid "Scenario identico al Base."
+msgstr "Dieses Szenario entspricht dem Basisszenario."
+
+msgid "Scenario selezionato"
+msgstr "Gewähltes Szenario"
+
+msgid "Scopri la metodologia"
+msgstr "Methodik erkunden"
+
+msgid "Selezionato"
+msgstr "Ausgewählt"
+
+msgid "Sezione dei risultati"
+msgstr "Ergebnisbereich"
+
+msgid "Share edifici con PV per distretto"
+msgstr "Gebäudeanteil mit PV nach Bezirk"
+
+msgid "Share edifici con PV per tipo"
+msgstr "Gebäudeanteil mit PV nach Gebäudetyp"
+
+msgid "Share edifici con batteria per tipo"
+msgstr "Gebäudeanteil mit Batterien nach Gebäudetyp"
+
+msgid "Simulare il funzionamento **operativo del mercato elettrico** o l'unit commitment degli impianti."
+msgstr "Den **Strommarktbetrieb** oder den Kraftwerkseinsatz simulieren."
+
+msgid "Simulato"
+msgstr "Simuliert"
+
+msgid "Simulato (corsa di calibrazione)"
+msgstr "Simuliert (Kalibrierungslauf)"
+
+msgid "Simulazione in tempo reale"
+msgstr "Live-Simulation"
+
+msgid "Simulazioni SEneCa"
+msgstr "SEneCa-Simulationen"
+
+#, python-brace-format
+msgid "Somma dei valori annui dal {start} fino all’anno indicato, incluso."
+msgstr "Summe der Jahreswerte von {start} bis einschliesslich des angegebenen Jahres."
+
+msgid "Somma di tutte le componenti, per distretto"
+msgstr "Summe aller Komponenten nach Bezirk"
+
+msgid ""
+"Struttura del modello, formulazioni matematiche, dati di input, calibrazione, architettura della "
+"web app e limitazioni (102 pagine)."
+msgstr ""
+"Modellstruktur, mathematische Formulierungen, Eingabedaten, Kalibrierung, Webarchitektur und "
+"Grenzen (102 Seiten)."
+
+msgid "Supplemento PV in rete"
+msgstr "PV-Einspeisevergütung"
+
+msgid "Supplemento PV per l’immissione in rete"
+msgstr "Zusätzliche PV-Einspeisevergütung"
+
+msgid "Supplemento cantonale in bolletta"
+msgstr "Kantonaler Netzzuschlag"
+
+msgid "Supplemento federale in bolletta"
+msgstr "Nationaler Netzzuschlag"
+
+msgid "Supplemento per l’elettricità PV immessa in rete"
+msgstr "Zusätzliche Vergütung für eingespeisten PV-Strom"
+
+msgid ""
+"Supplemento per l’elettricità PV non autoconsumata e immessa in rete, in aggiunta alla "
+"rimunerazione di base rappresentata nel modello."
+msgstr ""
+"Zusätzliche Vergütung für eingespeisten statt selbst verbrauchten PV-Strom, zusätzlich zur "
+"Grundvergütung im Modell."
+
+msgid "Sì"
+msgstr "Ja"
+
+msgid "Tassa CO₂ combustibili"
+msgstr "CO₂-Abgabe auf Brennstoffe"
+
+msgid "Tassa di circolazione: coefficiente CO₂"
+msgstr "Motorfahrzeugsteuer: CO₂-Koeffizient"
+
+msgid ""
+"Tassa per tonnellata di CO₂ dei combustibili. Nel modello incide sui costi del riscaldamento a "
+"olio e gas e sul finanziamento degli incentivi."
+msgstr ""
+"Abgabe pro Tonne CO₂ aus Heizbrennstoffen. Im Modell beeinflusst sie Öl- und Gasheizkosten sowie "
+"die Förderfinanzierung."
+
+msgid "Tassa sul CO₂ dei combustibili"
+msgstr "CO₂-Abgabe auf Brennstoffe"
+
+#, python-brace-format
+msgid "Tipo grafico non supportato: {kind}."
+msgstr "Nicht unterstützter Diagrammtyp: {kind}."
+
+msgid "Totale energia prodotta, iniettata in rete e autoconsumata"
+msgstr "Gesamter erzeugter, eingespeister und selbst verbrauchter Strom"
+
+msgid "Vai a sweet-sure.ch"
+msgstr "sweet-sure.ch besuchen"
+
+msgid "Valori annui"
+msgstr "Jahreswerte"
+
+msgid "Variazione annua"
+msgstr "Jährliche Veränderung"
+
+msgid "Veicoli"
+msgstr "Fahrzeuge"
+
+msgid ""
+"Verificare la **fattibilità elettrica locale**: power flow, congestioni, tensioni, capacità di "
+"linee e trasformatori."
+msgstr ""
+"Die **lokale elektrische Machbarkeit** prüfen: Lastflüsse, Engpässe, Spannungen sowie Leitungs- "
+"und Transformatorleistungen."
+
+msgid "Vista temporale"
+msgstr "Zeitansicht"
+
+msgid "Vuoi saperne di più?"
+msgstr "Mehr erfahren?"
+
+msgid "ct./kWh"
+msgstr "Rp./kWh"
+
+msgid "cumulato"
+msgstr "kumuliert"
+
+msgid "edifici"
+msgstr "Gebäude"
+
+msgid "n/d"
+msgstr "k. A."
+
+msgid "nuova potenza installata nell’anno"
+msgstr "im Jahr neu installierte Leistung"
+
+msgid "variazione annua"
+msgstr "jährliche Veränderung"
+
+msgid "veicoli"
+msgstr "Fahrzeuge"
+
+#, python-brace-format
+msgid "Simulazione live con {v0} output Risultati (PV / Risanamento / Veicoli / Elettricità)."
+msgstr "Live-Simulation mit {v0} Ausgaben (PV / Sanierung / Fahrzeuge / Elektrizität)."
+
+msgid "Input di policy"
+msgstr "Politische Stellgrössen"
+
+#, python-brace-format
+msgid "Sezioni allineate alle pagine Simulazioni SEneCa. **{v0}/{v1}** leve applicate al modello SURE v7."
+msgstr ""
+"Die Bereiche entsprechen den SEneCa-Simulationsseiten. **{v0}/{v1}** politische Stellgrössen "
+"werden auf das SURE-v7-Modell angewendet."
+
+msgid "Ripristina scenario base"
+msgstr "Auf Basis zurücksetzen"
+
+msgid "Simula e confronta vs base"
+msgstr "Simulieren und mit Basis vergleichen"
+
+msgid "Scenario scelto vs scenario base"
+msgstr "Gewähltes Szenario und Basis"
+
+#, python-brace-format
+msgid "**Scelta** ({v0}): {v1}"
+msgstr "**Ausgewählt** ({v0}): {v1}"
+
+#, python-brace-format
+msgid ""
+"**Base** ({v0}): valori BASE delle pagine Simulazioni SEneCa (mappati su PySD). Linee "
+"tratteggiate = Base (stesso stile delle sezioni Simulazioni SEneCa)."
+msgstr ""
+"**Basis** ({v0}): BASE-Werte der SEneCa-Simulationsseiten (auf PySD übertragen). Gestrichelte "
+"Linien = Basis, wie in den SEneCa-Simulationsbereichen."
+
+msgid "**Differenza al 2050** (indicatori chiave)"
+msgstr "**Differenz im Jahr 2050** (wichtigste Kennzahlen)"
+
+msgid ""
+"Imposta gli input nella barra laterale (sezioni 1–4) e premi **Simula e confronta vs base**. I "
+"grafici (incl. Elettricità oraria) appaiono nelle quattro sottopagine allineate alle pagine "
+"Simulazioni SEneCa. Se hai risultati in cache da prima dell'aggiornamento, rilancia la "
+"simulazione."
+msgstr ""
+"Die Eingaben in der Seitenleiste (Bereiche 1–4) einstellen, dann auf **Simulieren und mit Basis "
+"vergleichen** klicken. Die Diagramme, einschliesslich stündlicher Stromdaten, erscheinen in den "
+"vier Bereichen entsprechend den SEneCa-Seiten. Sind die zwischengespeicherten Ergebnisse älter "
+"als die Aktualisierung, die Simulation erneut starten."
+
+msgid "Nessuna colonna delta disponibile in questo DataFrame."
+msgstr "In diesem DataFrame sind keine Differenzspalten verfügbar."
+
+msgid "Tabella completa scenario scelto"
+msgstr "Vollständige Tabelle des gewählten Szenarios"
+
+msgid "Scarica CSV scenario scelto"
+msgstr "CSV des gewählten Szenarios herunterladen"
+
+msgid "Simulazione in corso..."
+msgstr "Simulation läuft…"
+
+msgid ""
+"Colonne Risultati assenti dalla simulazione: la traduzione PySD caricata non contiene le "
+"variabili di questa sezione."
+msgstr "Ergebnisspalten fehlen: Die geladene PySD-Übersetzung enthält die Variablen dieses Bereichs nicht."
+
+#, python-brace-format
+msgid "#### {v0} {v1}"
+msgstr "#### {v0} {v1}"
+
+#, python-brace-format
+msgid "- {v0}: **{v1}**"
+msgstr "- {v0}: **{v1}**"
+
+msgid "Pesi relativi"
+msgstr "Relative Gewichte"
+
+msgid "Pesi assoluti"
+msgstr "Absolute Gewichte"
+
+msgid "avg_cost"
+msgstr "avg_cost"
+
+msgid "pv_production"
+msgstr "pv_production"
+
+msgid "net_consumption"
+msgstr "net_consumption"
+
+msgid "co2_cum"
+msgstr "co2_cum"
+
+msgid "cantonal_spend"
+msgstr "cantonal_spend"
+
+msgid "pv_self_coverage"
+msgstr "pv_self_coverage"
+
+msgid ""
+"Equità\n"
+"tassa CO₂"
+msgstr "Gerechtigkeit der CO₂-Abgabe"
+
+msgid ""
+"Equità\n"
+"costo"
+msgstr "Kostengerechtigkeit"
+
+msgid ""
+"Costo\n"
+"famiglia"
+msgstr "Haushaltskosten"
+
+msgid ""
+"Produzione\n"
+"PV"
+msgstr "PV-Erzeugung"
+
+msgid ""
+"Consumo\n"
+"netto"
+msgstr "Nettoverbrauch"
+
+msgid ""
+"Emissioni\n"
+"CO₂"
+msgstr "CO₂-Emissionen"
+
+msgid ""
+"Spesa\n"
+"cantonale"
+msgstr "Kantonale Ausgaben"
+
+msgid ""
+"Copertura\n"
+"PV autoconsumato"
+msgstr "Nachfragedeckung durch PV-Eigenverbrauch"
+
+msgid ""
+"Qui le **leve di policy** e i **parametri incerti** vengono mossi insieme: non si chiede quale "
+"mix vince in un futuro unico, ma quali restano interessanti quando il contesto può andare in "
+"direzioni diverse."
+msgstr ""
+"Hier variieren **politische Stellgrössen** und **unsichere Parameter** gemeinsam. Gesucht sind "
+"Massnahmenkombinationen, die bei wechselnden Rahmenbedingungen attraktiv bleiben, nicht der "
+"Gewinner in einer einzigen Zukunft."
+
+msgid "Vista"
+msgstr "Ansicht"
+
+msgid "Esplora un policy mix"
+msgstr "Einen Massnahmenmix erkunden"
+
+msgid ""
+"Scegli il livello di ciascuna leva: a destra vedi, per ogni KPI già scalato da **0 (peggiore)** a"
+" **1 (migliore)**, il range sugli scenari di incertezza."
+msgstr ""
+"Die Stufe jeder Stellgrösse auswählen. Jede Kennzahl ist von **0 (schlechtester Wert)** bis **1 "
+"(bester Wert)** skaliert und zeigt ihre Streuung über die Unsicherheitsszenarien."
+
+msgid "Valori degli indicatori"
+msgstr "Kennzahlenwerte"
+
+msgid ""
+"Mediana e intervallo P10–P90 sui 100 scenari. Gli indicatori annuali si riferiscono al 2050; "
+"emissioni e spesa cantonale sono cumulati secondo le definizioni riportate sotto."
+msgstr ""
+"Median und P10–P90-Bereich über die 100 Szenarien. Jahresindikatoren beziehen sich auf 2050; "
+"Emissionen und kantonale Ausgaben sind gemäss den Definitionen unten kumuliert."
+
+msgid "Migliori policy mix"
+msgstr "Beste Massnahmenkombinationen"
+
+#, python-brace-format
+msgid ""
+"Modifica i **pesi**, cioè l'importanza relativa dei KPI, e vedi quali sono i **{v0} policy mix** "
+"con la prestazione media migliore considerando tutti gli scenari di incertezza. Più in basso "
+"appare la **composizione** di quei mix: quali leve singole risultano attive o al valore alto."
+msgstr ""
+"Die **Gewichte** bilden die relative Bedeutung der Kennzahlen ab. Durch ihre Anpassung werden die"
+" **{v0} Massnahmenkombinationen** mit der besten mittleren Leistung über alle "
+"Unsicherheitsszenarien sichtbar. Ihre **Zusammensetzung** zeigt, welche Stellgrössen aktiv oder "
+"auf der hohen Stufe sind."
+
+#, python-brace-format
+msgid "Composizione dei {v0} policy mix migliori"
+msgstr "Zusammensetzung der {v0} besten Kombinationen"
+
+#, python-brace-format, python-format
+msgid ""
+"Per ogni leva: che percentuale dei mix in classifica assume il valore alto/presente. Esempio: "
+"100% su Autoconsumo virtuale significa che tutti e {v0} i migliori la attivano; 20% sugli "
+"incentivi cantonali PV significa che lo fa un mix su cinque."
+msgstr ""
+"Für jede Stellgrösse: Anteil der bestplatzierten Kombinationen mit hoher bzw. aktivierter Stufe. "
+"Beispielsweise bedeuten 100% beim virtuellen Eigenverbrauch, dass alle {v0} besten Kombinationen "
+"ihn aktivieren; 20% bei der kantonalen PV-Förderung bedeutet eine von fünf."
+
+msgid "#### :material/tune: Policy mix"
+msgstr "#### :material/tune: Massnahmenmix"
+
+msgid ""
+"Ogni mix è una combinazione di incentivi e regolamenti (PV, batterie, riscaldamento, risanamento,"
+" autoconsumo virtuale). Sono **7 leve su due livelli** ciascuna, per un totale di **128 policy "
+"mix** possibili."
+msgstr ""
+"Jede Kombination umfasst Förderung und Vorschriften (PV, Batterien, Heizung, Sanierung und "
+"virtueller Eigenverbrauch). **7 Stellgrössen mit je zwei Stufen** ergeben **128 mögliche "
+"Kombinationen**."
+
+msgid "#### :material/casino: Incertezza"
+msgstr "#### :material/casino: Unsicherheit"
+
+msgid ""
+"Costi, domanda, tassi e vita utile delle tecnologie non sono noti con certezza. Lo stesso "
+"ventaglio di futuri plausibili viene applicato a **ogni** mix, così il confronto resta equo. Sono"
+" **100 campioni** di **17 parametri**, con distribuzioni uniformi nei rispettivi limiti e "
+"campionamento Latin hypercube riproducibile."
+msgstr ""
+"Technologiekosten, Nachfrage, Zinssätze und Lebensdauern sind unsicher. Dieselbe Bandbreite "
+"plausibler Zukünfte wird auf **jede** Kombination angewendet, um fair zu vergleichen. Es gibt "
+"**100 Stichproben** von **17 Parametern**, gleichverteilt innerhalb ihrer Grenzen und mit "
+"reproduzierbarem Latin-Hypercube-Sampling."
+
+msgid "#### :material/analytics: Indicatori"
+msgstr "#### :material/analytics: Kennzahlen"
+
+msgid ""
+"Per ogni combinazione di policy mix e scenario di incertezza si calcolano **9 KPI**: costi "
+"(famiglia e spesa cantonale), **equità distributiva** (supplemento in bolletta, tassa CO₂, costo)"
+" ed **emissioni**, insieme a produzione PV, consumo netto e domanda coperta dal PV autoconsumato."
+msgstr ""
+"Jede Kombination aus Massnahmenmix und Unsicherheitsszenario liefert **9 Kennzahlen**: "
+"Haushaltskosten und kantonale Ausgaben, **Verteilungsgerechtigkeit** (Netzzuschlag, CO₂-Abgabe, "
+"Kosten), **Emissionen**, PV-Erzeugung, Nettoverbrauch und Nachfragedeckung durch PV-"
+"Eigenverbrauch."
+
+msgid "Il dataset dell'analisi esplorativa non è disponibile."
+msgstr "Der Datensatz der explorativen Analyse ist nicht verfügbar."
+
+msgid "Definizioni degli indicatori"
+msgstr "Definitionen der Kennzahlen"
+
+#, python-brace-format
+msgid "{v0} scenari di incertezza per il mix selezionato."
+msgstr "{v0} Unsicherheitsszenarien für die gewählte Kombination."
+
+msgid "Impossibile calcolare lo score con i dati disponibili."
+msgstr "Der Score lässt sich mit den verfügbaren Daten nicht berechnen."
+
+msgid "Pesi dei KPI"
+msgstr "Kennzahlengewichte"
+
+msgid "Modalità di assegnazione"
+msgstr "Gewichtungsmodus"
+
+#, python-brace-format
+msgid "Somma dei pesi: **{v0:.3g}**"
+msgstr "Summe der Gewichte: **{v0:.3g}**"
+
+msgid "Ripristina pesi uguali"
+msgstr "Gleiche Gewichte wiederherstellen"
+
+#, python-brace-format
+msgid "Profilo dei {v0} mix migliori"
+msgstr "Profile der {v0} besten Kombinationen"
+
+#, python-brace-format
+msgid ""
+"Ogni asse è un KPI scalato (1 = migliore). I poligoni usano la media dei {v0} scenari di "
+"incertezza."
+msgstr ""
+"Jede Achse zeigt eine skalierte Kennzahl (1 = bester Wert). Die Polygone verwenden den Mittelwert"
+" über {v0} Unsicherheitsszenarien."
+
+msgid "Tutti i 128 policy mix ordinati per score"
+msgstr "Alle 128 Kombinationen nach Score geordnet"
+
+msgid "Scarica classifica CSV"
+msgstr "Rangliste als CSV herunterladen"
+
+#, python-brace-format
+msgid "Dataset dell'analisi esplorativa non valido: {v0}"
+msgstr "Ungültiger explorativer Datensatz: {v0}"
+
+#, python-brace-format
+msgid "**{v0}**: {v1}"
+msgstr "**{v0}**: {v1}"
+
+msgid "Questo mix non è ancora nello store."
+msgstr "Diese Kombination ist noch nicht im Datensatz enthalten."
+
+msgid ""
+"Pesi relativi: spostando uno slider gli altri si ricalibrano e la somma resta 1. Pesi assoluti: "
+"ogni slider cambia solo quel KPI."
+msgstr ""
+"Relative Gewichte: Ein Schieberegler skaliert die anderen mit, sodass die Summe 1 bleibt. "
+"Absolute Gewichte: Jeder Regler ändert nur seine Kennzahl."
+
+msgid ""
+"Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** su tutte le simulazioni. I pesi "
+"sommano a **1**: spostando uno slider gli altri si ricalibrano."
+msgstr ""
+"Jede Kennzahl ist über alle Simulationen von **0 (schlechtester Wert)** bis **1 (bester Wert)** "
+"skaliert. Die Gewichte summieren sich zu **1**: Ein Schieberegler skaliert die anderen mit."
+
+msgid ""
+"Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** su tutte le simulazioni. Ogni "
+"slider cambia solo quel KPI: gli altri restano fermi e la somma può essere diversa da 1. Lo score"
+" usa i pesi in proporzione tra loro."
+msgstr ""
+"Jede Kennzahl ist über alle Simulationen von **0 (schlechtester Wert)** bis **1 (bester Wert)** "
+"skaliert. Jeder Regler verändert nur seine Kennzahl; die anderen bleiben unverändert, die Summe "
+"darf von 1 abweichen. Der Score verwendet die Gewichte proportional zueinander."
+
+msgid "Come si calcola lo score"
+msgstr "Berechnung des Scores"
+
+#, python-brace-format
+msgid ""
+"Per ogni simulazione il vettore dei KPI scalati viene moltiplicato per i pesi. Lo **score di un "
+"policy mix** è la media di questi valori sui {v0} scenari di incertezza, tutti con lo stesso "
+"peso:"
+msgstr ""
+"Für jede Simulation wird der skalierte Kennzahlenvektor mit den Gewichten multipliziert. Der "
+"**Score eines Massnahmenmixes** ist der Mittelwert dieser Werte über die {v0} gleich gewichteten "
+"Unsicherheitsszenarien:"
+
+#, python-brace-format
+msgid ""
+"dove $S={v0}$. Nello score i pesi sono riportati a somma 1. I cinque mix con score più alto "
+"compaiono a destra e sotto."
+msgstr ""
+"mit $S={v0}$. Für den Score werden die Gewichte auf Summe 1 normiert. Die fünf besten "
+"Kombinationen erscheinen im Profil und in der Rangliste."
+
+#, python-brace-format
+msgid "{v0}. {v1}"
+msgstr "{v0}. {v1}"
+
+msgid "Mediana"
+msgstr "Median"
+
+#, python-brace-format
+msgid "Indicatori principali ({v0})"
+msgstr "Wichtigste Kennzahlen ({v0})"
+
+#, python-brace-format
+msgid "Profili mensili e orari negli anni {v0}; giorno tipo per {v1}."
+msgstr "Monats- und Stundenprofile für {v0}; repräsentativer Tag für {v1}."
+
+msgid "Offerta, dispacciamento, consumo ed esportazione: cosa significano"
+msgstr "Angebot, Netzeinspeisung, Verbrauch und Exporte verstehen"
+
+msgid "Combinazione non ancora disponibile nello store."
+msgstr "Diese Kombination ist im Datensatz noch nicht verfügbar."
+
+msgid "Nessun dato orario per questa combinazione."
+msgstr "Keine Stundendaten für diese Kombination."
+
+#, python-brace-format
+msgid "Simulazione non converge fino al {v0} (ultimo anno: {v1})."
+msgstr "Die Simulation konvergiert nicht bis {v0} (letztes Jahr: {v1})."
+
+msgid "Dati grezzi"
+msgstr "Rohdaten"
+
+msgid "1 · Definizione del problema"
+msgstr "1 · Problemdefinition"
+
+msgid "2 · Modello qualitativo"
+msgstr "2 · Qualitatives Modell"
+
+msgid "3 · Modello quantitativo"
+msgstr "3 · Quantitatives Modell"
+
+msgid "4 · Calibrazione"
+msgstr "4 · Kalibrierung"
+
+msgid "Approccio System Dynamics"
+msgstr "System-Dynamics-Ansatz"
+
+msgid "### Lo sviluppo del modello in quattro passi"
+msgstr "### Modellentwicklung in vier Schritten"
+
+msgid ""
+"Dalla definizione del problema con gli stakeholder ai modelli qualitativi, ai dati storici e alla"
+" calibrazione. Il percorso prepara alla lettura delle sezioni Simulazioni SEneCa."
+msgstr ""
+"Von der Problemdefinition mit den Beteiligten über qualitative Modelle und historische Daten bis "
+"zur Kalibrierung. Dieser Überblick führt in die SEneCa-Simulationsbereiche ein."
+
+msgid "Passo del percorso"
+msgstr "Schritt"
+
+msgid "Riscaldamento e Risanamento"
+msgstr "Heizung und Sanierung"
+
+#, python-brace-format
+msgid ""
+"Per questa combinazione il modello Vensim non converge fino al {v0}: la simulazione si ferma al "
+"{v1}. I valori al {v2} e la misura di equity non sono disponibili."
+msgstr ""
+"Für diese Kombination konvergiert das Vensim-Modell nicht bis {v0}: Die Simulation endet {v1}. "
+"Werte für {v2} und das Gerechtigkeitsmass sind nicht verfügbar."
+
+#, python-brace-format
+msgid "- {v0}: {v1}"
+msgstr "- {v0}: {v1}"
+
+#, python-brace-format
+msgid "Andamenti temporali ({v0}-{v1})"
+msgstr "Zeitverläufe ({v0}–{v1})"
+
+#, python-brace-format
+msgid "Valori al {v0}"
+msgstr "Werte im Jahr {v0}"
+
+#, python-brace-format
+msgid "Grafico non configurato: {v0}"
+msgstr "Diagramm nicht konfiguriert: {v0}"
+
+msgid "Totale annuo"
+msgstr "Jahressumme"
+
+msgid "Profilo mensile"
+msgstr "Monatsprofil"
+
+msgid "Profilo orario"
+msgstr "Stundenprofil"
+
+#, python-brace-format
+msgid "**{v0}** ({v1})"
+msgstr "**{v0}** ({v1})"
+
+#, python-brace-format
+msgid "**{v0}** ({v1}) — {v2}-{v3}"
+msgstr "**{v0}** ({v1}) — {v2}-{v3}"
+
+msgid "**Profilo mensile per supplier**"
+msgstr "**Monatsprofil nach Quelle**"
+
+msgid "**Profilo orario**"
+msgstr "**Stundenprofil**"
+
+#, python-brace-format
+msgid "Nessun dato per {v0}"
+msgstr "Keine Daten für {v0}"
+
+#, python-brace-format
+msgid "Nessun dato annuale per {v0}"
+msgstr "Keine Jahresdaten für {v0}"
+
+msgid "Grafico"
+msgstr "Diagramm"
+
+msgid ""
+"Questo scenario supera l’intervallo di equità dei precalcolati: gli indici possono essere "
+"inferiori a 0 o superiori a 1. La scala di riferimento resta la stessa; i valori non sono "
+"troncati."
+msgstr ""
+"Dieses Szenario liegt ausserhalb des Gerechtigkeitsbereichs der vorausberechneten Szenarien: "
+"Indizes können unter 0 oder über 1 liegen. Die Referenzskala bleibt unverändert; Werte werden "
+"nicht abgeschnitten."
+
+#, python-brace-format
+msgid "Indici di equità non disponibili. Rilancia la simulazione. {v0}"
+msgstr "Gerechtigkeitsindizes nicht verfügbar. Die Simulation erneut starten. {v0}"
+
+msgid "Nuove installazioni annue PV"
+msgstr "Jährliche PV-Neuinstallationen"
+
+msgid "edifici/anno"
+msgstr "Gebäude/Jahr"
+
+msgid "Pompe di calore"
+msgstr "Wärmepumpen"
+
+msgid "Nuove installazioni annue pompe di calore"
+msgstr "Jährliche Wärmepumpen-Neuinstallationen"
+
+msgid "Nuovi accumulatori residenziali per anno"
+msgstr "Jährliche neue Hausbatterien"
+
+msgid "Veicoli elettrici"
+msgstr "Elektrofahrzeuge"
+
+msgid "Nuove immatricolazioni annue di veicoli elettrici"
+msgstr "Jährliche Neuzulassungen von Elektrofahrzeugen"
+
+msgid "veicoli/anno"
+msgstr "Fahrzeuge/Jahr"
+
+#, python-brace-format
+msgid "**{v0}**"
+msgstr "**{v0}**"
+
+msgid ""
+"\n"
+"        **System Dynamics (SD)** è una metodologia di simulazione concepita per\n"
+"        analizzare il comportamento nel tempo di sistemi complessi caratterizzati da\n"
+"        **accumuli, ritardi, non-linearità e meccanismi di retroazione**. Non considera\n"
+"        l'evoluzione del sistema come una successione di eventi indipendenti, ma come\n"
+"        il prodotto della **struttura causale** che collega le sue componenti: il\n"
+"        comportamento osservato emerge dall'interazione tra gli stati accumulati, i\n"
+"        flussi che li modificano e le informazioni su cui gli attori decidono.\n"
+"        "
+msgstr ""
+"**System Dynamics (SD)** ist eine Simulationsmethode zur Analyse des zeitlichen Verhaltens "
+"komplexer Systeme mit **Beständen, Verzögerungen, Nichtlinearitäten und Rückkopplungen**. Die "
+"Systementwicklung wird als Ergebnis der **kausalen Struktur** zwischen seinen Komponenten "
+"betrachtet, nicht als Folge unabhängiger Ereignisse. Das beobachtete Verhalten entsteht aus dem "
+"Zusammenspiel akkumulierter Zustände, sie verändernder Flüsse und der von Entscheidungsträgern "
+"genutzten Informationen."
+
+msgid ""
+"\n"
+"        **Simulare non è ottimizzare.** Il modello non cerca la configurazione che\n"
+"        minimizza o massimizza una funzione obiettivo e non assume che gli attori\n"
+"        conoscano in anticipo l'evoluzione futura del sistema. Famiglie, aziende e\n"
+"        autorità decidono con **razionalità limitata**, sulla base di prezzi, costi,\n"
+"        incentivi e diffusione osservati nell'anno corrente: il modello calcola\n"
+"        un'**utilità percepita** e la traduce in una probabilità di scelta. Le\n"
+"        politiche si valutano confrontando gli scenari che ne risultano.\n"
+"        "
+msgstr ""
+"**Simulation ist keine Optimierung.** Das Modell sucht keine Konfiguration, die eine Zielfunktion"
+" minimiert oder maximiert, und nimmt nicht an, dass Akteure den zukünftigen Systemverlauf kennen."
+" Haushalte, Unternehmen und Behörden entscheiden mit **begrenzter Rationalität** anhand der im "
+"laufenden Jahr beobachteten Preise, Kosten, Förderbeiträge und Verbreitungsgrade. Das Modell "
+"berechnet den **wahrgenommenen Nutzen** und wandelt ihn in eine Wahlwahrscheinlichkeit um. "
+"Politikmassnahmen werden durch Vergleich der resultierenden Szenarien bewertet."
+
+msgid "### Architettura complessiva del modello"
+msgstr "### Gesamtarchitektur des Modells"
+
+msgid ""
+"\n"
+"        Il modello è organizzato in **quattro macrocomponenti**: la *domanda e\n"
+"        adozione delle tecnologie* (residenziale, trasporti, industria e terziario)\n"
+"        determina consumi e autoconsumo; l'*offerta energetica e il bilancio\n"
+"        elettrico* confrontano quella domanda con la produzione decentralizzata e\n"
+"        centralizzata, determinando dispaccio, import ed export.\n"
+"\n"
+"        Le altre due chiudono i cicli di retroazione: le *utility e le reti di\n"
+"        distribuzione* traducono bilancio e costi di rete nel prezzo finale\n"
+"        dell'elettricità, mentre le *autorità pubbliche* agiscono con incentivi,\n"
+"        tasse e regolamentazioni, il cui finanziamento dipende a sua volta dai\n"
+"        consumi. Prezzo e politiche tornano così a orientare le adozioni successive.\n"
+"        "
+msgstr ""
+"Das Modell hat **vier Hauptkomponenten**. *Technologienachfrage und -verbreitung* (Wohnen, "
+"Verkehr, Industrie und Dienstleistungen) bestimmen Verbrauch und Eigenverbrauch. *Energieangebot "
+"und Strombilanz* vergleichen diese Nachfrage mit dezentraler und zentraler Erzeugung und "
+"bestimmen Einsatz, Importe und Exporte.\n"
+"\n"
+"Die anderen beiden Komponenten schliessen die Rückkopplungen: *Versorger und Verteilnetze* "
+"übersetzen Strombilanz und Netzkosten in den Endkundenpreis, während *öffentliche Behörden* "
+"Förderung, Abgaben und Vorschriften umsetzen, deren Finanzierung ebenfalls vom Verbrauch abhängt."
+" Preise und Politik wirken somit auf spätere Investitionsentscheidungen zurück."
+
+msgid "### Quali policy possono essere valutate?"
+msgstr "### Welche Politikmassnahmen lassen sich bewerten?"
+
+msgid ""
+"\n"
+"        Le leve rappresentate nel modello non sono state scelte a tavolino. Nei\n"
+"        workshop gli stakeholder hanno indicato quali temi considerassero\n"
+"        **prioritari** e quali marginali per una decisione cantonale: il grafico\n"
+"        riporta quante volte ciascuna voce è stata segnalata a priorità alta o bassa.\n"
+"        "
+msgstr ""
+"Die politischen Stellgrössen wurden mit den Beteiligten ausgewählt. In Workshops bestimmten sie "
+"**prioritäre** Themen und solche mit geringerer Bedeutung für kantonale Entscheidungen. Das "
+"Diagramm zeigt, wie oft jedes Thema hohe oder niedrige Priorität erhielt."
+
+msgid "Ordina per"
+msgstr "Sortieren nach"
+
+msgid ""
+"Esito dell'esercizio di prioritizzazione con il gruppo core degli stakeholder (settimo workshop, "
+"ottobre 2025)."
+msgstr "Ergebnisse der Priorisierung mit der Kerngruppe der Beteiligten (siebter Workshop, Oktober 2025)."
+
+msgid ""
+"\n"
+"        Questa lista spiega buona parte di come il modello si è sviluppato. Le voci in\n"
+"        cima — accumuli domestici, teleriscaldamento, prezzi di mercato, obblighi di\n"
+"        efficienza, incentivi al fotovoltaico, comunità energetiche e ricarica\n"
+"        pubblica — sono diventate leve manipolabili,\n"
+"        mentre i temi giudicati marginali sono rimasti fuori o sono entrati come\n"
+"        semplici assunzioni di scenario. Anche la profondità di rappresentazione\n"
+"        segue la stessa logica: dove gli stakeholder chiedevano di poter confrontare\n"
+"        politiche alternative, il modello è endogeno e dettagliato.\n"
+"        "
+msgstr ""
+"Diese Liste erklärt einen grossen Teil der Modellentwicklung. Die führenden Themen – "
+"Hausspeicher, Wärmenetze, Marktpreise, Effizienzanforderungen, PV-Förderung, "
+"Energiegemeinschaften und öffentliches Laden – wurden zu veränderbaren Stellgrössen. Weniger "
+"relevante Themen wurden weggelassen oder als einfache Szenarioannahmen abgebildet. Der "
+"Detaillierungsgrad folgt derselben Logik: Wo Beteiligte politische Alternativen vergleichen "
+"wollten, ist das Modell endogen und detailliert."
+
+msgid ""
+"\n"
+"        ### Definizione problema\n"
+"\n"
+"        L'obiettivo finale è costruire un modello che rappresenti nel modo più accurato\n"
+"        possibile il comportamento del sistema in analisi. Poiché lo studio della\n"
+"        transizione è un problema complesso che coinvolge un sistema complesso, come\n"
+"        quello energetico, il primo passo consiste nel definire chiaramente il sistema\n"
+"        oggetto di studio, individuandone i confini e gli elementi principali.\n"
+"\n"
+"        Questo è ciò che abbiamo fatto durante il primo incontro, in cui abbiamo descritto\n"
+"        gli elementi del sistema sulla base delle tre categorie definite dal\n"
+"        **Multi-Level Perspective (MLP)**:\n"
+"\n"
+"        - :earth_africa: **Landscape** → livello macro: contesto esterno e fattori di lungo "
+"periodo\n"
+"        - :brick: **Regimes** → livello intermedio: strutture, regole e pratiche consolidate\n"
+"        - :arrow_heading_up: **Nicchie** → livello micro: innovazioni e sperimentazioni\n"
+"        "
+msgstr ""
+"### Problemdefinition\n"
+"\n"
+"Ziel ist ein Modell, das das Systemverhalten möglichst genau abbildet. Die Untersuchung der "
+"Energiewende betrifft ein komplexes System – das Energiesystem. Zuerst müssen daher seine Grenzen"
+" und Hauptelemente klar definiert werden.\n"
+"\n"
+"Beim ersten Treffen wurden diese Elemente anhand der drei Kategorien der **Multi-Level "
+"Perspective (MLP)** beschrieben:\n"
+"\n"
+"- :earth_africa: **Landschaft** → Makroebene: externer Kontext und langfristige Faktoren\n"
+"- :brick: **Regime** → mittlere Ebene: etablierte Strukturen, Regeln und Praktiken\n"
+"- :arrow_heading_up: **Nischen** → Mikroebene: Innovation und Experimente"
+
+msgid ""
+"\n"
+"        #### A cosa è servito questo esercizio\n"
+"\n"
+"        La mappatura MLP è servita soprattutto a decidere **che cosa sta dentro il\n"
+"        confine del sistema cantonale e che cosa no**.\n"
+"\n"
+"        Alcuni elementi emersi dal workshop restano fuori dal perimetro endogeno e\n"
+"        sono assunti come **dati di fatto**: il modello non ne calcola l'evoluzione,\n"
+"        la riceve come ipotesi di scenario. È il caso, ad esempio, delle **tensioni\n"
+"        geopolitiche**, che entrano solo attraverso il loro effetto sui prezzi dei\n"
+"        vettori energetici, o del **cambiamento climatico**, il cui andamento è\n"
+"        esogeno. Cambiare queste ipotesi significa cambiare scenario, non far girare\n"
+"        una dinamica interna al modello.\n"
+"\n"
+"        I **regimi** individuati come principali sono invece il cuore di ciò che il\n"
+"        modello simula:\n"
+"\n"
+"        - **Edifici** — stock edilizio, riscaldamento, risanamento, PV e batterie\n"
+"        - **Produzione e distribuzione dell'energia** — impianti, bilancio elettrico,\n"
+"          reti e prezzo finale\n"
+"        - **Trasporti** — parco veicoli, motorizzazioni e infrastruttura di ricarica\n"
+"        - **Elementi culturali** — non modellati esplicitamente, ma incorporati nel\n"
+"          comportamento osservato: i parametri delle decisioni sono **calibrati su\n"
+"          dati storici**, che già contengono abitudini, preferenze e resistenze al\n"
+"          cambiamento della popolazione ticinese\n"
+"        "
+msgstr ""
+"#### Nutzen dieser Übung\n"
+"\n"
+"Die MLP-Kartierung half vor allem festzulegen, **was innerhalb der kantonalen Systemgrenze liegt "
+"und was ausserhalb**.\n"
+"\n"
+"Einige Workshop-Themen bleiben ausserhalb des endogenen Bereichs und werden als **externe "
+"Eingaben** behandelt: Ihre Entwicklung ist eine Szenarioannahme und wird nicht vom Modell "
+"berechnet. Beispiele sind **geopolitische Spannungen**, die nur über Energiepreise wirken, und "
+"der **Klimawandel** mit exogenem Verlauf. Eine Änderung dieser Annahmen verändert das Szenario, "
+"nicht eine interne Dynamik.\n"
+"\n"
+"Die wichtigsten **Regime** bilden den Kern der Simulation:\n"
+"\n"
+"- **Gebäude** – Gebäudebestand, Heizung, Sanierung, PV und Batterien\n"
+"- **Energieerzeugung und -verteilung** – Anlagen, Strombilanz, Netze und Endpreise\n"
+"- **Verkehr** – Fahrzeugbestand, Antriebe und Ladeinfrastruktur\n"
+"- **Kulturelle Faktoren** – nicht explizit modelliert, aber im beobachteten Verhalten enthalten: "
+"Entscheidungsparameter werden **an historischen Daten kalibriert**, die Gewohnheiten, Präferenzen"
+" und Veränderungswiderstände der Tessiner Bevölkerung bereits widerspiegeln"
+
+msgid ""
+"\n"
+"        ### Modello qualitativo\n"
+"\n"
+"        Una volta definito il sistema, il passo successivo consiste nella costruzione di\n"
+"        **mappe concettuali** con i **Causal Loop Diagram (CLD)**, tipici del metodo\n"
+"        **System Dynamics**. Il CLD non contiene numeri: serve a rendere esplicito\n"
+"        *quali* variabili si influenzano a vicenda e *in che direzione*.\n"
+"        "
+msgstr ""
+"### Qualitatives Modell\n"
+"\n"
+"Nach der Systemdefinition werden **konzeptionelle Karten** mittels **Kausalschleifendiagrammen "
+"(CLD)** erstellt, einem Standardwerkzeug von **System Dynamics**. Ein CLD enthält keine Zahlen: "
+"Es zeigt, *welche* Variablen einander beeinflussen und *in welche Richtung*."
+
+msgid "#### Le quattro famiglie di feedback"
+msgstr "#### Die vier Rückkopplungsfamilien"
+
+msgid ""
+"I sedici loop del diagramma si raggruppano in quattro meccanismi ricorrenti. Riconoscerli aiuta a"
+" interpretare i risultati delle sezioni *Simulazioni SEneCa*."
+msgstr ""
+"Die sechzehn Schleifen des Diagramms bilden vier wiederkehrende Mechanismen. Ihr Verständnis "
+"erleichtert die Interpretation der Ergebnisse in den *SEneCa-Simulationen*."
+
+msgid ""
+"\n"
+"        ### Modello quantitativo\n"
+"\n"
+"        Per tradurre la struttura causale in un modello che produca numeri, la prima\n"
+"        cosa da fare è **raccogliere i dati reali** del sistema: da dove parte lo\n"
+"        stato iniziale, come si sono mossi gli stock negli anni passati, quali\n"
+"        traiettorie il modello deve essere in grado di riprodurre.\n"
+"\n"
+"        Qui sotto trovi alcuni esempi di quei dati, divisi tra **produzione** e\n"
+"        **consumi**. Non sono rappresentazioni esaustive né dettagliate: servono a\n"
+"        dare un'idea del tipo di informazione raccolta e della sua granularità.\n"
+"        "
+msgstr ""
+"### Quantitatives Modell\n"
+"\n"
+"Die Übertragung der Kausalstruktur in ein rechnendes Modell beginnt mit der **Erhebung realer "
+"Systemdaten**: Anfangszustand, historische Bestandsentwicklung und Verläufe, die das Modell "
+"reproduzieren können muss.\n"
+"\n"
+"Es folgen Beispiele, unterteilt in **Erzeugung** und **Verbrauch**. Sie sind weder vollständig "
+"noch detailliert, sondern illustrieren die erhobenen Informationen und ihre Auflösung."
+
+msgid "Area di approfondimento"
+msgstr "Schwerpunkt"
+
+msgid ""
+"\n"
+"        ### Calibrazione\n"
+"\n"
+"        Non tutti i parametri del modello si possono leggere in una fonte. Costi,\n"
+"        rendimenti, vite utili e superfici sono **osservabili** e vengono assegnati\n"
+"        direttamente dai dati. I parametri che descrivono il **comportamento** delle\n"
+"        persone — quanto pesano il prezzo, l'incentivo o l'esempio dei vicini nel\n"
+"        decidere se installare un impianto — non lo sono: vanno *stimati*.\n"
+"\n"
+"        Calibrare significa cercare i valori di questi parametri per cui il modello,\n"
+"        lasciato correre sul **periodo coperto dai dati storici**, riproduce le decisioni che in\n"
+"        quegli anni sono state osservate davvero.\n"
+"        "
+msgstr ""
+"### Kalibrierung\n"
+"\n"
+"Nicht jeder Modellparameter lässt sich einer Quelle entnehmen. Kosten, Wirkungsgrade, "
+"Lebensdauern und Flächen sind **beobachtbar** und werden direkt aus Daten übernommen. "
+"**Verhaltensparameter** – wie stark Preise, Förderbeiträge oder Nachbarschaftsbeispiele eine "
+"Installationsentscheidung beeinflussen – sind nicht direkt beobachtbar und müssen *geschätzt* "
+"werden.\n"
+"\n"
+"Die Kalibrierung sucht Parameterwerte, mit denen das Modell über den **historisch dokumentierten "
+"Zeitraum** die tatsächlich beobachteten Entscheidungen reproduziert."
+
+msgid ""
+"\n"
+"        **Calibrare non vuol dire prevedere.** Un modello che ricostruisce bene il\n"
+"        passato non è una sfera di cristallo: la calibrazione fissa il *modo* in cui\n"
+"        gli attori reagiscono a prezzi, costi e incentivi, non l'evoluzione futura di\n"
+"        quelle grandezze. Le traiettorie al 2050 non vanno quindi lette come la\n"
+"        previsione di ciò che accadrà, ma come il **confronto fra scenari**: ciò che\n"
+"        conta è la distanza fra una politica e l'altra, non il valore puntuale di una\n"
+"        singola curva.\n"
+"        "
+msgstr ""
+"**Kalibrierung ist keine Prognose.** Ein Modell, das die Vergangenheit gut abbildet, ist keine "
+"Kristallkugel. Die Kalibrierung bestimmt, *wie* Akteure auf Preise, Kosten und Förderung "
+"reagieren, nicht die zukünftige Entwicklung dieser Grössen. Verläufe bis 2050 sind daher als "
+"**Szenariovergleiche** zu lesen, nicht als Vorhersagen. Entscheidend sind die Unterschiede "
+"zwischen Politikmassnahmen, nicht der exakte Wert einer einzelnen Kurve."
+
+msgid "#### Quanto bene il modello ricostruisce il passato"
+msgstr "#### Wie gut das Modell die Vergangenheit abbildet"
+
+msgid ""
+"Quelli sotto sono solo **alcuni esempi** dei dati usati per la calibrazione: le barre "
+"confrontano, anno per anno, le adozioni **osservate** con quelle **simulate**. Sopra, il totale "
+"cumulato osservato sul periodo di calibrazione."
+msgstr ""
+"Hier sind **einige Beispiele** der Kalibrierungsdaten: Die Balken vergleichen jährliche "
+"**beobachtete** und **simulierte** Neuinstallationen. Darüber steht die beobachtete Gesamtsumme "
+"über den Kalibrierungszeitraum."
+
+#, python-brace-format
+msgid "Immagine non trovata: `{v0}`"
+msgstr "Bild nicht gefunden: `{v0}`"
+
+msgid ":brick: La struttura"
+msgstr ":brick: Struktur"
+
+msgid ""
+"\n"
+"            - **Stock** — quantità accumulate nel tempo\n"
+"            - **Flussi** — ciò che incrementa o riduce gli stock\n"
+"            - **Variabili ausiliarie** — relazioni tecniche, economiche,\n"
+"              comportamentali e istituzionali\n"
+"            - **Parametri e variabili esogene** — andamenti specificati fuori dalla\n"
+"              struttura endogena\n"
+"            "
+msgstr ""
+"- **Bestände** – über die Zeit akkumulierte Mengen\n"
+"- **Flüsse** – Zu- und Abnahmen der Bestände\n"
+"- **Hilfsvariablen** – technische, wirtschaftliche, verhaltensbezogene und institutionelle "
+"Beziehungen\n"
+"- **Parameter und exogene Variablen** – ausserhalb der endogenen Struktur vorgegebene Verläufe"
+
+msgid ""
+"\n"
+"            Nel modello cantonale gli **stock** sono per esempio gli edifici\n"
+"            appartenenti a una certa configurazione tecnologica o il parco veicoli per\n"
+"            alimentazione; i **flussi** sono installazioni, sostituzioni, costruzioni,\n"
+"            demolizioni e dismissioni.\n"
+"            "
+msgstr ""
+"Im kantonalen Modell umfassen **Bestände** Gebäude mit bestimmten Technologiekonfigurationen und "
+"den Fahrzeugpark nach Antrieb. **Flüsse** umfassen Installationen, Ersatz, Neubau, Abbruch und "
+"Stilllegung."
+
+msgid ":repeat: I feedback loop"
+msgstr ":repeat: Rückkopplungsschleifen"
+
+msgid ""
+"\n"
+"            Un **feedback loop** è una catena causale in cui una variazione iniziale\n"
+"            produce effetti che tornano a influenzare la variabile di partenza.\n"
+"\n"
+"            - :loop-r[R · Reinforcing] amplifica la variazione. Ad esempio, il **peer effect**\n"
+"              del fotovoltaico: più impianti visibili sui tetti aumentano\n"
+"              familiarità e accettazione, quindi le adozioni successive.\n"
+"            - :loop-b[B · Balancing] la contrasta e stabilizza. Ad esempio, la **saturazione**\n"
+"              del potenziale: ogni installazione riduce il numero di edifici\n"
+"              con tetto idoneo ancora disponibili.\n"
+"\n"
+"            La loro combinazione genera le tipiche **curve di diffusione a S**: partenza\n"
+"            lenta, accelerazione, rallentamento vicino alla saturazione.\n"
+"            "
+msgstr ""
+"Eine **Rückkopplungsschleife** ist eine Kausalkette, deren Wirkungen auf die Ausgangsvariable "
+"zurückwirken.\n"
+"\n"
+"- :loop-r[R · Verstärkend] verstärkt die Änderung. Beispiel: der PV-**Nachbarschaftseffekt** – "
+"mehr sichtbare Dachanlagen erhöhen Vertrautheit und Akzeptanz und fördern weitere Installationen."
+"\n"
+"- :loop-b[B · Ausgleichend] wirkt entgegen und stabilisiert. Beispiel: **Sättigung** des "
+"Potenzials – jede Installation verringert die Zahl noch geeigneter Dächer.\n"
+"\n"
+"Zusammen erzeugen diese Mechanismen typische **S-förmige Verbreitungskurven**: langsamer Beginn, "
+"Beschleunigung und Abflachung nahe der Sättigung."
+
+msgid ""
+"Architettura funzionale del modello: quattro macrocomponenti che formano un unico sistema "
+"dinamico."
+msgstr "Funktionale Modellarchitektur: Vier Hauptkomponenten bilden ein dynamisches Gesamtsystem."
+
+msgid "**:material/layers: Struttura ibrida**"
+msgstr "**:material/layers: Hybride Struktur**"
+
+msgid ""
+"Rappresentazione *bottom-up* del residenziale tramite **archetipi edilizi**, aggregata *top-down*"
+" in domanda, produzione, costi ed emissioni; prezzi e costi di rete tornano poi a orientare le "
+"decisioni."
+msgstr ""
+"*Bottom-up*-Abbildung des Wohnsektors über **Gebäudearchetypen**, *top-down* zu Nachfrage, "
+"Erzeugung, Kosten und Emissionen aggregiert; Preise und Netzkosten wirken anschliessend auf "
+"Entscheidungen zurück."
+
+msgid "**:timer_clock: Risoluzione temporale**"
+msgstr "**:timer_clock: Zeitliche Auflösung**"
+
+msgid ""
+"Orizzonte **2011-2050** con passo **annuale**, coerente con i cicli di sostituzione e "
+"investimento. Il solo bilancio elettrico usa **profili orari** su giorni rappresentativi."
+msgstr ""
+"Zeithorizont **2011–2050** mit **jährlichem** Zeitschritt, passend zu Ersatz- und "
+"Investitionszyklen. Nur die Strombilanz nutzt **Stundenprofile** repräsentativer Tage."
+
+msgid "**:material/map: Risoluzione spaziale**"
+msgstr "**:material/map: Räumliche Auflösung**"
+
+msgid ""
+"**Otto distretti** ticinesi per le caratteristiche territoriali, più il livello **cantonale** per"
+" bilancio e rete e quello **federale** per gli strumenti nazionali."
+msgstr ""
+"Die **acht Tessiner Bezirke** bilden lokale Besonderheiten ab, ergänzt durch eine **kantonale** "
+"Ebene für Strombilanz und Netz sowie eine **Bundesebene** für nationale Instrumente."
+
+msgid ""
+"Risultati dell'analisi svolta durante il primo workshop. Il numero nei cerchi indica le menzioni "
+"del relativo elemento."
+msgstr ""
+"Ergebnisse des ersten Workshops. Die Zahlen in den Kreisen zeigen, wie oft jedes Element genannt "
+"wurde."
+
+msgid "**:material/arrow_right_alt: Come si legge una freccia**"
+msgstr "**:material/arrow_right_alt: Einen Pfeil lesen**"
+
+msgid ""
+"\n"
+"            - :blue-badge[**+**] le due variabili si muovono **nella stessa\n"
+"              direzione**: se la prima cresce, la seconda cresce\n"
+"            - :blue-badge[**−**] si muovono in **direzione opposta**: se la prima\n"
+"              cresce, la seconda cala\n"
+"            "
+msgstr ""
+"- :blue-badge[**+**] Die Variablen bewegen sich **gleichgerichtet**: Steigt die erste, steigt die"
+" zweite\n"
+"- :blue-badge[**−**] Sie bewegen sich **entgegengesetzt**: Steigt die erste, sinkt die zweite"
+
+msgid "**:material/loop: Come si legge un loop**"
+msgstr "**:material/loop: Eine Schleife lesen**"
+
+msgid ""
+"\n"
+"            - :loop-r[**R** · Reinforcing] il giro di frecce **amplifica** la\n"
+"              variazione di partenza: la spinge sempre più lontano\n"
+"            - :loop-b[**B** · Balancing] il giro la **contrasta**: riporta il\n"
+"              sistema verso un equilibrio\n"
+"            "
+msgstr ""
+"- :loop-r[**R** · Verstärkend] Die Pfeilkette **verstärkt** die ursprüngliche Änderung\n"
+"- :loop-b[**B** · Ausgleichend] Die Kette **wirkt der Änderung entgegen** und führt das System "
+"zum Gleichgewicht"
+
+msgid ""
+"Causal Loop Diagram dei principali feedback del modello SURE-Ticino: sedici loop collegano "
+"adozione tecnologica, domanda dalla rete, prezzo dell'elettricità, costi di rete e strumenti di "
+"policy. Il CLD è una rappresentazione qualitativa della struttura causale: non mostra parametri, "
+"formule, ritardi né la disaggregazione per archetipo. Il comportamento simulato nasce "
+"dall'implementazione quantitativa congiunta di queste relazioni, non dalla presenza grafica di un"
+" singolo loop. mostra parametri, formule, ritardi né la disaggregazione per archetipo. Il "
+"comportamento simulato nasce dall'implementazione quantitativa congiunta di queste relazioni, non"
+" dalla presenza grafica di un singolo loop."
+msgstr ""
+"Kausalschleifendiagramm der wichtigsten Rückkopplungen in SURE-Ticino: Sechzehn Schleifen "
+"verbinden Technologieverbreitung, Netzbezug, Strompreise, Netzkosten und Politikmassnahmen. Das "
+"CLD bildet die Kausalstruktur qualitativ ab; es zeigt weder Parameter, Gleichungen, Verzögerungen"
+" noch die Aufteilung nach Archetypen. Das simulierte Verhalten entsteht aus der gemeinsamen "
+"quantitativen Umsetzung dieser Beziehungen, nicht aus einer einzelnen Schleife im Diagramm."
+
+msgid "**:material/groups: Diffusione sociale e limiti fisici**"
+msgstr "**:material/groups: Soziale Verbreitung und physische Grenzen**"
+
+msgid ""
+"\n"
+"            :loop-r[R1] :loop-r[R2] :loop-r[R10] **Peer effect.** Più\n"
+"            impianti PV, pompe di calore e veicoli elettrici in circolazione, più la\n"
+"            tecnologia diventa visibile e familiare, più cresce chi la considera.\n"
+"\n"
+"            :loop-b[B1] :loop-b[B2] **Saturazione.** Ogni installazione\n"
+"            riduce il bacino di chi può ancora adottare: tetti idonei che si esauriscono,\n"
+"            edifici già convertiti.\n"
+"\n"
+"            :loop-b[B4] **Comunità energetiche.** Chi accede all'elettricità della\n"
+"            comunità senza impianto proprio ha meno motivi per installarlo dopo.\n"
+"\n"
+"            Insieme producono le tipiche **curve a S**: partenza lenta, accelerazione,\n"
+"            rallentamento finale.\n"
+"            "
+msgstr ""
+":loop-r[R1] :loop-r[R2] :loop-r[R10] **Nachbarschaftseffekt.** Mit der Verbreitung von PV, "
+"Wärmepumpen und Elektrofahrzeugen werden die Technologien sichtbarer und vertrauter; mehr "
+"Menschen erwägen ihre Anschaffung.\n"
+"\n"
+":loop-b[B1] :loop-b[B2] **Sättigung.** Jede Installation verkleinert die Gruppe potenzieller "
+"Nutzender: Es bleiben weniger geeignete Dächer, mehr Gebäude haben bereits umgestellt.\n"
+"\n"
+":loop-b[B4] **Energiegemeinschaften.** Wer Gemeinschaftsstrom ohne eigene Anlage nutzen kann, hat"
+" später weniger Anlass, selbst eine zu installieren.\n"
+"\n"
+"Zusammen entstehen typische **S-Kurven**: langsamer Beginn, Beschleunigung und abschliessende "
+"Verlangsamung."
+
+msgid "**:material/bolt: Prezzo dell'elettricità**"
+msgstr "**:material/bolt: Strompreis**"
+
+msgid ""
+"\n"
+"            :loop-r[R3] **Utility death spiral.** L'autoconsumo riduce i kWh\n"
+"            acquistati dalla rete, ma i costi fissi di distribuzione restano: si\n"
+"            ripartiscono su meno energia, il prezzo unitario sale e rende l'autoconsumo\n"
+"            ancora più prezioso.\n"
+"\n"
+"            :loop-r[R4] :loop-r[R11] **Elettrificazione.** Pompe di calore e\n"
+"            veicoli elettrici fanno l'opposto: più domanda su cui spalmare i costi fissi,\n"
+"            prezzo unitario più basso, tecnologia più conveniente.\n"
+"\n"
+"            :loop-r[R9] **Risanamento.** Meno fabbisogno significa meno domanda e\n"
+"            quindi prezzi unitari più alti, che aumentano il risparmio ottenibile\n"
+"            isolando l'involucro.\n"
+"            "
+msgstr ""
+":loop-r[R3] **Abwärtsspirale des Versorgers.** Eigenverbrauch senkt den Netzbezug, die fixen "
+"Verteilkosten bleiben jedoch bestehen. Auf weniger kWh verteilt erhöhen sie den Stückpreis und "
+"machen Eigenverbrauch noch wertvoller.\n"
+"\n"
+":loop-r[R4] :loop-r[R11] **Elektrifizierung.** Wärmepumpen und Elektrofahrzeuge wirken umgekehrt:"
+" Mehr Nachfrage zur Verteilung fixer Kosten senkt den Stückpreis und erhöht die Attraktivität der"
+" Technologie.\n"
+"\n"
+":loop-r[R9] **Sanierung.** Geringerer Energiebedarf senkt die Nachfrage und erhöht Stückpreise, "
+"wodurch sich mit Gebäudehüllendämmung mehr einsparen lässt."
+
+msgid "**:material/electrical_services: Costi di adeguamento della rete**"
+msgstr "**:material/electrical_services: Netzverstärkungskosten**"
+
+msgid ""
+"\n"
+"            :loop-r[R5] **PV.** Più impianti richiedono più rinforzi di rete, i\n"
+"            costi finiscono nel prezzo, e un prezzo alto rende l'autoconsumo più\n"
+"            redditizio: il loop si rinforza.\n"
+"\n"
+"            :loop-b[B3] :loop-b[B5] **Pompe di calore e veicoli elettrici.**\n"
+"            Stessi rinforzi, stesso aumento di prezzo, ma effetto opposto: qui\n"
+"            l'elettricità è un **costo operativo**, quindi le adozioni rallentano.\n"
+"            "
+msgstr ""
+":loop-r[R5] **PV.** Mehr Anlagen erfordern mehr Netzverstärkung. Diese Kosten gehen in den "
+"Strompreis ein; ein höherer Preis macht Eigenverbrauch rentabler und verstärkt die Schleife.\n"
+"\n"
+":loop-b[B3] :loop-b[B5] **Wärmepumpen und Elektrofahrzeuge.** Dieselbe Verstärkung und "
+"Preiserhöhung wirken hier umgekehrt: Strom ist ein **Betriebskostenfaktor**, daher verlangsamt "
+"sich die Verbreitung."
+
+msgid "**:material/account_balance: Politiche e loro finanziamento**"
+msgstr "**:material/account_balance: Politik und Finanzierung**"
+
+msgid ""
+"\n"
+"            :loop-r[R7] :loop-r[R8] **Supplementi di rete.** Più installazioni\n"
+"            PV incentivate, più fondi servono, più sale il supplemento federale e\n"
+"            cantonale sull'elettricità: il prezzo cresce e l'autoconsumo diventa ancora\n"
+"            più attraente.\n"
+"\n"
+"            :loop-r[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore\n"
+"            aumenta i consumi autoconsumabili e rende il PV più redditizio; il PV abbassa\n"
+"            il costo percepito dell'elettricità per la pompa di calore.\n"
+"            "
+msgstr ""
+":loop-r[R7] :loop-r[R8] **Netzzuschläge.** Mehr geförderte PV-Anlagen benötigen mehr Mittel und "
+"erhöhen nationale und kantonale Netzzuschläge. Der höhere Strompreis macht Eigenverbrauch noch "
+"attraktiver.\n"
+"\n"
+":loop-r[R6] **Gemeinsame Einführung von PV und Wärmepumpen.** Eine Wärmepumpe erhöht den "
+"Stromverbrauch, der durch Eigenverbrauch gedeckt werden kann, und verbessert die PV-Rentabilität."
+" PV senkt die wahrgenommenen Stromkosten der Wärmepumpe."
+
+msgid "Perché lo stesso aumento di prezzo accelera il PV ma frena pompe di calore e veicoli elettrici?"
+msgstr "Warum fördert derselbe Preisanstieg PV, bremst aber Wärmepumpen und Elektrofahrzeuge?"
+
+msgid ""
+"\n"
+"            È l'asimmetria tra :loop-r[R5] da un lato e :loop-b[B3]\n"
+"            :loop-b[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per\n"
+"            ciascuna tecnologia.\n"
+"\n"
+"            Per il **fotovoltaico** l'elettricità di rete è ciò che si evita di\n"
+"            comprare: se il prezzo sale, ogni kWh autoconsumato vale di più e\n"
+"            l'investimento rende di più. Per **pompe di calore e veicoli elettrici**\n"
+"            l'elettricità è invece il carburante: se il prezzo sale, il costo di\n"
+"            esercizio aumenta e l'alternativa fossile torna relativamente più\n"
+"            competitiva.\n"
+"\n"
+"            Lo stesso segnale di prezzo, quindi, spinge in direzioni opposte a seconda\n"
+"            che la tecnologia **consumi** o **sostituisca** elettricità di rete. È un\n"
+"            esempio di come il comportamento del sistema non si legga dalla singola\n"
+"            freccia, ma dal giro completo.\n"
+"            "
+msgstr ""
+"Dies ist die Asymmetrie zwischen :loop-r[R5] einerseits und :loop-b[B3] :loop-b[B5] andererseits."
+" Sie hängt von der **Rolle des Strompreises** für die jeweilige Technologie ab.\n"
+"\n"
+"Bei **PV** ist Netzstrom ein vermeidbarer Einkauf: Steigt sein Preis, ist jede selbst verbrauchte"
+" kWh mehr wert und die Investition rentabler. Bei **Wärmepumpen und Elektrofahrzeugen** ist Strom"
+" der Energieträger: Ein höherer Preis erhöht die Betriebskosten und macht fossile Alternativen "
+"relativ wettbewerbsfähiger.\n"
+"\n"
+"Dasselbe Preissignal wirkt daher entgegengesetzt, je nachdem, ob die Technologie Netzstrom "
+"**verbraucht** oder **ersetzt**. Das Systemverhalten muss anhand der ganzen Schleife verstanden "
+"werden, nicht eines einzelnen Pfeils."
+
+msgid "Produzione storica"
+msgstr "Historische Erzeugung"
+
+msgid ""
+"\n"
+"            Produzione annua di energia elettrica in Ticino, 2011–2024. A sinistra le\n"
+"            fonti idroelettriche (bacini, acqua fluente, pompaggio) e le altre fonti;\n"
+"            a destra il dettaglio delle fonti non idroelettriche, con crescita del\n"
+"            solare negli ultimi anni.\n"
+"            "
+msgstr ""
+"Jährliche Stromerzeugung im Tessin, 2011–2024. Wasserkraft (Speicher, Laufwasser, Pumpspeicher) "
+"und weitere Quellen; eine Detailansicht der übrigen Quellen zeigt das jüngste Solarwachstum."
+
+msgid "GWh"
+msgstr "GWh"
+
+msgid "Produzione totale annua"
+msgstr "Gesamte Jahreserzeugung"
+
+msgid "Produzione totale annua (dettaglio)"
+msgstr "Gesamte Jahreserzeugung (Detail)"
+
+msgid "Adozione pannelli fotovoltaici"
+msgstr "PV-Verbreitung"
+
+msgid ""
+"La diffusione del fotovoltaico è ricostruita **impianto per impianto** e poi aggregata secondo le"
+" dimensioni che il modello usa per distinguere gli archetipi: a sinistra per **distretto**, a "
+"destra per **tipo di edificio**."
+msgstr ""
+"Die PV-Verbreitung wird **Anlage für Anlage** rekonstruiert und nach den Dimensionen der "
+"Modellarchetypen aggregiert: nach **Bezirk** und **Gebäudetyp**."
+
+msgid "edifici con PV"
+msgstr "Gebäude mit PV"
+
+msgid "Edifici con fotovoltaico per distretto (cumulati)"
+msgstr "Gebäude mit PV nach Bezirk (kumuliert)"
+
+msgid "Edifici con fotovoltaico per tipo di edificio (cumulati)"
+msgstr "Gebäude mit PV nach Gebäudetyp (kumuliert)"
+
+msgid "Consumi storici per settore"
+msgstr "Historischer Verbrauch nach Sektor"
+
+msgid ""
+"\n"
+"            Consumi storici per settore finale di utilizzo e consumo di elettricità.\n"
+"            Seleziona un anno per la ripartizione a torta.\n"
+"            "
+msgstr ""
+"Historischer Endenergie- und Stromverbrauch nach Sektor. Ein Jahr auswählen, um die Aufteilung im"
+" Kreisdiagramm zu sehen."
+
+msgid "Consumo energia annuale per settore"
+msgstr "Jährlicher Energieverbrauch nach Sektor"
+
+msgid "Consumo elettricità annuale per settore"
+msgstr "Jährlicher Stromverbrauch nach Sektor"
+
+msgid "Settore residenziale"
+msgstr "Wohnsektor"
+
+msgid ""
+"\n"
+"            Il settore residenziale è la principale fonte di consumo. Gli edifici sono\n"
+"            categorizzati in **archetipi** (tipo, PV, tecnologia di riscaldamento,\n"
+"            efficienza). La mappa mostra un esempio per il comune di Massagno.\n"
+"            "
+msgstr ""
+"Der Wohnsektor ist die wichtigste Verbrauchsquelle. Gebäude werden in **Archetypen** eingeteilt "
+"(Typ, PV, Heiztechnik und Effizienz). Die Karte zeigt die Gemeinde Massagno."
+
+msgid "**:material/tune: Cosa si stima**"
+msgstr "**:material/tune: Was geschätzt wird**"
+
+msgid ""
+"Si cambiano alcuni parametri del modello, quelli che descrivono come le persone scelgono, finché "
+"le adozioni simulate **riproducono i dati storici** disponibili per ciascuna tecnologia. I "
+"parametri tecnici ed economici restano fissi."
+msgstr ""
+"Ausgewählte Entscheidungsparameter werden angepasst, bis die simulierte Verbreitung die "
+"**historischen Daten** jeder Technologie reproduziert. Technische und wirtschaftliche Parameter "
+"bleiben unverändert."
+
+msgid "**:material/database: Contro quali dati**"
+msgstr "**:material/database: Vergleichsdaten**"
+
+msgid ""
+"Le serie annuali osservate di adozione: fotovoltaico, pompe di calore, accumulatori, sostituzioni"
+" di riscaldamento, risanamenti e immatricolazioni di veicoli."
+msgstr ""
+"Beobachtete Jahresreihen: PV, Wärmepumpen, Batterien, Heizungsersatz, Sanierungen und "
+"Fahrzeugzulassungen."
+
+#, python-brace-format
+msgid "Periodo osservato: {v0}–{v1}"
+msgstr "Beobachtungszeitraum: {v0}–{v1}"
+
+msgid "Anno (consumi totali)"
+msgstr "Jahr (Gesamtverbrauch)"
+
+msgid "Anno (elettricità)"
+msgstr "Jahr (Strom)"
+
+#, python-brace-format
+msgid "Mappa HTML non trovata: `{v0}`"
+msgstr "HTML-Karte nicht gefunden: `{v0}`"
+
+msgid "Warming the Julia worker before accepting simulations"
+msgstr "Julia-Prozess wird vor den Simulationen aufgewärmt"
+
+#, python-format
+msgid "Julia worker ready: pid=%s, warmup=%.3fs, compilation=%.3fs"
+msgstr "Julia-Prozess bereit: pid=%s, Aufwärmen=%.3fs, Kompilierung=%.3fs"
+
+msgid "CHF/m²"
+msgstr "CHF/m²"
+
+msgid "CHF/tCO₂"
+msgstr "CHF/tCO₂"
+
+msgid "-"
+msgstr "-"
+
+msgid "MoPEC 2014"
+msgstr "MuKEn 2014"
+
+msgid "MoPEC 2025"
+msgstr "MuKEn 2025"
+
+msgid "kWh/m2y"
+msgstr "kWh/m²/Jahr"
+
+msgid "Consumo specifico finale"
+msgstr "Spezifischer Endenergieverbrauch"
+
+msgid "Consumo finale"
+msgstr "Endenergieverbrauch"
+
+msgid "Consumo netto"
+msgstr "Nettoverbrauch"
+
+msgid "Consumi annuali per vettore"
+msgstr "Jahresverbrauch nach Energieträger"
+
+msgid "Consumi cumulati per vettore"
+msgstr "Kumulierter Verbrauch nach Energieträger"
+
+msgid "Olio"
+msgstr "Heizöl"
+
+msgid "Gas"
+msgstr "Gas"
+
+msgid "Legna"
+msgstr "Holz"
+
+msgid "Elettricità resistenza"
+msgstr "Elektro-Widerstandsheizung"
+
+msgid "Elettricità PC"
+msgstr "Wärmepumpenstrom"
+
+msgid "Calore ambiente"
+msgstr "Umweltwärme"
+
+msgid "Solare"
+msgstr "Solar"
+
+msgid "Rete termica"
+msgstr "Fernwärme"
+
+msgid "Mio m2"
+msgstr "Mio. m²"
+
+msgid "Superficie riscaldata per efficienza energetica"
+msgstr "Beheizte Fläche nach Energieeffizienz"
+
+msgid "Incentivi e fondi cantonali"
+msgstr "Förderbeiträge und kantonale Finanzierung"
+
+msgid "Incentivi e fondi cantonali cumulati"
+msgstr "Kumulierte Förderbeiträge und kantonale Finanzierung"
+
+msgid "Risanamento"
+msgstr "Sanierung"
+
+msgid "Riscaldamento"
+msgstr "Heizung"
+
+msgid "Fondi cantonali"
+msgstr "Kantonale Finanzierung"
+
+msgid ""
+"\n"
+"Entrambe le curve sono consumi **per metro quadrato riscaldato**: misurano quindi\n"
+"l'efficienza del parco edifici e non risentono del fatto che la superficie costruita\n"
+"cresca nel tempo.\n"
+"\n"
+"- 🏠 **Consumo finale** — tutta l'energia che entra nell'edificio per il riscaldamento:\n"
+"  olio, gas, legna, elettricità, rete termica e anche il **calore ambiente**, cioè la\n"
+"  quota che le pompe di calore prelevano gratuitamente da aria, acqua o terreno.\n"
+"- 🧾 **Consumo netto** — lo stesso conteggio **senza il calore ambiente**, cioè solo\n"
+"  l'energia che viene effettivamente acquistata o prodotta.\n"
+"\n"
+"La distanza fra le due curve è quindi il contributo gratuito delle pompe di calore, e\n"
+"si allarga man mano che queste sostituiscono le caldaie. È il consumo netto quello che\n"
+"si traduce in bolletta: una pompa di calore può far scendere il consumo netto anche\n"
+"quando il fabbisogno di calore dell'edificio resta lo stesso.\n"
+msgstr ""
+"Beide Kurven zeigen den Verbrauch **pro Quadratmeter beheizter Fläche**. Sie messen somit die "
+"Effizienz des Gebäudebestands unabhängig vom Wachstum der Gesamtfläche.\n"
+"\n"
+"- 🏠 **Endenergieverbrauch** – die gesamte zum Heizen ins Gebäude gelangende Energie: Heizöl, Gas,"
+" Holz, Strom, Fernwärme und **Umweltwärme**, die Wärmepumpen kostenlos aus Luft, Wasser oder "
+"Erdreich gewinnen.\n"
+"- 🧾 **Nettoverbrauch** – dieselbe Summe **ohne Umweltwärme**; berücksichtigt wird nur tatsächlich"
+" eingekaufte oder erzeugte Energie.\n"
+"\n"
+"Der Abstand zwischen den Kurven entspricht dem kostenlosen Beitrag der Wärmepumpen, der mit dem "
+"Ersatz von Heizkesseln wächst. Der Nettoverbrauch bestimmt die Energierechnung: Eine Wärmepumpe "
+"kann ihn auch bei unverändertem Wärmebedarf des Gebäudes reduzieren."
+
+msgid ""
+"\n"
+"### 💰 Quali incentivi vengono pagati\n"
+"\n"
+"- 🧱 **Risanamento** — l'incentivo è versato sui metri quadrati che passano a una classe\n"
+"  di efficienza superiore, con importi crescenti a seconda del livello raggiunto. Lo slider "
+"*Contributo base al risanamento dell’involucro* fissa il valore\n"
+"  specifico in CHF/m².\n"
+"- 🔥 **Riscaldamento** — l'incentivo copre una frazione del costo di ogni impianto\n"
+"  sostituito: pompe di calore, caldaie a pellet o legna e collettori solari. Caldaie a\n"
+"  olio, a gas e riscaldamenti elettrici **non ricevono nulla**, per cui alzare i contributi\n"
+"  agisce solo sulla velocità di sostituzione.\n"
+"\n"
+"### 🏦 Chi paga: fondi cantonali e fondi federali\n"
+"\n"
+"- Fino al **2024** il Cantone copre circa il **60 %** della spesa complessiva in\n"
+"  incentivi; il resto arriva dai contributi globali della Confederazione.\n"
+"- Dal **2025** i fondi federali sono legati al gettito della tassa CO2: partono da metà\n"
+"  della spesa in incentivi registrata nel 2024 e **calano linearmente fino ad azzerarsi\n"
+"  nel 2050**.\n"
+"- I *fondi cantonali necessari* sono semplicemente quello che resta scoperto, cioè\n"
+"  `incentivi totali − fondi federali`. Per questo la curva tende a\n"
+"  salire anche a parità di incentivi: il sostegno federale si ritira.\n"
+"\n"
+"### 🌍 Assunzioni sulla tassa CO2\n"
+"\n"
+"- Il livello di riferimento è **120 CHF/tonCO2**; lo slider scala tutto rispetto a\n"
+"  questo valore, e la variazione **entra in vigore solo dal 2025**.\n"
+"- ⛽ La tassa si scarica sul **prezzo di olio e gas**: con i fattori di emissione usati\n"
+"  nel modello (circa 265 gCO2/kWh per l'olio e 202 gCO2/kWh per il gas), passare da 120\n"
+"  a 240 CHF/tonCO2 aggiunge all'incirca 3.2 ct/kWh all'olio e 2.4 ct/kWh al gas. È il\n"
+"  canale che rende conveniente il cambio di impianto.\n"
+"- 👛 Ogni archetipo di famiglia paga la tassa in proporzione a quanto olio o gas consuma:\n"
+"  è questo saldo, al netto degli incentivi ricevuti, a determinare l'indice di equità.\n"
+"- 🔁 Una tassa più alta aumenta anche i fondi federali disponibili per gli incentivi,\n"
+"  alleggerendo in proporzione la quota a carico del Cantone.\n"
+msgstr ""
+"### 💰 Welche Förderbeiträge ausbezahlt werden\n"
+"\n"
+"- 🧱 **Sanierung** – Beiträge werden pro Quadratmeter gezahlt, der eine höhere Effizienzklasse "
+"erreicht. Die Beträge steigen mit dem erreichten Niveau. Der Regler *Grundbeitrag zur "
+"Gebäudehüllensanierung* legt den Wert in CHF/m² fest.\n"
+"- 🔥 **Heizung** – Beiträge decken einen Anteil der Kosten jedes ersetzten Systems: Wärmepumpen, "
+"Pellet- oder Holzheizungen und Solarkollektoren. Öl- und Gasheizungen sowie Elektro-"
+"Widerstandsheizungen **erhalten keine Förderung**; höhere Beiträge verändern somit nur die "
+"Ersatzrate.\n"
+"\n"
+"### 🏦 Wer zahlt: Kanton und Bund\n"
+"\n"
+"- Bis **2024** trägt der Kanton rund **60 %** der gesamten Förderausgaben; der Rest stammt aus "
+"den Globalbeiträgen des Bundes.\n"
+"- Ab **2025** ist die Bundesfinanzierung an die CO₂-Abgabe gekoppelt: Sie beginnt bei der Hälfte "
+"der Förderausgaben von 2024 und **sinkt linear bis auf null im Jahr 2050**.\n"
+"- Die *erforderliche kantonale Finanzierung* entspricht der Differenz: `gesamte Förderbeiträge − "
+"Bundesfinanzierung`. Die Kurve steigt daher tendenziell auch bei unveränderten Beiträgen, wenn "
+"die Bundesunterstützung zurückgeht.\n"
+"\n"
+"### 🌍 Annahmen zur CO₂-Abgabe\n"
+"\n"
+"- Der Referenzwert beträgt **120 CHF/tCO₂**. Der Regler skaliert die Werte relativ dazu; die "
+"Änderung **wirkt erst ab 2025**.\n"
+"- ⛽ Die Abgabe beeinflusst **Heizöl- und Gaspreise**. Mit den Emissionsfaktoren des Modells (etwa"
+" 265 gCO₂/kWh für Heizöl und 202 gCO₂/kWh für Gas) erhöht ein Anstieg von 120 auf 240 CHF/tCO₂ "
+"den Heizölpreis um rund 3,2 Rp./kWh und den Gaspreis um 2,4 Rp./kWh. Dieser Mechanismus macht den"
+" Ersatz attraktiv.\n"
+"- 👛 Jeder Haushaltsarchetyp zahlt die Abgabe proportional zu seinem Öl- oder Gasverbrauch. Dieser"
+" Saldo abzüglich der erhaltenen Förderbeiträge bestimmt den Gerechtigkeitsindex.\n"
+"- 🔁 Eine höhere Abgabe erhöht auch die Bundesfinanzierung der Förderung und reduziert damit "
+"anteilig die kantonale Finanzierung."
+
+msgid "Consumo finale e consumo netto: che differenza c'è"
+msgstr "Endenergie- und Nettoverbrauch: Was ist der Unterschied?"
+
+msgid "Come funzionano incentivi, fondi e tassa CO2"
+msgstr "So funktionieren Förderung, Finanzierung und CO₂-Abgabe"
+
+msgid "Emissioni cumulate CO2"
+msgstr "Kumulierte CO₂-Emissionen"
+
+msgid "MtonCO2"
+msgstr "MtCO₂"
+
+msgid "Equità tassa CO2"
+msgstr "Gerechtigkeit der CO₂-Abgabe"
+
+msgid "Fondi cantonali cumulati"
+msgstr "Kumulierte kantonale Finanzierung"
+
+#, python-brace-format
+msgid ""
+"\n"
+"La variazione percentuale sotto ogni valore è il confronto con lo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate CO2** — emissioni degli edifici residenziali accumulate lungo\n"
+"  tutto l'orizzonte di simulazione, fino al 2050. Essendo un totale cumulato\n"
+"  conta l'intero percorso e non solo il punto di arrivo: ritardare gli interventi\n"
+"  peggiora l'indicatore anche a parità di situazione finale.\n"
+"- **Fondi cantonali cumulati** — somma su tutti gli anni dei fondi che il Cantone deve\n"
+"  stanziare per finanziare gli incentivi, cioè il costo complessivo della politica per\n"
+"  le casse cantonali.\n"
+"\n"
+"### L'indice di equità\n"
+"\n"
+"**Equità tassa CO2** misura *quanto diversamente* il peso della transizione ricade sulle\n"
+"famiglie, non quanto è alto in assoluto. La grandezza confrontata è, per ogni archetipo\n"
+"di famiglia, il saldo fra **tassa CO2 pagata e incentivi ricevuti**: un archetipo che\n"
+"scalda a olio e non risana paga molto e incassa poco, uno che passa alla pompa di calore\n"
+"incassa l'incentivo e smette di pagare la tassa.\n"
+"\n"
+"Il punto di partenza è la *Gini Mean Difference* pesata, cioè la differenza media in\n"
+"valore assoluto fra tutte le coppie di archetipi, pesata per quante famiglie ciascuno\n"
+"rappresenta:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"Vale zero quando tutti gli archetipi sopportano esattamente lo stesso saldo, e cresce\n"
+"via via che le situazioni divergono.\n"
+"\n"
+"**Come leggere il numero.** Il GMD grezzo è in CHF per abitazione e poco interpretabile\n"
+"da solo, quindi viene riscalato da 0 a 1 usando il minimo e il massimo osservati\n"
+"**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo fra\n"
+"quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di\n"
+"scenari e non una misura assoluta: 0.5 significa \"a metà strada fra lo scenario migliore\n"
+"e quello peggiore\", e i valori cambierebbero cambiando la griglia degli scenari.\n"
+msgstr ""
+"Die prozentuale Änderung unter jedem Wert vergleicht ihn mit dem Referenzszenario.\n"
+"\n"
+"- **Kumulierte CO₂-Emissionen** – Emissionen der Wohngebäude über den gesamten "
+"Simulationszeitraum bis 2050. Entscheidend ist der gesamte Verlauf, nicht nur der Endpunkt: "
+"Spätere Massnahmen verschlechtern diesen Indikator auch bei identischem Endzustand.\n"
+"- **Kumulierte kantonale Finanzierung** – Summe aller jährlichen Mittel, die der Kanton für "
+"Förderbeiträge bereitstellen muss; sie beschreibt die gesamten politischen Kosten für die "
+"Kantonsfinanzen.\n"
+"\n"
+"### Der Gerechtigkeitsindex\n"
+"\n"
+"Die **Gerechtigkeit der CO₂-Abgabe** misst, *wie unterschiedlich* die Last der Energiewende auf "
+"Haushalte verteilt ist, nicht deren absolute Höhe. Verglichen wird für jeden Archetyp der Saldo "
+"**bezahlte CO₂-Abgabe minus erhaltene Förderbeiträge**. Ein ölbeheizter Archetyp ohne Sanierung "
+"zahlt mehr und erhält wenig; beim Wechsel zur Wärmepumpe erhält er Förderung und zahlt keine "
+"Abgabe mehr.\n"
+"\n"
+"Ausgangspunkt ist die gewichtete *Gini Mean Difference*: die mittlere absolute Differenz zwischen"
+" allen Archetypenpaaren, gewichtet mit der jeweiligen Haushaltszahl:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"Sie ist null, wenn alle Archetypen genau denselben Saldo haben, und steigt mit zunehmenden "
+"Unterschieden.\n"
+"\n"
+"**So ist der Wert zu lesen.** Die rohe GMD wird in CHF pro Wohnung angegeben und ist allein "
+"schwer interpretierbar. Sie wird anhand von Minimum und Maximum **über alle vorberechneten "
+"Szenarien** auf 0 bis 1 skaliert: 1 bezeichnet das gerechteste verfügbare Szenario, 0 das "
+"ungerechteste. Es handelt sich um einen **relativen** Index, keine absolute Messung. Ein Wert von"
+" 0,5 bedeutet «in der Mitte zwischen bestem und schlechtestem Szenario»; ein anderes "
+"Szenarioraster würde andere Werte ergeben."
+
+msgid "CHF/l"
+msgstr "CHF/l"
+
+msgid "Immatricolazioni annue per tipo"
+msgstr "Jährliche Neuzulassungen nach Typ"
+
+msgid "Immatricolazioni storiche dei soli veicoli elettrici a batteria (BEV), da EVinput.csv."
+msgstr "Historische Zulassungen ausschliesslich für batterieelektrische Fahrzeuge (BEV), aus EVinput.csv."
+
+msgid "Parco veicoli per tipo"
+msgstr "Fahrzeugbestand nach Typ"
+
+msgid "Emissioni annuali CO2"
+msgstr "Jährliche CO₂-Emissionen"
+
+msgid "BEV per distretto"
+msgstr "BEV nach Bezirk"
+
+msgid "Totale EV"
+msgstr "Elektrofahrzeuge insgesamt"
+
+msgid "Quota EV sul parco"
+msgstr "Elektroanteil am Fahrzeugbestand"
+
+msgid "%"
+msgstr "%"
+
+msgid ""
+"\n"
+"Tutti gli indicatori sono riferiti al **2050**; la variazione percentuale sotto\n"
+"ogni valore è il confronto con lo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate CO2** — emissioni dei veicoli accumulate lungo tutto l'orizzonte\n"
+"  di simulazione. Essendo un totale cumulato conta l'intero percorso e non solo il punto\n"
+"  di arrivo: raggiungere tardi la stessa flotta elettrica lascia comunque più CO2 in\n"
+"  atmosfera.\n"
+"- **Totale EV** — veicoli elettrici a batteria (BEV) circolanti. Gli ibridi plug-in sono\n"
+"  contati a parte e non rientrano in questo valore.\n"
+"- **Quota EV sul parco** — gli stessi BEV espressi come percentuale del parco veicoli\n"
+"  totale. Il parco complessivo è un'ipotesi esogena del modello e non reagisce agli\n"
+"  incentivi, quindi questa quota si muove esattamente come il totale EV: è una lettura\n"
+"  più comoda, non un'informazione in più, ed è il motivo per cui non compare nel radar.\n"
+"\n"
+"Questa sezione non ha un indice di equità: gli effetti distributivi della transizione\n"
+"sono misurati nelle pagine *PV e Batterie* e *Riscaldamento e Risanamento*.\n"
+msgstr ""
+"Alle Indikatoren beziehen sich auf **2050**. Die prozentuale Änderung unter jedem Wert vergleicht"
+" ihn mit dem Referenzszenario.\n"
+"\n"
+"- **Kumulierte CO₂-Emissionen** – Fahrzeugemissionen über den gesamten Simulationszeitraum. "
+"Entscheidend ist der gesamte Verlauf, nicht nur der Endpunkt: Derselbe elektrische "
+"Fahrzeugbestand zu einem späteren Zeitpunkt hinterlässt mehr CO₂ in der Atmosphäre.\n"
+"- **Elektrofahrzeuge insgesamt** – batterieelektrische Fahrzeuge (BEV) in Betrieb. Plug-in-"
+"Hybride werden separat gezählt und sind nicht enthalten.\n"
+"- **Elektroanteil am Fahrzeugbestand** – dieselben BEV als Anteil am gesamten Fahrzeugbestand. "
+"Dieser ist eine exogene Modellannahme und reagiert nicht auf Förderbeiträge; der Anteil "
+"entwickelt sich deshalb genau wie die BEV-Gesamtzahl. Er bietet eine praktische alternative "
+"Darstellung, jedoch keine zusätzliche Information, und ist daher nicht im Radardiagramm "
+"enthalten.\n"
+"\n"
+"Dieser Abschnitt hat keinen Gerechtigkeitsindex. Verteilungswirkungen der Energiewende werden "
+"unter *PV und Batterien* sowie *Heizung und Sanierung* gemessen."
+
+msgid "Elettricita' dispacciata | totale annuo per supplier"
+msgstr "Ins Netz eingespeister Strom | Jahressumme nach Quelle"
+
+msgid "Elettricità oraria dispacciata in rete"
+msgstr "Stündlich ins Netz eingespeister Strom"
+
+msgid "Elettricita' esportata | totale annuo per supplier"
+msgstr "Exportierter Strom | Jahressumme nach Quelle"
+
+msgid "Elettricità oraria esportata"
+msgstr "Stündlicher Stromexport"
+
+msgid "Elettricita' consumata | totale annuo per supplier"
+msgstr "Verbrauchter Strom | Jahressumme nach Quelle"
+
+msgid "Elettricità oraria consumata"
+msgstr "Stündlicher Stromverbrauch"
+
+msgid "Elettricita' offerta nel mercato | totale annuo per supplier"
+msgstr "Am Markt angebotener Strom | Jahressumme nach Quelle"
+
+msgid "Elettricità oraria offerta nel mercato"
+msgstr "Stündliches Stromangebot am Markt"
+
+msgid "Domanda oraria PHS"
+msgstr "Stündlicher Pumpstrombedarf"
+
+msgid "Offerta locale"
+msgstr "Lokales Angebot"
+
+msgid "Offerta solare"
+msgstr "Solarangebot"
+
+msgid "Elettricità consumata"
+msgstr "Stromverbrauch"
+
+msgid "Elettricità esportata"
+msgstr "Stromexport"
+
+msgid "Importazioni"
+msgstr "Importe"
+
+msgid ""
+"\n"
+"Le quattro grandezze descrivono lo stesso kWh in momenti diversi del suo percorso. Il\n"
+"modello simula **un giorno tipo per ogni mese**, ora per ora, distinguendo le fonti\n"
+"(*supplier*): solare, eolico, nucleare, acqua fluente, bacini idroelettrici,\n"
+"pompaggio, rifiuti, carbone e importazioni.\n"
+"\n"
+"- ⚡ **Offerta (produzione disponibile)** — quanta elettricità ciascuna fonte\n"
+"  *potrebbe* mettere a disposizione in quell'ora, dati gli impianti installati e le\n"
+"  condizioni di sole, vento e portate. È un potenziale, non ancora un consumo. Nei\n"
+"  grafici di questa pagina le importazioni sono escluse, quindi va letta come\n"
+"  **offerta locale**.\n"
+"- 🔀 **Dispacciata** — la parte di quell'offerta che viene effettivamente immessa in\n"
+"  rete per coprire la domanda di quell'ora. Il modello la assegna seguendo un ordine\n"
+"  di priorità fra le fonti, fino a coprire il fabbisogno: consumo degli utenti più\n"
+"  l'assorbimento degli impianti di pompaggio.\n"
+"- 🏠 **Consumata** — l'elettricità realmente utilizzata in Ticino: la dispacciata più\n"
+"  l'**autoconsumo fotovoltaico**, cioè la quota di produzione PV usata direttamente\n"
+"  nell'edificio senza mai passare dalla rete.\n"
+"- 🌍 **Esportata** — il surplus, cioè `offerta − dispacciata`. È l'energia che le fonti\n"
+"  locali potrebbero produrre ma che in quell'ora nessuno consuma qui, e che quindi\n"
+"  esce dal cantone.\n"
+"\n"
+"In sintesi: **offerta = dispacciata + esportata**, mentre la **consumata** aggiunge\n"
+"alla dispacciata l'autoconsumo fotovoltaico, che non transita dalla rete.\n"
+"\n"
+"🔄 **Domanda oraria PHS** — sta a parte rispetto alle quattro: è l'elettricità che gli\n"
+"impianti di pompaggio *assorbono* per risalire l'acqua nei bacini. Non è un consumo\n"
+"finale ma un accumulo, e rientra nella domanda che il dispacciamento deve coprire.\n"
+"\n"
+"📅 **Nota sulle quantità.** Poiché il modello calcola un giorno rappresentativo per\n"
+"mese, i totali mensili e annuali mostrati qui sono riscalati sui giorni di un mese\n"
+"medio (365/12 ≈ 30.4). I profili orari sono invece il giorno tipo così com'è.\n"
+msgstr ""
+"Die vier Grössen beschreiben Strom an verschiedenen Punkten seines Weges. Das Modell simuliert "
+"**einen repräsentativen Tag pro Monat**, Stunde für Stunde, nach Quellen: Solar, Wind, "
+"Kernenergie, Laufwasser, Speicherwasserkraft, Pumpspeicher, Abfall, Kohle und Importe.\n"
+"\n"
+"- ⚡ **Angebot (verfügbare Erzeugung)** – wie viel Strom jede Quelle in dieser Stunde angesichts "
+"der installierten Leistung, Sonneneinstrahlung, Wind- und Wasserverhältnisse *bereitstellen "
+"könnte*. Dies ist potenzielles Angebot, noch kein Verbrauch. Die Diagramme schliessen Importe aus"
+" und zeigen damit das **lokale Angebot**.\n"
+"- 🔀 **Netzeinspeisung** – der tatsächlich ins Netz eingespeiste Anteil zur Deckung des "
+"stündlichen Bedarfs. Das Modell teilt ihn gemäss Quellenprioritäten zu, bis Endverbrauch und "
+"Pumpbedarf gedeckt sind.\n"
+"- 🏠 **Verbrauch** – im Tessin tatsächlich genutzter Strom: Netzeinspeisung plus **PV-"
+"Eigenverbrauch**, der direkt im Gebäude genutzt wird, ohne das Netz zu passieren.\n"
+"- 🌍 **Export** – Überschuss: `Angebot − Einspeisung`. Lokal potenziell erzeugbarer Strom, der in "
+"dieser Stunde nicht lokal verbraucht wird und daher den Kanton verlässt.\n"
+"\n"
+"Damit gilt **Angebot = Einspeisung + Export**. Der **Verbrauch** ergänzt die Einspeisung um den "
+"PV-Eigenverbrauch, der am Netz vorbeifliesst.\n"
+"\n"
+"🔄 Der **stündliche Pumpstrombedarf** wird separat ausgewiesen: Er bezeichnet den von "
+"Pumpspeicherkraftwerken *aufgenommenen* Strom zum Hochpumpen von Wasser. Dies ist Speicherung "
+"statt Endverbrauch, gehört aber zum Bedarf, den die Einspeisung decken muss.\n"
+"\n"
+"📅 **Hinweis zu den Mengen.** Das Modell berechnet einen repräsentativen Tag pro Monat. Monats- "
+"und Jahressummen werden mit der mittleren Anzahl Monatstage skaliert (365/12 ≈ 30,4). "
+"Stundenprofile zeigen unmittelbar den repräsentativen Tag."
+
+msgid ""
+"\n"
+"Tutti gli indicatori sono totali dell'anno **2050**; la variazione percentuale\n"
+"sotto ogni valore è il confronto con lo scenario Base.\n"
+"\n"
+"- **Offerta locale** — elettricità che le fonti in Ticino potrebbero produrre\n"
+"  nell'anno, **escluse le importazioni**. Cresce con il fotovoltaico e con i\n"
+"  provvedimenti PECC sull'idroelettrico.\n"
+"- **Offerta solare** — la sola quota fotovoltaica dell'indicatore precedente: è la\n"
+"  parte su cui agiscono direttamente la rimunerazione dell'elettricità e il rimborso\n"
+"  PV federale.\n"
+"- **Elettricità consumata** — quanto viene effettivamente usato in Ticino, cioè rete\n"
+"  più autoconsumo fotovoltaico.\n"
+"- **Elettricità esportata** — il surplus che esce dal cantone perché prodotto in ore\n"
+"  in cui non c'è domanda locale. Una crescita marcata segnala che la produzione\n"
+"  aggiuntiva non trova sbocco nel momento in cui viene generata.\n"
+"- **Importazioni** — elettricità dispacciata proveniente da fuori cantone, cioè le ore\n"
+"  in cui la produzione locale non basta a coprire la domanda.\n"
+"\n"
+"Letti insieme, esportazioni e importazioni raccontano il **disallineamento temporale**\n"
+"fra produzione e consumo: nello stesso scenario possono crescere entrambe, perché si\n"
+"riferiscono a ore diverse dell'anno.\n"
+msgstr ""
+"Alle Indikatoren sind Jahressummen für **2050**. Die prozentuale Änderung unter jedem Wert "
+"vergleicht ihn mit dem Referenzszenario.\n"
+"\n"
+"- **Lokales Angebot** – Strom, den Tessiner Quellen im Jahr erzeugen könnten, **ohne Importe**. "
+"Es wächst mit PV und den PECC-Wasserkraftmassnahmen.\n"
+"- **Solarangebot** – PV-Anteil des lokalen Angebots, direkt beeinflusst durch Stromvergütung und "
+"PV-Förderung des Bundes.\n"
+"- **Stromverbrauch** – im Tessin tatsächlich genutzter Strom aus Netzbezug und PV-Eigenverbrauch."
+"\n"
+"- **Stromexport** – Überschüsse, die den Kanton verlassen, weil zum Erzeugungszeitpunkt keine "
+"lokale Nachfrage besteht. Starkes Wachstum zeigt, dass zusätzliche Erzeugung zeitgleich keinen "
+"Absatz findet.\n"
+"- **Importe** – eingespeister Strom von ausserhalb des Kantons, wenn lokale Erzeugung den Bedarf "
+"nicht deckt.\n"
+"\n"
+"Exporte und Importe beschreiben gemeinsam die **zeitliche Abweichung** zwischen Erzeugung und "
+"Verbrauch. Beide können im selben Szenario wachsen, da sie sich auf unterschiedliche Stunden des "
+"Jahres beziehen."
+
+msgid "Carbone"
+msgstr "Kohle"
+
+msgid "Idroelettrico"
+msgstr "Wasserkraft"
+
+msgid "Nucleare"
+msgstr "Kernenergie"
+
+msgid "Idroelettrico con pompaggio"
+msgstr "Pumpspeicher"
+
+msgid "Acqua fluente"
+msgstr "Laufwasser"
+
+msgid "Rifiuti"
+msgstr "Abfall"
+
+msgid "Eolico"
+msgstr "Wind"
+
+msgid ""
+"Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri oneri rappresentati "
+"nel modello. L’indice confronta il saldo cumulato fra supplementi pagati e incentivi PV ricevuti "
+"dai diversi tipi di famiglia, ponderato per il numero di famiglie rappresentate. Gini Mean "
+"Difference: valore grezzo più basso = minore disuguaglianza."
+msgstr ""
+"Der Zuschlag auf der Stromrechnung finanziert Förderbeiträge und weitere im Modell abgebildete "
+"Abgaben. Der Index vergleicht den kumulierten Saldo bezahlter Zuschläge und erhaltener PV-"
+"Förderung zwischen Haushaltstypen, gewichtet nach Haushaltszahl. Gini Mean Difference: Ein "
+"niedrigerer Rohwert bedeutet weniger Ungleichheit."
+
+msgid "Equità tassa CO₂"
+msgstr "Gerechtigkeit der CO₂-Abgabe"
+
+msgid ""
+"Gini Mean Difference sul saldo tassa CO₂ − incentivi. Valore grezzo più basso = minore "
+"disuguaglianza."
+msgstr ""
+"Gini Mean Difference des Saldos aus CO₂-Abgabe und Förderbeiträgen. Ein niedrigerer Rohwert "
+"bedeutet weniger Ungleichheit."
+
+msgid "Equità costo"
+msgstr "Kostengerechtigkeit"
+
+msgid ""
+"Gini Mean Difference sul costo annuo energia e risanamento. Valore grezzo più basso = minore "
+"disuguaglianza."
+msgstr ""
+"Gini Mean Difference der jährlichen Energie- und Sanierungskosten. Ein niedrigerer Rohwert "
+"bedeutet weniger Ungleichheit."
+
+msgid "Costo medio energia per famiglia"
+msgstr "Mittlere Energiekosten der Haushalte"
+
+msgid "CHF/abitazione"
+msgstr "CHF/Wohnung"
+
+msgid "Costo medio annuo per elettricità, riscaldamento e risanamento al 2050."
+msgstr "Mittlere jährliche Strom-, Heizungs- und Sanierungskosten im Jahr 2050."
+
+msgid "Produzione PV annuale"
+msgstr "Jährliche PV-Erzeugung"
+
+msgid "Energia fotovoltaica prodotta nell'anno 2050."
+msgstr "Im Jahr 2050 erzeugter PV-Strom."
+
+msgid "Consumo netto specifico medio"
+msgstr "Mittlerer spezifischer Nettoverbrauch"
+
+msgid "kWh/m²"
+msgstr "kWh/m²"
+
+msgid "Consumo specifico netto di riscaldamento al 2050 (senza calore ambiente)."
+msgstr "Spezifischer Nettoheizverbrauch 2050 (ohne Umweltwärme)."
+
+msgid "Emissioni CO₂ cumulate"
+msgstr "Kumulierte CO₂-Emissionen"
+
+msgid "MtonCO₂"
+msgstr "MtCO₂"
+
+msgid "Emissioni residenziali cumulate fino al 2050."
+msgstr "Bis 2050 kumulierte Emissionen des Wohnsektors."
+
+msgid "Spesa cantonale cumulata"
+msgstr "Kumulierte kantonale Ausgaben"
+
+msgid ""
+"Somma 2025–2050 dei fondi cantonali per riscaldamento e risanamento, al netto dei fondi federali "
+"della tassa CO₂."
+msgstr ""
+"Gesamte kantonale Finanzierung von Heizung und Sanierung 2025–2050 abzüglich der Bundesmittel aus"
+" der CO₂-Abgabe."
+
+msgid "Domanda coperta dal PV autoconsumato"
+msgstr "Durch PV-Eigenverbrauch gedeckter Bedarf"
+
+msgid ""
+"Quota della domanda elettrica totale coperta dal PV autoconsumato nel 2050. Rapporto tra Total PV"
+" electricity SC (GWh) e la somma di Total annual demand Districts (kWh), convertita in GWh. Non è"
+" la quota autoconsumata della produzione PV."
+msgstr ""
+"Anteil des gesamten Strombedarfs, der 2050 durch PV-Eigenverbrauch gedeckt wird. Verhältnis von "
+"Total PV electricity SC (GWh) zur Summe von Total annual demand Districts (kWh), umgerechnet in "
+"GWh. Dies ist nicht der Eigenverbrauchsanteil der PV-Erzeugung."
+
+msgid "1. PV e Batterie"
+msgstr "1. PV und Batterien"
+
+msgid "2. Riscaldamento e Risanamento"
+msgstr "2. Heizung und Sanierung"
+
+msgid "3. Veicoli"
+msgstr "3. Fahrzeuge"
+
+msgid "4. Elettricità"
+msgstr "4. Strom"
+
+msgid "Accumulatori domestici"
+msgstr "Haushaltsbatterien"
+
+msgid "Allacciamento alla rete di calore"
+msgstr "Fernwärmeanschluss"
+
+msgid "Prezzi di mercato"
+msgstr "Marktpreise"
+
+msgid "Obbligo di una minima efficienza energetica"
+msgstr "Mindestanforderung an die Energieeffizienz"
+
+msgid "Incentivi pannelli fotovoltaici"
+msgstr "PV-Förderung"
+
+msgid "Maggiore diffusione delle comunità energetiche"
+msgstr "Verbreitung von Energiegemeinschaften"
+
+msgid "Maggiore diffusione stazioni di ricarica pubbliche"
+msgstr "Mehr öffentliche Ladestationen"
+
+msgid "Maggiore sistemi di accumulo centralizzati"
+msgstr "Mehr zentrale Speichersysteme"
+
+msgid "Incentivi stazioni di ricarica elettriche"
+msgstr "Förderung von Elektroladestationen"
+
+msgid "Cambiamento climatico"
+msgstr "Klimawandel"
+
+msgid "Elettrificazione dell'industria"
+msgstr "Elektrifizierung der Industrie"
+
+msgid "Tensioni geopolitiche-mancanza materie prime"
+msgstr "Geopolitische Spannungen und Rohstoffknappheit"
+
+msgid "Incentivi tecnologie di riscaldamento rinnovabili"
+msgstr "Förderung erneuerbarer Heizsysteme"
+
+msgid "Restrizioni su riscaldamento da fonti fossili"
+msgstr "Einschränkungen für fossile Heizungen"
+
+msgid "Imposizione minimo autoconsumo"
+msgstr "Mindesteigenverbrauch"
+
+msgid "Contratti di fornitura da fonti extra-cantonali"
+msgstr "Stromlieferverträge ausserhalb des Kantons"
+
+msgid "Incentivi auto"
+msgstr "Fahrzeugförderung"
+
+msgid "Divieto acquisto veicoli a combustione interna"
+msgstr "Kaufverbot für Verbrennungsfahrzeuge"
+
+msgid "Cambiamento demografico"
+msgstr "Demografischer Wandel"
+
+msgid "Diffusione di home office"
+msgstr "Zunahme der Heimarbeit"
+
+msgid "Divieto veicoli a combustione in Paesi confinanti"
+msgstr "Verbrennerverbote in Nachbarländern"
+
+msgid "Restrizioni su edifici con obblighi di rinnovabile"
+msgstr "Anforderungen an erneuerbare Energien in Gebäuden"
+
+msgid "Efficienza elettrodomestici"
+msgstr "Effizienz von Haushaltsgeräten"
+
+msgid "Diffusione di impianti solari alpini"
+msgstr "Ausbau alpiner Solaranlagen"
+
+msgid "Ripopolamento delle valli"
+msgstr "Wiederbesiedlung der Täler"
+
+msgid "De-industrializzazione"
+msgstr "Deindustrialisierung"
+
+msgid "Altro"
+msgstr "Sonstiges"
+
+msgid "year"
+msgstr "Jahr"
+
+msgid "Apparecchiature elettriche e illuminazione privata"
+msgstr "Elektrogeräte und private Beleuchtung"
+
+msgid "Artigianato e industrie"
+msgstr "Gewerbe und Industrie"
+
+msgid "Commercio e servizi"
+msgstr "Handel und Dienstleistungen"
+
+msgid "Consumo proprio"
+msgstr "Eigenbedarf"
+
+msgid "Illuminazione pubblica"
+msgstr "Öffentliche Beleuchtung"
+
+msgid "Perdite di rete"
+msgstr "Netzverluste"
+
+msgid "Pompaggio"
+msgstr "Pumpen"
+
+msgid "Riscaldamento abitazioni"
+msgstr "Wohnraumheizung"
+
+msgid "Trasporti"
+msgstr "Verkehr"
+
+msgid "Priorità alta"
+msgstr "Hohe Priorität"
+
+msgid "Priorità bassa"
+msgstr "Geringe Priorität"
+
+msgid "Priorità Alta"
+msgstr "Hohe Priorität"
+
+msgid "Priorità Bassa"
+msgstr "Geringe Priorität"
+
+msgid "menzioni"
+msgstr "Nennungen"
+
+msgid "Consumi"
+msgstr "Verbrauch"
+
+msgid "PV e Batterie"
+msgstr "PV und Batterien"
+
+msgid "Scenario scelto"
+msgstr "Gewähltes Szenario"
+
+msgid "Scenario base"
+msgstr "Referenzszenario"
+
+msgid "Indicatore"
+msgstr "Indikator"
+
+msgid "Unità"
+msgstr "Einheit"
+
+msgid "Variabile"
+msgstr "Variable"
+
+msgid "Base 2050"
+msgstr "Referenz 2050"
+
+msgid "Scelta 2050"
+msgstr "Auswahl 2050"
+
+msgid "N scenari"
+msgstr "Anzahl Szenarien"
+
+msgid "scalato (1 = migliore)"
+msgstr "skaliert (1 = bester Wert)"
+
+#, python-format
+msgid "% dei 5 migliori"
+msgstr "% der besten 5"
+
+msgid "Valore basso / assente"
+msgstr "Niedrig / deaktiviert"
+
+msgid "Valore alto / presente"
+msgstr "Hoch / aktiviert"
+
+msgid "Distribuzione"
+msgstr "Verteilung"
+
+msgid "Outlier"
+msgstr "Ausreisser"
+
+msgid "totale annuo per supplier"
+msgstr "Jahressumme nach Quelle"
+
+msgid "totale annuo"
+msgstr "Jahressumme"
+
+msgid "Cogenerazione"
+msgstr "Kraft-Wärme-Kopplung"
+
+#, python-brace-format
+msgid "cumulato dal {year}"
+msgstr "kumuliert seit {year}"
+
+#, python-brace-format
+msgid "Ripartizione {year}"
+msgstr "Aufteilung {year}"
+
+#, python-brace-format
+msgid "Preparazione dei risultati: anno {year} (fase 3/4)"
+msgstr "Ergebnisse vorbereiten: Jahr {year} (Schritt 3/4)"
+
+msgid "Preparazione dello scenario (fase 1/4)"
+msgstr "Szenario vorbereiten (Schritt 1/4)"
+
+msgid "Simulazione 2011–2050 (fase 2/4)"
+msgstr "Simulation 2011–2050 (Schritt 2/4)"
+
+msgid "Preparazione dei risultati (fase 3/4)"
+msgstr "Ergebnisse vorbereiten (Schritt 3/4)"
+
+msgid "Verifica dei risultati (fase 4/4)"
+msgstr "Ergebnisse prüfen (Schritt 4/4)"
+
+msgid "Simulazione completata"
+msgstr "Simulation abgeschlossen"
+
+#, python-brace-format
+msgid "{scenario}: in attesa della simulazione…"
+msgstr "{scenario}: Warten auf die Simulation…"
+
+#, python-brace-format
+msgid "{scenario}: {status}"
+msgstr "{scenario}: {status}"
+
+#, python-brace-format
+msgid "cumulato dal {year} per supplier"
+msgstr "kumuliert seit {year} nach Quelle"
+
+msgid "Elettricita' dispacciata"
+msgstr "Ins Netz eingespeister Strom"
+
+msgid "Elettricita' esportata"
+msgstr "Stromexport"
+
+msgid "Elettricita' consumata"
+msgstr "Stromverbrauch"
+
+msgid "Elettricita' offerta nel mercato"
+msgstr "Am Markt angebotener Strom"
+
+msgid "Somma di tutte le ore e mesi dell'anno."
+msgstr "Summe über alle Stunden und Monate des Jahres."
+
+msgid "Non disponibile in PySD"
+msgstr "In PySD nicht verfügbar"
+
+msgid "Valore"
+msgstr "Wert"
+
+#, python-brace-format
+msgid "{count} simulazioni · {mixes} policy mix × {samples} scenari di incertezza"
+msgstr "{count} Simulationen · {mixes} Massnahmenpakete × {samples} Unsicherheitsszenarien"
+
+msgid "Valori assoluti"
+msgstr "Absolute Werte"
+
+msgid "Quote sul totale [%]"
+msgstr "Anteile am Gesamtwert [%]"
+
+msgid "Rappresentazione"
+msgstr "Darstellung"
+
+msgid ""
+"Quota sul totale di tutti i tipi nell’anno, calcolata separatamente per ogni scenario. Nascondere"
+" una serie non cambia il denominatore."
+msgstr ""
+"Anteil aller Typen im jeweiligen Jahr, für jedes Szenario separat berechnet. Das Ausblenden einer"
+" Reihe verändert den Nenner nicht."
+
+msgid ""
+"Ogni scenario usa il proprio totale. Nascondere una serie non cambia il denominatore. Un totale "
+"nullo non ha una quota definita."
+msgstr ""
+"Jedes Szenario verwendet seine eigene Summe. Das Ausblenden einer Reihe ändert den Nenner nicht. "
+"Bei einer Summe von null sind die Anteile nicht definiert."
+
+msgid ""
+"Lo storico della produzione PV è disponibile nella vista assoluta. Mancano le serie osservate "
+"separate di autoconsumo e immissione in rete per calcolarne le quote."
+msgstr ""
+"Historische PV-Produktion ist in der absoluten Ansicht verfügbar. Getrennte Beobachtungsreihen "
+"für Eigenverbrauch und Netzeinspeisung fehlen zur Berechnung ihrer Anteile."
+
+msgid ""
+"Autoconsumo e immissione in rete in percentuale della produzione PV annuale. La produzione è il "
+"denominatore, non una terza componente."
+msgstr ""
+"Eigenverbrauch und Netzeinspeisung als Anteile der jährlichen PV-Produktion. Die Produktion ist "
+"der Nenner, keine dritte Komponente."
+
+msgid ""
+"Quota di ciascun vettore sul consumo totale per il riscaldamento, incluso il calore ambiente. "
+"Nella vista cumulata, le quote sono calcolate sui consumi cumulati."
+msgstr ""
+"Anteil jedes Energieträgers am gesamten Heizenergieverbrauch, einschliesslich Umweltwärme. In der"
+" kumulierten Ansicht werden die Anteile aus dem kumulierten Verbrauch berechnet."
+
+msgid "Quota di ciascuna classe di efficienza sulla superficie riscaldata totale nell’anno."
+msgstr "Anteil jeder Effizienzklasse an der gesamten beheizten Fläche des jeweiligen Jahres."
+
+msgid ""
+"Quota di ciascuna fonte sull’elettricità dispacciata nel periodo selezionato, incluse le "
+"importazioni."
+msgstr ""
+"Anteil jeder Quelle an der im gewählten Zeitraum bereitgestellten Elektrizität, einschliesslich "
+"Importen."
+
+msgid "Quota di ciascuna fonte sull’elettricità esportata nel periodo selezionato."
+msgstr "Anteil jeder Quelle an der im gewählten Zeitraum exportierten Elektrizität."
+
+msgid ""
+"Quota di ciascuna fonte sull’elettricità consumata nel periodo selezionato, incluse le "
+"importazioni."
+msgstr ""
+"Anteil jeder Quelle an der im gewählten Zeitraum verbrauchten Elektrizität, einschliesslich "
+"Importen."
+
+msgid ""
+"Quota di ciascuna fonte sull’offerta locale nel periodo selezionato. Le importazioni sono escluse"
+" dal totale."
+msgstr ""
+"Anteil jeder Quelle am lokalen Stromangebot im gewählten Zeitraum. Importe sind von der Summe "
+"ausgeschlossen."
+
+msgid "Unifamiliari (SFH)"
+msgstr "Einfamilienhäuser (SFH)"
+
+msgid "Bifamiliari (DFH)"
+msgstr "Zweifamilienhäuser (DFH)"
+
+msgid "Plurifamiliari (MFH)"
+msgstr "Mehrfamilienhäuser (MFH)"
+
+msgid "Elettrici a batteria (BEV)"
+msgstr "Batterieelektrisch (BEV)"
+
+msgid "Ibridi diesel (HEV)"
+msgstr "Dieselhybride (HEV)"
+
+msgid "Ibridi benzina (HEV)"
+msgstr "Benzinhybride (HEV)"
+
+msgid "Ibridi plug-in diesel (PHEV)"
+msgstr "Diesel-Plug-in-Hybride (PHEV)"
+
+msgid "Ibridi plug-in benzina (PHEV)"
+msgstr "Benzin-Plug-in-Hybride (PHEV)"
+
+msgid "Benzina"
+msgstr "Benzin"
+
+msgid "Molto bassa"
+msgstr "Sehr niedrig"
+
+msgid "Bassa"
+msgstr "Niedrig"
+
+msgid "Media"
+msgstr "Mittel"
+
+msgid "Alta"
+msgstr "Hoch"
+
+msgid "Molto alta"
+msgstr "Sehr hoch"
+
+msgid "Olio combustibile"
+msgstr "Heizöl"
+
+msgid "Riscaldamento elettrico diretto"
+msgstr "Elektrodirektheizung"
+
+msgid "Elettricità per pompe di calore"
+msgstr "Strom für Wärmepumpen"
+
+msgid "Solare termico"
+msgstr "Solarthermie"
+
+msgid "Autoconsumo"
+msgstr "Eigenverbrauch"
+
+msgid "Fabbisogno coperto dall’autoconsumo [%]"
+msgstr "Durch Eigenverbrauch gedeckter Bedarf [%]"
+
+msgid "Produzione PV / fabbisogno [%]"
+msgstr "PV-Erzeugung / Bedarf [%]"
+
+msgid "Edifici con PV per tipologia"
+msgstr "Gebäude mit PV nach Typ"
+
+msgid "Edifici con PV per distretto"
+msgstr "Gebäude mit PV nach Bezirk"
+
+msgid "Edifici con batteria per tipologia"
+msgstr "Gebäude mit Batterie nach Typ"
+
+msgid "Potenza PV per tipologia di edificio"
+msgstr "PV-Leistung nach Gebäudetyp"
+
+msgid "Capacità batterie per tipologia di edificio"
+msgstr "Batteriekapazität nach Gebäudetyp"
+
+msgid "Capacità batterie non residenziali"
+msgstr "Batteriekapazität in Nichtwohngebäuden"
+
+msgid "Capacità batterie per distretto"
+msgstr "Batteriekapazität nach Bezirk"
+
+msgid "Immatricolazioni per motorizzazione"
+msgstr "Neuzulassungen nach Antrieb"
+
+msgid "Parco veicoli per motorizzazione"
+msgstr "Fahrzeugbestand nach Antrieb"
+
+msgid "Veicoli elettrici a batteria"
+msgstr "Batterieelektrische Fahrzeuge"
+
+msgid "Quota di elettrici a batteria"
+msgstr "Anteil batterieelektrischer Fahrzeuge"
+
+msgid "Elettrici a batteria per distretto"
+msgstr "Batterieelektrische Fahrzeuge nach Bezirk"
+
+msgid "Consumo di riscaldamento per m²"
+msgstr "Heizenergieverbrauch pro m²"
+
+msgid "Consumi di riscaldamento per fonte"
+msgstr "Heizenergieverbrauch nach Quelle"
+
+msgid "Consumi di riscaldamento cumulati"
+msgstr "Kumulierter Heizenergieverbrauch"
+
+msgid "Produzione PV totale"
+msgstr "Gesamte PV-Erzeugung"
+
+msgid "Costo annuo medio per famiglia"
+msgstr "Mittlere jährliche Haushaltskosten"
+
+msgid "Riscaldamento netto per m²"
+msgstr "Nettoheizenergie pro m²"
+
+msgid "Equità dei costi"
+msgstr "Kostengerechtigkeit"
+
+msgid "Emissioni annue di CO₂"
+msgstr "Jährliche CO₂-Emissionen"
+
+msgid "Emissioni cumulate di CO₂"
+msgstr "Kumulierte CO₂-Emissionen"
+
+msgid "Equità della tassa CO₂"
+msgstr "Gerechtigkeit der CO₂-Abgabe"
+
+msgid "kWh/(m²·anno)"
+msgstr "kWh/(m²·Jahr)"
+
+msgid "CHF/(abitazione·anno)"
+msgstr "CHF/(Wohnung·Jahr)"
+
+msgid "Mio m²"
+msgstr "Mio. m²"
+
+msgid "Mt CO₂"
+msgstr "Mt CO₂"
+
+msgid "Mt CO₂/anno"
+msgstr "Mt CO₂/Jahr"
+
+msgid "Misure e incertezza"
+msgstr "Massnahmen und Unsicherheit"
+
+msgid "Combinazione di misure"
+msgstr "Massnahmenkombination"
+
+msgid "Esplora una combinazione di misure"
+msgstr "Massnahmenkombination erkunden"
+
+msgid "Migliori combinazioni di misure"
+msgstr "Beste Massnahmenkombinationen"
+
+msgid "Classifica delle 128 combinazioni"
+msgstr "Rangliste der 128 Kombinationen"
+
+msgid "Punteggio"
+msgstr "Bewertung"
+
+msgid "Posizione"
+msgstr "Rang"
+
+msgid "Variabilità del punteggio"
+msgstr "Streuung der Bewertung"
+
+msgid "Scenari"
+msgstr "Szenarien"
+
+msgid "Punteggio [0–1; 1 = migliore]"
+msgstr "Bewertung [0–1; 1 = beste]"
+
+msgid "Risultati simulati"
+msgstr "Simulationsergebnisse"
+
+msgid "Valori estremi"
+msgstr "Ausreisser"
+
+msgid "**Profilo mensile per fonte**"
+msgstr "**Monatsprofil nach Quelle**"
+
+#, python-brace-format
+msgid "Indicatori principali al {v0}"
+msgstr "Kennzahlen {v0}"
+
+#, python-brace-format
+msgid "**{v0}** [{v1}]"
+msgstr "**{v0}** [{v1}]"
+
+#, python-brace-format
+msgid "**{v0}** [{v1}] — {v2}–{v3}"
+msgstr "**{v0}** [{v1}] — {v2}–{v3}"
+
+msgid "Gennaio"
+msgstr "Januar"
+
+msgid "Febbraio"
+msgstr "Februar"
+
+msgid "Marzo"
+msgstr "März"
+
+msgid "Aprile"
+msgstr "April"
+
+msgid "Maggio"
+msgstr "Mai"
+
+msgid "Giugno"
+msgstr "Juni"
+
+msgid "Luglio"
+msgstr "Juli"
+
+msgid "Agosto"
+msgstr "August"
+
+msgid "Settembre"
+msgstr "September"
+
+msgid "Ottobre"
+msgstr "Oktober"
+
+msgid "Novembre"
+msgstr "November"
+
+msgid "Dicembre"
+msgstr "Dezember"
+
+#, python-brace-format
+msgid "Ora {year}"
+msgstr "Stunde {year}"
+
+#, python-brace-format
+msgid "al {year}"
+msgstr "{year}"
+
+msgid "totale annuo per fonte"
+msgstr "Jahressumme nach Quelle"
+
+#, python-brace-format
+msgid "cumulato dal {year} per fonte"
+msgstr "kumuliert seit {year} nach Quelle"
+
+msgid "Potenza PV — unifamiliari"
+msgstr "PV-Leistung — Einfamilienhäuser"
+
+msgid "Potenza PV — bifamiliari"
+msgstr "PV-Leistung — Zweifamilienhäuser"
+
+msgid "Potenza PV — plurifamiliari"
+msgstr "PV-Leistung — Mehrfamilienhäuser"
+
+msgid "Emissioni annue residenziali"
+msgstr "Jährliche Emissionen der Wohngebäude"
+
+msgid "Emissioni residenziali cumulate dal 2026"
+msgstr "Kumulierte Wohngebäudeemissionen seit 2026"
+
+msgid "Riscaldamento finale per m²"
+msgstr "Endheizenergie pro m²"
+
+msgid "Variazione"
+msgstr "Änderung"
+
+msgid "Variazione [%]"
+msgstr "Änderung [%]"
+
+msgid ""
+"Confronto con lo scenario Base: linee tratteggiate nei grafici assoluti, pannelli separati nelle "
+"viste relative."
+msgstr "Referenzvergleich: gestrichelte Linien bei absoluten Werten, getrennte Diagramme bei Anteilen."
+
+msgid "Variazione = scenario scelto − Base. La percentuale non è definita se il Base è zero."
+msgstr "Änderung = gewähltes Szenario − Referenz. Bei Referenzwert null ist kein Prozentsatz definiert."
+
+msgid "Potenza installata negli edifici residenziali ticinesi, per tipologia."
+msgstr "Installierte Leistung in Tessiner Wohngebäuden nach Typ."
+
+msgid "Totale cantonale; le classi indicano la potenza del singolo impianto."
+msgstr "Kantonssumme; die Klassen bezeichnen die Leistung einzelner Anlagen."
+
+msgid "Percentuale degli edifici di ciascuna tipologia con PV."
+msgstr "Anteil der Gebäude mit PV innerhalb jedes Gebäudetyps."
+
+msgid "Percentuale degli edifici di ciascun distretto con PV."
+msgstr "Anteil der Gebäude mit PV innerhalb jedes Bezirks."
+
+msgid "Energia accumulabile nelle batterie residenziali, per tipologia di edificio."
+msgstr "Speicherbare Energie in Wohngebäudebatterien nach Gebäudetyp."
+
+msgid "Energia accumulabile; le classi in kW si riferiscono agli impianti PV."
+msgstr "Speicherbare Energie; die kW-Klassen beziehen sich auf die PV-Anlagen."
+
+msgid "Energia accumulabile nelle batterie di ciascun distretto."
+msgstr "Speicherbare Energie in den Batterien jedes Bezirks."
+
+msgid "Percentuale degli edifici di ciascuna tipologia con batteria."
+msgstr "Anteil der Gebäude mit Batterie innerhalb jedes Gebäudetyps."
+
+msgid "Importo federale aggiunto al prezzo di ogni kWh consumato."
+msgstr "Bundeszuschlag pro verbrauchter kWh."
+
+msgid "Importo cantonale aggiunto al prezzo di ogni kWh consumato."
+msgstr "Kantonszuschlag pro verbrauchter kWh."
+
+msgid "Produzione PV = autoconsumo + immissione in rete, in Ticino."
+msgstr "PV-Erzeugung = Eigenverbrauch + Netzeinspeisung, im Tessin."
+
+msgid ""
+"Barre: energia annua. Linee: produzione e autoconsumo rispetto al fabbisogno elettrico del "
+"distretto."
+msgstr ""
+"Balken: Jahresenergie. Linien: Erzeugung und Eigenverbrauch im Verhältnis zum Strombedarf des "
+"Bezirks."
+
+msgid ""
+"Consumo annuo per m² riscaldato. Il consumo netto esclude il calore ambiente delle pompe di "
+"calore."
+msgstr "Jahresverbrauch pro beheiztem m². Der Nettoverbrauch schliesst Umweltwärme der Wärmepumpen aus."
+
+msgid "Riscaldamento e acqua calda in Ticino, incluso il calore ambiente delle pompe di calore."
+msgstr "Heizung und Warmwasser im Tessin, einschliesslich Umweltwärme der Wärmepumpen."
+
+msgid "Classi di prestazione dell’involucro: da molto bassa a molto alta."
+msgstr "Leistungsklassen der Gebäudehülle: von sehr niedrig bis sehr hoch."
+
+msgid "Incentivi pagati e quota finanziata dal Cantone, al netto dei fondi federali."
+msgstr "Ausbezahlte Fördermittel und Kantonsanteil nach Abzug der Bundesmittel."
+
+msgid "Nuove immatricolazioni annue in Ticino. HEV: ibridi; PHEV: ibridi ricaricabili."
+msgstr "Jährliche Neuzulassungen im Tessin. HEV: Hybride; PHEV: Plug-in-Hybride."
+
+msgid "Veicoli in circolazione in Ticino, per motorizzazione."
+msgstr "Fahrzeuge im Tessin nach Antriebsart."
+
+msgid "Emissioni dei veicoli in Ticino; la serie inizia nel 2026."
+msgstr "Fahrzeugemissionen im Tessin; die Reihe beginnt 2026."
+
+msgid "Veicoli elettrici a batteria in circolazione; esclusi gli ibridi plug-in."
+msgstr "Batterieelektrische Fahrzeuge im Bestand; ohne Plug-in-Hybride."
+
+msgid "Elettricità distribuita dalla rete"
+msgstr "Vom Netz gelieferter Strom"
+
+msgid "Offerta elettrica locale"
+msgstr "Lokales Stromangebot"
+
+msgid "Elettricità per il pompaggio"
+msgstr "Strom für Pumpspeicherung"
+
+msgid "Elettricità fornita dalla rete, per fonte; include le importazioni."
+msgstr "Vom Netz gelieferter Strom nach Quelle, einschliesslich Importen."
+
+msgid "Elettricità prodotta in Ticino e destinata fuori cantone."
+msgstr "Im Tessin erzeugter und ausserhalb des Kantons genutzter Strom."
+
+msgid "Elettricità usata in Ticino: rete e autoconsumo PV."
+msgstr "Stromverbrauch im Tessin: Netzbezug und PV-Eigenverbrauch."
+
+msgid "Produzione locale disponibile, prima della scelta delle fonti da utilizzare."
+msgstr "Verfügbare lokale Erzeugung vor der Auswahl der eingesetzten Quellen."
+
+msgid "Elettricità assorbita per pompare acqua nei bacini di accumulo."
+msgstr "Strom zum Hochpumpen von Wasser in Speicherbecken."
+
+msgid "Totali annui; cumulati se selezionato."
+msgstr "Jahressummen; kumuliert bei entsprechender Auswahl."
+
+msgid "Totali mensili stimati da un giorno tipo per mese (365/12 giorni)."
+msgstr "Monatssummen aus einem repräsentativen Tag pro Monat (365/12 Tage)."
+
+msgid "Energia in ciascuna ora di un giorno tipo, non potenza istantanea."
+msgstr "Energie je Stunde eines repräsentativen Tages, keine Momentanleistung."
+
+msgid "Emissioni cumulate dal 2026; fondi cantonali cumulati dal 2011, al 2050."
+msgstr "Emissionen seit 2026; Kantonsmittel seit 2011, Stand 2050."
+
+msgid "Emissioni cumulate dal 2026; parco e quota al 2050."
+msgstr "Emissionen seit 2026; Bestand und Anteil 2050."
+
+msgid "Equità: scala 0–1 dei precalcolati; più alto = più equo. Non è una percentuale."
+msgstr "Gerechtigkeit: vorberechnete Skala 0–1; höher = gerechter. Kein Prozentsatz."
+
+msgid ""
+"Costo per famiglia: elettricità, riscaldamento e risanamento. Equità: scala 0–1 dei precalcolati,"
+" più alto = più equo."
+msgstr ""
+"Haushaltskosten: Strom, Heizung und Sanierung. Gerechtigkeit: vorberechnete Skala 0–1, höher = "
+"gerechter."
+
+#, python-format
+msgid ""
+"P10–P90: 80% centrale dei risultati simulati, non probabilità del futuro. Equità: 0–1, più alto ="
+" migliore tra gli scenari."
+msgstr ""
+"P10–P90: mittlere 80% der Simulationsergebnisse, keine Zukunftswahrscheinlichkeiten. "
+"Gerechtigkeit: 0–1, höher = besser im Szenarienvergleich."
+
+msgid "Scegli le misure e confronta i risultati: **0 = peggiore, 1 = migliore** tra gli scenari."
+msgstr ""
+"Massnahmen wählen und Ergebnisse vergleichen: **0 = schlechteste, 1 = beste** im "
+"Szenarienvergleich."
+
+msgid "Mediana e P10–P90 su 100 scenari, al 2050. Emissioni cumulate dal 2026; spesa cantonale dal 2025."
+msgstr "Median und P10–P90 aus 100 Szenarien, Stand 2050. Emissionen seit 2026; Kantonsausgaben seit 2025."
+
+#, python-brace-format
+msgid ""
+"Assegna un peso a ogni indicatore: la classifica mostra le **{v0} combinazioni** con il punteggio"
+" medio migliore sui 100 scenari."
+msgstr ""
+"Indikatoren gewichten: die Rangliste zeigt die **{v0} Kombinationen** mit der besten mittleren "
+"Bewertung aus 100 Szenarien."
+
+#, python-brace-format
+msgid "Ogni asse è un indicatore: 1 = migliore. Valori medi sui {v0} scenari."
+msgstr "Jede Achse ist ein Indikator: 1 = beste. Mittelwerte aus {v0} Szenarien."
+
+msgid "Confronta combinazioni di incentivi e regole in diversi futuri possibili."
+msgstr "Kombinationen von Förderungen und Regeln in möglichen Zukünften vergleichen."
+
+msgid "#### :material/tune: Misure"
+msgstr "#### :material/tune: Massnahmen"
+
+msgid "**7 misure**, ciascuna su due livelli: **128 combinazioni** di incentivi e regole."
+msgstr "**7 Massnahmen** mit je zwei Stufen: **128 Kombinationen** von Förderungen und Regeln."
+
+msgid "**100 scenari** di costi, domanda, tassi e vita utile, uguali per tutte le combinazioni."
+msgstr "**100 Szenarien** für Kosten, Bedarf, Zinsen und Lebensdauer, gleich für alle Kombinationen."
+
+msgid "**9 indicatori** di costi, equità, emissioni, produzione PV e consumi."
+msgstr "**9 Indikatoren** für Kosten, Gerechtigkeit, Emissionen, PV-Erzeugung und Verbrauch."
+
+#, python-brace-format
+msgid "{count} simulazioni · {mixes} combinazioni × {samples} scenari"
+msgstr "{count} Simulationen · {mixes} Kombinationen × {samples} Szenarien"
+
+#, python-format
+msgid "Scatola: 50% centrale; linea: mediana; punti: valori estremi."
+msgstr "Box: mittlere 50%; Linie: Median; Punkte: Ausreisser."
+
+msgid ""
+"Incertezza: 17 parametri campionati con Latin hypercube, uniformi nei rispettivi intervalli. I "
+"pesi esprimono le priorità di chi esplora."
+msgstr ""
+"Unsicherheit: 17 Parameter mit Latin-Hypercube-Stichproben, gleichverteilt in ihren Bereichen. "
+"Gewichte drücken Ihre Prioritäten aus."
+
+msgid ""
+"Equità del saldo tra supplementi in bolletta e incentivi PV, tra famiglie. Scala 0–1: più alto = "
+"più equo tra gli scenari."
+msgstr ""
+"Gerechtigkeit des Saldos aus Stromzuschlägen und PV-Förderung zwischen Haushalten. Skala 0–1: "
+"höher = gerechter im Szenarienvergleich."
+
+msgid ""
+"Equità del saldo tra tassa CO₂ e incentivi, tra famiglie. Scala 0–1: più alto = più equo tra gli "
+"scenari."
+msgstr ""
+"Gerechtigkeit des Saldos aus CO₂-Abgabe und Förderung zwischen Haushalten. Skala 0–1: höher = "
+"gerechter im Szenarienvergleich."
+
+msgid ""
+"Equità dei costi annui di energia e risanamento, tra famiglie. Scala 0–1: più alto = più equo tra"
+" gli scenari."
+msgstr ""
+"Gerechtigkeit der jährlichen Energie- und Sanierungskosten zwischen Haushalten. Skala 0–1: höher "
+"= gerechter im Szenarienvergleich."
+
+msgid ""
+"Il modello usa **un giorno tipo per mese**, con queste grandezze:\n"
+"\n"
+"- **Offerta locale**: elettricità che gli impianti ticinesi possono produrre.\n"
+"- **Distribuita dalla rete (dispacciata)**: elettricità assegnata alle fonti per coprire la "
+"domanda, incluso il pompaggio.\n"
+"- **Consumata**: elettricità distribuita dalla rete più autoconsumo PV.\n"
+"- **Esportata**: produzione locale disponibile che non viene usata in Ticino.\n"
+"- **Pompaggio**: elettricità per riportare acqua nei bacini di accumulo.\n"
+"\n"
+"I totali mensili e annui sono stimati dai giorni tipo, con **365/12 giorni per mese**."
+msgstr ""
+"Das Modell nutzt **einen repräsentativen Tag pro Monat**:\n"
+"\n"
+"- **Lokales Angebot**: Strom, den Tessiner Anlagen erzeugen können.\n"
+"- **Netzlieferung (Dispatch)**: den Quellen zugeteilter Strom zur Deckung des Bedarfs, "
+"einschliesslich Pumpbetrieb.\n"
+"- **Verbrauch**: Netzlieferung plus PV-Eigenverbrauch.\n"
+"- **Export**: verfügbare lokale Erzeugung, die im Tessin nicht genutzt wird.\n"
+"- **Pumpbetrieb**: Strom zum Hochpumpen von Wasser in Speicherbecken.\n"
+"\n"
+"Monats- und Jahressummen werden aus den repräsentativen Tagen mit **365/12 Tagen pro Monat** "
+"geschätzt."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Potenza PV**: totale installato residenziale e non residenziale [MW].\n"
+"- **Produzione PV**: energia prodotta al 2050 [GWh].\n"
+"- **Capacità batterie**: energia accumulabile [MWh].\n"
+"- **Costo annuo per famiglia**: elettricità, riscaldamento e investimenti annualizzati per "
+"impianti e risanamento [CHF].\n"
+"- **Equità**: confronta gli oneri tra famiglie, non il loro livello medio. Per il supplemento "
+"considera pagamenti meno incentivi PV; per i costi considera energia e risanamento.\n"
+"\n"
+"Gli indici di equità derivano dalla disuguaglianza monetaria (GMD), riscalata sui precalcolati: "
+"**0 = meno equo, 1 = più equo**. La scala è relativa agli scenari, non una percentuale."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **PV-Leistung**: installierte Gesamtleistung in Wohn- und Nichtwohngebäuden [MW].\n"
+"- **PV-Erzeugung**: 2050 erzeugte Energie [GWh].\n"
+"- **Batteriekapazität**: speicherbare Energie [MWh].\n"
+"- **Jährliche Haushaltskosten**: Strom, Heizung und annualisierte Investitionen in Anlagen und "
+"Sanierung [CHF].\n"
+"- **Gerechtigkeit**: vergleicht Belastungen zwischen Haushalten, nicht deren Mittelwert. Beim "
+"Zuschlag: Zahlungen minus PV-Förderung; bei Kosten: Energie und Sanierung.\n"
+"\n"
+"Die Indizes normieren die monetäre Ungleichheit (GMD) anhand der vorberechneten Szenarien: **0 = "
+"am wenigsten gerecht, 1 = am gerechtesten**. Eine relative Skala, kein Prozentsatz."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate**: emissioni residenziali accumulate dal 2026 [Mt CO₂].\n"
+"- **Fondi cantonali cumulati**: incentivi finanziati dal Cantone, al netto dei fondi federali, "
+"sommati dal 2011 [Mio CHF].\n"
+"- **Equità della tassa CO₂**: confronta tra famiglie il saldo tra tassa pagata e incentivi "
+"ricevuti.\n"
+"\n"
+"L’equità riscalata sui precalcolati va da **0 (meno equo) a 1 (più equo)**. Misura le differenze "
+"tra famiglie, non quanto pagano in media; non è una percentuale."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Kumulierte Emissionen**: Wohngebäudeemissionen seit 2026 [Mt CO₂].\n"
+"- **Kumulierte Kantonsmittel**: kantonal finanzierte Förderungen nach Abzug der Bundesmittel, "
+"summiert seit 2011 [Mio. CHF].\n"
+"- **Gerechtigkeit der CO₂-Abgabe**: vergleicht gezahlte Abgaben minus erhaltene Förderungen "
+"zwischen Haushalten.\n"
+"\n"
+"Normierung auf die vorberechneten Szenarien: **0 (am wenigsten gerecht) bis 1 (am "
+"gerechtesten)**. Gemessen werden Haushaltsunterschiede, nicht die mittlere Zahlung; kein "
+"Prozentsatz."
+
+msgid ""
+"Valori **al 2050**; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Emissioni cumulate**: emissioni dei veicoli accumulate dal 2026 [Mt CO₂].\n"
+"- **Elettrici a batteria**: BEV in circolazione, esclusi gli ibridi plug-in.\n"
+"- **Quota di elettrici a batteria**: BEV sul totale dei veicoli [%].\n"
+"\n"
+"Il parco totale è fissato dal modello. Numero e quota dei BEV variano quindi allo stesso modo: "
+"nel radar compare solo il numero."
+msgstr ""
+"Werte **2050**; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Kumulierte Emissionen**: Fahrzeugemissionen seit 2026 [Mt CO₂].\n"
+"- **Batterieelektrische Fahrzeuge**: BEV im Bestand, ohne Plug-in-Hybride.\n"
+"- **Batterieelektrischer Anteil**: BEV am gesamten Fahrzeugbestand [%].\n"
+"\n"
+"Der Gesamtbestand ist im Modell vorgegeben. BEV-Anzahl und -Anteil ändern sich daher gleich; im "
+"Radar erscheint nur die Anzahl."
+
+msgid ""
+"Totali annui **al 2050** [GWh]; variazioni rispetto allo scenario Base.\n"
+"\n"
+"- **Offerta locale**: produzione disponibile in Ticino, senza importazioni.\n"
+"- **Offerta solare**: componente PV dell’offerta locale.\n"
+"- **Consumo**: elettricità usata, rete più autoconsumo PV.\n"
+"- **Esportazioni**: produzione locale disponibile in eccesso rispetto alla domanda.\n"
+"- **Importazioni**: elettricità proveniente da fuori cantone.\n"
+"\n"
+"Importazioni ed esportazioni possono coesistere: produzione e domanda cambiano da un’ora "
+"all’altra."
+msgstr ""
+"Jahressummen **2050** [GWh]; Änderungen gegenüber der Referenz.\n"
+"\n"
+"- **Lokales Angebot**: verfügbare Erzeugung im Tessin, ohne Importe.\n"
+"- **Solarangebot**: PV-Anteil des lokalen Angebots.\n"
+"- **Verbrauch**: genutzter Strom, Netzlieferung plus PV-Eigenverbrauch.\n"
+"- **Exporte**: verfügbare lokale Erzeugung über dem Bedarf.\n"
+"- **Importe**: Strom von ausserhalb des Kantons.\n"
+"\n"
+"Importe und Exporte können gleichzeitig auftreten: Erzeugung und Bedarf ändern sich von Stunde zu"
+" Stunde."

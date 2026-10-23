@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, display_frame
+from pv_batteries.responsive import wrapping_columns
 
 ROOT = Path(__file__).resolve().parent.parent
 PVBAT = ROOT / "pv_batteries"
@@ -43,7 +45,7 @@ SUBPAGES = [SUBPAGE_INSPECT, SUBPAGE_RANK]
 SUBPAGE_KEY = "expl_subpage"
 
 
-@st.cache_data(show_spinner="Caricamento delle simulazioni...", max_entries=2)
+@st.cache_data(show_spinner=False, max_entries=2)
 def _load_kpis(path: str, signature: tuple) -> pd.DataFrame:
     frame = pd.read_parquet(path)
     expl.validate_kpi_store(frame)
@@ -173,7 +175,7 @@ def _wrap_policy_label(label: str, max_chars: int = 18) -> str:
 
 def _composition_chart(top: pd.DataFrame) -> None:
     shares = expl.policy_value_shares(top)
-    categories = [_wrap_policy_label(cfg.POLICY_META[name]["short_label"])
+    categories = [_wrap_policy_label(tr(cfg.POLICY_META[name]["short_label"]))
                   for name in cfg.POLICY_ORDER]
     # Due serie: valore "alto"/attivo e valore "basso", in percentuale.
     high_vals: list[float] = []
@@ -224,13 +226,13 @@ def _composition_chart(top: pd.DataFrame) -> None:
         ):
             meta = cfg.POLICY_META[name]
             st.metric(
-                meta["short_label"],
+                tr(meta["short_label"]),
                 f"{high_pct:.0f}%",
                 delta=high_lab,
                 delta_color="off",
                 border=True,
                 width=260,
-                help=f"{meta['label']}. {meta.get('help', '')}",
+                help=tr('{v0}. {v1}', v0=meta['label'], v1=meta.get('help', '')),
             )
 
 
@@ -270,34 +272,32 @@ def _render_policy_selectors() -> dict[str, float]:
         opts = cfg.POLICY_GRID[name]
         labels = [cfg.format_policy_value(name, val) for val in opts]
         chosen = st.segmented_control(
-            control_label(cfg.POLICY_META[name], with_unit=False),
-            options=labels,
-            default=labels[0],
+            tr(control_label(cfg.POLICY_META[name], with_unit=False)),
+            options=opts,
+            format_func=dict(zip(opts, labels)).get,
+            default=opts[0],
             key=f"expl_pol_{name}",
-            help=cfg.POLICY_META[name].get("help") or None,
+            help=tr(cfg.POLICY_META[name].get("help") or None),
         )
-        chosen = chosen or labels[0]
-        values[name] = float(opts[labels.index(chosen)])
+        values[name] = float(opts[0] if chosen is None else chosen)
     return values
 
 
 def _render_inspect_mix(scaled: pd.DataFrame) -> None:
-    st.subheader("Esplora un policy mix")
+    st.subheader(tr("Esplora un policy mix"))
     st.markdown(
-        "Scegli il livello di ciascuna leva: a destra vedi, per ogni KPI "
-        "già scalato da **0 (peggiore)** a **1 (migliore)**, il range sugli "
-        "scenari di incertezza."
+        tr("Scegli le misure e confronta i risultati: **0 = peggiore, 1 = migliore** tra gli scenari.")
     )
-    col_pol, col_box = st.columns([1, 1.4])
+    col_pol, col_box = wrapping_columns(2, key="policy_mix")
     with col_pol:
         values = _render_policy_selectors()
     pid = cfg.policy_id_from_values(values)
     subset = scaled.loc[scaled["policy_id"] == pid]
     with col_box:
         if subset.empty:
-            st.warning("Questo mix non è ancora nello store.")
+            st.warning(tr("Questo mix non è ancora nello store."))
             return
-        categories = [RADAR_LABELS[key].replace("\n", " ") for key in cfg.KPI_ORDER]
+        categories = [tr(RADAR_LABELS[key]).replace("\n", " ") for key in cfg.KPI_ORDER]
         boxes: list[list[float]] = []
         outliers: list[list[float]] = []
         for i, key in enumerate(cfg.KPI_ORDER):
@@ -309,85 +309,85 @@ def _render_inspect_mix(scaled: pd.DataFrame) -> None:
             y_min=0.0, y_max=1.0, outliers=outliers,
         )
         st.caption(
-            f"{len(subset)} scenari di incertezza per il mix selezionato."
+            tr('{v0} scenari di incertezza per il mix selezionato.', v0=len(subset))
         )
         render_echarts(
             options,
             chart_key="expl_policy_boxplot",
             height=520,
         )
-    st.subheader("Valori degli indicatori")
-    st.caption("Mediana e intervallo P10–P90 sui 100 scenari. Gli indicatori annuali si riferiscono al 2050; "
-               "emissioni e spesa cantonale sono cumulati secondo le definizioni riportate sotto.")
+        st.caption(tr("Scatola: 50% centrale; linea: mediana; punti: valori estremi."))
+    st.subheader(tr("Valori degli indicatori"))
+    st.caption(tr("Mediana e P10–P90 su 100 scenari, al 2050. Emissioni cumulate dal 2026; spesa cantonale dal 2025."))
     rows = []
     for key in cfg.KPI_ORDER:
         spec = cfg.KPI_SPEC[key]
-        values = subset[key] * (100 if spec["unit"] == "%" else 1)
+        # Show equity on the same 0–1 scale as the chart, not raw monetary GMD.
+        equity = key in cfg.GMD_SPEC
+        values = subset[f"{key}_s"] if equity else subset[key] * (100 if spec["unit"] == "%" else 1)
         p10, median, p90 = values.quantile([.1, .5, .9])
-        rows.append({"Indicatore": spec["label"], "Unità": spec["unit"],
+        rows.append({"Indicatore": spec["label"], "Unità": "0–1" if equity else spec["unit"],
                      "P10": p10, "Mediana": median, "P90": p90})
-    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch",
-                 column_config={name: st.column_config.NumberColumn(format="%.3f")
-                                for name in ("P10", "Mediana", "P90")})
+    st.dataframe(display_frame(pd.DataFrame(rows)), hide_index=True, width="stretch",
+                 column_config={
+                     tr("Unità"): st.column_config.TextColumn(width="medium"),
+                     **{name: st.column_config.NumberColumn(format="%.3f")
+                        for name in ("P10", tr("Mediana"), "P90")},
+                 })
+    st.caption(tr("P10–P90: 80% centrale dei risultati simulati, non probabilità del futuro. Equità: 0–1, più alto = migliore tra gli scenari."))
 
 
 def _render_best_mixes(scaled: pd.DataFrame) -> None:
-    st.subheader("Migliori policy mix")
+    st.subheader(tr("Migliori policy mix"))
     st.markdown(
-        "Modifica i **pesi**, cioè l'importanza relativa dei KPI, e vedi "
-        f"quali sono i **{TOP_N} policy mix** con la prestazione media "
-        "migliore considerando tutti gli scenari di incertezza. Più in "
-        "basso appare la **composizione** di quei mix: quali leve "
-        "singole risultano attive o al valore alto."
+        tr("Assegna un peso a ogni indicatore: la classifica mostra le **{v0} combinazioni** con il punteggio medio migliore sui 100 scenari.", v0=TOP_N)
     )
     _init_weights()
     w = _current_weights()
     ranked = expl.score_policy_mixes(scaled, w)
     if ranked.empty:
-        st.error("Impossibile calcolare lo score con i dati disponibili.")
+        st.error(tr("Impossibile calcolare lo score con i dati disponibili."))
         return
     top = expl.top_n_mixes(ranked, TOP_N)
 
-    col_weights, col_radar = st.columns(2)
+    col_weights, col_radar = wrapping_columns(2, key="weights_radar")
     with col_weights:
-        st.subheader("Pesi dei KPI")
+        st.subheader(tr("Pesi dei KPI"))
         st.segmented_control(
-            "Modalità di assegnazione",
+            tr("Modalità di assegnazione"),
             options=[MODE_RELATIVE, MODE_ABSOLUTE],
+            format_func={value: tr(value) for value in [MODE_RELATIVE, MODE_ABSOLUTE]}.get,
             key=WEIGHT_MODE_KEY,
             on_change=_on_mode_change,
             help=(
-                "Pesi relativi: spostando uno slider gli altri si ricalibrano "
+                tr("Pesi relativi: spostando uno slider gli altri si ricalibrano "
                 "e la somma resta 1. Pesi assoluti: ogni slider cambia solo "
-                "quel KPI."
+                "quel KPI.")
             ),
         )
         if _is_relative():
             st.markdown(
-                "Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
+                tr("Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
                 "su tutte le simulazioni. I pesi sommano a **1**: spostando uno "
-                "slider gli altri si ricalibrano."
+                "slider gli altri si ricalibrano.")
             )
         else:
             st.markdown(
-                "Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
+                tr("Ogni indicatore è scalato da **0 (peggiore)** a **1 (migliore)** "
                 "su tutte le simulazioni. Ogni slider cambia solo quel KPI: "
                 "gli altri restano fermi e la somma può essere diversa da 1. "
-                "Lo score usa i pesi in proporzione tra loro."
+                "Lo score usa i pesi in proporzione tra loro.")
             )
-        with st.expander("Come si calcola lo score"):
+        with st.expander(tr("Come si calcola lo score")):
             st.markdown(
-                "Per ogni simulazione il vettore dei KPI scalati viene moltiplicato "
-                "per i pesi. Lo **score di un policy mix** è la media di questi "
-                f"valori sui {cfg.N_SAMPLES} scenari di incertezza, tutti con lo stesso peso:"
+                tr('Per ogni simulazione il vettore dei KPI scalati viene moltiplicato per i pesi. Lo **score di un policy mix** è la media di questi valori sui {v0} scenari di incertezza, tutti con lo stesso peso:', v0=cfg.N_SAMPLES)
             )
             st.latex(
                 r"\mathrm{score}_p = \frac{1}{S}\sum_{s=1}^{S}\sum_{k} "
                 r"w_k\,\tilde{x}_{p,s,k}"
             )
             st.markdown(
-                f"dove $S={cfg.N_SAMPLES}$. Nello score i pesi sono riportati a somma 1. "
-                "I cinque mix con score più alto compaiono a destra e sotto."
+                tr('dove $S={v0}$. Nello score i pesi sono riportati a somma 1. I cinque mix con score più alto compaiono a destra e sotto.', v0=cfg.N_SAMPLES)
             )
         sub_left, sub_right = st.columns(2)
         mid = (len(cfg.KPI_ORDER) + 1) // 2
@@ -399,39 +399,35 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
                 for key in keys:
                     spec = cfg.KPI_SPEC[key]
                     st.slider(
-                        spec["label"],
+                        tr(spec["label"]),
                         min_value=0.0,
                         max_value=1.0,
                         step=0.001,
                         format="%.3g",
                         key=f"{WEIGHT_PREFIX}{key}",
-                        help=spec["help"],
+                        help=tr(spec["help"]),
                         on_change=_renormalize,
                         args=(key,),
                     )
         raw_sum = sum(_raw_weights().values())
-        st.caption(f"Somma dei pesi: **{raw_sum:.3g}**")
-        st.button("Ripristina pesi uguali", on_click=_reset_weights)
+        st.caption(tr('Somma dei pesi: **{v0:.3g}**', v0=raw_sum))
+        st.button(tr("Ripristina pesi uguali"), on_click=_reset_weights)
 
     with col_radar:
-        st.subheader(f"Profilo dei {TOP_N} mix migliori")
+        st.subheader(tr('Profilo dei {v0} mix migliori', v0=TOP_N))
         st.caption(
-            "Ogni asse è un KPI scalato (1 = migliore). I poligoni usano la "
-            f"media dei {cfg.N_SAMPLES} scenari di incertezza."
+            tr('Ogni asse è un indicatore: 1 = migliore. Valori medi sui {v0} scenari.', v0=cfg.N_SAMPLES)
         )
         _top_radar(top)
 
     st.divider()
-    st.subheader(f"Composizione dei {TOP_N} policy mix migliori")
+    st.subheader(tr('Composizione dei {v0} policy mix migliori', v0=TOP_N))
     st.markdown(
-        "Per ogni leva: che percentuale dei mix in classifica assume il valore "
-        "alto/presente. Esempio: 100% su Autoconsumo virtuale significa che tutti e "
-        f"{TOP_N} i migliori la attivano; 20% sugli incentivi cantonali PV "
-        "significa che lo fa un mix su cinque."
+        tr('Per ogni leva: che percentuale dei mix in classifica assume il valore alto/presente. Esempio: 100% su Autoconsumo virtuale significa che tutti e {v0} i migliori la attivano; 20% sugli incentivi cantonali PV significa che lo fa un mix su cinque.', v0=TOP_N)
     )
     _composition_chart(top)
 
-    with st.expander("Tutti i 128 policy mix ordinati per score"):
+    with st.expander(tr("Tutti i 128 policy mix ordinati per score")):
         show = ranked.copy()
         show.insert(0, "Rank", range(1, len(show) + 1))
         for name in cfg.POLICY_ORDER:
@@ -444,24 +440,25 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
         )
         for key in cfg.KPI_ORDER:
             spec = cfg.KPI_SPEC[key]
-            label = f"{spec['label']} ({spec['unit']})"
-            show[label] = show[key] * (100 if spec["unit"] == "%" else 1)
+            equity = key in cfg.GMD_SPEC
+            label = f"{spec['label']} ({'0–1' if equity else spec['unit']})"
+            show[label] = show[f"{key}_s"] if equity else show[key] * (100 if spec["unit"] == "%" else 1)
             keep.append(label)
         pretty = show[keep].rename(columns={
             "score": "Score", "score_std": "σ score", "n_samples": "N scenari",
         })
         st.dataframe(
-            pretty, width="stretch", hide_index=True,
+            display_frame(pretty), width="stretch", hide_index=True,
             column_config={
-                meta["label"]: st.column_config.TextColumn(
-                    meta["short_label"], help=f"{meta['label']}. {meta.get('help', '')}",
+                tr(meta["label"]): st.column_config.TextColumn(
+                    tr(meta["short_label"]), help=tr('{v0}. {v1}', v0=meta['label'], v1=meta.get('help', '')),
                 )
                 for meta in cfg.POLICY_META.values()
             },
         )
         st.download_button(
-            "Scarica classifica CSV",
-            pretty.to_csv(index=False).encode("utf-8"),
+            tr("Scarica classifica CSV"),
+            display_frame(pretty).to_csv(index=False).encode("utf-8"),
             file_name="exploratory_ranking.csv",
             mime="text/csv",
         )
@@ -484,44 +481,33 @@ def _top_radar(top: pd.DataFrame) -> None:
     render_echarts(options, chart_key="expl_top_radar", height=560)
 
 
-st.title("Policy mix e incertezza")
+st.title(tr("Policy mix e incertezza"))
 st.markdown(
-    "Qui le **leve di policy** e i **parametri incerti** vengono mossi insieme: "
-    "non si chiede quale mix vince in un futuro unico, ma quali restano "
-    "interessanti quando il contesto può andare in direzioni diverse."
+    tr("Confronta combinazioni di incentivi e regole in diversi futuri possibili.")
 )
 
-col_mix, col_unc, col_kpi = st.columns(3)
+col_mix, col_unc, col_kpi = wrapping_columns(3, key="expl_intro")
 with col_mix.container(border=True):
-    st.markdown("#### :material/tune: Policy mix")
+    st.markdown(tr("#### :material/tune: Misure"))
     st.markdown(
-        "Ogni mix è una combinazione di incentivi e regolamenti "
-        "(PV, batterie, riscaldamento, risanamento, autoconsumo virtuale). "
-        "Sono **7 leve su due livelli** ciascuna, per un totale di "
-        "**128 policy mix** possibili."
+        tr("**7 misure**, ciascuna su due livelli: **128 combinazioni** di incentivi e regole.")
     )
 with col_unc.container(border=True):
-    st.markdown("#### :material/casino: Incertezza")
+    st.markdown(tr("#### :material/casino: Incertezza"))
     st.markdown(
-        "Costi, domanda, tassi e vita utile delle tecnologie non sono noti "
-        "con certezza. Lo stesso ventaglio di futuri plausibili viene "
-        "applicato a **ogni** mix, così il confronto resta equo. "
-        "Sono **100 campioni** di **17 parametri**, con distribuzioni uniformi "
-        "nei rispettivi limiti e campionamento Latin hypercube riproducibile."
+        tr("**100 scenari** di costi, domanda, tassi e vita utile, uguali per tutte le combinazioni.")
     )
 with col_kpi.container(border=True):
-    st.markdown("#### :material/analytics: Indicatori")
+    st.markdown(tr("#### :material/analytics: Indicatori"))
     st.markdown(
-        "Per ogni combinazione di policy mix e scenario di incertezza "
-        "si calcolano **9 KPI**: costi (famiglia e spesa cantonale), "
-        "**equità distributiva** (supplemento in bolletta, tassa CO₂, costo) ed **emissioni**, "
-        "insieme a produzione PV, consumo netto e domanda coperta dal PV autoconsumato."
+        tr("**9 indicatori** di costi, equità, emissioni, produzione PV e consumi.")
     )
 
 st.session_state.setdefault(SUBPAGE_KEY, SUBPAGES[0])
 choice = st.segmented_control(
-    "Vista",
+    tr("Vista"),
     SUBPAGES,
+    format_func={value: tr(value) for value in SUBPAGES}.get,
     key=SUBPAGE_KEY,
     label_visibility="collapsed",
 )
@@ -530,14 +516,16 @@ active = choice or SUBPAGES[0]
 try:
     df = _load_store()
 except ValueError as error:
-    st.error(f"Dataset dell'analisi esplorativa non valido: {error}")
+    st.error(tr("Dataset dell'analisi esplorativa non valido: {v0}", v0=error))
     st.stop()
 if df.empty:
     st.warning(
-        "Il dataset dell'analisi esplorativa non è disponibile."
+        tr("Il dataset dell'analisi esplorativa non è disponibile.")
     )
     st.stop()
-st.caption(f"{len(df):,} simulazioni · {cfg.n_policy_mixes()} policy mix × {cfg.N_SAMPLES} scenari di incertezza".replace(",", "."))
+st.caption(tr("{count} simulazioni · {mixes} combinazioni × {samples} scenari",
+              count=f"{len(df):,}".replace(",", "'"),
+              mixes=cfg.n_policy_mixes(), samples=cfg.N_SAMPLES))
 scaled = expl.scale_kpis(df)
 
 if active == SUBPAGE_INSPECT:
@@ -545,6 +533,7 @@ if active == SUBPAGE_INSPECT:
 else:
     _render_best_mixes(scaled)
 
-with st.expander("Definizioni degli indicatori"):
+with st.expander(tr("Definizioni degli indicatori")):
+    st.caption(tr("Incertezza: 17 parametri campionati con Latin hypercube, uniformi nei rispettivi intervalli. I pesi esprimono le priorità di chi esplora."))
     for key in cfg.KPI_ORDER:
-        st.markdown(f"**{cfg.KPI_SPEC[key]['label']}**: {cfg.KPI_SPEC[key]['help']}")
+        st.markdown(tr('**{v0}**: {v1}', v0=cfg.KPI_SPEC[key]['label'], v1=cfg.KPI_SPEC[key]['help']))

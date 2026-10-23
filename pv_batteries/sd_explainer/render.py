@@ -5,6 +5,8 @@ import re
 from html import escape
 
 import streamlit as st
+from pv_batteries.responsive import wrapping_columns
+from pv_batteries.i18n import tr
 
 from echarts_charts import (
     build_grouped_bar_options,
@@ -51,7 +53,7 @@ def _render_loop_markdown(content: str) -> None:
         label = escape(match.group(2).replace("**", ""))
         return f'<span class="sure-loop-badge sure-loop-badge-{kind}">{label}</span>'
 
-    st.markdown(_LOOP_BADGE.sub(replace, content), unsafe_allow_html=True)
+    st.markdown(_LOOP_BADGE.sub(replace, tr(content)), unsafe_allow_html=True)
 
 
 def _render_loop_badge_style() -> None:
@@ -81,7 +83,7 @@ def _render_echarts_line(
     height: int = 420,
     y_max: float | None = None,
 ) -> None:
-    st.markdown(f"**{title}**")
+    st.markdown(tr('**{v0}**', v0=title))
     options = build_line_options(years, series, unit=unit)
     if y_max is not None:
         options["yAxis"]["max"] = y_max
@@ -97,7 +99,7 @@ def _render_echarts_stacked(
     title: str,
     height: int = 420,
 ) -> None:
-    st.markdown(f"**{title}**")
+    st.markdown(tr('**{v0}**', v0=title))
     options = build_stacked_bar_options(categories, series, unit=unit)
     render_echarts(options, chart_key=chart_key, height=height)
 
@@ -111,7 +113,7 @@ def _render_echarts_pie(
     title: str,
     height: int = 380,
 ) -> None:
-    st.markdown(f"**{title}**")
+    st.markdown(tr('**{v0}**', v0=title))
     options = build_pie_options(categories, values, unit=unit)
     options["tooltip"] = {"trigger": "item", "formatter": "{b}: {c} GWh ({d}%)"}
     render_echarts(options, chart_key=chart_key, height=height)
@@ -126,7 +128,7 @@ def _render_echarts_grouped(
     title: str,
     height: int = 420,
 ) -> None:
-    st.markdown(f"**{title}**")
+    st.markdown(tr('**{v0}**', v0=title))
     order = list(series.keys())
     options = build_grouped_bar_options(
         categories, series, unit=unit, series_order=order,
@@ -137,15 +139,15 @@ def _render_echarts_grouped(
 
 def _show_image(path, caption: str) -> None:
     if path.exists():
-        st.image(str(path), caption=caption, width="stretch")
+        st.image(str(path), caption=tr(caption), width="stretch")
     else:
-        st.warning(f"Immagine non trovata: `{path}`")
+        st.warning(tr('Immagine non trovata: `{v0}`', v0=path))
 
 
 def render_sd_intro() -> None:
     _render_loop_badge_style()
     st.markdown(
-        """
+        tr("""
         **System Dynamics (SD)** è una metodologia di simulazione concepita per
         analizzare il comportamento nel tempo di sistemi complessi caratterizzati da
         **accumuli, ritardi, non-linearità e meccanismi di retroazione**. Non considera
@@ -153,35 +155,35 @@ def render_sd_intro() -> None:
         il prodotto della **struttura causale** che collega le sue componenti: il
         comportamento osservato emerge dall'interazione tra gli stati accumulati, i
         flussi che li modificano e le informazioni su cui gli attori decidono.
-        """
+        """)
     )
 
-    col_blocks, col_loops = st.columns(2)
+    col_blocks, col_loops = wrapping_columns(2, key="sd_overview")
     with col_blocks.container(border=True):
-        st.markdown(":brick: La struttura")
+        st.markdown(tr(":brick: La struttura"))
         st.markdown(
-            """
+            tr("""
             - **Stock** — quantità accumulate nel tempo
             - **Flussi** — ciò che incrementa o riduce gli stock
             - **Variabili ausiliarie** — relazioni tecniche, economiche,
               comportamentali e istituzionali
             - **Parametri e variabili esogene** — andamenti specificati fuori dalla
               struttura endogena
-            """
+            """)
         )
         st.latex(r"S(t) = S(t_0) + \int_{t_0}^{t} \left[ I(\tau) - O(\tau) \right] d\tau")
         st.markdown(
-            """
+            tr("""
             Nel modello cantonale gli **stock** sono per esempio gli edifici
             appartenenti a una certa configurazione tecnologica o il parco veicoli per
             alimentazione; i **flussi** sono installazioni, sostituzioni, costruzioni,
             demolizioni e dismissioni.
-            """
+            """)
         )
     with col_loops.container(border=True):
-        st.markdown(":repeat: I feedback loop")
+        st.markdown(tr(":repeat: I feedback loop"))
         _render_loop_markdown(
-            """
+            tr("""
             Un **feedback loop** è una catena causale in cui una variazione iniziale
             produce effetti che tornano a influenzare la variabile di partenza.
 
@@ -194,11 +196,11 @@ def render_sd_intro() -> None:
 
             La loro combinazione genera le tipiche **curve di diffusione a S**: partenza
             lenta, accelerazione, rallentamento vicino alla saturazione.
-            """
+            """)
         )
 
     st.info(
-        """
+        tr("""
         **Simulare non è ottimizzare.** Il modello non cerca la configurazione che
         minimizza o massimizza una funzione obiettivo e non assume che gli attori
         conoscano in anticipo l'evoluzione futura del sistema. Famiglie, aziende e
@@ -206,15 +208,15 @@ def render_sd_intro() -> None:
         incentivi e diffusione osservati nell'anno corrente: il modello calcola
         un'**utilità percepita** e la traduce in una probabilità di scelta. Le
         politiche si valutano confrontando gli scenari che ne risultano.
-        """,
+        """),
         icon=":material/lightbulb:",
     )
 
 
 def _render_model_architecture() -> None:
-    st.markdown("### Architettura complessiva del modello")
+    st.markdown(tr("### Architettura complessiva del modello"))
     st.markdown(
-        """
+        tr("""
         Il modello è organizzato in **quattro macrocomponenti**: la *domanda e
         adozione delle tecnologie* (residenziale, trasporti, industria e terziario)
         determina consumi e autoconsumo; l'*offerta energetica e il bilancio
@@ -226,56 +228,56 @@ def _render_model_architecture() -> None:
         dell'elettricità, mentre le *autorità pubbliche* agiscono con incentivi,
         tasse e regolamentazioni, il cui finanziamento dipende a sua volta dai
         consumi. Prezzo e politiche tornano così a orientare le adozioni successive.
-        """
+        """)
     )
 
-    _, col_fig, _ = st.columns([0.10, 0.8, 0.10])
-    with col_fig:
+    with st.container():
         _show_image(
             IMAGE_ARCHITECTURE,
-            "Architettura funzionale del modello: quattro macrocomponenti che formano "
-            "un unico sistema dinamico.",
+            tr("Architettura funzionale del modello: quattro macrocomponenti che formano "
+            "un unico sistema dinamico."),
         )
 
-    col_a, col_b, col_c = st.columns(3)
+    col_a, col_b, col_c = wrapping_columns(3, key="sd_architecture")
     with col_a.container(border=True):
-        st.markdown("**:material/layers: Struttura ibrida**")
+        st.markdown(tr("**:material/layers: Struttura ibrida**"))
         st.markdown(
-            "Rappresentazione *bottom-up* del residenziale tramite **archetipi "
+            tr("Rappresentazione *bottom-up* del residenziale tramite **archetipi "
             "edilizi**, aggregata *top-down* in domanda, produzione, costi ed "
-            "emissioni; prezzi e costi di rete tornano poi a orientare le decisioni."
+            "emissioni; prezzi e costi di rete tornano poi a orientare le decisioni.")
         )
     with col_b.container(border=True):
-        st.markdown("**:timer_clock: Risoluzione temporale**")
+        st.markdown(tr("**:timer_clock: Risoluzione temporale**"))
         st.markdown(
-            "Orizzonte **2011-2050** con passo **annuale**, coerente con i cicli di "
+            tr("Orizzonte **2011-2050** con passo **annuale**, coerente con i cicli di "
             "sostituzione e investimento. Il solo bilancio elettrico usa **profili "
-            "orari** su giorni rappresentativi."
+            "orari** su giorni rappresentativi.")
         )
     with col_c.container(border=True):
-        st.markdown("**:material/map: Risoluzione spaziale**")
+        st.markdown(tr("**:material/map: Risoluzione spaziale**"))
         st.markdown(
-            "**Otto distretti** ticinesi per le caratteristiche territoriali, più il "
+            tr("**Otto distretti** ticinesi per le caratteristiche territoriali, più il "
             "livello **cantonale** per bilancio e rete e quello **federale** per gli "
-            "strumenti nazionali."
+            "strumenti nazionali.")
         )
 
 
 def _render_policy_priorities() -> None:
-    st.markdown("### Quali policy possono essere valutate?")
+    st.markdown(tr("### Quali policy possono essere valutate?"))
     st.markdown(
-        """
+        tr("""
         Le leve rappresentate nel modello non sono state scelte a tavolino. Nei
         workshop gli stakeholder hanno indicato quali temi considerassero
         **prioritari** e quali marginali per una decisione cantonale: il grafico
         riporta quante volte ciascuna voce è stata segnalata a priorità alta o bassa.
-        """
+        """)
     )
 
     prio = load_workshop_priorities()
     order = st.segmented_control(
-        "Ordina per",
+        tr("Ordina per"),
         ["Priorità alta", "Priorità bassa"],
+        format_func={value: tr(value) for value in ["Priorità alta", "Priorità bassa"]}.get,
         default="Priorità alta",
         key="sd_prio_order",
     )
@@ -311,12 +313,12 @@ def _render_policy_priorities() -> None:
         options, chart_key="sd_workshop_priorities", height=760, tooltip_decimals=0,
     )
     st.caption(
-        "Esito dell'esercizio di prioritizzazione con il gruppo core degli "
-        "stakeholder (settimo workshop, ottobre 2025)."
+        tr("Esito dell'esercizio di prioritizzazione con il gruppo core degli "
+        "stakeholder (settimo workshop, ottobre 2025).")
     )
 
     st.markdown(
-        """
+        tr("""
         Questa lista spiega buona parte di come il modello si è sviluppato. Le voci in
         cima — accumuli domestici, teleriscaldamento, prezzi di mercato, obblighi di
         efficienza, incentivi al fotovoltaico, comunità energetiche e ricarica
@@ -325,13 +327,13 @@ def _render_policy_priorities() -> None:
         semplici assunzioni di scenario. Anche la profondità di rappresentazione
         segue la stessa logica: dove gli stakeholder chiedevano di poter confrontare
         politiche alternative, il modello è endogeno e dettagliato.
-        """
+        """)
     )
 
 
 def render_step_problem_definition() -> None:
     st.markdown(
-        """
+        tr("""
         ### Definizione problema
 
         L'obiettivo finale è costruire un modello che rappresenti nel modo più accurato
@@ -347,18 +349,17 @@ def render_step_problem_definition() -> None:
         - :earth_africa: **Landscape** → livello macro: contesto esterno e fattori di lungo periodo
         - :brick: **Regimes** → livello intermedio: strutture, regole e pratiche consolidate
         - :arrow_heading_up: **Nicchie** → livello micro: innovazioni e sperimentazioni
-        """
+        """)
     )
-    _, col_mlp, _ = st.columns([0.10, 0.8, 0.10])
-    with col_mlp:
+    with st.container():
         _show_image(
             IMAGE_WORKSHOP,
-            "Risultati dell'analisi svolta durante il primo workshop. "
-            "Il numero nei cerchi indica le menzioni del relativo elemento.",
+            tr("Risultati dell'analisi svolta durante il primo workshop. "
+            "Il numero nei cerchi indica le menzioni del relativo elemento."),
         )
 
     st.markdown(
-        """
+        tr("""
         #### A cosa è servito questo esercizio
 
         La mappatura MLP è servita soprattutto a decidere **che cosa sta dentro il
@@ -383,7 +384,7 @@ def render_step_problem_definition() -> None:
           comportamento osservato: i parametri delle decisioni sono **calibrati su
           dati storici**, che già contengono abitudini, preferenze e resistenze al
           cambiamento della popolazione ticinese
-        """
+        """)
     )
 
     st.divider()
@@ -395,43 +396,42 @@ def render_step_problem_definition() -> None:
 
 def render_step_qualitative_model() -> None:
     st.markdown(
-        """
+        tr("""
         ### Modello qualitativo
 
         Una volta definito il sistema, il passo successivo consiste nella costruzione di
         **mappe concettuali** con i **Causal Loop Diagram (CLD)**, tipici del metodo
         **System Dynamics**. Il CLD non contiene numeri: serve a rendere esplicito
         *quali* variabili si influenzano a vicenda e *in che direzione*.
-        """
+        """)
     )
 
-    col_arrows, col_loops = st.columns(2)
+    col_arrows, col_loops = wrapping_columns(2, key="sd_arrows")
     with col_arrows.container(border=True):
-        st.markdown("**:material/arrow_right_alt: Come si legge una freccia**")
+        st.markdown(tr("**:material/arrow_right_alt: Come si legge una freccia**"))
         st.markdown(
-            """
+            tr("""
             - :blue-badge[**+**] le due variabili si muovono **nella stessa
               direzione**: se la prima cresce, la seconda cresce
             - :blue-badge[**−**] si muovono in **direzione opposta**: se la prima
               cresce, la seconda cala
-            """
+            """)
         )
     with col_loops.container(border=True):
-        st.markdown("**:material/loop: Come si legge un loop**")
+        st.markdown(tr("**:material/loop: Come si legge un loop**"))
         _render_loop_markdown(
-            """
+            tr("""
             - :loop-r[**R** · Reinforcing] il giro di frecce **amplifica** la
               variazione di partenza: la spinge sempre più lontano
             - :loop-b[**B** · Balancing] il giro la **contrasta**: riporta il
               sistema verso un equilibrio
-            """
+            """)
         )
 
-    _, col_fig, _ = st.columns([0.10, 0.8, 0.10])
-    with col_fig:
+    with st.container():
         _show_image(
             IMAGE_CLD,
-            "Causal Loop Diagram dei principali feedback del modello SURE-Ticino: "
+            tr("Causal Loop Diagram dei principali feedback del modello SURE-Ticino: "
             "sedici loop collegano adozione tecnologica, domanda dalla rete, prezzo "
             "dell'elettricità, costi di rete e strumenti di policy. Il CLD è una rappresentazione " 
             "qualitativa della struttura causale: non mostra parametri, formule, ritardi né la " 
@@ -439,20 +439,20 @@ def render_step_qualitative_model() -> None:
             "quantitativa congiunta di queste relazioni, non dalla presenza grafica di un singolo loop. "
             "mostra parametri, formule, ritardi né la disaggregazione per archetipo. Il "
             "comportamento simulato nasce dall'implementazione quantitativa congiunta di "
-            "queste relazioni, non dalla presenza grafica di un singolo loop.",
+            "queste relazioni, non dalla presenza grafica di un singolo loop."),
         )
 
-    st.markdown("#### Le quattro famiglie di feedback")
+    st.markdown(tr("#### Le quattro famiglie di feedback"))
     st.markdown(
-        "I sedici loop del diagramma si raggruppano in quattro meccanismi ricorrenti. "
-        "Riconoscerli aiuta a interpretare i risultati delle sezioni *Simulazioni SEneCa*."
+        tr("I sedici loop del diagramma si raggruppano in quattro meccanismi ricorrenti. "
+        "Riconoscerli aiuta a interpretare i risultati delle sezioni *Simulazioni SEneCa*.")
     )
 
-    col_1, col_2 = st.columns(2)
+    col_1, col_2 = wrapping_columns(2, key="sd_feedback_1")
     with col_1.container(border=True):
-        st.markdown("**:material/groups: Diffusione sociale e limiti fisici**")
+        st.markdown(tr("**:material/groups: Diffusione sociale e limiti fisici**"))
         _render_loop_markdown(
-            """
+            tr("""
             :loop-r[R1] :loop-r[R2] :loop-r[R10] **Peer effect.** Più
             impianti PV, pompe di calore e veicoli elettrici in circolazione, più la
             tecnologia diventa visibile e familiare, più cresce chi la considera.
@@ -466,12 +466,12 @@ def render_step_qualitative_model() -> None:
 
             Insieme producono le tipiche **curve a S**: partenza lenta, accelerazione,
             rallentamento finale.
-            """
+            """)
         )
     with col_2.container(border=True):
-        st.markdown("**:material/bolt: Prezzo dell'elettricità**")
+        st.markdown(tr("**:material/bolt: Prezzo dell'elettricità**"))
         _render_loop_markdown(
-            """
+            tr("""
             :loop-r[R3] **Utility death spiral.** L'autoconsumo riduce i kWh
             acquistati dalla rete, ma i costi fissi di distribuzione restano: si
             ripartiscono su meno energia, il prezzo unitario sale e rende l'autoconsumo
@@ -484,14 +484,14 @@ def render_step_qualitative_model() -> None:
             :loop-r[R9] **Risanamento.** Meno fabbisogno significa meno domanda e
             quindi prezzi unitari più alti, che aumentano il risparmio ottenibile
             isolando l'involucro.
-            """
+            """)
         )
 
-    col_3, col_4 = st.columns(2)
+    col_3, col_4 = wrapping_columns(2, key="sd_feedback_2")
     with col_3.container(border=True):
-        st.markdown("**:material/electrical_services: Costi di adeguamento della rete**")
+        st.markdown(tr("**:material/electrical_services: Costi di adeguamento della rete**"))
         _render_loop_markdown(
-            """
+            tr("""
             :loop-r[R5] **PV.** Più impianti richiedono più rinforzi di rete, i
             costi finiscono nel prezzo, e un prezzo alto rende l'autoconsumo più
             redditizio: il loop si rinforza.
@@ -499,12 +499,12 @@ def render_step_qualitative_model() -> None:
             :loop-b[B3] :loop-b[B5] **Pompe di calore e veicoli elettrici.**
             Stessi rinforzi, stesso aumento di prezzo, ma effetto opposto: qui
             l'elettricità è un **costo operativo**, quindi le adozioni rallentano.
-            """
+            """)
         )
     with col_4.container(border=True):
-        st.markdown("**:material/account_balance: Politiche e loro finanziamento**")
+        st.markdown(tr("**:material/account_balance: Politiche e loro finanziamento**"))
         _render_loop_markdown(
-            """
+            tr("""
             :loop-r[R7] :loop-r[R8] **Supplementi di rete.** Più installazioni
             PV incentivate, più fondi servono, più sale il supplemento federale e
             cantonale sull'elettricità: il prezzo cresce e l'autoconsumo diventa ancora
@@ -513,15 +513,15 @@ def render_step_qualitative_model() -> None:
             :loop-r[R6] **Co-adozione PV e pompe di calore.** Una pompa di calore
             aumenta i consumi autoconsumabili e rende il PV più redditizio; il PV abbassa
             il costo percepito dell'elettricità per la pompa di calore.
-            """
+            """)
         )
 
     with st.expander(
-        "Perché lo stesso aumento di prezzo accelera il PV ma frena pompe di calore "
-        "e veicoli elettrici?"
+        tr("Perché lo stesso aumento di prezzo accelera il PV ma frena pompe di calore "
+        "e veicoli elettrici?")
     ):
         _render_loop_markdown(
-            """
+            tr("""
             È l'asimmetria tra :loop-r[R5] da un lato e :loop-b[B3]
             :loop-b[B5] dall'altro, e dipende da **che ruolo ha il prezzo** per
             ciascuna tecnologia.
@@ -537,12 +537,12 @@ def render_step_qualitative_model() -> None:
             che la tecnologia **consumi** o **sostituisca** elettricità di rete. È un
             esempio di come il comportamento del sistema non si legga dalla singola
             freccia, ma dal giro completo.
-            """
+            """)
         )
 
 def render_step_quantitative_model() -> None:
     st.markdown(
-        """
+        tr("""
         ### Modello quantitativo
 
         Per tradurre la struttura causale in un modello che produca numeri, la prima
@@ -553,25 +553,26 @@ def render_step_quantitative_model() -> None:
         Qui sotto trovi alcuni esempi di quei dati, divisi tra **produzione** e
         **consumi**. Non sono rappresentazioni esaustive né dettagliate: servono a
         dare un'idea del tipo di informazione raccolta e della sua granularità.
-        """
+        """)
     )
 
     view = st.segmented_control(
-        "Area di approfondimento",
+        tr("Area di approfondimento"),
         ["Produzione", "Consumi"],
+        format_func={value: tr(value) for value in ["Produzione", "Consumi"]}.get,
         default="Produzione",
         key="sd_quant_view",
     )
 
     if (view or "Produzione") == "Produzione":
-        st.subheader("Produzione storica")
+        st.subheader(tr("Produzione storica"))
         st.markdown(
-            """
+            tr("""
             Produzione annua di energia elettrica in Ticino, 2011–2024. A sinistra le
             fonti idroelettriche (bacini, acqua fluente, pompaggio) e le altre fonti;
             a destra il dettaglio delle fonti non idroelettriche, con crescita del
             solare negli ultimi anni.
-            """
+            """)
         )
         years1, series1 = load_historical_hydro_production()
         prod_df = load_production_csv()
@@ -582,7 +583,7 @@ def render_step_quantitative_model() -> None:
             ("Rifiuti" if name == "Cogenerazione" else name): values
             for name, values in series2.items()
         }
-        c1, c2 = st.columns(2)
+        c1, c2 = wrapping_columns(2, key="sd_production")
         with c1:
             _render_echarts_line(
                 years1, series1, unit="GWh",
@@ -596,15 +597,15 @@ def render_step_quantitative_model() -> None:
                 title="Produzione totale annua (dettaglio)",
             )
 
-        st.subheader("Adozione pannelli fotovoltaici")
+        st.subheader(tr("Adozione pannelli fotovoltaici"))
         st.markdown(
-            "La diffusione del fotovoltaico è ricostruita **impianto per impianto** e "
+            tr("La diffusione del fotovoltaico è ricostruita **impianto per impianto** e "
             "poi aggregata secondo le dimensioni che il modello usa per distinguere "
-            "gli archetipi: a sinistra per **distretto**, a destra per **tipo di edificio**."
+            "gli archetipi: a sinistra per **distretto**, a destra per **tipo di edificio**.")
         )
         years_dist, series_dist = load_pv_buildings_input("Distretto")
         years_type, series_type = load_pv_buildings_input("Tipo di edificio")
-        c_pv1, c_pv2 = st.columns(2)
+        c_pv1, c_pv2 = wrapping_columns(2, key="sd_pv_history")
         with c_pv1:
             _render_echarts_line(
                 years_dist, series_dist,
@@ -623,12 +624,12 @@ def render_step_quantitative_model() -> None:
             )
 
     else:
-        st.subheader("Consumi storici per settore")
+        st.subheader(tr("Consumi storici per settore"))
         st.markdown(
-            """
+            tr("""
             Consumi storici per settore finale di utilizzo e consumo di elettricità.
             Seleziona un anno per la ripartizione a torta.
-            """
+            """)
         )
 
         df_energy = load_sector_csv("Historical energy consumption.csv")
@@ -639,7 +640,7 @@ def render_step_quantitative_model() -> None:
         cats_el, series_el = sector_csv_to_stacked(df_elec)
         years_el = sorted(int(y) for y in df_elec[_year_column(df_elec)].tolist())
 
-        c1, c2 = st.columns([1.5, 1])
+        c1, c2 = wrapping_columns(2, key="sd_consumption_energy")
         with c1:
             _render_echarts_stacked(
                 cats_e, series_e, unit="GWh",
@@ -647,7 +648,7 @@ def render_step_quantitative_model() -> None:
                 title="Consumo energia annuale per settore",
             )
         with c2:
-            year1 = st.selectbox("Anno (consumi totali)", years_e, key="sd_year_energy")
+            year1 = st.selectbox(tr("Anno (consumi totali)"), years_e, key="sd_year_energy")
             pie_cats, pie_vals = sector_pie_at_year(df_energy, year1)
             _render_echarts_pie(
                 pie_cats, pie_vals, unit="GWh",
@@ -655,7 +656,7 @@ def render_step_quantitative_model() -> None:
                 title=f"Ripartizione {year1}",
             )
 
-        c1, c2 = st.columns([1.5, 1])
+        c1, c2 = wrapping_columns(2, key="sd_consumption_electricity")
         with c1:
             _render_echarts_stacked(
                 cats_el, series_el, unit="GWh",
@@ -663,7 +664,7 @@ def render_step_quantitative_model() -> None:
                 title="Consumo elettricità annuale per settore",
             )
         with c2:
-            year2 = st.selectbox("Anno (elettricità)", years_el, key="sd_year_elec")
+            year2 = st.selectbox(tr("Anno (elettricità)"), years_el, key="sd_year_elec")
             pie_cats, pie_vals = sector_pie_at_year(df_elec, year2)
             _render_echarts_pie(
                 pie_cats, pie_vals, unit="GWh",
@@ -671,19 +672,19 @@ def render_step_quantitative_model() -> None:
                 title=f"Ripartizione {year2}",
             )
 
-        st.subheader("Settore residenziale")
+        st.subheader(tr("Settore residenziale"))
         st.markdown(
-            """
+            tr("""
             Il settore residenziale è la principale fonte di consumo. Gli edifici sono
             categorizzati in **archetipi** (tipo, PV, tecnologia di riscaldamento,
             efficienza). La mappa mostra un esempio per il comune di Massagno.
-            """
+            """)
         )
         map_html = load_map_html()
         if map_html is None:
-            st.warning(f"Mappa HTML non trovata: `{MAP_HTML}`")
+            st.warning(tr('Mappa HTML non trovata: `{v0}`', v0=MAP_HTML))
         else:
-            st.components.v1.html(map_html, height=600, scrolling=True)
+            st.iframe(map_html, height=600)
 
 
 CALIBRATION_CHARTS = (
@@ -696,7 +697,7 @@ CALIBRATION_CHARTS = (
 
 def render_step_calibration() -> None:
     st.markdown(
-        """
+        tr("""
         ### Calibrazione
 
         Non tutti i parametri del modello si possono leggere in una fonte. Costi,
@@ -708,28 +709,28 @@ def render_step_calibration() -> None:
         Calibrare significa cercare i valori di questi parametri per cui il modello,
         lasciato correre sul **periodo coperto dai dati storici**, riproduce le decisioni che in
         quegli anni sono state osservate davvero.
-        """
+        """)
     )
 
-    col_a, col_b = st.columns(2)
+    col_a, col_b = wrapping_columns(2, key="sd_calibration_intro")
     with col_a.container(border=True):
-        st.markdown("**:material/tune: Cosa si stima**")
+        st.markdown(tr("**:material/tune: Cosa si stima**"))
         st.markdown(
-            "Si cambiano alcuni parametri del modello, quelli che descrivono "
+            tr("Si cambiano alcuni parametri del modello, quelli che descrivono "
             "come le persone scelgono, finché le adozioni simulate **riproducono "
             "i dati storici** disponibili per ciascuna tecnologia. I parametri tecnici ed economici "
-            "restano fissi."
+            "restano fissi.")
         )
     with col_b.container(border=True):
-        st.markdown("**:material/database: Contro quali dati**")
+        st.markdown(tr("**:material/database: Contro quali dati**"))
         st.markdown(
-            "Le serie annuali osservate di adozione: fotovoltaico, pompe di calore, "
+            tr("Le serie annuali osservate di adozione: fotovoltaico, pompe di calore, "
             "accumulatori, sostituzioni di riscaldamento, risanamenti e "
-            "immatricolazioni di veicoli."
+            "immatricolazioni di veicoli.")
         )
 
     st.warning(
-        """
+        tr("""
         **Calibrare non vuol dire prevedere.** Un modello che ricostruisce bene il
         passato non è una sfera di cristallo: la calibrazione fissa il *modo* in cui
         gli attori reagiscono a prezzi, costi e incentivi, non l'evoluzione futura di
@@ -737,31 +738,31 @@ def render_step_calibration() -> None:
         previsione di ciò che accadrà, ma come il **confronto fra scenari**: ciò che
         conta è la distanza fra una politica e l'altra, non il valore puntuale di una
         singola curva.
-        """,
+        """),
         icon=":material/compare_arrows:",
     )
 
     st.divider()
-    st.markdown("#### Quanto bene il modello ricostruisce il passato")
+    st.markdown(tr("#### Quanto bene il modello ricostruisce il passato"))
     st.markdown(
-        "Quelli sotto sono solo **alcuni esempi** dei dati usati per la "
+        tr("Quelli sotto sono solo **alcuni esempi** dei dati usati per la "
         "calibrazione: le barre confrontano, anno per anno, le adozioni "
         "**osservate** con quelle **simulate**. Sopra, il totale cumulato "
-        "osservato sul periodo di calibrazione."
+        "osservato sul periodo di calibrazione.")
     )
 
     data = {tech: load_calibration_series(tech) for tech, *_ in CALIBRATION_CHARTS}
 
-    metric_cols = st.columns(4)
+    metric_cols = wrapping_columns(4, key="sd_calibration", metrics=True)
     for col, (tech, *_) in zip(metric_cols, CALIBRATION_CHARTS):
         years, series = data[tech]
         observed = sum(v for v in series["Osservato"] if v is not None)
-        col.metric(tech, f"{observed:,.0f}".replace(",", "'"))
-        col.caption(f"Periodo osservato: {years[0]}–{years[-1]}")
+        col.metric(tr(tech), f"{observed:,.0f}".replace(",", "'"))
+        col.caption(tr('Periodo osservato: {v0}–{v1}', v0=years[0], v1=years[-1]))
 
     rows = [CALIBRATION_CHARTS[:2], CALIBRATION_CHARTS[2:]]
     for row in rows:
-        for col, (tech, chart_key, title, unit) in zip(st.columns(2), row):
+        for col, (tech, chart_key, title, unit) in zip(wrapping_columns(2, key=f"sd_calibration_{row[0][0]}"), row):
             years, series = data[tech]
             with col:
                 _render_echarts_grouped(

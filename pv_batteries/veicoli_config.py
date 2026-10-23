@@ -52,21 +52,26 @@ INPUT_META = input_metadata(INPUT_ORDER)
 OUTPUTS = [
     {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli/anno",
      "title": "Immatricolazioni annue per tipo",
+     "desc": "Nuove immatricolazioni annue in Ticino. HEV: ibridi; PHEV: ibridi ricaricabili.", "relative_view": True,
+     "history_position": "bottom",
      "history": "vehicle_adoptions",
      "history_note": "Immatricolazioni storiche dei soli veicoli elettrici a batteria (BEV), "
                      "da EVinput.csv.",
      "legend": "bottom"},
     {"base": "Vehicles by type", "kind": "line", "unit": "veicoli",
      "title": "Parco veicoli per tipo",
+     "desc": "Veicoli in circolazione in Ticino, per motorizzazione.", "relative_view": True,
      "legend": "bottom"},
     {"base": "Annual CO2 emissions vehicles flow", "kind": "line", "unit": "MtonCO2",
      "title": "Emissioni annuali CO2",
+     "desc": "Emissioni dei veicoli in Ticino; la serie inizia nel 2026.",
      "cumulative_title": "Emissioni cumulate CO2",
      "time_basis": "flow",
      # Prima del 2026 la serie riflette la sola inizializzazione del modello.
      "start_year": 2026, "legend": "bottom"},
     {"base": "EV by district", "kind": "bar", "year": 2050, "unit": "veicoli",
      "title": "BEV per distretto",
+     "desc": "Veicoli elettrici a batteria in circolazione; esclusi gli ibridi plug-in.",
      "district_order": DISTRICT_ORDER, "echarts": True},
 ]
 
@@ -79,6 +84,7 @@ OUTPUT_LAYOUT = [
 SUMMARY_METRICS = [
     {
         "label": "Emissioni cumulate CO2",
+        "period_note": 'Emissioni cumulate dal 2026; parco e quota al 2050.',
         "base": "Cumulative CO2 emissions vehicles",
         "unit": "MtonCO2",
         "decimals": 0,
@@ -109,24 +115,13 @@ SUMMARY_METRICS = [
     },
 ]
 
-KPI_EXPLANATION = f"""
-Tutti gli indicatori sono riferiti al **{FINAL_YEAR}**; la variazione percentuale sotto
-ogni valore è il confronto con lo scenario Base.
+KPI_EXPLANATION = """Valori **al 2050**; variazioni rispetto allo scenario Base.
 
-- **Emissioni cumulate CO2** — emissioni dei veicoli accumulate lungo tutto l'orizzonte
-  di simulazione. Essendo un totale cumulato conta l'intero percorso e non solo il punto
-  di arrivo: raggiungere tardi la stessa flotta elettrica lascia comunque più CO2 in
-  atmosfera.
-- **Totale EV** — veicoli elettrici a batteria (BEV) circolanti. Gli ibridi plug-in sono
-  contati a parte e non rientrano in questo valore.
-- **Quota EV sul parco** — gli stessi BEV espressi come percentuale del parco veicoli
-  totale. Il parco complessivo è un'ipotesi esogena del modello e non reagisce agli
-  incentivi, quindi questa quota si muove esattamente come il totale EV: è una lettura
-  più comoda, non un'informazione in più, ed è il motivo per cui non compare nel radar.
+- **Emissioni cumulate**: emissioni dei veicoli accumulate dal 2026 [Mt CO₂].
+- **Elettrici a batteria**: BEV in circolazione, esclusi gli ibridi plug-in.
+- **Quota di elettrici a batteria**: BEV sul totale dei veicoli [%].
 
-Questa sezione non ha un indice di equità: gli effetti distributivi della transizione
-sono misurati nelle pagine *PV e Batterie* e *Riscaldamento e Risanamento*.
-"""
+Il parco totale è fissato dal modello. Numero e quota dei BEV variano quindi allo stesso modo: nel radar compare solo il numero."""
 
 OUTPUT_BASES = list(dict.fromkeys(
     [o["base"] for o in OUTPUTS if "base" in o]

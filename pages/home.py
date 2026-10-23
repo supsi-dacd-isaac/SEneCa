@@ -9,6 +9,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import streamlit as st
+from pv_batteries.i18n import tr
+from pv_batteries.responsive import wrapping_columns
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCUMENTATION = ROOT / "SEneCa_documentation.pdf"
@@ -76,46 +78,46 @@ def _documentation_bytes(path: str) -> bytes:
     return Path(path).read_bytes()
 
 
-st.title("Modello SEneCa per il Ticino")
+st.title(tr("Modello SEneCa per il Ticino"))
 st.markdown(
-    "**La chiave per comprendere la transizione energetica del Canton Ticino**"
+    tr("**La chiave per comprendere la transizione energetica del Canton Ticino**")
 )
 st.markdown(
-    """
+    tr("""
 **SEneCa** (Sistema Energetico Cantonale) è il simulatore con cui si esplora
 la transizione energetica ticinese. Mostra come le politiche e i fattori
 esterni di oggi possono plasmarne l'evoluzione fino al 2050: diffusione del
 fotovoltaico, risanamento degli edifici, mobilità elettrica, domanda di
 elettricità, costi per gli utenti ed equità tra distretti.
-"""
+""")
 )
 st.markdown(
-    """
+    tr("""
 Sviluppato da **SUPSI** nell'ambito del progetto **SURE — Sustainable and
 Resilient Energy for Switzerland**, il modello è uno strumento di analisi di
 scenari. Questa webapp lo rende consultabile: si provano nuove politiche o
 cambiamenti dei fattori esterni e si osserva come il sistema cantonale
 potrebbe evolvere, compresi gli effetti che si propagano da un settore
 all'altro.
-"""
+""")
 )
 
-with st.expander("Contesto del progetto SURE", expanded=False):
+with st.expander(tr("Contesto del progetto SURE"), expanded=False):
     st.markdown(
-        """
+        tr("""
 La transizione energetica svizzera non dipende soltanto dall'introduzione di
 tecnologie a basse emissioni: richiede che il sistema resti sicuro,
 economicamente sostenibile e socialmente accettabile lungo l'intero percorso.
 È la domanda a cui risponde il progetto **SURE — Sustainable and Resilient
 Energy for Switzerland**, di cui il caso ticinese è la declinazione cantonale.
-"""
+""")
     )
 
-    col_ch, col_ti = st.columns(2)
+    col_ch, col_ti = wrapping_columns(2, key="home_context")
     with col_ch.container(border=True):
-        st.markdown("#### :earth_africa: SURE, livello nazionale")
+        st.markdown(tr("#### :earth_africa: SURE, livello nazionale"))
         st.markdown(
-            """
+            tr("""
 Consorzio del programma federale **SWEET** (Call 1-2020), dieci partner di
 ricerca guidati dal **Paul Scherrer Institute**. Valuta in modo integrato
 sostenibilità e resilienza della transizione lungo più dimensioni: impatti
@@ -126,12 +128,12 @@ Non si limita a identificare le configurazioni future possibili, ma indaga
 **attraverso quali dinamiche** vi si arriva, quali compromessi emergono tra
 obiettivi ambientali, economici e sociali, quanto i percorsi siano vulnerabili
 agli shock e quali strategie reggano in una pluralità di futuri plausibili.
-"""
+""")
         )
     with col_ti.container(border=True):
-        st.markdown("#### :round_pushpin: Il caso Ticino, WP13")
+        st.markdown(tr("#### :round_pushpin: Il caso Ticino, WP13"))
         st.markdown(
-            """
+            tr("""
 Nella struttura federale svizzera gli obiettivi climatici sono definiti a
 Berna, ma sono i **Cantoni** ad avere le competenze attuative: devono tradurli
 in percorsi di decarbonizzazione compatibili con risorse, infrastrutture e
@@ -142,14 +144,14 @@ livelli. Il modello nasce da un percorso **partecipativo** con gli stakeholder
 cantonali (amministrazione, aziende elettriche, associazioni, politica) che
 ne hanno definito il problema, le variabili rilevanti e gli indicatori. Non è
 quindi una semplice regionalizzazione di dati nazionali.
-"""
+""")
         )
 
 with st.expander(
-    "Il modello SEneCa - Sistema Energetico Cantonale", expanded=False,
+    tr("Il modello SEneCa - Sistema Energetico Cantonale"), expanded=False,
 ):
     st.info(
-        """
+        tr("""
 **Il modello simula, non prevede e non ottimizza.** Permette di formulare
 esperimenti *what-if*: si modificano politiche, regolamentazioni e ipotesi di
 contesto e si osservano le conseguenze dinamiche che ne derivano, inclusi
@@ -157,25 +159,25 @@ effetti indiretti e inattesi tra settori. Il suo valore non sta nell'indicare
 un unico percorso «corretto», ma nel fornire un ambiente trasparente in cui
 confrontare alternative e capire quali relazioni causali generano le differenze
 tra scenari.
-""",
+"""),
         icon=":material/lightbulb:",
     )
 
     st.markdown(
-        """Domande alle quali il modello può e non può contribuire:"""
+        tr("""Domande alle quali il modello può e non può contribuire:""")
     )
 
-    col_can, col_cannot = st.columns(2)
+    col_can, col_cannot = wrapping_columns(2, key="home_scope")
     with col_can.container(border=True):
-        st.markdown(":green-badge[:material/check_circle: Può contribuire a rispondere a]")
-        st.markdown("\n".join(f"- {item}" for item in CAN_ANSWER))
+        st.markdown(tr(":green-badge[:material/check_circle: Può contribuire a rispondere a]"))
+        st.markdown(tr("\n".join(f"- {tr(item)}" for item in CAN_ANSWER)))
     with col_cannot.container(border=True):
-        st.markdown(":red-badge[:material/block: Non è destinato a]")
-        st.markdown("\n".join(f"- {item}" for item in CANNOT_ANSWER))
+        st.markdown(tr(":red-badge[:material/block: Non è destinato a]"))
+        st.markdown(tr("\n".join(f"- {tr(item)}" for item in CANNOT_ANSWER)))
 
-with st.expander("Perché una web application", expanded=False):
+with st.expander(tr("Perché una web application"), expanded=False):
     st.markdown(
-        """
+        tr("""
 Il modello SEneCa è sviluppato in **Vensim**: usarlo direttamente richiede
 di conoscerne la struttura interna e di disporre del relativo ambiente
 software. Questa applicazione è lo **strato di accesso e comunicazione** che
@@ -183,38 +185,38 @@ apre le capacità di analisi del modello anche a utenti non specializzati:
 limita la modifica agli input rilevanti, automatizza l'esecuzione delle
 simulazioni e presenta i risultati in forma interpretabile. Non sostituisce il
 modello, lo rende utilizzabile.
-"""
+""")
     )
 
-    for col, (icon, title, body) in zip(st.columns(3), WEBAPP_ADVANTAGES):
+    for col, (icon, title, body) in zip(wrapping_columns(3, key="home_advantages"), WEBAPP_ADVANTAGES):
         with col.container(border=True):
-            st.markdown(f"#### {icon} {title}")
-            st.markdown(body)
+            st.markdown(tr('#### {v0} {v1}', v0=icon, v1=tr(title)))
+            st.markdown(tr(body))
 
-with st.expander("Vuoi saperne di più?", expanded=False):
-    col_link, col_doc = st.columns(2)
+with st.expander(tr("Vuoi saperne di più?"), expanded=False):
+    col_link, col_doc = wrapping_columns(2, key="home_links")
     with col_link.container(border=True):
-        st.markdown("#### :material/link: Il progetto SWEET SURE")
+        st.markdown(tr("#### :material/link: Il progetto SWEET SURE"))
         st.markdown(
-            "Consorzio, partner di ricerca, pubblicazioni e risultati a livello "
-            "nazionale sul sito ufficiale del progetto."
+            tr("Consorzio, partner di ricerca, pubblicazioni e risultati a livello "
+            "nazionale sul sito ufficiale del progetto.")
         )
-        st.link_button("Vai a sweet-sure.ch", SURE_URL)
+        st.link_button(tr("Vai a sweet-sure.ch"), SURE_URL)
     with col_doc.container(border=True):
-        st.markdown("#### :material/menu_book: Documentazione tecnica")
+        st.markdown(tr("#### :material/menu_book: Documentazione tecnica"))
         st.markdown(
-            "Struttura del modello, formulazioni matematiche, dati di input, "
-            "calibrazione, architettura della web app e limitazioni (102 pagine)."
+            tr("Struttura del modello, formulazioni matematiche, dati di input, "
+            "calibrazione, architettura della web app e limitazioni (102 pagine).")
         )
         if DOCUMENTATION.exists():
             st.download_button(
-                "Scarica la documentazione (PDF)",
+                tr("Scarica la documentazione (PDF)"),
                 data=_documentation_bytes(str(DOCUMENTATION)),
                 file_name=DOCUMENTATION.name,
                 mime="application/pdf",
             )
         else:
-            st.caption("Documentazione non trovata.")
+            st.caption(tr("Documentazione non trovata."))
 
 st.html(
     """
@@ -247,15 +249,15 @@ st.html(
 col_metodo, col_sim = st.columns(2)
 with col_metodo:
     if st.button(
-        "Scopri la metodologia",
+        tr("Scopri la metodologia"),
         key="scopri_metodologia",
-        use_container_width=True,
+        width="stretch",
     ):
         st.switch_page("pages/0_Approccio_System_Dynamics.py")
 with col_sim:
     if st.button(
-        "Esplora le simulazioni",
+        tr("Esplora le simulazioni"),
         key="esplora_simulazioni",
-        use_container_width=True,
+        width="stretch",
     ):
         st.switch_page("pages/1_PV_e_Batterie.py")

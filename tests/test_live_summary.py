@@ -29,6 +29,23 @@ class LiveSummaryTests(unittest.TestCase):
                        "Households": np.broadcast_to([[1., 2.], [3., 4.]], (40, 2, 2)).copy()}
         self.specs = {"equity": {"value": "Cost", "weight": "Households"}}
 
+    def test_comparison_table_keeps_physical_units_and_undefined_zero_baseline(self):
+        from live_summary import build_comparison_table
+        from pv_batteries.display_labels import LIVE_INDICATORS
+        base = pd.DataFrame({key: [0.] for key in LIVE_INDICATORS}, index=[2050])
+        user = base.copy()
+        user.loc[2050, "Levy Evolution"] = .0105
+        user.loc[2050, "Vehicles by type[BEV]"] = 35646.
+        table = build_comparison_table(base, user).set_index("Indicatore")
+        self.assertEqual(len(table), len(LIVE_INDICATORS))
+        self.assertTrue(table["Unità"].ne("").all())
+        surcharge = table.loc["Supplemento federale in bolletta"]
+        self.assertEqual(surcharge["Unità"], "CHF/kWh")
+        self.assertEqual(surcharge["Scelta 2050"], .0105)
+        self.assertEqual(surcharge["Variazione"], .0105)
+        self.assertTrue(pd.isna(surcharge["Variazione [%]"]))
+        self.assertTrue(base.eq(0).all().all())
+
     def test_live_matches_batch_with_reordered_columns(self):
         df = frame_from_arrays(self.arrays, self.export)
         live = gmd_from_frame(df[df.columns[::-1]], self.specs)
