@@ -30,6 +30,25 @@ def transform_series(frame: pd.DataFrame, basis: str | None, mode: str) -> pd.Da
     return frame.copy()
 
 
+def relative_series(frame: pd.DataFrame) -> pd.DataFrame:
+    """Percent of the complete row total; zero/missing totals have no share."""
+    total = frame.sum(axis=1, min_count=len(frame.columns))
+    valid = frame.notna().all(axis=1) & frame.ge(0).all(axis=1) & total.gt(0)
+    return frame.div(total.where(valid), axis=0).mul(100)
+
+
+def composition_controls(meta: dict, key: str) -> bool:
+    if not meta.get("relative_view"):
+        return False
+    labels = {"absolute": tr("Valori assoluti"), "relative": tr("Quote sul totale [%]")}
+    value = st.segmented_control(tr("Rappresentazione"), list(labels),
+                                 format_func=labels.get, default="absolute",
+                                 key=f"{key}_composition")
+    if value == "relative":
+        st.caption(tr("Quota sul totale di tutti i tipi nell’anno, calcolata separatamente per ogni scenario. Nascondere una serie non cambia il denominatore."))
+    return value == "relative"
+
+
 def temporal_controls(meta: dict, key: str, start: int) -> tuple[str, str, str]:
     basis = meta.get("time_basis")
     if not basis:
@@ -56,7 +75,7 @@ def temporal_controls(meta: dict, key: str, start: int) -> tuple[str, str, str]:
 
 
 @st.cache_data(show_spinner=False, max_entries=3)
-def historical_series(source: str) -> pd.DataFrame:
+def historical_series(source: str, relative: bool = False) -> pd.DataFrame:
     if source == "pv_production":
         raw = pd.read_csv(ROOT / "content/system_dynamics/plots_data/Historical electricity production.csv", sep=";")
         return raw.set_index("year")[["Fotovoltaico"]].rename(columns={"Fotovoltaico": "Produzione"})
@@ -66,6 +85,11 @@ def historical_series(source: str) -> pd.DataFrame:
         rows = {'"Capacity PV 30 - 100 kW"': "30–100 kW",
                 '"Capacity PV > 100 kW"': "> 100 kW"}
     elif source == "vehicle_adoptions":
+        types = ("Petrol", "Diesel", "PetrolHEV", "PetrolPHEV", "DieselHEV", "DieselPHEV", "BEV")
+        if relative:
+            names = [f"Adoption Vehicles[{kind}]" for kind in types]
+            full = available_history(raw, names)
+            return relative_series(full)[["Adoption Vehicles[BEV]"]].rename(columns={"Adoption Vehicles[BEV]": "BEV"})
         rows = {"Adoption Vehicles[BEV]": "BEV"}
     else:
         raise ValueError(f"Fonte storica sconosciuta: {source}")

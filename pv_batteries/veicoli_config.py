@@ -51,13 +51,14 @@ INPUT_META = input_metadata(INPUT_ORDER)
 
 OUTPUTS = [
     {"base": "Adoption Vehicles", "kind": "line", "unit": "veicoli/anno",
-     "title": "Immatricolazioni annue per tipo",
+     "title": "Immatricolazioni annue per tipo", "relative_view": True,
+     "history_position": "bottom",
      "history": "vehicle_adoptions",
      "history_note": "Immatricolazioni storiche dei soli veicoli elettrici a batteria (BEV), "
                      "da EVinput.csv.",
      "legend": "bottom"},
     {"base": "Vehicles by type", "kind": "line", "unit": "veicoli",
-     "title": "Parco veicoli per tipo",
+     "title": "Parco veicoli per tipo", "relative_view": True,
      "legend": "bottom"},
     {"base": "Annual CO2 emissions vehicles flow", "kind": "line", "unit": "MtonCO2",
      "title": "Emissioni annuali CO2",

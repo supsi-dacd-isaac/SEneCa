@@ -385,7 +385,6 @@ msgstr "#### :material/menu_book: Technical documentation"
 msgid "#### :round_pushpin: Il caso Ticino, WP13"
 msgstr "#### :round_pushpin: The Ticino case study, WP13"
 
-#, python-format
 msgid "% del costo"
 msgstr "% of cost"
 
@@ -433,7 +432,6 @@ msgstr ""
 "Assumption about the annual reduction in battery electric vehicle purchase prices, applied to the"
 " previous year’s price."
 
-#, python-format
 msgid ""
 "Attiva insieme due componenti: contributo del 10% del costo d’investimento dal 2026 e supplemento"
 " di 5 ct./kWh sull’elettricità PV immessa in rete dal 2025, secondo le decorrenze del modello."
@@ -470,7 +468,6 @@ msgstr "Next"
 msgid "Barre"
 msgstr "Bar chart"
 
-#, python-format
 msgid "Barre in GWh sull'asse sinistro, quote % sulla domanda sull'asse destro"
 msgstr "Bars in GWh on the left axis; shares of demand (%) on the right axis"
 
@@ -1527,7 +1524,7 @@ msgstr ""
 msgid "Composizione dei {v0} policy mix migliori"
 msgstr "Composition of the {v0} best policy mixes"
 
-#, python-brace-format, python-format
+#, python-brace-format
 msgid ""
 "Per ogni leva: che percentuale dei mix in classifica assume il valore alto/presente. Esempio: "
 "100% su Autoconsumo virtuale significa che tutti e {v0} i migliori la attivano; 20% sugli "
@@ -2542,7 +2539,6 @@ msgstr "HTML map not found: `{v0}`"
 msgid "Warming the Julia worker before accepting simulations"
 msgstr "Warming the Julia worker before accepting simulations"
 
-#, python-format
 msgid "Julia worker ready: pid=%s, warmup=%.3fs, compilation=%.3fs"
 msgstr "Julia worker ready: pid=%s, warmup=%.3fs, compilation=%.3fs"
 
@@ -3289,7 +3285,6 @@ msgstr "No. of scenarios"
 msgid "scalato (1 = migliore)"
 msgstr "scaled (1 = best)"
 
-#, python-format
 msgid "% dei 5 migliori"
 msgstr "% of top 5"
 
@@ -3377,3 +3372,19 @@ msgstr "Value"
 #, python-brace-format
 msgid "{count} simulazioni · {mixes} policy mix × {samples} scenari di incertezza"
 msgstr "{count} simulations · {mixes} policy mixes × {samples} uncertainty scenarios"
+
+msgid "Valori assoluti"
+msgstr "Absolute values"
+
+msgid "Quote sul totale [%]"
+msgstr "Shares of total [%]"
+
+msgid "Rappresentazione"
+msgstr "Display"
+
+msgid ""
+"Quota sul totale di tutti i tipi nell’anno, calcolata separatamente per ogni scenario. Nascondere"
+" una serie non cambia il denominatore."
+msgstr ""
+"Share of all types in each year, calculated separately for each scenario. Hiding a series does "
+"not change the denominator."

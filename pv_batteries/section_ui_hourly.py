@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.responsive import wrapping_columns
 from pv_batteries.i18n import tr, display_frame
 
 from echarts_charts import (
@@ -73,7 +74,7 @@ def render_hourly_summary_metrics(
 ) -> None:
     """KPI annuali della sezione oraria, con delta e radar vs scenario Base."""
     entries: list[tuple[str, float | None, float | None]] = []
-    cols = st.columns(len(metrics))
+    cols = wrapping_columns(len(metrics), key="hourly", metrics=True)
     for col, spec in zip(cols, metrics, strict=True):
         value = hourly_metric_value(spec, df, year=year)
         value_base = hourly_metric_value(spec, df_base, year=year)
@@ -235,7 +236,7 @@ def render_monthly_supplier_bars(
     st.markdown(tr("**Profilo mensile per supplier**"))
     prefix = _chart_label_prefix(meta)
     use_echarts = meta.get("stacked_echarts", False)
-    cols = st.columns(len(cfg.DISPLAY_YEARS))
+    cols = wrapping_columns(len(cfg.DISPLAY_YEARS), key=f"monthly_{meta['base']}")
 
     for col, year in zip(cols, cfg.DISPLAY_YEARS, strict=True):
         with col:
@@ -265,7 +266,7 @@ def render_hourly_section(
     use_area = meta.get("hourly_area_echarts", False)
 
     for month in cfg.DISPLAY_MONTHS:
-        cols = st.columns(len(cfg.DISPLAY_YEARS))
+        cols = wrapping_columns(len(cfg.DISPLAY_YEARS), key=f"hourly_{meta['base']}_{month}")
         for col, year in zip(cols, cfg.DISPLAY_YEARS, strict=True):
             with col:
                 snap = _label_supplier_frame(

@@ -5,6 +5,7 @@ import re
 from html import escape
 
 import streamlit as st
+from pv_batteries.responsive import wrapping_columns
 from pv_batteries.i18n import tr
 
 from echarts_charts import (
@@ -157,7 +158,7 @@ def render_sd_intro() -> None:
         """)
     )
 
-    col_blocks, col_loops = st.columns(2)
+    col_blocks, col_loops = wrapping_columns(2, key="sd_overview")
     with col_blocks.container(border=True):
         st.markdown(tr(":brick: La struttura"))
         st.markdown(
@@ -230,15 +231,14 @@ def _render_model_architecture() -> None:
         """)
     )
 
-    _, col_fig, _ = st.columns([0.10, 0.8, 0.10])
-    with col_fig:
+    with st.container():
         _show_image(
             IMAGE_ARCHITECTURE,
             tr("Architettura funzionale del modello: quattro macrocomponenti che formano "
             "un unico sistema dinamico."),
         )
 
-    col_a, col_b, col_c = st.columns(3)
+    col_a, col_b, col_c = wrapping_columns(3, key="sd_architecture")
     with col_a.container(border=True):
         st.markdown(tr("**:material/layers: Struttura ibrida**"))
         st.markdown(
@@ -351,8 +351,7 @@ def render_step_problem_definition() -> None:
         - :arrow_heading_up: **Nicchie** → livello micro: innovazioni e sperimentazioni
         """)
     )
-    _, col_mlp, _ = st.columns([0.10, 0.8, 0.10])
-    with col_mlp:
+    with st.container():
         _show_image(
             IMAGE_WORKSHOP,
             tr("Risultati dell'analisi svolta durante il primo workshop. "
@@ -407,7 +406,7 @@ def render_step_qualitative_model() -> None:
         """)
     )
 
-    col_arrows, col_loops = st.columns(2)
+    col_arrows, col_loops = wrapping_columns(2, key="sd_arrows")
     with col_arrows.container(border=True):
         st.markdown(tr("**:material/arrow_right_alt: Come si legge una freccia**"))
         st.markdown(
@@ -429,8 +428,7 @@ def render_step_qualitative_model() -> None:
             """)
         )
 
-    _, col_fig, _ = st.columns([0.10, 0.8, 0.10])
-    with col_fig:
+    with st.container():
         _show_image(
             IMAGE_CLD,
             tr("Causal Loop Diagram dei principali feedback del modello SURE-Ticino: "
@@ -450,7 +448,7 @@ def render_step_qualitative_model() -> None:
         "Riconoscerli aiuta a interpretare i risultati delle sezioni *Simulazioni SEneCa*.")
     )
 
-    col_1, col_2 = st.columns(2)
+    col_1, col_2 = wrapping_columns(2, key="sd_feedback_1")
     with col_1.container(border=True):
         st.markdown(tr("**:material/groups: Diffusione sociale e limiti fisici**"))
         _render_loop_markdown(
@@ -489,7 +487,7 @@ def render_step_qualitative_model() -> None:
             """)
         )
 
-    col_3, col_4 = st.columns(2)
+    col_3, col_4 = wrapping_columns(2, key="sd_feedback_2")
     with col_3.container(border=True):
         st.markdown(tr("**:material/electrical_services: Costi di adeguamento della rete**"))
         _render_loop_markdown(
@@ -585,7 +583,7 @@ def render_step_quantitative_model() -> None:
             ("Rifiuti" if name == "Cogenerazione" else name): values
             for name, values in series2.items()
         }
-        c1, c2 = st.columns(2)
+        c1, c2 = wrapping_columns(2, key="sd_production")
         with c1:
             _render_echarts_line(
                 years1, series1, unit="GWh",
@@ -607,7 +605,7 @@ def render_step_quantitative_model() -> None:
         )
         years_dist, series_dist = load_pv_buildings_input("Distretto")
         years_type, series_type = load_pv_buildings_input("Tipo di edificio")
-        c_pv1, c_pv2 = st.columns(2)
+        c_pv1, c_pv2 = wrapping_columns(2, key="sd_pv_history")
         with c_pv1:
             _render_echarts_line(
                 years_dist, series_dist,
@@ -642,7 +640,7 @@ def render_step_quantitative_model() -> None:
         cats_el, series_el = sector_csv_to_stacked(df_elec)
         years_el = sorted(int(y) for y in df_elec[_year_column(df_elec)].tolist())
 
-        c1, c2 = st.columns([1.5, 1])
+        c1, c2 = wrapping_columns(2, key="sd_consumption_energy")
         with c1:
             _render_echarts_stacked(
                 cats_e, series_e, unit="GWh",
@@ -658,7 +656,7 @@ def render_step_quantitative_model() -> None:
                 title=f"Ripartizione {year1}",
             )
 
-        c1, c2 = st.columns([1.5, 1])
+        c1, c2 = wrapping_columns(2, key="sd_consumption_electricity")
         with c1:
             _render_echarts_stacked(
                 cats_el, series_el, unit="GWh",
@@ -714,7 +712,7 @@ def render_step_calibration() -> None:
         """)
     )
 
-    col_a, col_b = st.columns(2)
+    col_a, col_b = wrapping_columns(2, key="sd_calibration_intro")
     with col_a.container(border=True):
         st.markdown(tr("**:material/tune: Cosa si stima**"))
         st.markdown(
@@ -755,7 +753,7 @@ def render_step_calibration() -> None:
 
     data = {tech: load_calibration_series(tech) for tech, *_ in CALIBRATION_CHARTS}
 
-    metric_cols = st.columns(4)
+    metric_cols = wrapping_columns(4, key="sd_calibration", metrics=True)
     for col, (tech, *_) in zip(metric_cols, CALIBRATION_CHARTS):
         years, series = data[tech]
         observed = sum(v for v in series["Osservato"] if v is not None)
@@ -764,7 +762,7 @@ def render_step_calibration() -> None:
 
     rows = [CALIBRATION_CHARTS[:2], CALIBRATION_CHARTS[2:]]
     for row in rows:
-        for col, (tech, chart_key, title, unit) in zip(st.columns(2), row):
+        for col, (tech, chart_key, title, unit) in zip(wrapping_columns(2, key=f"sd_calibration_{row[0][0]}"), row):
             years, series = data[tech]
             with col:
                 _render_echarts_grouped(

@@ -54,7 +54,7 @@ def place_line_legend(options: dict) -> None:
         "show": len(labels) > 1,
         "top": "auto", "bottom": "9%" if zoom else 0,
         "left": 0, "right": 0,
-        "type": "scroll" if len(labels) > 4 else "plain",
+        "type": "scroll",
         "data": labels,
     }
     # Esplicitare anche top azzera il vecchio layout durante le transizioni.
@@ -117,7 +117,7 @@ def build_line_options(
         "xAxis": {
             "type": "category",
             "data": [str(y) for y in years],
-            "axisLabel": {"margin": 10},
+            "axisLabel": {"margin": 10, "hideOverlap": True},
         },
         "yAxis": {"type": "value", "name": unit, **(
             {} if y_min is None else {"min": y_min}
@@ -321,7 +321,7 @@ def build_boxplot_options(
         "name": "Outlier",
         "type": "scatter",
         "itemStyle": {"color": data_color(2)},
-        "data": outliers or [],
+        "data": [[value, index] for index, value in (outliers or [])],
         "symbolSize": 6,
         "animationDurationUpdate": 0,
     }]
@@ -340,13 +340,12 @@ def build_boxplot_options(
         },
         "tooltip": {"trigger": "item"},
         "legend": {"show": bool(outliers), "bottom": 0},
-        "xAxis": {
-            "type": "category",
-            "data": categories,
-            "axisLabel": {"interval": 0, "rotate": 28},
+        "xAxis": {**y_axis, "nameLocation": "middle", "nameGap": 28},
+        "yAxis": {
+            "type": "category", "data": categories, "inverse": True,
+            "axisLabel": {"interval": 0, "width": 150, "overflow": "break"},
         },
-        "yAxis": y_axis,
-        "grid": {"bottom": "26%", "left": "10%", "right": "4%", "top": "8%"},
+        "grid": {"bottom": 65, "left": 8, "right": 20, "top": 45, "containLabel": True},
         "series": series,
     }
 
@@ -516,12 +515,43 @@ def render_echarts(
       requestAnimationFrame(() => requestAnimationFrame(() => {{
         options.animation = true;
         chart.setOption(options);
+        fitChart();
       }}));
     }} else {{
       options.animation = false;
       chart.setOption(options);
     }}
-    window.addEventListener("resize", function() {{ chart.resize(); }});
+    function fitChart() {{
+      const width = el.clientWidth;
+      const layout = {{ tooltip: {{confine: true}} }};
+      if (options.radar) {{
+        const labelWidth = Math.min(135, Math.max(75, width * 0.23));
+        const radius = Math.max(45, Math.min({height} * 0.28, width / 2 - labelWidth - 18));
+        layout.radar = {{ radius, axisName: {{width: labelWidth, overflow: 'break', fontSize: 11}} }};
+        layout.legend = {{type: 'scroll', top: 'auto', left: 0, right: 0, bottom: 0}};
+      }} else if (options.series?.[0]?.type === 'pie') {{
+        layout.legend = {{type: 'scroll', top: 'auto', left: 0, right: 0, bottom: 0}};
+        layout.series = [{{radius: width < 500 ? '48%' : '60%',
+          label: {{alignTo: 'edge', edgeDistance: 8, width: Math.min(140, width * 0.24), overflow: 'break'}},
+          labelLayout: {{hideOverlap: true}}}}];
+      }} else if (options.grid) {{
+        layout.grid = {{containLabel: true, left: 8, right: 20}};
+        if (options.yAxis && options.yAxis.type === 'category') {{
+          layout.yAxis = {{axisLabel: {{width: Math.min(170, width * 0.34), overflow: 'break', interval: 0}}}};
+        }}
+        const categories = options.xAxis?.data;
+        if (options.xAxis?.type === 'category' && categories?.length <= 12 &&
+            categories.some(value => !/^\\d{{4}}$/.test(String(value)))) {{
+          layout.xAxis = {{axisLabel: {{interval: 0, overflow: 'break',
+            width: Math.max(40, (width - 100) / categories.length - 6), fontSize: 11}}}};
+        }}
+        if (options.legend) layout.legend = {{type: 'scroll', top: 'auto', bottom: options.legend.bottom ?? 0, left: 0, right: 0}};
+      }}
+      chart.resize();
+      chart.setOption(layout);
+    }}
+    fitChart();
+    new ResizeObserver(fitChart).observe(el);
   </script>
 </body>
 </html>"""
@@ -569,13 +599,17 @@ def _render_echarts_series(
         st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     from chart_views import (add_historical_options, historical_series,
-                             temporal_controls, transform_series)
+                             temporal_controls, transform_series, composition_controls, relative_series)
     key = chart_key or _chart_key(meta)
     frame = pd.DataFrame(series, index=df.index.astype(int)).sort_index()
     start = meta.get("start_year", int(frame.index.min()))
     frame = frame.loc[frame.index >= start]
+    relative = composition_controls(meta, key)
     mode, unit, note = temporal_controls(meta, key, start)
     frame = transform_series(frame, meta.get("time_basis"), mode)
+    if relative:
+        frame = relative_series(frame)
+        unit = "%"
     years = [int(y) for y in frame.index]
     series = {c: _to_float_list(frame[c]) for c in frame}
     series_order = meta.get("type_order")
@@ -587,6 +621,8 @@ def _render_echarts_series(
         base_frame = pd.DataFrame(compare_raw, index=df_base.index.astype(int)).sort_index()
         base_frame = base_frame.loc[base_frame.index >= start]
         base_frame = transform_series(base_frame, meta.get("time_basis"), mode).reindex(years)
+        if relative:
+            base_frame = relative_series(base_frame)
         compare = {c: _to_float_list(base_frame[c]) for c in base_frame if c in series}
     options = build_line_options(
         years,
@@ -599,9 +635,11 @@ def _render_echarts_series(
     # Reserve the chart before its optional history controls so adjacent charts
     # stay aligned, including when the history notes become visible on a rerun.
     chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
+    if relative:
+        options["yAxis"].update(min=0, max=100)
     if source := meta.get("history"):
         if st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history"):
-            historical = historical_series(source)
+            historical = historical_series(source, relative=relative)
             historical = historical.loc[historical.index >= start]
             if not historical.empty:
                 st.caption(tr("Dati disponibili: {start}–{end}.", start=historical.index.min(), end=historical.index.max()))

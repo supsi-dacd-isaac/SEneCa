@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from pv_batteries.i18n import tr, display_frame
+from pv_batteries.responsive import wrapping_columns
 
 ROOT = Path(__file__).resolve().parent.parent
 PVBAT = ROOT / "pv_batteries"
@@ -289,7 +290,7 @@ def _render_inspect_mix(scaled: pd.DataFrame) -> None:
         "già scalato da **0 (peggiore)** a **1 (migliore)**, il range sugli "
         "scenari di incertezza.")
     )
-    col_pol, col_box = st.columns([1, 1.4])
+    col_pol, col_box = wrapping_columns(2, key="policy_mix")
     with col_pol:
         values = _render_policy_selectors()
     pid = cfg.policy_id_from_values(values)
@@ -345,7 +346,7 @@ def _render_best_mixes(scaled: pd.DataFrame) -> None:
         return
     top = expl.top_n_mixes(ranked, TOP_N)
 
-    col_weights, col_radar = st.columns(2)
+    col_weights, col_radar = wrapping_columns(2, key="weights_radar")
     with col_weights:
         st.subheader(tr("Pesi dei KPI"))
         st.segmented_control(
@@ -482,7 +483,7 @@ st.markdown(
     "interessanti quando il contesto può andare in direzioni diverse.")
 )
 
-col_mix, col_unc, col_kpi = st.columns(3)
+col_mix, col_unc, col_kpi = wrapping_columns(3, key="expl_intro")
 with col_mix.container(border=True):
     st.markdown(tr("#### :material/tune: Policy mix"))
     st.markdown(

@@ -4,6 +4,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 from pv_batteries.i18n import tr
+from pv_batteries.responsive import wrapping_columns
 
 from gmd import gmd_bounds_for_spec, scale_gmd_equity
 
@@ -143,7 +144,7 @@ def render_kpi_radar(
         [value for _, value, _ in usable],
         [base for _, _, base in usable],
     )
-    _, center, _ = st.columns([1, 4, 1])
+    center = st.container()
     with center:
         render_echarts(options, chart_key=chart_key, height=height)
 
@@ -170,7 +171,7 @@ def render_configured_summary_metrics(
         (i for i, spec in enumerate(metrics) if spec.get("gmd")),
         default=None,
     )
-    cols = st.columns(len(metrics))
+    cols = wrapping_columns(len(metrics), key=radar_chart_key, metrics=True)
     for i, (col, spec) in enumerate(zip(cols, metrics, strict=True)):
         value_num = _metric_numeric_value(
             spec, df, year=year, gmd_row=gmd_row, gmd_bounds=gmd_bounds,
@@ -271,7 +272,7 @@ def render_gmd_metrics(
     row = gmd_store.get(key, {})
     base_row = gmd_store.get(base_key, {}) if base_key and base_key != key else {}
     items = list(labels.items())
-    cols = st.columns(len(items))
+    cols = wrapping_columns(len(items), key="gmd", metrics=True)
     for col, (measure, label) in zip(cols, items):
         vmin, vmax = bounds[measure]
         scaled = scale_gmd_equity(row.get(measure), vmin, vmax)
@@ -330,7 +331,7 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
             st.subheader(
                 tr('Andamenti temporali ({v0}-{v1})', v0=int(df.index.min()), v1=int(df.index.max())))
         for i in range(0, len(line_outs), 2):
-            cols = st.columns(2)
+            cols = wrapping_columns(2, key=f"lines_{i}")
             for j, meta in enumerate(line_outs[i:i + 2]):
                 with cols[j]:
                     render_explanation(meta, explanations)
@@ -342,7 +343,7 @@ def render_section(df, outputs, final_year, *, df_base=None, explanations=None,
         if show_titles:
             st.subheader(tr('Valori al {v0}', v0=final_year))
         for i in range(0, len(bar_outs), 2):
-            cols = st.columns(2)
+            cols = wrapping_columns(2, key=f"bars_{i}")
             for j, meta in enumerate(bar_outs[i:i + 2]):
                 with cols[j]:
                     render_explanation(meta, explanations)
@@ -365,8 +366,8 @@ def render_section_layout(
 ) -> None:
     """Griglia custom: ogni riga elenca le base Vensim da affiancare."""
     by_base = {o["base"]: o for o in outputs if "base" in o}
-    for row in layout:
-        cols = st.columns(len(row))
+    for row_index, row in enumerate(layout):
+        cols = wrapping_columns(len(row), key=f"layout_{row_index}")
         for col, base in zip(cols, row, strict=True):
             meta = by_base.get(base)
             with col:

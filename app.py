@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import streamlit as st
 from pv_batteries.i18n import tr, language_selector
+from pv_batteries.responsive import apply_responsive_styles
 
 st.set_page_config(page_title="SEneCa", layout="wide")
 
@@ -43,4 +44,5 @@ pg = st.navigation(pages, position="sidebar")
 # Register navigation before shared widgets, including on the first cold visit.
 # Otherwise the initial widget identity can be based on the legacy page context.
 language_selector()
+apply_responsive_styles()
 pg.run()

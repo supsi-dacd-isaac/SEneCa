@@ -115,7 +115,7 @@ df = pd.DataFrame({data!r}, index=[2023, 2024])
                 app = AppTest.from_string(script).run()
                 app.checkbox[0].check().run()
                 self.assertFalse(app.exception)
-                self.assertFalse(app.get("button_group"))
+                self.assertFalse([control for control in app.get("button_group") if control.key == "test_time_view"])
                 series = render.call_args.args[0]["series"]
                 self.assertEqual(series[0]["data"], [2., 3.])
                 baseline = next(s for s in series if s["name"] == series[0]["name"] + " (Base)")

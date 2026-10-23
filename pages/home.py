@@ -10,6 +10,7 @@ from pathlib import Path
 
 import streamlit as st
 from pv_batteries.i18n import tr
+from pv_batteries.responsive import wrapping_columns
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCUMENTATION = ROOT / "SEneCa_documentation.pdf"
@@ -112,7 +113,7 @@ Energy for Switzerland**, di cui il caso ticinese è la declinazione cantonale.
 """)
     )
 
-    col_ch, col_ti = st.columns(2)
+    col_ch, col_ti = wrapping_columns(2, key="home_context")
     with col_ch.container(border=True):
         st.markdown(tr("#### :earth_africa: SURE, livello nazionale"))
         st.markdown(
@@ -166,7 +167,7 @@ tra scenari.
         tr("""Domande alle quali il modello può e non può contribuire:""")
     )
 
-    col_can, col_cannot = st.columns(2)
+    col_can, col_cannot = wrapping_columns(2, key="home_scope")
     with col_can.container(border=True):
         st.markdown(tr(":green-badge[:material/check_circle: Può contribuire a rispondere a]"))
         st.markdown(tr("\n".join(f"- {tr(item)}" for item in CAN_ANSWER)))
@@ -187,13 +188,13 @@ modello, lo rende utilizzabile.
 """)
     )
 
-    for col, (icon, title, body) in zip(st.columns(3), WEBAPP_ADVANTAGES):
+    for col, (icon, title, body) in zip(wrapping_columns(3, key="home_advantages"), WEBAPP_ADVANTAGES):
         with col.container(border=True):
             st.markdown(tr('#### {v0} {v1}', v0=icon, v1=tr(title)))
             st.markdown(tr(body))
 
 with st.expander(tr("Vuoi saperne di più?"), expanded=False):
-    col_link, col_doc = st.columns(2)
+    col_link, col_doc = wrapping_columns(2, key="home_links")
     with col_link.container(border=True):
         st.markdown(tr("#### :material/link: Il progetto SWEET SURE"))
         st.markdown(
