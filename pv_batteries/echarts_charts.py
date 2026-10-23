@@ -10,6 +10,7 @@ from copy import deepcopy
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, chart_text, chart_options
 
 import ui_colors
 importlib.reload(ui_colors)
@@ -23,9 +24,9 @@ _ECHARTS_CDN = "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
 
 def render_chart_header(title: str, unit: str, desc: str | None, suffix: str = "") -> None:
     """Titolo del grafico; la didascalia si stampa solo se aggiunge informazione."""
-    st.markdown(f"**{title}** ({unit}){suffix}")
+    st.markdown(f"**{chart_text(title)}** ({chart_text(unit)}){suffix}")
     if desc:
-        st.caption(desc)
+        st.caption(tr(desc))
 
 
 def _safe_dom_id(key: str) -> str:
@@ -462,7 +463,7 @@ def render_echarts(
     options: dict, *, chart_key: str, height: int = 400, tooltip_decimals: int = 2,
 ) -> None:
     """Renderizza ECharts in iframe, animando solo se assi e serie coincidono."""
-    options = deepcopy(options)
+    options = chart_options(options)
     options.setdefault("color", list(palette_for(_categorical_count(options))))
     options.setdefault("backgroundColor", "#FFFFFF")
     options.setdefault("textStyle", {"color": CHART_TEXT})
@@ -565,7 +566,7 @@ def _render_echarts_series(
     compare_fn=None,
 ) -> None:
     if not series:
-        st.info(f"Nessun dato per '{title}'.")
+        st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     from chart_views import (add_historical_options, historical_series,
                              temporal_controls, transform_series)
@@ -599,18 +600,18 @@ def _render_echarts_series(
     # stay aligned, including when the history notes become visible on a rerun.
     chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
     if source := meta.get("history"):
-        if st.checkbox("Mostra dati storici di calibrazione", key=f"{key}_history"):
+        if st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history"):
             historical = historical_series(source)
             historical = historical.loc[historical.index >= start]
             if not historical.empty:
-                st.caption(f"Dati disponibili: {historical.index.min()}–{historical.index.max()}.")
+                st.caption(tr("Dati disponibili: {start}–{end}.", start=historical.index.min(), end=historical.index.max()))
             historical = transform_series(historical, meta.get("time_basis"), mode).reindex(years)
             net = meta.get("time_basis") == "stock" and mode == "annual"
             add_historical_options(options, historical, net_change=net)
-            st.caption(meta["history_note"])
+            st.caption(tr(meta["history_note"]))
             if net:
-                st.caption("Per lo storico, la differenza fra anni misura l’incremento netto "
-                           "di potenza; non separa installazioni e dismissioni.")
+                st.caption(tr("Per lo storico, la differenza fra anni misura l’incremento netto "
+                           "di potenza; non separa installazioni e dismissioni."))
     suffix = " — cumulato" if mode == "cumulative" else (
         " — " + meta.get("annual_label", "variazione annua").lower()
         if mode == "annual" else "")
@@ -618,7 +619,7 @@ def _render_echarts_series(
     with chart_slot:
         render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
         if note:
-            st.caption(note)
+            st.caption(tr(note))
         render_echarts(
             options,
             chart_key=chart_key or _chart_key(meta),
@@ -835,7 +836,7 @@ def build_category_bar_options(
             }
         },
         "tooltip": {"trigger": "axis"},
-        "legend": {"bottom": 0, "data": [s["name"] for s in echarts_series]} if compare_values else {},
+        "legend": {"bottom": 0, "data": [s["name"] for s in echarts_series]} if compare_values else {"show": False},
         "xAxis": {"type": "category", "data": categories},
         "yAxis": yaxis,
         "grid": {"bottom": "12%" if compare_values else "8%"},
@@ -883,7 +884,7 @@ def render_echarts_bar_category(
     year = meta.get("year", 2050)
     categories, values = _category_values_from_bar(df, meta)
     if not categories:
-        st.info(f"Nessun dato {year} per '{title}'.")
+        st.info(tr("Nessun dato {year} per '{title}'.", year=year, title=chart_text(title)))
         return
     compare_values = None
     if df_base is not None:
@@ -992,7 +993,7 @@ def render_echarts_bar_grouped(
     title = chart_title(meta)
     districts, series = _series_from_bar_grouped(df, meta)
     if not districts or not series:
-        st.info(f"Nessun dato per '{title}'.")
+        st.info(tr("Nessun dato per '{title}'.", title=chart_text(title)))
         return
     bar_order = [spec["label"] for spec in meta["series"]]
     share_series = _demand_share_series(series)

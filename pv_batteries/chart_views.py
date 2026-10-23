@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, chart_text
 from pv_batteries.history_data import available_history
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,8 +39,10 @@ def temporal_controls(meta: dict, key: str, start: int) -> tuple[str, str, str]:
                   "annual": meta.get("annual_label", "Variazione annua")}
     else:
         labels = {"native": "Valori annui", "cumulative": f"Cumulati dal {start}"}
-    mode = st.segmented_control("Vista temporale", options=list(labels),
-                                format_func=labels.get, default="native",
+    display_labels = {value: tr("Cumulati dal {year}", year=start) if value == "cumulative" else tr(label)
+                      for value, label in labels.items()}
+    mode = st.segmented_control(tr("Vista temporale"), options=list(labels),
+                                format_func=display_labels.get, default="native",
                                 key=f"{key}_time_view") or "native"
     unit = meta["unit"]
     note = ""
@@ -48,7 +51,7 @@ def temporal_controls(meta: dict, key: str, start: int) -> tuple[str, str, str]:
         note = ("Il punto dell’anno t indica la variazione tra t e t+1. "
                 "L’ultimo anno non è disponibile senza il punto successivo.")
     elif mode == "cumulative":
-        note = f"Somma dei valori annui dal {start} fino all’anno indicato, incluso."
+        note = tr("Somma dei valori annui dal {start} fino all’anno indicato, incluso.", start=start)
     return mode, unit, note
 
 
@@ -91,7 +94,7 @@ def add_historical_options(options: dict, historical: pd.DataFrame, *, net_chang
 
 def render_calibration_reference(technology: str, *, key: str) -> None:
     """Le adozioni hanno un proprio grafico, non si sovrappongono ai MW."""
-    if not st.checkbox(f"Mostra calibrazione — {technology}", key=f"{key}_calibration"):
+    if not st.checkbox(tr("Mostra calibrazione — {technology}", technology=tr(technology)), key=f"{key}_calibration"):
         return
     from sd_explainer.loaders import load_calibration_series
     from echarts_charts import build_line_options, render_echarts
@@ -108,10 +111,10 @@ def render_calibration_reference(technology: str, *, key: str) -> None:
     options["series"][0].update(type="bar", smooth=False)
     options["series"][1]["name"] = "Simulato (corsa di calibrazione)"
     options["legend"]["data"] = [s["name"] for s in options["series"]]
-    st.markdown(f"**Calibrazione delle adozioni — {technology}** ({unit})")
-    st.caption("Osservato: input del modello. Simulato: corsa di calibrazione della "
+    st.markdown(tr("**Calibrazione delle adozioni — {technology}** ({unit})", technology=tr(technology), unit=chart_text(unit)))
+    st.caption(tr("Osservato: input del modello. Simulato: corsa di calibrazione della "
                "documentazione, distinta dallo scenario selezionato. "
-               "Il confronto è sul numero di adozioni, non sulla potenza installata.")
+               "Il confronto è sul numero di adozioni, non sulla potenza installata."))
     if note:
-        st.caption(note)
+        st.caption(tr(note))
     render_echarts(options, chart_key=f"{key}_calibration_chart", height=350)

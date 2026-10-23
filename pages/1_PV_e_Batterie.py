@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr
 
 ROOT = Path(__file__).resolve().parent.parent
 PVBAT = ROOT / "pv_batteries"
@@ -22,7 +23,7 @@ import pv_batteries_config as _cfg  # noqa: E402
 from pv_batteries.policy_labels import control_label, format_value
 importlib.reload(_cfg)
 from pv_batteries_config import (  # noqa: E402
-    BASE_SCENARIO, BINARY_INPUTS, BINARY_LABELS, FINAL_YEAR,
+    BASE_SCENARIO, BINARY_INPUTS, FINAL_YEAR,
     GMD_SPEC, INPUT_GRID, INPUT_META, INPUT_ORDER,
 )
 import explore_results_charts as _erc  # noqa: E402
@@ -42,7 +43,7 @@ from section_store import (  # noqa: E402
     base_combo_key, combo_key, load_gmd_store, load_traj_store,
 )
 
-@st.cache_resource(show_spinner="Caricamento scenari pre-calcolati...")
+@st.cache_resource(show_spinner=False)
 def _traj(section: str):
     return load_traj_store(_cfg)
 
@@ -54,37 +55,34 @@ def _gmd(section: str):
 
 def _format_input_value(name: str, value: float) -> str:
     if name in BINARY_INPUTS:
-        return "Sì" if value == 1.0 else "No"
+        return tr("Sì") if value == 1.0 else tr("No")
     return f"{value:g}"
 
 
-def _render_binary_input(
-    label: str, *, default: float = 0.0, help: str | None = None,
-) -> float:
-    default_label = "Sì" if default == 1.0 else "No"
+def _render_binary_input(label: str, *, key: str, default: float = 0.0,
+                         help: str | None = None) -> float:
     selected = st.segmented_control(
-        label,
-        options=list(BINARY_LABELS),
-        default=default_label,
+        label, options=[0.0, 1.0], default=default, key=key,
+        format_func={0.0: tr("No"), 1.0: tr("Sì")}.get,
         help=help,
     )
-    return 1.0 if selected == "Sì" else 0.0
+    return 0.0 if selected is None else selected
 
 
-st.title("PV e Batterie decentralizzate")
+st.title(tr("PV e Batterie decentralizzate"))
 
 store = _traj("pv_batteries")
 gmd_store = _gmd("pv_batteries")
 
 if not store:
     st.warning(
-        "Scenari pre-calcolati non disponibili. "
-        "Contatta l’amministratore per ripristinare i dati della release."
+        tr("Scenari pre-calcolati non disponibili. "
+        "Contatta l’amministratore per ripristinare i dati della release.")
     )
     st.stop()
 
 with st.sidebar:
-    st.header("Scenario selezionato")
+    st.header(tr("Scenario selezionato"))
     values = []
     for name in INPUT_ORDER:
         meta = INPUT_META[name]
@@ -92,29 +90,29 @@ with st.sidebar:
         label = control_label(meta)
         if name in BINARY_INPUTS:
             val = _render_binary_input(
-                label, default=BASE_SCENARIO[name], help=meta.get("help") or None,
+                label, key=f"pv_input_{name}", default=BASE_SCENARIO[name], help=tr(meta.get("help")) or None,
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
             val = st.select_slider(
-                label, options=opts, value=BASE_SCENARIO[name],
+                label, options=opts, value=BASE_SCENARIO[name], key=f"pv_input_{name}",
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
-                help=meta.get("help") or None,
+                help=tr(meta.get("help")) or None,
             )
         values.append(val)
 
-    compare_base = st.checkbox("Confronta con scenario Base", value=False)
-    with st.expander("Scenario Base"):
+    compare_base = st.checkbox(tr("Confronta con scenario Base"), value=False, key="pv_compare_base")
+    with st.expander(tr("Scenario Base")):
         for name in INPUT_ORDER:
             imeta = INPUT_META[name]
             base_val = BASE_SCENARIO[name]
             if name in BINARY_INPUTS:
                 st.markdown(
-                    f"- {imeta['label']}: **{_format_input_value(name, base_val)}**"
+                    f"- {tr(imeta['label'])}: **{_format_input_value(name, base_val)}**"
                 )
             else:
                 st.markdown(
-                    f"- {imeta['label']}: **{format_value(imeta, base_val)}**"
+                    f"- {tr(imeta['label'])}: **{format_value(imeta, base_val)}**"
                 )
 
 key = combo_key(values)
@@ -122,8 +120,8 @@ base_key = base_combo_key(_cfg)
 
 if key not in store:
     st.warning(
-        "Questa combinazione non e' ancora disponibile nello store "
-        "(il pre-calcolo potrebbe essere ancora in corso). Riprova piu' tardi."
+        tr("Questa combinazione non e' ancora disponibile nello store "
+        "(il pre-calcolo potrebbe essere ancora in corso). Riprova piu' tardi.")
     )
     st.stop()
 
@@ -133,9 +131,9 @@ df_base: pd.DataFrame | None = None
 compare_gmd_key: str | None = None
 if compare_base:
     if key == base_key:
-        st.info("Scenario identico al Base.")
+        st.info(tr("Scenario identico al Base."))
     elif base_key not in store:
-        st.warning("Scenario Base non disponibile nello store.")
+        st.warning(tr("Scenario Base non disponibile nello store."))
     else:
         df_base = store[base_key]
         compare_gmd_key = base_key
@@ -147,15 +145,16 @@ sim_incomplete = bool(df.loc[FINAL_YEAR].isna().all())
 if sim_incomplete:
     last_ok = int(df.dropna(how="all").index.max())
     st.warning(
-        f"Per questa combinazione (incentivi estremi) il modello Vensim non "
-        f"converge fino al {FINAL_YEAR}: la simulazione si ferma al {last_ok}. "
-        f"I valori al {FINAL_YEAR} e le misure di equity non sono disponibili."
+        tr("Per questa combinazione (incentivi estremi) il modello Vensim non "
+           "converge fino al {year}: la simulazione si ferma al {last}. "
+           "I valori al {year} e le misure di equity non sono disponibili.",
+           year=FINAL_YEAR, last=last_ok)
     )
 
 # --- Indicatori principali (2050) -------------------------------------
-st.subheader(f"Indicatori principali ({FINAL_YEAR})")
-with st.expander("Cosa misurano questi indicatori"):
-    st.markdown(KPI_EXPLANATION)
+st.subheader(tr("Indicatori principali ({year})", year=FINAL_YEAR))
+with st.expander(tr("Cosa misurano questi indicatori")):
+    st.markdown(tr(KPI_EXPLANATION))
 gmd_bounds = gmd_bounds_for_spec(gmd_store, GMD_SPEC)
 metrics_base_key = base_key if key != base_key else None
 metrics_df_base = store.get(base_key) if metrics_base_key else None
@@ -174,8 +173,8 @@ st.divider()
 # --- Output per argomento ---------------------------------------------
 render_topic_sections(df, df_base=df_base, section_selector=True)
 
-with st.expander("Dati grezzi (traiettorie)"):
+with st.expander(tr("Dati grezzi (traiettorie)")):
     st.dataframe(df, width="stretch")
     st.download_button(
-        "Scarica CSV", df.to_csv().encode("utf-8"),
+        tr("Scarica CSV"), df.to_csv().encode("utf-8"),
         file_name=f"pv_batterie_{key}.csv", mime="text/csv")

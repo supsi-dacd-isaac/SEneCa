@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr
 
 from gmd import gmd_bounds_for_spec, scale_gmd_equity
 
@@ -27,7 +28,7 @@ def elem_label(col: str, base: str) -> str:
 
 
 def fmt(x, spec: str) -> str:
-    return format(x, spec) if x is not None and pd.notna(x) else "n/d"
+    return format(x, spec) if x is not None and pd.notna(x) else tr("n/d")
 
 
 def sim_incomplete(df: pd.DataFrame, final_year: int) -> bool:
@@ -42,7 +43,7 @@ def fmt_metric_value(
     value: float | None, unit: str | None = None, *, decimals: int = 0,
 ) -> str:
     if value is None:
-        return "n/d"
+        return tr("n/d")
     if unit is None:
         return fmt_scaled_gmd(value)
     return f"{value:.{decimals}f} {unit}"
@@ -56,14 +57,14 @@ def metric_delta_vs_base(
         return None, delta_color
     if base == 0:
         if cur == 0:
-            return "0% vs Base", "off"
+            return f"0% vs {tr('Base')}", "off"
         return None, delta_color
     pct = (cur - base) / base * 100.0
     pct_display = f"{pct:.1f}"
     if float(pct_display) == 0:
-        return "0.0% vs Base", "off"
+        return f"0.0% vs {tr('Base')}", "off"
     sign = "+" if pct > 0 else ""
-    return f"{sign}{pct_display}% vs Base", delta_color
+    return f"{sign}{pct_display}% vs {tr('Base')}", delta_color
 
 
 def pct_delta_vs_base(cur: float | None, base: float | None) -> str | None:
@@ -130,19 +131,19 @@ def render_kpi_radar(
     if len(usable) < 3:
         return
 
-    st.markdown("**Confronto con lo scenario Base**")
+    st.markdown(tr("**Confronto con lo scenario Base**"))
     st.caption(
-        "Ogni asse è normalizzato sul valore dello scenario Base (100%): il "
+        tr("Ogni asse è normalizzato sul valore dello scenario Base (100%): il "
         "poligono tratteggiato è il Base, quello pieno lo scenario selezionato. "
         "Attenzione al verso: per emissioni, costi e importazioni un valore "
-        "più alto è peggiore."
+        "più alto è peggiore.")
     )
     options = build_radar_options(
         [label for label, _, _ in usable],
         [value for _, value, _ in usable],
         [base for _, _, base in usable],
     )
-    _, center, _ = st.columns([1, 2, 1])
+    _, center, _ = st.columns([1, 4, 1])
     with center:
         render_echarts(options, chart_key=chart_key, height=height)
 
@@ -208,8 +209,9 @@ def render_section_picker(labels: list[str], *, key: str) -> str:
     """Selettore di sottosezione: mostra un blocco di risultati alla volta."""
     st.session_state.setdefault(key, labels[0])
     choice = st.segmented_control(
-        "Sezione dei risultati",
+        tr("Sezione dei risultati"),
         labels,
+        format_func={label: tr(label) for label in labels}.get,
         key=key,
         label_visibility="collapsed",
     )
@@ -228,7 +230,7 @@ def render_section_nav(labels: list[str], active: str, *, key: str) -> None:
     index = labels.index(active)
     col_prev, col_next = st.columns(2)
     col_prev.button(
-        "Indietro",
+        tr("Indietro"),
         icon=":material/arrow_back:",
         disabled=index == 0,
         on_click=_go_to_section,
@@ -237,7 +239,7 @@ def render_section_nav(labels: list[str], active: str, *, key: str) -> None:
         key=f"{key}_prev",
     )
     col_next.button(
-        "Avanti",
+        tr("Avanti"),
         icon=":material/arrow_forward:",
         disabled=index == len(labels) - 1,
         on_click=_go_to_section,
@@ -280,9 +282,9 @@ def render_gmd_metrics(
             if scaled is not None and scaled_base is not None:
                 change = scaled - scaled_base
                 if float(f"{change:.3f}") == 0:
-                    delta, delta_color = "0.000 vs Base", "off"
+                    delta, delta_color = f"0.000 vs {tr('Base')}", "off"
                 else:
-                    delta = f"{change:+.3f} vs Base"
+                    delta = f"{change:+.3f} vs {tr('Base')}"
         col.metric(
             label, fmt_scaled_gmd(scaled), delta=delta, delta_color=delta_color,
         )
@@ -308,8 +310,8 @@ def render_explanation(meta: dict, explanations: dict[str, tuple[str, str]]) -> 
     """Expander esplicativo associato al grafico tramite la chiave `explain`."""
     if note := explanations.get(meta.get("explain")):
         label, body = note
-        with st.expander(label):
-            st.markdown(body)
+        with st.expander(tr(label)):
+            st.markdown(tr(body))
 
 
 def render_section(df, outputs, final_year, *, df_base=None, explanations=None,

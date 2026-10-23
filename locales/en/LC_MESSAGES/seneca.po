@@ -1,0 +1,1339 @@
+# English translations for SEneCa.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the SEneCa project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: SEneCa 0.4.2-i18n-preview\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-23 14:07+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid ""
+"\n"
+"**Il modello simula, non prevede e non ottimizza.** Permette di formulare\n"
+"esperimenti *what-if*: si modificano politiche, regolamentazioni e ipotesi di\n"
+"contesto e si osservano le conseguenze dinamiche che ne derivano, inclusi\n"
+"effetti indiretti e inattesi tra settori. Il suo valore non sta nell'indicare\n"
+"un unico percorso «corretto», ma nel fornire un ambiente trasparente in cui\n"
+"confrontare alternative e capire quali relazioni causali generano le differenze\n"
+"tra scenari.\n"
+msgstr ""
+"\n"
+"**The model simulates; it does not predict or optimise.** It supports *what-if* experiments: "
+"change policies, regulations and contextual assumptions, then examine the dynamic consequences, "
+"including indirect and unexpected effects across sectors. Its value lies in providing a "
+"transparent environment for comparing alternatives and understanding which causal relationships "
+"generate differences between scenarios, rather than identifying a single “correct” pathway.\n"
+
+msgid ""
+"\n"
+"**SEneCa** (Sistema Energetico Cantonale) è il simulatore con cui si esplora\n"
+"la transizione energetica ticinese. Mostra come le politiche e i fattori\n"
+"esterni di oggi possono plasmarne l'evoluzione fino al 2050: diffusione del\n"
+"fotovoltaico, risanamento degli edifici, mobilità elettrica, domanda di\n"
+"elettricità, costi per gli utenti ed equità tra distretti.\n"
+msgstr ""
+"\n"
+"**SEneCa** (Cantonal Energy System) is a simulator for exploring Ticino’s energy transition. It "
+"shows how today’s policies and external drivers could shape developments through 2050: PV "
+"adoption, building renovation, electric mobility, electricity demand, user costs and equity "
+"across districts.\n"
+
+msgid ""
+"\n"
+"Consorzio del programma federale **SWEET** (Call 1-2020), dieci partner di\n"
+"ricerca guidati dal **Paul Scherrer Institute**. Valuta in modo integrato\n"
+"sostenibilità e resilienza della transizione lungo più dimensioni: impatti\n"
+"ambientali, uso delle risorse, salute pubblica, costi e benefici economici,\n"
+"sicurezza dell'approvvigionamento e benessere sociale.\n"
+"\n"
+"Non si limita a identificare le configurazioni future possibili, ma indaga\n"
+"**attraverso quali dinamiche** vi si arriva, quali compromessi emergono tra\n"
+"obiettivi ambientali, economici e sociali, quanto i percorsi siano vulnerabili\n"
+"agli shock e quali strategie reggano in una pluralità di futuri plausibili.\n"
+msgstr ""
+"\n"
+"A consortium under the federal **SWEET** programme (Call 1-2020), with ten research partners led "
+"by the **Paul Scherrer Institute**. It jointly assesses the sustainability and resilience of the "
+"transition across environmental impacts, resource use, public health, economic costs and "
+"benefits, security of supply and social well-being.\n"
+"\n"
+"Beyond identifying possible future configurations, it examines **the dynamics that lead to "
+"them**, trade-offs between environmental, economic and social objectives, vulnerability to "
+"shocks, and strategies that hold up across multiple plausible futures.\n"
+
+msgid ""
+"\n"
+"Il modello SEneCa è sviluppato in **Vensim**: usarlo direttamente richiede\n"
+"di conoscerne la struttura interna e di disporre del relativo ambiente\n"
+"software. Questa applicazione è lo **strato di accesso e comunicazione** che\n"
+"apre le capacità di analisi del modello anche a utenti non specializzati:\n"
+"limita la modifica agli input rilevanti, automatizza l'esecuzione delle\n"
+"simulazioni e presenta i risultati in forma interpretabile. Non sostituisce il\n"
+"modello, lo rende utilizzabile.\n"
+msgstr ""
+"\n"
+"The SEneCa model is developed in **Vensim**: direct use requires knowledge of its internal "
+"structure and access to the software. This application is the **access and communication layer** "
+"that opens the model’s analytical capabilities to non-specialists. It limits changes to relevant "
+"inputs, automates simulations and presents interpretable results. It makes the model usable "
+"without replacing it.\n"
+
+msgid ""
+"\n"
+"Il prezzo pagato dal consumatore finale è la somma di più voci. Dal menu qui sotto\n"
+"puoi vedere l'andamento del prezzo finale, dell'energia e della rete locale.\n"
+"\n"
+"- ⚡ **Energia** — il costo di acquisto vero e proprio. Varia da distretto a distretto\n"
+"  perché dipende dal portafoglio di approvvigionamento dell'azienda distributrice.\n"
+"  Fino al 2026 sono i valori storici osservati; dal 2027 il modello li riscala sul\n"
+"  prezzo medio di mercato che calcola nella simulazione oraria.\n"
+"- 🏘️ **Rete di distribuzione (DSO)** — la rete locale. Fino al 2026 vale la tariffa\n"
+"  storica; dal 2027 il modello la ricalcola come *(spese di base del distributore +\n"
+"  costi di rinforzo rete) / kWh transitati in rete nel distretto*. I cinque distretti\n"
+"  serviti dallo stesso distributore (Locarno, Vallemaggia, Leventina, Blenio e\n"
+"  Riviera) condividono quindi la stessa tariffa.\n"
+"- 🇨🇭 **Supplemento federale** e 🏛️ **supplemento cantonale** — finanziano gli\n"
+"  incentivi; il dettaglio è nei riquadri dei due supplementi.\n"
+"- 🧾 **Tasse cantonali e comunali** — voce fissa a 0.018 CHF/kWh.\n"
+msgstr ""
+"\n"
+"The final consumer price is the sum of several components. Use the menu below to view the final "
+"price, energy and local network components.\n"
+"\n"
+"- ⚡ **Energy** — the purchase cost itself. It varies by district because it depends on each "
+"distribution utility’s procurement portfolio. Historical observed values are used through 2026; "
+"from 2027 the model rescales them using the average market price computed in its hourly "
+"simulation.\n"
+"- 🏘️ **Distribution network (DSO)** — the local network. Historical tariffs apply through 2026. "
+"From 2027 the model recalculates them as *(utility base expenditure + grid reinforcement costs) /"
+" electricity passing through the district grid*. The five districts served by the same utility "
+"(Locarno, Vallemaggia, Leventina, Blenio and Riviera) therefore share a tariff.\n"
+"- 🇨🇭 **Federal surcharge** and 🏛️ **cantonal surcharge** — fund incentives; details are provided "
+"in the two surcharge panels.\n"
+"- 🧾 **Cantonal and municipal taxes** — a fixed component of CHF 0.018/kWh.\n"
+
+msgid ""
+"\n"
+"Il supplemento in bolletta non è un parametro esogeno: il modello lo **ricalcola** in modo\n"
+"che il gettito copra esattamente gli incentivi erogati, con la formula\n"
+"`supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.\n"
+"Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.\n"
+"\n"
+"Finanzia:\n"
+"\n"
+"- la **rimunerazione unica** per i grandi impianti PV (RUG, oltre 100 kW);\n"
+"- la **rimunerazione unica** per i piccoli impianti PV (RUP, sotto 100 kW);\n"
+"- i contratti della **vecchia RIC** ancora in essere;\n"
+"- gli **altri costi Pronovo**, fissi a 59.4 Mio CHF all'anno.\n"
+"\n"
+"La domanda al denominatore è quella **svizzera**, che si assume proporzionale a\n"
+"quella ticinese.\n"
+msgstr ""
+"\n"
+"The electricity surcharge is not an exogenous parameter: the model **recalculates** it so that "
+"revenue exactly covers the grants paid, using\n"
+"`surcharge [CHF/kWh] = funding required / demand subject to the surcharge`.\n"
+"Funding and demand are averaged over the preceding five years to smooth fluctuations.\n"
+"\n"
+"It funds:\n"
+"\n"
+"- **One-off grants** for large PV systems (RUG, over 100 kW).\n"
+"- **One-off grants** for small PV systems (RUP, under 100 kW).\n"
+"- Outstanding contracts under the **former feed-in tariff scheme (RIC)**.\n"
+"- **Other Pronovo costs**, fixed at CHF 59.4 million per year.\n"
+"\n"
+"The demand in the denominator is **Swiss national demand**, assumed proportional to demand in "
+"Ticino.\n"
+
+msgid ""
+"\n"
+"Il supplemento in bolletta non è un parametro esogeno: il modello lo **ricalcola** in modo\n"
+"che il gettito copra esattamente gli incentivi erogati, con la formula\n"
+"`supplemento [CHF/kWh] = fondi necessari / domanda che paga il supplemento`.\n"
+"Fondi e domanda sono mediati sui 5 anni precedenti per smorzare le oscillazioni.\n"
+"\n"
+"Finanzia:\n"
+"\n"
+"- la quota ticinese della **RIC cantonale**;\n"
+"- il **contributo unico cantonale** sugli impianti PV, residenziali e non;\n"
+"- la **rimunerazione dell'elettricità**, attiva dal 2025 e pari all'energia PV\n"
+"  immessa in rete moltiplicata per il valore scelto nello scenario;\n"
+"- l'**incentivo sulle batterie**, residenziali e non residenziali.\n"
+"\n"
+"Da questa somma vengono sottratti gli oneri per la centrale a carbone di Lünen.\n"
+"La domanda al denominatore è quella **ticinese che transita in rete**, cioè il\n"
+"consumo totale meno l'autoconsumo fotovoltaico.\n"
+"\n"
+"Da qui un effetto di retroazione importante: più fotovoltaico significa più\n"
+"autoconsumo, quindi **meno kWh su cui ripartire gli incentivi** e un supplemento\n"
+"unitario più alto, anche a parità di incentivi erogati.\n"
+msgstr ""
+"\n"
+"The electricity surcharge is not an exogenous parameter: the model **recalculates** it so that "
+"revenue exactly covers the grants paid, using\n"
+"`surcharge [CHF/kWh] = funding required / demand subject to the surcharge`.\n"
+"Funding and demand are averaged over the preceding five years to smooth fluctuations.\n"
+"\n"
+"It funds:\n"
+"\n"
+"- Ticino’s share of the **cantonal feed-in tariff (RIC)**.\n"
+"- The **cantonal one-off grant** for residential and non-residential PV.\n"
+"- **Electricity remuneration**, active from 2025: PV grid exports multiplied by the scenario "
+"value.\n"
+"- **Battery grants** for residential and non-residential systems.\n"
+"\n"
+"Charges for the Lünen coal power station are deducted from this sum. The denominator is "
+"**electricity passing through the grid in Ticino**: total consumption minus PV self-consumption."
+"\n"
+"\n"
+"This creates an important feedback: more PV means more self-consumption, leaving **fewer kWh over"
+" which to spread grants** and a higher unit surcharge, even when grant expenditure stays "
+"unchanged.\n"
+
+msgid ""
+"\n"
+"La transizione energetica svizzera non dipende soltanto dall'introduzione di\n"
+"tecnologie a basse emissioni: richiede che il sistema resti sicuro,\n"
+"economicamente sostenibile e socialmente accettabile lungo l'intero percorso.\n"
+"È la domanda a cui risponde il progetto **SURE — Sustainable and Resilient\n"
+"Energy for Switzerland**, di cui il caso ticinese è la declinazione cantonale.\n"
+msgstr ""
+"\n"
+"Switzerland’s energy transition depends on more than introducing low-emission technologies: the "
+"system must remain secure, economically sustainable and socially acceptable throughout the "
+"transition. **SURE — Sustainable and Resilient Energy for Switzerland** addresses this challenge,"
+" with Ticino as its cantonal case study.\n"
+
+msgid ""
+"\n"
+"Nella struttura federale svizzera gli obiettivi climatici sono definiti a\n"
+"Berna, ma sono i **Cantoni** ad avere le competenze attuative: devono tradurli\n"
+"in percorsi di decarbonizzazione compatibili con risorse, infrastrutture e\n"
+"accettazione politica e sociale del territorio.\n"
+"\n"
+"Il WP13, condotto da **SUPSI**, costruisce lo strumento che collega i due\n"
+"livelli. Il modello nasce da un percorso **partecipativo** con gli stakeholder\n"
+"cantonali (amministrazione, aziende elettriche, associazioni, politica) che\n"
+"ne hanno definito il problema, le variabili rilevanti e gli indicatori. Non è\n"
+"quindi una semplice regionalizzazione di dati nazionali.\n"
+msgstr ""
+"\n"
+"In Switzerland’s federal structure, climate objectives are set in Bern, but **cantons** have "
+"implementation powers. They must translate those objectives into decarbonisation pathways "
+"compatible with local resources, infrastructure, and political and social acceptance.\n"
+"\n"
+"WP13, led by **SUPSI**, builds the tool linking these levels. The model emerged from a "
+"**participatory** process with cantonal stakeholders (public administration, utilities, "
+"associations and political representatives), who helped define the problem, relevant variables "
+"and indicators. It is therefore more than a regionalisation of national data.\n"
+
+msgid ""
+"\n"
+"Sviluppato da **SUPSI** nell'ambito del progetto **SURE — Sustainable and\n"
+"Resilient Energy for Switzerland**, il modello è uno strumento di analisi di\n"
+"scenari. Questa webapp lo rende consultabile: si provano nuove politiche o\n"
+"cambiamenti dei fattori esterni e si osserva come il sistema cantonale\n"
+"potrebbe evolvere, compresi gli effetti che si propagano da un settore\n"
+"all'altro.\n"
+msgstr ""
+"\n"
+"Developed by **SUPSI** within **SURE — Sustainable and Resilient Energy for Switzerland**, the "
+"model is a scenario-analysis tool. This web app makes it accessible: users can try policies or "
+"changes in external drivers and observe how the cantonal system might evolve, including effects "
+"that propagate between sectors.\n"
+
+#, python-brace-format
+msgid ""
+"\n"
+"Tutti gli indicatori sono riferiti al **2050**; la variazione percentuale sotto\n"
+"ogni valore è il confronto con lo scenario Base.\n"
+"\n"
+"- **Potenza PV totale** — potenza fotovoltaica installata sul territorio, somma degli\n"
+"  impianti residenziali e di quelli non residenziali di ogni taglia.\n"
+"- **Produzione PV totale** — energia elettrica prodotta dagli impianti fotovoltaici\n"
+"  nell'anno, in GWh.\n"
+"- **Capacità batterie totale** — capacità di accumulo installata, sommata sugli otto\n"
+"  distretti.\n"
+"- **Costo medio annuale** — spesa media di una famiglia per elettricità, riscaldamento\n"
+"  e risanamento dell'edificio.\n"
+"\n"
+"### Gli indici di equità\n"
+"\n"
+"I due indici di equità misurano **quanto diversamente il costo della transizione ricade\n"
+"sulle famiglie**, non quanto è alto. Partono dalla *Gini Mean Difference* pesata,\n"
+"cioè la differenza media in valore assoluto fra tutte le coppie di archetipi di\n"
+"famiglia, pesata per quante famiglie rappresenta ciascun archetipo:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"Vale zero quando tutti gli archetipi sopportano esattamente lo stesso onere, e cresce\n"
+"via via che le situazioni divergono.\n"
+"\n"
+"- **Equità del supplemento in bolletta** — il supplemento sulla bolletta elettrica finanzia\n"
+"  gli incentivi e gli altri oneri rappresentati nel modello. La grandezza $x$ è il\n"
+"  saldo cumulato fra supplementi pagati e incentivi PV ricevuti da ciascun archetipo.\n"
+"  Risponde alla domanda: chi finanzia gli incentivi e\n"
+"  chi invece li incassa?\n"
+"- **Equità costo** — la grandezza $x$ è il costo annuo totale per energia e risanamento\n"
+"  di ciascun archetipo.\n"
+"\n"
+"**Come leggere il numero.** Il GMD grezzo è in CHF e poco interpretabile da solo, quindi\n"
+"viene riscalato su una scala da 0 a 1 usando il valore minimo e massimo osservati\n"
+"**sull'intero store degli scenari precalcolati**: 1 identifica lo scenario più equo\n"
+"fra quelli disponibili, 0 il meno equo. È quindi un indice **relativo** al ventaglio di\n"
+"scenari, non una misura assoluta di equità: un valore di 0.5 significa \"a metà strada\n"
+"fra lo scenario migliore e quello peggiore\", e i valori cambierebbero se si cambiasse\n"
+"la griglia degli scenari.\n"
+msgstr ""
+"\n"
+"All indicators refer to **2050**; the percentage change below each value compares it with the "
+"baseline scenario.\n"
+"\n"
+"- **Total PV capacity** — installed PV capacity across the canton, including residential and non-"
+"residential systems of every size.\n"
+"- **Total PV generation** — electricity generated by PV systems during the year, in GWh.\n"
+"- **Total battery capacity** — installed storage capacity, summed across the eight districts.\n"
+"- **Average annual cost** — average household expenditure on electricity, heating and building "
+"renovation.\n"
+"\n"
+"### Equity indices\n"
+"\n"
+"The two equity indices measure **how differently transition costs are distributed across "
+"households**, rather than how high those costs are. They start from the weighted *Gini Mean "
+"Difference*: the average absolute difference between all pairs of household archetypes, weighted "
+"by the number of households each archetype represents:\n"
+"\n"
+"$$\\mathrm{GMD} = \\frac{\\sum_i \\sum_j w_i w_j\\, |x_i - x_j|}{2\\,W^2}$$\n"
+"\n"
+"It is zero when all archetypes bear exactly the same burden and increases as their situations "
+"diverge.\n"
+"\n"
+"- **Electricity surcharge equity** — the electricity bill surcharge funds grants and other "
+"charges represented in the model. Here $x$ is the cumulative balance between surcharges paid and "
+"PV grants received by each archetype. It answers: who funds the grants and who receives them?\n"
+"- **Cost equity** — here $x$ is each archetype’s total annual energy and renovation cost.\n"
+"\n"
+"**How to read the value.** Raw GMD is measured in CHF and is difficult to interpret on its own. "
+"It is therefore rescaled from 0 to 1 using the minimum and maximum observed **across the entire "
+"precalculated scenario dataset**: 1 identifies the most equitable available scenario and 0 the "
+"least equitable. This is an index **relative** to the scenario set, not an absolute measure of "
+"equity. A value of 0.5 means halfway between the best and worst scenarios; changing the scenario "
+"grid would change these values.\n"
+
+msgid ""
+"\n"
+"È l'investimento annuo necessario a potenziare la rete a bassa tensione di ciascun\n"
+"distretto, in milioni di franchi. Nasce da tre spinte che il modello segue\n"
+"separatamente:\n"
+"\n"
+"- 🔥 **pompe di calore**, che alzano i picchi di prelievo invernali;\n"
+"- ☀️ **fotovoltaico**, che nelle ore centrali inverte il flusso verso la rete;\n"
+"- 🚗 **ricarica dei veicoli elettrici**, che concentra domanda nelle ore serali.\n"
+"\n"
+"Il valore mostrato è una media mobile su 5 anni, perché i potenziamenti di rete si\n"
+"pianificano su più esercizi e non seguono le oscillazioni di un singolo anno.\n"
+"\n"
+"⚠️ Questi costi confluiscono nella componente DSO del\n"
+"prezzo. Un distretto che elettrifica in fretta vede quindi **aumentare la propria\n"
+"tariffa di rete**, ed è uno dei motivi per cui le curve del prezzo finale divergono fra\n"
+"distretti.\n"
+msgstr ""
+"\n"
+"Annual investment required to reinforce each district’s low-voltage grid, in CHF million. The "
+"model tracks three drivers separately:\n"
+"\n"
+"- 🔥 **Heat pumps**, which increase winter peak demand.\n"
+"- ☀️ **PV**, which reverses power flow towards the grid around midday.\n"
+"- 🚗 **EV charging**, which concentrates demand in the evening.\n"
+"\n"
+"The displayed value is a five-year moving average: grid reinforcement is planned across several "
+"years, rather than following individual annual fluctuations.\n"
+"\n"
+"⚠️ These costs feed into the DSO price component. A district that electrifies quickly therefore "
+"sees its **network tariff rise**, helping explain why final prices diverge between districts.\n"
+
+msgid " (Base)"
+msgstr " (Baseline)"
+
+msgid " (storico)"
+msgstr " (observed)"
+
+msgid " (storico: incremento netto)"
+msgstr " (observed: net increase)"
+
+msgid "#### :earth_africa: SURE, livello nazionale"
+msgstr "#### :earth_africa: SURE at national level"
+
+msgid "#### :material/link: Il progetto SWEET SURE"
+msgstr "#### :material/link: The SWEET SURE project"
+
+msgid "#### :material/menu_book: Documentazione tecnica"
+msgstr "#### :material/menu_book: Technical documentation"
+
+msgid "#### :round_pushpin: Il caso Ticino, WP13"
+msgstr "#### :round_pushpin: The Ticino case study, WP13"
+
+msgid "% del costo"
+msgstr "% of cost"
+
+msgid "%/anno"
+msgstr "%/year"
+
+#, python-brace-format
+msgid "**Calibrazione delle adozioni — {technology}** ({unit})"
+msgstr "**Adoption calibration — {technology}** ({unit})"
+
+msgid "**Confronto con lo scenario Base**"
+msgstr "**Comparison with the baseline scenario**"
+
+msgid "**La chiave per comprendere la transizione energetica del Canton Ticino**"
+msgstr "**Understanding the energy transition in the Canton of Ticino**"
+
+msgid "/anno"
+msgstr "/year"
+
+msgid ":green-badge[:material/check_circle: Può contribuire a rispondere a]"
+msgstr ":green-badge[:material/check_circle: Can help answer]"
+
+msgid ":red-badge[:material/block: Non è destinato a]"
+msgstr ":red-badge[:material/block: Not designed to]"
+
+msgid "Accumulatori"
+msgstr "Batteries"
+
+msgid "Adozione batterie"
+msgstr "Battery adoption"
+
+msgid "Adozione fotovoltaico"
+msgstr "PV adoption"
+
+msgid "Aggiorna"
+msgstr "Refresh"
+
+msgid "Analisi esplorativa"
+msgstr "Exploratory analysis"
+
+msgid ""
+"Assunzione sulla riduzione annua del prezzo d’acquisto dei veicoli elettrici a batteria, "
+"applicata al prezzo dell’anno precedente."
+msgstr ""
+"Assumption about the annual reduction in battery electric vehicle purchase prices, applied to the"
+" previous year’s price."
+
+msgid ""
+"Attiva insieme due componenti: contributo del 10% del costo d’investimento dal 2026 e supplemento"
+" di 5 ct./kWh sull’elettricità PV immessa in rete dal 2025, secondo le decorrenze del modello."
+msgstr ""
+"Enables two components together: a grant covering 10% of investment cost from 2026 and an "
+"additional payment of 5 ct./kWh for PV grid exports from 2025, according to the model’s "
+"implementation dates."
+
+msgid "Attiva nel modello l’obbligo di installare impianti PV sui nuovi edifici."
+msgstr "Enables the requirement to install PV on new buildings in the model."
+
+msgid ""
+"Aumento della capacità di accumulazione invernale dei bacini idroelettrici esistenti. Nel modello"
+" trasferisce fino a 89 GWh dalla stagione estiva a quella invernale nel 2050."
+msgstr ""
+"Increased winter storage capacity in existing hydropower reservoirs. In the model, it shifts up "
+"to 89 GWh from summer to winter in 2050."
+
+msgid "Autoconsumo (SC)"
+msgstr "Self-consumption (SC)"
+
+msgid "Autoconsumo / domanda (%)"
+msgstr "Self-consumption / demand (%)"
+
+msgid "Autoconsumo collettivo virtuale (RCPv)"
+msgstr "Virtual collective self-consumption (RCPv)"
+
+msgid "Autoconsumo virtuale"
+msgstr "Virtual self-consumption"
+
+msgid "Avanti"
+msgstr "Next"
+
+msgid "Barre"
+msgstr "Bar chart"
+
+msgid "Barre in GWh sull'asse sinistro, quote % sulla domanda sull'asse destro"
+msgstr "Bars in GWh on the left axis; shares of demand (%) on the right axis"
+
+msgid "Base"
+msgstr "Baseline"
+
+msgid "CHF/punto"
+msgstr "CHF/charging point"
+
+msgid "Capacita' batterie non residenziale"
+msgstr "Non-residential battery capacity"
+
+msgid "Capacita' batterie per distretto"
+msgstr "Battery capacity by district"
+
+msgid "Capacita' batterie residenziale per tipo"
+msgstr "Residential battery capacity by building type"
+
+msgid "Capacità batterie totale"
+msgstr "Total battery capacity"
+
+msgid "Capacità totale installata"
+msgstr "Installed capacity"
+
+msgid "Che cosa sono questi costi"
+msgstr "What these costs represent"
+
+msgid "Chiudi"
+msgstr "Close"
+
+msgid "Coefficiente CO₂ della tassa di circolazione"
+msgstr "Vehicle tax CO₂ coefficient"
+
+msgid ""
+"Coefficiente applicato ai veicoli a combustione. Nel modello la tassa è 0,1 × massa + "
+"coefficiente × potenza: la leva modifica il termine legato alla potenza e non moltiplica l’intero"
+" importo della tassa."
+msgstr ""
+"Coefficient applied to combustion vehicles. In the model, the tax is 0.1 × mass + coefficient × "
+"power: the lever changes the power-related term, not the entire tax amount."
+
+msgid "Coefficiente tassa veicoli"
+msgstr "Vehicle tax coefficient"
+
+msgid ""
+"Come **autoconsumo e produzione decentralizzata** incidono sulla domanda servita dalla rete, sui "
+"costi di distribuzione e sul prezzo dell'elettricità."
+msgstr ""
+"How **self-consumption and decentralised generation** affect demand served by the grid, "
+"distribution costs and electricity prices."
+
+msgid ""
+"Come evolvono **produzione cantonale, import/export e autosufficienza** sotto differenti scenari "
+"di domanda e offerta."
+msgstr ""
+"How **cantonal generation, imports/exports and self-sufficiency** evolve under different demand "
+"and supply scenarios."
+
+msgid ""
+"Come l'**elettrificazione di riscaldamento e trasporti** modifica la domanda elettrica cantonale "
+"e la sua ripartizione tra settori."
+msgstr ""
+"How **electrification of heating and transport** changes cantonal electricity demand and its "
+"distribution across sectors."
+
+msgid ""
+"Come possono evolvere nel lungo periodo la diffusione di **fotovoltaico, pompe di calore, "
+"risanamenti, batterie e veicoli elettrici** sotto differenti condizioni regolatorie."
+msgstr ""
+"How the uptake of **PV, heat pumps, renovations, batteries and electric vehicles** could evolve "
+"over the long term under different regulatory conditions."
+
+msgid "Come viene calcolato il supplemento cantonale in bolletta"
+msgstr "How the cantonal electricity surcharge is calculated"
+
+msgid "Come viene calcolato il supplemento federale in bolletta"
+msgstr "How the federal electricity surcharge is calculated"
+
+msgid "Componente del prezzo"
+msgstr "Price component"
+
+msgid "Componente energia"
+msgstr "Energy component"
+
+msgid "Componente rete di distribuzione (DSO)"
+msgstr "Distribution network component (DSO)"
+
+msgid "Componente rete di trasporto (TSO)"
+msgstr "Transmission network component (TSO)"
+
+msgid "Confronta con scenario Base"
+msgstr "Compare with baseline"
+
+msgid ""
+"Consorzio, partner di ricerca, pubblicazioni e risultati a livello nazionale sul sito ufficiale "
+"del progetto."
+msgstr ""
+"Consortium, research partners, publications and national-level results on the project’s official "
+"website."
+
+msgid "Contesto del progetto SURE"
+msgstr "The SURE project context"
+
+msgid "Contesto e scopo"
+msgstr "Context and purpose"
+
+msgid "Contributo PV cantonale"
+msgstr "Cantonal PV grant"
+
+msgid "Contributo PV federale"
+msgstr "Federal PV grant"
+
+msgid "Contributo al riscaldamento rinnovabile"
+msgstr "Renewable heating grant"
+
+msgid "Contributo allacciamento a reti termiche"
+msgstr "District heating connection grant"
+
+msgid "Contributo all’installazione di un punto di ricarica privato per veicoli elettrici."
+msgstr "Grant for installing a private electric vehicle charging point."
+
+msgid "Contributo all’investimento in batterie"
+msgstr "Battery investment grant"
+
+msgid "Contributo base al risanamento dell’involucro"
+msgstr "Basic envelope renovation grant"
+
+msgid "Contributo base per il risanamento dell’involucro"
+msgstr "Basic building envelope renovation grant"
+
+msgid ""
+"Contributo base per metro quadrato di elemento dell’involucro risanato. Nel modello alimenta "
+"anche gli importi maggiorati secondo il livello di risanamento raggiunto (CECE e Minergie)."
+msgstr ""
+"Basic grant per square metre of renovated building envelope element. In the model it also "
+"determines the higher amounts associated with the renovation standard achieved (CECE and "
+"Minergie)."
+
+msgid "Contributo batterie"
+msgstr "Battery grant"
+
+msgid "Contributo legna e pellet"
+msgstr "Wood and pellet grant"
+
+msgid "Contributo per allacciamento a reti termiche"
+msgstr "District heating connection grant"
+
+msgid "Contributo per caldaie a legna e pellet"
+msgstr "Wood and pellet boiler grant"
+
+msgid "Contributo per la ricarica privata"
+msgstr "Private EV charging grant"
+
+msgid "Contributo per le batterie"
+msgstr "Battery grant"
+
+msgid "Contributo per pompe di calore"
+msgstr "Heat pump grant"
+
+msgid "Contributo per sistemi di riscaldamento rinnovabili"
+msgstr "Renewable heating system grant"
+
+msgid "Contributo per un punto di ricarica privato"
+msgstr "Private EV charging point grant"
+
+msgid "Contributo pompe di calore"
+msgstr "Heat pump grant"
+
+msgid "Contributo reti termiche"
+msgstr "District heating grant"
+
+msgid "Contributo ricarica privata"
+msgstr "Private charging grant"
+
+msgid "Contributo risanamento"
+msgstr "Renovation grant"
+
+msgid "Contributo riscaldamento"
+msgstr "Heating grant"
+
+msgid "Contributo unico PV cantonale (FER)"
+msgstr "Cantonal PV investment grant (FER)"
+
+msgid ""
+"Contributo unico cantonale per il PV finanziato dal FER. Nel modello è rappresentato come "
+"percentuale del costo d’investimento."
+msgstr ""
+"One-off cantonal PV grant funded by FER. The model represents it as a percentage of investment "
+"cost."
+
+msgid "Cosa misurano questi indicatori"
+msgstr "What these indicators measure"
+
+msgid "Costi di rinforzo rete per distretto"
+msgstr "Grid reinforcement costs by district"
+
+msgid "Costo della rete ad alta tensione, uguale per tutti i distretti"
+msgstr "High-voltage network cost, identical across all districts"
+
+msgid "Costo della rete di distribuzione locale, per distretto"
+msgstr "Local distribution network cost, by district"
+
+msgid "Costo di acquisto dell'energia, per distretto"
+msgstr "Energy purchase cost, by district"
+
+msgid "Costo medio annuale"
+msgstr "Average annual cost"
+
+msgid ""
+"Costo medio per economia domestica: comprende elettricità, riscaldamento e i costi annualizzati "
+"di investimento per tecnologie e risanamento."
+msgstr ""
+"Average household cost: includes electricity, heating and annualised investment costs for "
+"technologies and renovation."
+
+#, python-brace-format
+msgid "Cumulati dal {year}"
+msgstr "Cumulative since {year}"
+
+msgid "Da cosa è composto il prezzo"
+msgstr "What makes up the price"
+
+msgid "Dati"
+msgstr "Data"
+
+msgid ""
+"Dati di input da PVinput.csv, disponibili per 30–100 e >100 kW. La classe <30 kW non ha una serie"
+" storica separata."
+msgstr ""
+"Input data from PVinput.csv, available for 30–100 and >100 kW. There is no separate historical "
+"series for the <30 kW class."
+
+#, python-brace-format
+msgid "Dati disponibili: {start}–{end}."
+msgstr "Available data: {start}–{end}."
+
+msgid "Dati grezzi (traiettorie)"
+msgstr "Raw data (trajectories)"
+
+msgid ""
+"Dimensionare impianti o svolgere valutazioni tecnico-economiche riferite a un **singolo "
+"edificio**."
+msgstr "Sizing systems or conducting technical and economic assessments for a **single building**."
+
+msgid "Documentazione non trovata."
+msgstr "Documentation not found."
+
+msgid "Domanda"
+msgstr "Demand"
+
+msgid "Domanda e PV per distretto"
+msgstr "Demand and PV by district"
+
+msgid "Domande alle quali il modello può e non può contribuire:"
+msgstr "Questions the model can and cannot help answer:"
+
+msgid "Elettricità"
+msgstr "Electricity"
+
+msgid "Energia PV annuale"
+msgstr "Annual PV electricity"
+
+msgid ""
+"Equità\n"
+"supplemento\n"
+"in bolletta"
+msgstr ""
+"Electricity\n"
+"surcharge\n"
+"equity"
+
+msgid "Equità costo (GMD)"
+msgstr "Cost equity (GMD)"
+
+msgid "Equità del supplemento in bolletta"
+msgstr "Electricity surcharge equity"
+
+msgid ""
+"Eseguire il modello non richiede più di conoscerne la struttura interna né di disporre "
+"dell'ambiente Vensim."
+msgstr "Running the model no longer requires knowledge of its internal structure or access to Vensim."
+
+msgid "Esplora le simulazioni"
+msgstr "Explore the simulations"
+
+msgid "Fotovoltaico"
+msgstr "PV"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "Il modello SEneCa - Sistema Energetico Cantonale"
+msgstr "The SEneCa model — Cantonal Energy System"
+
+msgid ""
+"Il punto dell’anno t indica la variazione tra t e t+1. L’ultimo anno non è disponibile senza il "
+"punto successivo."
+msgstr ""
+"The point for year t shows the change from t to t+1. The final year is unavailable without the "
+"following point."
+
+msgid ""
+"Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri oneri rappresentati "
+"nel modello. L’indice confronta il saldo cumulato fra supplementi pagati e incentivi PV ricevuti "
+"dai diversi tipi di famiglia, ponderato per il numero di famiglie rappresentate."
+msgstr ""
+"The electricity bill surcharge funds the grants and other charges represented in the model. The "
+"index compares the cumulative balance between surcharges paid and PV grants received across "
+"household types, weighted by the number of households represented."
+
+msgid ""
+"Il supplemento sulla bolletta elettrica finanzia gli incentivi e gli altri oneri rappresentati "
+"nel modello. L’indice confronta il saldo cumulato fra supplementi pagati e incentivi PV ricevuti "
+"dai diversi tipi di famiglia, ponderato per il numero di famiglie rappresentate. Indice di equità"
+" normalizzato sullo store pre-calcolato (0 = maggiore disuguaglianza, 1 = minore disuguaglianza)."
+msgstr ""
+"The electricity bill surcharge funds the grants and other charges represented in the model. The "
+"index compares the cumulative balance between surcharges paid and PV grants received across "
+"household types, weighted by the number of households represented. Equity index normalised over "
+"the precalculated scenario dataset (0 = greater inequality, 1 = less inequality)."
+
+msgid "In rete"
+msgstr "Grid exports"
+
+msgid "Incentivi PV cantonali"
+msgstr "Cantonal PV support"
+
+msgid "Incentivi cantonali PV"
+msgstr "Cantonal PV support"
+
+msgid "Incentivi cantonali PV (investimento e immissione in rete)"
+msgstr "Cantonal PV support (investment and grid exports)"
+
+msgid ""
+"Indicatori e visualizzazioni standardizzate facilitano il confronto tra utenti con competenze "
+"differenti."
+msgstr ""
+"Standardised indicators and visualisations support discussion among users with different "
+"backgrounds."
+
+#, python-brace-format
+msgid "Indicatori principali ({year})"
+msgstr "Key indicators ({year})"
+
+msgid ""
+"Indice di equità normalizzato sullo store pre-calcolato (0 = maggiore disuguaglianza, 1 = minore "
+"disuguaglianza)."
+msgstr ""
+"Equity index normalised over the precalculated scenario dataset (0 = greater inequality, 1 = less"
+" inequality)."
+
+msgid "Indietro"
+msgstr "Back"
+
+msgid ""
+"Individuare automaticamente la combinazione **«ottimale»** di tecnologie o politiche minimizzando"
+" una funzione obiettivo."
+msgstr ""
+"Automatically identifying the **“optimal”** combination of technologies or policies by minimising"
+" an objective function."
+
+msgid "Investimenti cumulati di rinforzo rete per distretto"
+msgstr "Cumulative grid reinforcement investment by district"
+
+msgid "Investimento annuo per potenziare la rete a bassa tensione"
+msgstr "Annual investment to reinforce the low-voltage grid"
+
+msgid ""
+"La definizione di uno scenario si riduce a un insieme di leve selezionate, semplice da "
+"ricostruire e condividere."
+msgstr "A scenario is defined by a set of selected policy levers, making it easy to reproduce and share."
+
+msgid "Linee"
+msgstr "Line chart"
+
+msgid "Meno competenze tecniche"
+msgstr "Fewer technical prerequisites"
+
+msgid "Metodologia"
+msgstr "Methodology"
+
+msgid "Mio CHF"
+msgstr "CHF million"
+
+msgid "Modello SEneCa per il Ticino"
+msgstr "The SEneCa model for Ticino"
+
+#, python-brace-format
+msgid "Mostra calibrazione — {technology}"
+msgstr "Show calibration — {technology}"
+
+msgid "Mostra dati storici di calibrazione"
+msgstr "Show historical calibration data"
+
+#, python-brace-format
+msgid "Nessun dato per '{title}'."
+msgstr "No data for '{title}'."
+
+#, python-brace-format
+msgid "Nessun dato {year} per '{title}'."
+msgstr "No {year} data for '{title}'."
+
+msgid "Nessun grafico configurato per questa sezione."
+msgstr "No chart is configured for this section."
+
+msgid "Nessuno"
+msgstr "None"
+
+msgid "No"
+msgstr "No"
+
+msgid "Nuova potenza installata nell’anno"
+msgstr "New this year"
+
+msgid ""
+"Nuovi impianti di pompaggio-turbinaggio. Nel modello la produzione aggiuntiva arriva a 637 GWh "
+"nel 2050, con 430 GWh di consumo per il pompaggio."
+msgstr ""
+"New pumped-storage plants. In the model, additional generation reaches 637 GWh in 2050, with 430 "
+"GWh of pumping consumption."
+
+msgid ""
+"Nuovi piccoli impianti idroelettrici, rappresentati nel modello come impianti ad acqua fluente. "
+"Aggiunge fino a 80 GWh annui nel 2050."
+msgstr ""
+"New small hydropower plants, represented in the model as run-of-river plants. Adds up to 80 GWh "
+"per year in 2050."
+
+msgid "Obbligo PV nuovi edifici"
+msgstr "New-building PV requirement"
+
+msgid "Obbligo PV sui nuovi edifici"
+msgstr "PV requirement for new buildings"
+
+msgid "Obbligo di installazione PV sui nuovi edifici"
+msgstr "Mandatory PV installation on new buildings"
+
+msgid ""
+"Ogni asse è normalizzato sul valore dello scenario Base (100%): il poligono tratteggiato è il "
+"Base, quello pieno lo scenario selezionato. Attenzione al verso: per emissioni, costi e "
+"importazioni un valore più alto è peggiore."
+msgstr ""
+"Each axis is normalised to the baseline scenario (100%): the dashed polygon is the baseline and "
+"the solid polygon is the selected scenario. Note the direction: higher emissions, costs and "
+"imports are worse."
+
+msgid "Osservato"
+msgstr "Observed"
+
+msgid ""
+"Osservato: input del modello. Simulato: corsa di calibrazione della documentazione, distinta "
+"dallo scenario selezionato. Il confronto è sul numero di adozioni, non sulla potenza installata."
+msgstr ""
+"Observed: model input. Simulated: the documented calibration run, separate from the selected "
+"scenario. The comparison concerns the number of adoptions, not installed capacity."
+
+msgid "PECC P.1.2 – Rinnovo"
+msgstr "PECC P.1.2 – Refurbishment"
+
+msgid "PECC P.1.2 – Rinnovo e ottimizzazione degli impianti idroelettrici esistenti"
+msgstr "PECC P.1.2 – Refurbishment and optimisation of existing hydropower plants"
+
+msgid "PECC P.1.2 – Rinnovo idroelettrico"
+msgstr "PECC P.1.2 – Hydropower refurbishment"
+
+msgid "PECC P.1.3 – Nuovi impianti di pompaggio-turbinaggio"
+msgstr "PECC P.1.3 – New pumped-storage plants"
+
+msgid "PECC P.1.3 – Pompaggio"
+msgstr "PECC P.1.3 – Pumped storage"
+
+msgid "PECC P.1.3 – Pompaggio e turbinaggio"
+msgstr "PECC P.1.3 – Pumped storage"
+
+msgid "PECC P.1.4 – Nuovi piccoli impianti idroelettrici"
+msgstr "PECC P.1.4 – New small hydropower plants"
+
+msgid "PECC P.1.4 – Piccoli impianti"
+msgstr "PECC P.1.4 – Small plants"
+
+msgid "PECC P.1.4 – Piccolo idroelettrico"
+msgstr "PECC P.1.4 – Small hydropower"
+
+msgid "PECC P.1.7 – Accumulo"
+msgstr "PECC P.1.7 – Storage"
+
+msgid "PECC P.1.7 – Accumulo invernale"
+msgstr "PECC P.1.7 – Winter storage"
+
+msgid "PECC P.1.7 – Aumento dell’accumulo invernale nei bacini idroelettrici"
+msgstr "PECC P.1.7 – Increased winter storage in hydropower reservoirs"
+
+msgid "PV e Batterie decentralizzate"
+msgstr "PV & decentralised batteries"
+
+msgid "PV e batterie"
+msgstr "PV & batteries"
+
+msgid "PV reg scenario"
+msgstr "PV requirement"
+
+msgid ""
+"Per lo storico, la differenza fra anni misura l’incremento netto di potenza; non separa "
+"installazioni e dismissioni."
+msgstr ""
+"For historical data, the difference between years measures the net capacity increase; it does not"
+" separate installations and retirements."
+
+#, python-brace-format
+msgid ""
+"Per questa combinazione (incentivi estremi) il modello Vensim non converge fino al {year}: la "
+"simulazione si ferma al {last}. I valori al {year} e le misure di equity non sono disponibili."
+msgstr ""
+"For this combination (extreme incentives), the Vensim model does not converge through {year}: the"
+" simulation stops in {last}. Values for {year} and equity measures are unavailable."
+
+msgid ""
+"Percentuale del costo d’investimento coperta dal contributo. La leva comune comprende pompe di "
+"calore, caldaie a legna e pellet e allacciamenti alle reti termiche rappresentati nel modello."
+msgstr ""
+"Percentage of investment cost covered by the grant. This shared lever covers heat pumps, wood and"
+" pellet boilers, and district heating connections represented in the model."
+
+msgid ""
+"Percentuale del costo d’investimento coperta dal contributo. La leva riguarda le caldaie a pellet"
+" e la componente a legna dei sistemi abbinati al solare termico."
+msgstr ""
+"Percentage of investment cost covered by the grant. This lever applies to pellet boilers and the "
+"wood-fired component of systems combined with solar thermal."
+
+msgid "Percentuale del costo d’investimento nella pompa di calore coperta dal contributo."
+msgstr "Percentage of heat pump investment cost covered by the grant."
+
+msgid "Percentuale del costo d’investimento nelle batterie coperta dal contributo."
+msgstr "Percentage of battery investment cost covered by the grant."
+
+msgid ""
+"Percentuale del costo d’investimento per l’allacciamento a una rete termica coperta dal "
+"contributo."
+msgstr "Percentage of investment cost for a district heating connection covered by the grant."
+
+msgid "Perché una web application"
+msgstr "Why a web application"
+
+msgid "Policy mix e incertezza"
+msgstr "Policy mix & uncertainty"
+
+msgid "Potenza PV non residenziale"
+msgstr "Non-residential PV capacity"
+
+msgid "Potenza PV residenziale per tipo"
+msgstr "Residential PV capacity by building type"
+
+msgid "Potenza PV totale"
+msgstr "Total PV capacity"
+
+msgid "Potenza totale installata"
+msgstr "Installed capacity"
+
+msgid "Prevedere con precisione l'**anno o il numero esatto** di future installazioni tecnologiche."
+msgstr "Precisely predicting the **year or exact number** of future technology installations."
+
+msgid "Prezzo benzina e diesel"
+msgstr "Petrol and diesel price"
+
+msgid "Prezzo di benzina e diesel"
+msgstr "Petrol and diesel price"
+
+msgid "Prezzo elettricità e costi"
+msgstr "Electricity prices & costs"
+
+msgid "Prezzo finale al consumatore"
+msgstr "Final consumer price"
+
+msgid "Prezzo per litro assunto nel modello, uguale per benzina e diesel."
+msgstr "Price per litre assumed in the model, identical for petrol and diesel."
+
+msgid "Produzione"
+msgstr "Generation"
+
+msgid "Produzione / domanda (%)"
+msgstr "Generation / demand (%)"
+
+msgid "Produzione PV"
+msgstr "PV generation"
+
+msgid ""
+"Produzione PV storica cantonale in GWh, disponibile fino al 2023. Non sono disponibili serie "
+"storiche separate per autoconsumo e immissione in rete."
+msgstr ""
+"Historical cantonal PV generation in GWh, available through 2023. Separate historical series for "
+"self-consumption and grid exports are unavailable."
+
+msgid "Produzione PV totale (GWh)"
+msgstr "Total PV generation (GWh)"
+
+msgid "Produzione e consumi"
+msgstr "Generation & consumption"
+
+msgid ""
+"Quale effetto ha un **policy mix** su consumi, emissioni, costi per gli utenti, **equità "
+"distributiva** e differenze tra distretti."
+msgstr ""
+"The effect of a **policy mix** on consumption, emissions, user costs, **distributional equity** "
+"and differences across districts."
+
+msgid ""
+"Quali **interazioni** emergono tra strumenti di policy e meccanismi di finanziamento: incentivi "
+"PV e supplementi, tassa CO₂ e Programma Edifici."
+msgstr ""
+"The **interactions** between policy instruments and funding mechanisms: PV grants and surcharges,"
+" the CO₂ levy and the Buildings Programme."
+
+msgid ""
+"Quali effetti producono diverse combinazioni di **incentivi, tasse, supplementi sulla rete e "
+"regolamentazioni**."
+msgstr "The effects of different combinations of **grants, taxes, grid surcharges and regulations**."
+
+msgid ""
+"Questa combinazione non e' ancora disponibile nello store (il pre-calcolo potrebbe essere ancora "
+"in corso). Riprova piu' tardi."
+msgstr ""
+"This combination is not yet available in the dataset (precalculation may still be running). "
+"Please try again later."
+
+msgid ""
+"Raggruppamento ai fini del consumo proprio virtuale (RCPv). Sì abilita questa possibilità nel "
+"modello; le adesioni sono simulate."
+msgstr ""
+"Virtual grouping for self-consumption (RCPv). Yes enables this option in the model; participation"
+" is simulated."
+
+msgid ""
+"Rappresentare in modo endogeno **cambiamenti macroeconomici** o trasformazioni strutturali "
+"dell'industria."
+msgstr "Endogenously representing **macroeconomic changes** or structural transformations in industry."
+
+msgid "Rappresentare le **decisioni individuali** di singole famiglie, imprese o proprietari di edifici."
+msgstr "Representing **individual decisions** by specific households, businesses or building owners."
+
+msgid "Requisiti MoPEC"
+msgstr "MoPEC requirements"
+
+msgid "Requisiti energetici per il riscaldamento (MoPEC)"
+msgstr "Heating energy requirements (MoPEC)"
+
+msgid "Requisiti per il riscaldamento (MoPEC)"
+msgstr "Heating requirements (MoPEC)"
+
+msgid "Riduzione annua del prezzo dei veicoli elettrici"
+msgstr "Annual EV price reduction"
+
+msgid "Riduzione annua del prezzo d’acquisto dei veicoli elettrici"
+msgstr "Annual reduction in electric vehicle purchase prices"
+
+msgid "Riduzione prezzo elettriche"
+msgstr "EV price reduction"
+
+msgid "Rimunerazione unica PV federale (RU)"
+msgstr "Federal PV investment grant (RU)"
+
+msgid ""
+"Rimunerazione unica federale per il PV. Nel modello lo scenario è espresso come percentuale del "
+"costo d’investimento."
+msgstr "Federal one-off PV grant. Scenarios in the model express it as a percentage of investment cost."
+
+msgid ""
+"Rinnovo e ottimizzazione degli impianti idroelettrici esistenti. Nel modello aumenta l’apporto "
+"all’idroelettrico ad accumulo fino a 214 GWh annui aggiuntivi nel 2050 rispetto alla traiettoria "
+"di riferimento."
+msgstr ""
+"Refurbishment and optimisation of existing hydropower plants. In the model, it increases "
+"reservoir hydropower output by up to 214 GWh per year in 2050 relative to the reference "
+"trajectory."
+
+msgid "Ripristina"
+msgstr "Reset"
+
+msgid "Riscaldamento e risanamento"
+msgstr "Heating & renovation"
+
+msgid "Risultati discutibili"
+msgstr "Results for discussion"
+
+msgid "Salva immagine"
+msgstr "Save image"
+
+msgid "Scarica CSV"
+msgstr "Download CSV"
+
+msgid "Scarica la documentazione (PDF)"
+msgstr "Download the documentation (PDF)"
+
+msgid "Scelta"
+msgstr "Selected"
+
+msgid ""
+"Scenari pre-calcolati non disponibili. Contatta l’amministratore per ripristinare i dati della "
+"release."
+msgstr "Precalculated scenarios are unavailable. Contact the administrator to restore the release data."
+
+msgid "Scenari riproducibili"
+msgstr "Reproducible scenarios"
+
+msgid "Scenario"
+msgstr "Scenario"
+
+msgid "Scenario Base"
+msgstr "Baseline scenario"
+
+msgid "Scenario Base (100%)"
+msgstr "Baseline scenario (100%)"
+
+msgid "Scenario Base non disponibile nello store."
+msgstr "The baseline scenario is unavailable in the dataset."
+
+msgid ""
+"Scenario di applicazione del Modello di prescrizioni energetiche dei Cantoni (MoPEC), con gli "
+"effetti sul riscaldamento rappresentati nel modello."
+msgstr ""
+"Scenario for applying the cantonal model energy regulations (MoPEC), with their heating-related "
+"effects as represented in the model."
+
+msgid "Scenario identico al Base."
+msgstr "This scenario is identical to the baseline."
+
+msgid "Scenario selezionato"
+msgstr "Selected scenario"
+
+msgid "Scopri la metodologia"
+msgstr "Explore the methodology"
+
+msgid "Selezionato"
+msgstr "Selected"
+
+msgid "Sezione dei risultati"
+msgstr "Results section"
+
+msgid "Share edifici con PV per distretto"
+msgstr "Share of buildings with PV by district"
+
+msgid "Share edifici con PV per tipo"
+msgstr "Share of buildings with PV by building type"
+
+msgid "Share edifici con batteria per tipo"
+msgstr "Share of buildings with batteries by building type"
+
+msgid "Simulare il funzionamento **operativo del mercato elettrico** o l'unit commitment degli impianti."
+msgstr "Simulating **electricity market operations** or power plant unit commitment."
+
+msgid "Simulato"
+msgstr "Simulated"
+
+msgid "Simulato (corsa di calibrazione)"
+msgstr "Simulated (calibration run)"
+
+msgid "Simulazione in tempo reale"
+msgstr "Live simulation"
+
+msgid "Simulazioni SEneCa"
+msgstr "SEneCa simulations"
+
+#, python-brace-format
+msgid "Somma dei valori annui dal {start} fino all’anno indicato, incluso."
+msgstr "Sum of annual values from {start} up to and including the selected year."
+
+msgid "Somma di tutte le componenti, per distretto"
+msgstr "Sum of all components, by district"
+
+msgid ""
+"Struttura del modello, formulazioni matematiche, dati di input, calibrazione, architettura della "
+"web app e limitazioni (102 pagine)."
+msgstr ""
+"Model structure, mathematical formulations, input data, calibration, web app architecture and "
+"limitations (102 pages)."
+
+msgid "Supplemento PV in rete"
+msgstr "PV export payment"
+
+msgid "Supplemento PV per l’immissione in rete"
+msgstr "Additional PV export payment"
+
+msgid "Supplemento cantonale in bolletta"
+msgstr "Cantonal electricity surcharge"
+
+msgid "Supplemento federale in bolletta"
+msgstr "Federal electricity surcharge"
+
+msgid "Supplemento per l’elettricità PV immessa in rete"
+msgstr "Additional payment for PV electricity exported to the grid"
+
+msgid ""
+"Supplemento per l’elettricità PV non autoconsumata e immessa in rete, in aggiunta alla "
+"rimunerazione di base rappresentata nel modello."
+msgstr ""
+"Additional payment for PV electricity exported to the grid rather than self-consumed, on top of "
+"the baseline remuneration represented in the model."
+
+msgid "Sì"
+msgstr "Yes"
+
+msgid "Tassa CO₂ combustibili"
+msgstr "Heating fuel CO₂ levy"
+
+msgid "Tassa di circolazione: coefficiente CO₂"
+msgstr "Vehicle tax: CO₂ coefficient"
+
+msgid ""
+"Tassa per tonnellata di CO₂ dei combustibili. Nel modello incide sui costi del riscaldamento a "
+"olio e gas e sul finanziamento degli incentivi."
+msgstr ""
+"Levy per tonne of CO₂ from heating fuels. In the model it affects oil and gas heating costs and "
+"the funding of grants."
+
+msgid "Tassa sul CO₂ dei combustibili"
+msgstr "CO₂ levy on heating fuels"
+
+#, python-brace-format
+msgid "Tipo grafico non supportato: {kind}."
+msgstr "Unsupported chart type: {kind}."
+
+msgid "Totale energia prodotta, iniettata in rete e autoconsumata"
+msgstr "Total electricity generated, exported to the grid and self-consumed"
+
+msgid "Vai a sweet-sure.ch"
+msgstr "Visit sweet-sure.ch"
+
+msgid "Valori annui"
+msgstr "Annual values"
+
+msgid "Variazione annua"
+msgstr "Annual change"
+
+msgid "Veicoli"
+msgstr "Vehicles"
+
+msgid ""
+"Verificare la **fattibilità elettrica locale**: power flow, congestioni, tensioni, capacità di "
+"linee e trasformatori."
+msgstr ""
+"Checking **local electrical feasibility**: power flows, congestion, voltages, line and "
+"transformer capacities."
+
+msgid "Vista temporale"
+msgstr "Time view"
+
+msgid "Vuoi saperne di più?"
+msgstr "Want to learn more?"
+
+msgid "ct./kWh"
+msgstr "ct./kWh"
+
+msgid "cumulato"
+msgstr "cumulative"
+
+msgid "edifici"
+msgstr "buildings"
+
+msgid "n/d"
+msgstr "n/a"
+
+msgid "nuova potenza installata nell’anno"
+msgstr "new capacity installed during the year"
+
+msgid "variazione annua"
+msgstr "annual change"
+
+msgid "veicoli"
+msgstr "vehicles"

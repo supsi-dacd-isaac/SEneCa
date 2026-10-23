@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr
 
 from pv_batteries.policy_labels import (
     BILL_SURCHARGE_EQUITY_HELP, BILL_SURCHARGE_EQUITY_LABEL,
@@ -61,7 +62,7 @@ def avg_annual_cost_chf(df: pd.DataFrame, year: int) -> float | None:
 
 def _fmt_metric(value: float | None, unit: str, *, decimals: int = 0) -> str:
     if value is None:
-        return "n/d"
+        return tr("n/d")
     return f"{value:.{decimals}f} {unit}"
 
 
@@ -144,9 +145,9 @@ def render_summary_metrics(
             with col:
                 with st.container(border=True, height="stretch"):
                     # Native Markdown wraps longer indicator names without truncation.
-                    st.markdown(label, help=help_text)
+                    st.markdown(tr(label), help=tr(help_text))
                     st.metric(
-                        label, display, delta=delta, delta_color=delta_color,
+                        tr(label), display, delta=delta, delta_color=delta_color,
                         label_visibility="collapsed",
                     )
 

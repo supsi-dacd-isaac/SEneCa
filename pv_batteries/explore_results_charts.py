@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+from pv_batteries.i18n import tr, chart_text
 
 from echarts_charts import (
     render_echarts_bar_category,
@@ -119,7 +120,7 @@ def render_bar_fallback(df: pd.DataFrame, meta: dict) -> None:
     year = meta.get("year", FINAL_YEAR)
     cols = match_cols(df, base)
     if not cols or year not in df.index:
-        st.info(f"Nessun dato {year} per '{title}'.")
+        st.info(tr("Nessun dato {year} per '{title}'.", year=year, title=chart_text(title)))
         return
     type_order = meta.get("type_order")
     if type_order:
@@ -131,7 +132,7 @@ def render_bar_fallback(df: pd.DataFrame, meta: dict) -> None:
     labels = [elem_label(c, base) for c in cols]
     bar = pd.DataFrame({title: row.values}, index=labels)
     st.markdown(f"**{title}** ({meta['unit']}) - {year}")
-    st.caption(meta.get("desc", ""))
+    st.caption(tr(meta.get("desc", "")))
     st.bar_chart(bar, color=data_color(0), sort=False)
 
 
@@ -156,7 +157,7 @@ def render_chart(
         else:
             render_bar_fallback(df, meta)
     else:
-        st.info(f"Tipo grafico non supportato: {kind!r}.")
+        st.info(tr("Tipo grafico non supportato: {kind}.", kind=repr(kind)))
 
 
 LEVY_SHARED = """
@@ -289,13 +290,13 @@ def _render_group_body(df, group: dict, index: dict, df_base, *, nested: bool) -
     """Expander esplicativo, eventuale menu a tendina e griglia dei grafici."""
     if note := EXPLANATIONS.get(group.get("explain")):
         label, body = note
-        with st.expander(label):
-            st.markdown(body)
+        with st.expander(tr(label)):
+            st.markdown(tr(body))
 
     name = _group_name(group)
     charts = [m for m in (_resolve_chart(k, index) for k in group["charts"]) if m]
     if not charts:
-        st.info("Nessun grafico configurato per questa sezione.")
+        st.info(tr("Nessun grafico configurato per questa sezione."))
         return
 
     if selector := group.get("selector"):
@@ -303,7 +304,7 @@ def _render_group_body(df, group: dict, index: dict, df_base, *, nested: bool) -
         sel_key = f"pv_sel_{name}"
         if st.session_state.get(sel_key) not in titles:
             st.session_state.pop(sel_key, None)
-        chosen = st.selectbox(selector, titles, key=sel_key)
+        chosen = st.selectbox(tr(selector), titles, key=sel_key, format_func={title: tr(title) for title in titles}.get)
         charts = [m for m in charts if chart_title(m) == chosen]
 
     if nested:
@@ -341,7 +342,7 @@ def render_pv_topic_sections(
 
     for i, group in enumerate(groups):
         if title := group.get("title"):
-            st.subheader(title)
+            st.subheader(tr(title))
         technology = {"Adozione fotovoltaico": "Fotovoltaico", "Adozione batterie": "Accumulatori"}.get(group.get("title"))
         if technology:
             from chart_views import render_calibration_reference
@@ -354,7 +355,7 @@ def render_pv_topic_sections(
             for col, sub in zip(st.columns(len(subgroups)), subgroups):
                 with col:
                     if sub_title := sub.get("title"):
-                        st.subheader(sub_title)
+                        st.subheader(tr(sub_title))
                     _render_group_body(df, sub, index, df_base, nested=True)
 
         if group.get("charts"):
@@ -453,8 +454,8 @@ def render_elettricita_from_pysd(
 
     if not df_has_elec_columns(df_wide):
         st.warning(
-            "Colonne elettriche assenti nel DataFrame. "
-            "Rilancia una simulazione live dopo l'aggiornamento del modello."
+            tr("Colonne elettriche assenti nel DataFrame. "
+            "Rilancia una simulazione live dopo l'aggiornamento del modello.")
         )
         return
 
@@ -464,8 +465,8 @@ def render_elettricita_from_pysd(
         long_base = pysd_wide_to_hourly_long(df_base_wide, elec_cfg.OUTPUT_BASES)
 
     st.subheader(f"Indicatori principali ({elec_cfg.FINAL_YEAR})")
-    with st.expander("Cosa misurano questi indicatori"):
-        st.markdown(elec_cfg.KPI_EXPLANATION)
+    with st.expander(tr("Cosa misurano questi indicatori")):
+        st.markdown(tr(elec_cfg.KPI_EXPLANATION))
     render_hourly_summary_metrics(elec_cfg.SUMMARY_METRICS, long_df,
                                  year=elec_cfg.FINAL_YEAR, df_base=long_base)
     st.divider()
