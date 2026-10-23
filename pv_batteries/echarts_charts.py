@@ -119,9 +119,8 @@ def build_line_options(
             "data": [str(y) for y in years],
             "axisLabel": {"margin": 10, "hideOverlap": True},
         },
-        "yAxis": {"type": "value", "name": unit, **(
-            {} if y_min is None else {"min": y_min}
-        )},
+        # Explicit nulls clear limits retained by ECharts during merged updates.
+        "yAxis": {"type": "value", "name": unit, "min": y_min, "max": None},
         "series": echarts_series,
     }
     if data_zoom:
@@ -135,6 +134,28 @@ def build_line_options(
             },
         ]
     place_line_legend(options)
+    return options
+
+
+def build_share_options(
+    years: list[int | str],
+    series: dict[str, list[float | None]],
+    *,
+    series_order: list[str] | None = None,
+) -> dict:
+    """One scenario's already-normalized shares as a 100% stacked area."""
+    order = list(series_order or series)
+    # BEV observations can be compared directly with the first area's boundary.
+    if "BEV" in order:
+        order = ["BEV", *(label for label in order if label != "BEV")]
+    options = build_line_options(years, series, unit="%", series_order=order, y_min=0)
+    options["yAxis"]["max"] = 100
+    options["xAxis"]["boundaryGap"] = False
+    options["toolbox"]["feature"].pop("magicType", None)
+    for item in options["series"]:
+        item.update(stack="shares", smooth=False, showSymbol=False,
+                    areaStyle={"opacity": 0.9})
+        item["lineStyle"]["width"] = 0.5
     return options
 
 
@@ -417,6 +438,8 @@ def _transition_compatible(previous: dict, current: dict) -> bool:
             new.get("id", new.get("name")), new.get("type")
         ):
             return False
+        if old.get("stack") != new.get("stack") or ("areaStyle" in old) != ("areaStyle" in new):
+            return False
         if old.get("type") == "pie":
             if [item.get("name") for item in old.get("data", [])] != [
                 item.get("name") for item in new.get("data", [])
@@ -436,7 +459,7 @@ def _transition_compatible(previous: dict, current: dict) -> bool:
         if len(old_axes) != len(new_axes):
             return False
         for old, new in zip(old_axes, new_axes, strict=True):
-            if old.get("type") != new.get("type"):
+            if any(old.get(field) != new.get(field) for field in ("type", "name", "min", "max")):
                 return False
             if old.get("type") == "category" and old.get("data") != new.get("data"):
                 return False
@@ -624,19 +647,20 @@ def _render_echarts_series(
         if relative:
             base_frame = relative_series(base_frame)
         compare = {c: _to_float_list(base_frame[c]) for c in base_frame if c in series}
-    options = build_line_options(
-        years,
-        series,
-        unit=unit,
-        series_order=series_order,
-        compare=compare,
-        y_min=meta.get("y_min"),
-    )
+    if relative:
+        options = build_share_options(years, series, series_order=series_order)
+        # Two independent 100% areas avoid adding the baseline to the selected
+        # scenario or overlaying opaque areas with ambiguous boundaries.
+        base_options = build_share_options(years, compare, series_order=series_order) if compare else None
+    else:
+        options = build_line_options(
+            years, series, unit=unit, series_order=series_order,
+            compare=compare, y_min=meta.get("y_min"),
+        )
+        base_options = None
     # Reserve the chart before its optional history controls so adjacent charts
     # stay aligned, including when the history notes become visible on a rerun.
     chart_slot = st.container() if meta.get("history_position") == "bottom" else nullcontext()
-    if relative:
-        options["yAxis"].update(min=0, max=100)
     if source := meta.get("history"):
         if st.checkbox(tr("Mostra dati storici di calibrazione"), key=f"{key}_history"):
             historical = historical_series(source, relative=relative)
@@ -646,6 +670,8 @@ def _render_echarts_series(
             historical = transform_series(historical, meta.get("time_basis"), mode).reindex(years)
             net = meta.get("time_basis") == "stock" and mode == "annual"
             add_historical_options(options, historical, net_change=net)
+            if base_options is not None:
+                add_historical_options(base_options, historical, net_change=net)
             st.caption(tr(meta["history_note"]))
             if net:
                 st.caption(tr("Per lo storico, la differenza fra anni misura l’incremento netto "
@@ -658,12 +684,21 @@ def _render_echarts_series(
         render_chart_header(display_title, unit, meta.get("desc") if mode == "native" else None)
         if note:
             st.caption(tr(note))
+        if base_options is not None:
+            st.caption(tr("Scenario selezionato"))
         render_echarts(
             options,
             chart_key=chart_key or _chart_key(meta),
             height=meta.get("height", 400),
             tooltip_decimals=meta.get("tooltip_decimals", 2),
         )
+        if base_options is not None:
+            st.caption(tr("Scenario Base"))
+            render_echarts(
+                base_options, chart_key=f"{key}_relative_base",
+                height=meta.get("height", 400),
+                tooltip_decimals=meta.get("tooltip_decimals", 2),
+            )
 
 
 def render_echarts_line(

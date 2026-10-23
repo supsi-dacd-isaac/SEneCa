@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pv_batteries"))
 from echarts_charts import (  # noqa: E402
     _transition_compatible,
     build_line_options,
+    build_share_options,
     build_pie_options,
     build_radar_options,
     render_echarts,
@@ -19,6 +20,20 @@ from echarts_charts import (  # noqa: E402
 
 
 class ChartTransitionTests(unittest.TestCase):
+    def test_absolute_relative_roundtrip_does_not_reuse_percentage_limits(self) -> None:
+        absolute = build_line_options([2030, 2040], {"BEV": [20000, 40000]}, unit="veicoli")
+        shares = build_share_options([2030, 2040], {"BEV": [100, 100]})
+        state = {}
+        with patch("echarts_charts.st.session_state", state), patch("echarts_charts.st.iframe") as iframe:
+            for options in (absolute, shares, absolute):
+                render_echarts(options, chart_key="roundtrip")
+                self.assertIn("const previousOptions = null;", iframe.call_args.args[0])
+        self.assertIsNone(absolute["yAxis"]["max"])
+        limited = build_line_options([2030, 2040], {"BEV": [20000, 40000]}, unit="veicoli")
+        limited["yAxis"]["max"] = 100
+        self.assertFalse(_transition_compatible(limited, absolute))
+        self.assertFalse(_transition_compatible(absolute, limited))
+
     def test_changed_values_with_same_axes_can_transition(self) -> None:
         previous = build_line_options([2030, 2040], {"PV": [1, 2]}, unit="GWh")
         current = build_line_options([2030, 2040], {"PV": [3, 4]}, unit="GWh")

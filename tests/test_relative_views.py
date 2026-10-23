@@ -46,12 +46,24 @@ render_echarts_line(df,OUTPUTS[0],chart_key='test',df_base=base)
             app.run()
             app.checkbox[0].check().run()
             self.assertFalse(app.exception)
-            options=render.call_args.args[0]
+            calls={call.kwargs['chart_key']:call.args[0] for call in render.call_args_list}
+            options=calls['test']
             by_name={s['name']:s['data'] for s in options['series']}
+            baseline={s['name']:s['data'] for s in calls['test_relative_base']['series']}
             self.assertEqual(by_name['BEV'],[20,40])
-            self.assertEqual(by_name['BEV (Base)'],[5,10])
+            self.assertEqual(baseline['BEV'],[5,10])
+            self.assertNotIn('BEV (Base)',by_name)
+            for chart in (options,calls['test_relative_base']):
+                areas=[s for s in chart['series'] if s['type']=='line']
+                self.assertEqual(areas[0]['name'],'BEV')
+                self.assertTrue(all(s.get('stack')=='shares' and 'areaStyle' in s and not s['smooth'] for s in areas))
+                np.testing.assert_allclose(np.array([s['data'] for s in areas]).sum(axis=0),[100,100])
+                self.assertNotIn('stack',chart['series'][-1])
             np.testing.assert_allclose(by_name['BEV (storico)'],historical_series('vehicle_adoptions',True).loc[[2023,2024],'BEV'])
             self.assertEqual(options['yAxis']['max'],100)
             app.session_state['test_composition']='absolute'
             app.run()
-            self.assertEqual(render.call_args.args[0]['yAxis']['name'],'veicoli/anno')
+            absolute=render.call_args.args[0]
+            self.assertEqual(absolute['yAxis']['name'],'veicoli/anno')
+            self.assertIsNone(absolute['yAxis']['max'])
+            self.assertTrue(all('stack' not in s and 'areaStyle' not in s for s in absolute['series']))
