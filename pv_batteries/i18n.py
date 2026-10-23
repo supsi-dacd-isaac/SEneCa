@@ -76,12 +76,13 @@ def language_selector():
     </style>""")
     with st.container(key="language_toolbar", horizontal=True, horizontal_alignment="right"):
         with st.popover(
-            ":material/language:", help="Lingua / Language / Langue / Sprache", type="tertiary", key="language_menu",
+            ":material/language:", type="tertiary", key="language_menu",
         ):
             with st.container(width=200):
                 st.radio(
                     "Lingua / Language / Langue / Sprache", list(LANGUAGES),
                     format_func=LANGUAGES.get, key="ui_language",
+                    label_visibility="collapsed",
                     on_change=_preserve_choices_on_language_change,
                 )
 
