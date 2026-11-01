@@ -93,8 +93,12 @@ def historical_series(source: str, relative: bool = False) -> pd.DataFrame:
             return pd.DataFrame()  # No observed self-consumption/export split.
         raw = pd.read_csv(ROOT / "content/system_dynamics/plots_data/Historical electricity production.csv", sep=";")
         return raw.set_index("year")[["Fotovoltaico"]].rename(columns={"Fotovoltaico": "Produzione"})
-    filename = "EVinput.csv" if source == "vehicle_adoptions" else "PVinput.csv"
-    raw = pd.read_csv(ROOT / "Vensim" / filename, index_col=0)
+    if source == "pv_capacity":
+        # From SURE v8 the register series live in SURE.mdl (scripts/export_nr_history.py).
+        path = ROOT / "content/system_dynamics/plots_data/nr_capacity_history.csv"
+    else:
+        path = ROOT / "Vensim" / ("EVinput.csv" if source == "vehicle_adoptions" else "PVinput.csv")
+    raw = pd.read_csv(path, index_col=0)
     if source == "pv_capacity":
         rows = {'"Capacity PV 30 - 100 kW"': "30–100 kW",
                 '"Capacity PV > 100 kW"': "> 100 kW"}

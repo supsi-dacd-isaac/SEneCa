@@ -15,6 +15,7 @@ Passi (ordine obbligatorio)
   3. _translate.py             # pysd.read_vensim -> SURE_pysd<sfx>.py
   4. fix_selfref_sure.py       # fix self-ref array
   4b. fix_allocate_sure.py     # ALLOCATE AVAILABLE: richieste negative -> 0
+  4c. fix_functions_sure.py    # GAMMA LN -> scipy.special.gammaln
   5. extract_constants_sure.py # costanti calibrate da SURE.vpmx -> constants_ref<sfx>.pkl
   6. (opz.) patch_hotpaths_sure.py
   7. Generare il modello corretto e validarlo: docs/julia-production.md
@@ -62,6 +63,7 @@ STEPS = [
     ("_translate.py", "pysd.read_vensim -> SURE_pysd.py"),
     ("fix_selfref_sure.py", "Fix self-referential array eqs"),
     ("fix_allocate_sure.py", "ALLOCATE AVAILABLE: clip + merito rettangolare come Vensim"),
+    ("fix_functions_sure.py", "GAMMA LN -> scipy.special.gammaln"),
     ("extract_constants_sure.py", "Costanti calibrate da SURE.vpmx -> constants_ref.pkl"),
 ]
 

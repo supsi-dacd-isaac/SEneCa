@@ -1,4 +1,4 @@
-"""Focused v7 dispatch handoff: fixture, Python base/high, native comparison.
+"""Focused v8 dispatch handoff: fixture, Python base/high, native comparison.
 
 python scripts/check_dispatch.py --prepare
 python scripts/check_dispatch.py --python
@@ -25,10 +25,10 @@ import sure_paths as paths
 OUTPUTS = [DISPATCH, CAPACITY, DEMAND, BALANCE, UNSERVED,
            'Hourly imported electricity', 'Seasonal PHS hourly production',
            'Electricity market price', 'Energy price', 'Electricity price',
-           'Power by Type', 'Annual CO2 emissions']
+           'Annual CO2 emissions']
 YEARS = np.arange(2011, 2051)
-VARIANT = 'v7'
-DEST = ROOT / 'dist/dispatch-check-v7'
+VARIANT = 'v8'
+DEST = ROOT / 'dist/dispatch-check-v8'
 
 
 def digest(path):

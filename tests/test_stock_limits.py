@@ -1,4 +1,4 @@
-"""Regression checks against the actual v7 source and physical acceptance gate."""
+"""Regression checks against the actual v8 source and physical acceptance gate."""
 import ast
 from pathlib import Path
 import tempfile
@@ -37,9 +37,13 @@ class StockLimitsTests(unittest.TestCase):
         env = {"_subscript_dict": coords, "heating_solution": lambda: stock,
                "building_demolition_by_archetype": lambda: demolition,
                "buildings_hs_renovation_from": lambda: renovation,
-               "time_step": lambda: .5, "if_then_else": if_then_else}
+               "time_step": lambda: .5, "if_then_else": if_then_else,
+               # The direct allocation branch; the calendar branch is checked by
+               # the pv_source_budget physical invariant in every scenario.
+               "calendar_enabled": lambda: 0.}
         available = source_function("available_pv_adoption", env)()
-        np.testing.assert_array_equal(available.values.ravel(), [4., 0., 0., 18.])
+        # From v8 the budget is the annual source stock, independent of TIME STEP.
+        np.testing.assert_array_equal(available.values.ravel(), [2., 0., 0., 8.])
         env["available_pv_adoption"] = lambda: available
         for demands in ([1., 2., 3., 4., 5., 6.], [0.]*6, [-5., 0., 0., 0., 0., 1.]):
             for name, value in zip(FLOWS, demands):
@@ -58,9 +62,26 @@ class StockLimitsTests(unittest.TestCase):
                     if demand > 0:
                         np.testing.assert_allclose(a, expected * demand / sum(max(0., d) for d in demands))
 
+    def test_calendar_completions_never_exceed_a_tiny_source_stock(self):
+        # Regression: with ZIDZ, fewer than 1e-6 available buildings disabled the
+        # pending-order deduction and the stock went negative (PV 0.2/0.4, 2042).
+        from pysd.py_backend.functions import if_then_else, xidz, zidz
+        for available, pending in ((4.954245618375396e-08, 4.961316425283533e-08), (5e-7, 1e-7),
+                                   (10., 4.)):
+            with self.subTest(available=available, pending=pending):
+                env = {"available_pv_adoption": lambda: xr.DataArray(available),
+                       "total_pv_request": lambda: xr.DataArray(2.3e-4),
+                       "calendar_pending_total": lambda: xr.DataArray(pending),
+                       "zidz": zidz, "xidz": xidz, "if_then_else": if_then_else}
+                fraction = float(source_function("calendar_order_fraction", env)())
+                env["calendar_order_fraction"] = lambda: fraction
+                retention = float(source_function("calendar_retention", env)())
+                completed = 0.75 * 2.3e-4 * fraction + retention * pending
+                self.assertLessEqual(completed, available + 4 * np.spacing(max(available, 1e-300)))
+
     def test_canonical_source_contains_the_shared_budget(self):
         native = budget_audit((ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1"))
-        prepared = budget_audit((ROOT / "Vensim/SURE_pysd_v7.mdl").read_text(encoding="latin-1"))
+        prepared = budget_audit((ROOT / "Vensim/SURE_pysd_v8.mdl").read_text(encoding="latin-1"))
         self.assertEqual(native, prepared)
         self.assertEqual(sum(map(len, native["requests"].values())), 10)
         changed = (ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1").replace("MIN(Available PV adoption", "MAX(Available PV adoption", 1)

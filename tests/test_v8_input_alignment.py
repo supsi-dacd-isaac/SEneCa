@@ -1,4 +1,4 @@
-"""The HP source export must reproduce the historical data used by v7."""
+"""The HP source export must reproduce the historical data used by v8."""
 import csv
 from pathlib import Path
 import unittest
@@ -17,10 +17,10 @@ def read_series(path):
     return rows[0], series
 
 
-class V7InputAlignmentTests(unittest.TestCase):
+class V8InputAlignmentTests(unittest.TestCase):
     def test_hp_source_and_translation_use_the_same_history(self):
         header, source = read_series(ROOT / 'HPinput.csv')
-        translated_header, translated = read_series(ROOT / 'HPinput_pysd_v7.csv')
+        translated_header, translated = read_series(ROOT / 'HPinput_pysd_v8.csv')
         self.assertEqual(header, translated_header)
         self.assertEqual(source.keys(), translated.keys())
         for label in source:

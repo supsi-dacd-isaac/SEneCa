@@ -6363,7 +6363,6 @@
     "Electricity consumed",
     "Hourly available supply by Supplier",
     "PHS hourly demand",
-    "Power by Type",
     "Annual CO2 emissions",
     "Building demolition by archetype",
     "Buildings adopting HS for old age",
@@ -6467,7 +6466,6 @@
     "Electricity consumed",
     "Hourly available supply by Supplier",
     "PHS hourly demand",
-    "Power by Type",
     "Annual CO2 emissions"
   ],
   "native_outputs": [
@@ -6521,7 +6519,6 @@
     "Electricity consumed",
     "Hourly available supply by Supplier",
     "PHS hourly demand",
-    "Power by Type",
     "Annual CO2 emissions",
     "Electricity and heating and retrofit annual cost",
     "Average levy minus incentives archetype",

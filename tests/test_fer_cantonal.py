@@ -13,7 +13,7 @@ import pysd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ("SURE.mdl", "SURE_pysd_v7.mdl")
+SOURCES = ("SURE.mdl", "SURE_pysd_v8.mdl")
 CATEGORIES = ("30 - 100 kW", "> 100 kW")
 RESIDENTIAL = "PV cantonal subsidy"
 TARGETS = (RESIDENTIAL,) + tuple(f"PV cantonal subsidy {c} check" for c in CATEGORIES)

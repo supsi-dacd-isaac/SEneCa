@@ -1,8 +1,9 @@
 # File del repository e modello supportato
 
-La release `v0.4.0` usa **sure-v7-dispatch-1** e la calibrazione
-ricevuta il 16 ottobre 2026. I dati v6 già pubblicati restano immutabili;
-la v7 usa il dataset rigenerato `data-v2.0.0`.
+Il ramo di sviluppo usa **sure-v8-nr-calendar-1** e la calibrazione
+ricevuta il 30 ottobre 2026. La release `v0.4.0` usa ancora
+`sure-v7-dispatch-1` con il dataset `data-v2.0.0`; i dati pubblicati
+restano immutabili fino alla validazione Julia della v8.
 Tutto il materiale rimosso resta recuperabile nel
 [tag v0.3.1](https://github.com/supsi-dacd-isaac/SEneCa/tree/v0.3.1).
 
@@ -14,12 +15,13 @@ Tutto il materiale rimosso resta recuperabile nel
 | `pv_batteries/` | Configurazioni, lettura degli store, indicatori, grafici e contenuti divulgativi. |
 | `sure_backend.py`, `sure_live.py`, `sure_pysd.py`, `sure_paths.py`, `pysd_explore_config.py` | Selezione del motore, processo live, parametri e adattatore Python. |
 | `sure_julia/` | Generazione Julia, motori, controlli fisici, validazione e batch del modello corretto. L’allocatore corrente è `priority_allocation.jl`. |
-| `Vensim/SURE.mdl` | Unico sorgente nativo v7, con FER, budget PV e dispatch corretti. |
-| `Vensim/SURE_pysd_v7.mdl`, `.py` e `*_pysd_v7.csv` | Traduzione Python e input del medesimo modello. |
-| `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v7.pkl` | Cinque file ricevuti, 56 assegnazioni originali e 33 gruppi ricostruiti in Float64. |
+| `Vensim/SURE.mdl` | Unico sorgente nativo v8, con FER, budget PV, calendario FV, sottomodello NR e dispatch corretti. |
+| `Vensim/SURE_pysd_v8.mdl`, `.py` e `*_pysd_v8.csv` | Traduzione Python e input del medesimo modello. |
+| `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v8.pkl` | Quattro file ricevuti, 53 assegnazioni originali e 30 gruppi ricostruiti in Float64. |
 | CSV nativi in `Vensim/` | Storici mostrati nell’app e sorgenti dei dati preparati per PySD. |
 | `content/system_dynamics/` restante | Immagini, mappa, storici e priorità del workshop effettivamente letti dalle pagine. |
-| `calibration_sim_adoptions_v7.csv` e `.json` | Curve della baseline v7 per il confronto di calibrazione, con provenienza e verifica contro la baseline validata. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `calibration_sim_adoptions_v8.csv` e `.json` | Curve della baseline v8 per il confronto di calibrazione, con provenienza; il confronto con la baseline Julia resta da eseguire. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `nr_capacity_history.csv` | Storico FV 30–100 e >100 kW esportato da `SURE.mdl` (`scripts/export_nr_history.py`). |
 | `Input and Output Streamlit.xlsx` | Specifica delle leve e degli output, verificata dai test e registrata nella provenienza del batch. |
 | `SEneCa_documentation.pdf` | Documento scaricabile dalla home. |
 | `data-release.json`, `scripts/data_release.py` | Identità, download e verifica del dataset immutabile. |
