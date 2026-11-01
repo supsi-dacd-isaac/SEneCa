@@ -56,6 +56,25 @@ POLICY_LABELS = {
         "help": "Raggruppamento ai fini del consumo proprio virtuale (RCPv). "
                 "Sì abilita questa possibilità nel modello; le adesioni sono simulate.",
     },
+    "Buildings PVno connected to RCPv": {
+        "label": "Edifici senza PV collegati a ogni RCPv",
+        "control_label": "Edifici senza PV per RCPv",
+        "short_label": "Edifici senza PV per RCPv",
+        "unit": "edifici",
+        "requires": "Energy Community scenario",
+        "help": "Numero medio di edifici senza impianto PV che aderiscono a ogni "
+                "raggruppamento RCPv. Ha effetto solo se l’autoconsumo collettivo "
+                "virtuale (RCPv) è attivo.",
+    },
+    "EMS rebate": {
+        "label": "Contributo per i sistemi di gestione dell’energia (EMS)",
+        "control_label": "Contributo per gli EMS",
+        "short_label": "Contributo EMS",
+        "unit": "% del costo", "scale": 100,
+        "help": "Percentuale del costo d’investimento di un EMS residenziale coperta "
+                "dal contributo, dal 2026. L’EMS viene valutato insieme a ogni nuovo "
+                "impianto PV residenziale, individuale o in RCPv.",
+    },
     "Grant share HP": {
         "label": "Contributo per pompe di calore",
         "short_label": "Contributo pompe di calore",

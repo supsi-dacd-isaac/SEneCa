@@ -1,7 +1,7 @@
 """Esplora scenari SURE — backend PySD.
 
 Sidebar con gli stessi input delle pagine Risultati, raggruppati per sezione.
-I risultati sono divisi in quattro sottopagine selezionabili, impaginate come le
+I risultati sono divisi in tre sottopagine selezionabili, impaginate come le
 pagine Risultati omonime.
 """
 from __future__ import annotations
@@ -28,15 +28,10 @@ import sure_paths as paths  # noqa: E402
 import sure_pysd as sp  # noqa: E402
 import sure_backend as backend
 from sure_live import get_engine, run_with_progress
-import elettricita_config as elec_cfg  # noqa: E402
 import explore_results_charts as erc  # noqa: E402
-import section_ui_hourly as _sui_h  # noqa: E402
-importlib.reload(elec_cfg)
-importlib.reload(_sui_h)
 importlib.reload(erc)
 from explore_results_charts import (  # noqa: E402
     df_has_results_columns,
-    render_elettricita_from_pysd,
     render_pv_topic_sections,
     render_risanamento_section,
     render_veicoli_section,
@@ -50,12 +45,11 @@ import veicoli_config as vei_cfg  # noqa: E402
 SUBPAGE_PV = "PV e Batterie"
 SUBPAGE_RIS = "Riscaldamento e Risanamento"
 SUBPAGE_VEI = "Veicoli"
-SUBPAGE_ELEC = "Elettricità"
-SUBPAGES = [SUBPAGE_PV, SUBPAGE_RIS, SUBPAGE_VEI, SUBPAGE_ELEC]
+SUBPAGES = [SUBPAGE_PV, SUBPAGE_RIS, SUBPAGE_VEI]
 EXPLORE_SECTION_KEY = "explore_section"
 
 # Bump per invalidare @st.cache_resource dopo cambio OUTPUTS / prune
-ENGINE_CACHE_VERSION = "results_charts_v2_elec"
+ENGINE_CACHE_VERSION = "results_charts_v3_ems"
 
 YEARS = range(2011, 2051)
 
@@ -201,6 +195,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         value=None if key in st.session_state else inp.default,
                         format_func=lambda x, scale=scale: f"{x * scale:g}",
                         help=tr(help_txt), key=key,
+                        disabled=bool(inp.requires) and ui.get(inp.requires) == 0.0,
                     ))
 
     st.sidebar.button(tr("Ripristina scenario base"), width="stretch", on_click=reset_policy_inputs)
@@ -229,9 +224,8 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
     active = render_section_picker(SUBPAGES, key=EXPLORE_SECTION_KEY)
     st.subheader(tr(active))
 
-    if active != SUBPAGE_ELEC:
-        render_live_summary(active, user_df, base_df)
-        st.divider()
+    render_live_summary(active, user_df, base_df)
+    st.divider()
 
     if active == SUBPAGE_PV:
         if not df_has_results_columns(user_df):
@@ -248,14 +242,10 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
             user_df, ris_cfg.OUTPUTS, ris_cfg.FINAL_YEAR, df_base=base_df,
             explanations=ris_cfg.EXPLANATIONS,
         )
-    elif active == SUBPAGE_VEI:
+    else:
         render_veicoli_section(
             user_df, vei_cfg.OUTPUTS, vei_cfg.OUTPUT_LAYOUT, vei_cfg.FINAL_YEAR,
             df_base=base_df,
-        )
-    else:
-        render_elettricita_from_pysd(
-            user_df, df_base_wide=base_df, section_selector=True,
         )
 
     st.divider()
@@ -287,7 +277,7 @@ def render_results(ui: dict[str, float], user_df: pd.DataFrame, base_df: pd.Data
 # =============================================================
 st.title(tr("Simulazione in tempo reale"))
 st.caption(
-    tr('Simulazione live con {v0} output Risultati (PV / Risanamento / Veicoli / Elettricità).', v0=len(sp.LIVE_OUTPUTS))
+    tr('Simulazione live con {v0} output Risultati (PV / Risanamento / Veicoli).', v0=len(sp.LIVE_OUTPUTS))
 )
 
 ui, run_clicked, variant = render_sidebar()
@@ -312,8 +302,8 @@ if "exp_user_df" in st.session_state:
     )
 else:
     st.info(
-        tr("Imposta gli input nella barra laterale (sezioni 1–4) e premi "
-        "**Simula e confronta vs base**. I grafici (incl. Elettricità oraria) "
-        "appaiono nelle quattro sottopagine allineate alle pagine Simulazioni SEneCa. "
+        tr("Imposta gli input nella barra laterale (sezioni 1–3) e premi "
+        "**Simula e confronta vs base**. I grafici appaiono nelle tre sottopagine "
+        "allineate alle pagine Simulazioni SEneCa. "
         "Se hai risultati in cache da prima dell'aggiornamento, rilancia la simulazione.")
     )

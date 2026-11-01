@@ -43,6 +43,14 @@ def total_pv_production_gwh(df: pd.DataFrame, year: int) -> float | None:
     return None if pd.isna(val) else float(val)
 
 
+def ems_self_consumption_gwh(df: pd.DataFrame, year: int) -> float | None:
+    cols = match_cols(df, "EMS self consumption total")
+    if not cols or year not in df.index:
+        return None
+    val = df.loc[year, cols[0]]
+    return None if pd.isna(val) else float(val)
+
+
 def total_battery_mwh(df: pd.DataFrame, year: int) -> float | None:
     cols = match_cols(df, "Total Battery capacity District")
     if not cols or year not in df.index:
@@ -83,6 +91,7 @@ def render_summary_metrics(
 
     pv = total_pv_power_mw(df, year)
     prod = total_pv_production_gwh(df, year)
+    ems = ems_self_consumption_gwh(df, year)
     bat = total_battery_mwh(df, year)
     cost = avg_annual_cost_chf(df, year)
     gmd_levy = scale_gmd_equity(
@@ -96,6 +105,7 @@ def render_summary_metrics(
     prod_base = (
         total_pv_production_gwh(df_base, year) if df_base is not None else None
     )
+    ems_base = ems_self_consumption_gwh(df_base, year) if df_base is not None else None
     bat_base = total_battery_mwh(df_base, year) if df_base is not None else None
     cost_base = avg_annual_cost_chf(df_base, year) if df_base is not None else None
     gmd_levy_base = (
@@ -116,6 +126,8 @@ def render_summary_metrics(
             prod_base,
             "normal",
         ),
+        ("Autoconsumo aggiuntivo EMS", _fmt_metric(ems, "GWh", decimals=1), ems,
+         ems_base, "normal"),
         ("Capacità batterie totale", _fmt_metric(bat, "MWh"), bat,
          bat_base, "normal"),
         ("Costo medio annuale", _fmt_metric(cost, "CHF"), cost,
@@ -125,7 +137,7 @@ def render_summary_metrics(
         ("Equità costo (GMD)", fmt_scaled_gmd(gmd_cost), gmd_cost,
          gmd_cost_base, "normal"),
     )
-    for row in (items[:3], items[3:]):
+    for row in (items[:4], items[4:]):
         cols = wrapping_columns(len(row), key=f"pv_metrics_{row[0][0]}", metrics=True)
         for col, (label, display, value, value_base, color) in zip(
             cols, row, strict=True,
@@ -164,6 +176,7 @@ KPI_EXPLANATION = """Valori **al 2050**; variazioni rispetto allo scenario Base.
 
 - **Potenza PV**: totale installato residenziale e non residenziale [MW].
 - **Produzione PV**: energia prodotta al 2050 [GWh].
+- **Autoconsumo aggiuntivo EMS**: energia PV autoconsumata in più grazie agli EMS residenziali [GWh].
 - **Capacità batterie**: energia accumulabile [MWh].
 - **Costo annuo per famiglia**: elettricità, riscaldamento e investimenti annualizzati per impianti e risanamento [CHF].
 - **Equità**: confronta gli oneri tra famiglie, non il loro livello medio. Per il supplemento considera pagamenti meno incentivi PV; per i costi considera energia e risanamento.

@@ -1,7 +1,7 @@
 """Entrypoint Streamlit della webapp SEneCa con EMS e comunità energetiche.
 
-Router: Metodologia, Simulazioni SEneCa, Analisi esplorativa (policy mix e
-simulazione live).
+Router: Metodologia e Simulazioni SEneCa (tre sezioni precalcolate e
+simulazione in tempo reale).
 """
 from __future__ import annotations
 
@@ -25,13 +25,6 @@ pages = {
             title=tr("Riscaldamento e risanamento"),
         ),
         st.Page("pages/3_Veicoli.py", url_path="Veicoli", title=tr("Veicoli")),
-        st.Page("pages/4_Elettricità.py", url_path="Elettricità", title=tr("Elettricità")),
-    ],
-    tr("Analisi esplorativa"): [
-        st.Page(
-            "pages/5_Analisi_Esplorativa.py", url_path="Analisi_Esplorativa",
-            title=tr("Policy mix e incertezza"),
-        ),
         st.Page(
             "pages/9_Esplora_SURE_PySD.py", url_path="Esplora_SURE_PySD",
             title=tr("Simulazione in tempo reale"),

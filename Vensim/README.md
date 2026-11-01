@@ -45,6 +45,14 @@ sostituisce con `scipy.special.gammaln`. Serve solo all’obiettivo di
 calibrazione NR, non alla dinamica.
 
 Gli store delle pagine "Simulazioni SEneCa" si rigenerano con il backend
-Python (`python -m sure_julia.python_batch`). La release Julia richiede
+Python (`python -m sure_julia.python_batch`): PV e batterie (972
+combinazioni), Riscaldamento e risanamento (81) e Veicoli (144), dalle griglie
+di `Input and Output Streamlit EMS.xlsx`. Con RCPv disattivato il numero di
+edifici senza PV collegati non entra nel modello (136 output identici fra 1 e
+2 edifici): quelle combinazioni condividono la simulazione del valore Base, per
+871 simulazioni distinte. Le leve tolte dalle pagine restano fisse
+(`FIXED_PARAMETERS` in `pysd_explore_config.py`): obbligo PV sui nuovi edifici
+attivo, contributi legna/pellet e reti termiche al 20 %, Provvedimenti PECC
+disattivati. La release Julia richiede
 ancora la build, la validazione Python–Julia e la rigenerazione completa
 descritte nella [guida Julia](../docs/julia-production.md).

@@ -80,11 +80,12 @@ class LiveSummaryTests(unittest.TestCase):
         self.assertTrue(all(axis["min"] <= -50. for axis in options["radar"]["indicator"]))
         self.assertTrue(all(axis["max"] >= 150. for axis in options["radar"]["indicator"]))
 
-    def test_live_pv_displays_six_metrics_and_radar_with_shared_definitions(self):
+    def test_live_pv_displays_seven_metrics_and_radar_with_shared_definitions(self):
         from explore_results_charts import _LEGACY_PV_CAPACITY_BASES
         frame = pd.DataFrame({
             "PV residential power by Type[SFH]": [100.],
             "Total PV electricity production": [150.],
+            "EMS self consumption total": [7.],
             "Total Battery capacity District[Lugano]": [20.],
             "Average electricity and heating and retrofit cost": [2500.],
             **{name: [1000.] for name in _LEGACY_PV_CAPACITY_BASES},
@@ -102,7 +103,7 @@ render_live_summary('PV e Batterie', st.session_state['frame'], st.session_state
             app.run()
             self.assertFalse(app.exception)
             self.assertFalse(app.warning)
-            self.assertEqual(len(app.metric), 6)
+            self.assertEqual(len(app.metric), 7)
             self.assertTrue(all(m.value != "n/d" and m.delta == "0.0% vs Base" for m in app.metric))
             self.assertIn("radar", chart.call_args.args[0])
 

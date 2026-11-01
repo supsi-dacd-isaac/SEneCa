@@ -1,7 +1,7 @@
 """Pagina Streamlit - Sezione "PV e Batterie decentralizzate".
 
-Serve all'istante le 324 combinazioni pre-calcolate del modello corretto:
-6 slider discreti -> traiettorie/valori 2050 degli output + misure di equity GMD.
+Serve all'istante le 972 combinazioni pre-calcolate del modello corretto:
+7 leve discrete -> traiettorie/valori 2050 degli output + misure di equity GMD.
 """
 from __future__ import annotations
 
@@ -83,7 +83,7 @@ if not store:
 
 with st.sidebar:
     st.header(tr("Scenario selezionato"))
-    values = []
+    chosen: dict[str, float] = {}
     for name in INPUT_ORDER:
         meta = INPUT_META[name]
         opts = INPUT_GRID[name]
@@ -94,12 +94,17 @@ with st.sidebar:
             )
         else:
             scale = float(meta.get("scale", 1) or 1)
+            # Una leva senza effetto (es. edifici per RCPv con RCPv disattivato)
+            # resta visibile ma bloccata; lo store copre comunque ogni valore.
+            requires = meta.get("requires")
             val = st.select_slider(
                 tr(label), options=opts, value=BASE_SCENARIO[name], key=f"pv_input_{name}",
                 format_func=lambda x, scale=scale: f"{x * scale:g}",
                 help=tr(tr(meta.get("help")) or None),
+                disabled=bool(requires) and chosen.get(requires) == 0.0,
             )
-        values.append(val)
+        chosen[name] = val
+    values = [chosen[name] for name in INPUT_ORDER]
 
     compare_base = st.checkbox(tr("Confronta con scenario Base"), value=False, key="pv_compare_base")
     with st.expander(tr("Scenario Base")):

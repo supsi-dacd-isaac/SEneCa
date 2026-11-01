@@ -84,6 +84,8 @@ LIVE_INDICATORS = {
     "PV residential power by Type[SFH]": ("Potenza PV — unifamiliari", "MW"),
     "PV residential power by Type[DFH]": ("Potenza PV — bifamiliari", "MW"),
     "PV residential power by Type[MFH]": ("Potenza PV — plurifamiliari", "MW"),
+    "EMS self consumption total": ("Autoconsumo aggiuntivo EMS", "GWh"),
+    "EMS rebate spending": ("Incentivi per gli EMS", "Mio CHF"),
     "Levy Evolution": ("Supplemento federale in bolletta", "CHF/kWh"),
     "Annual CO2 emissions": ("Emissioni annue residenziali", "Mt CO₂/anno"),
     "Cumulative CO2 emissions": ("Emissioni residenziali cumulate dal 2026", "Mt CO₂"),

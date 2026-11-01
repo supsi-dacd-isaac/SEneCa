@@ -1,7 +1,7 @@
 """Configurazione della sezione 2 "Riscaldamento e Risanamento".
 
-Sorgente: "Input and Output Streamlit.xlsx" (foglio "Input", righe con "X" su
-"Riscaldamento e Risanamento"; foglio "Output Risc e Risanamento").
+Sorgente: "Input and Output Streamlit EMS.xlsx" (foglio "Input", righe con "X"
+su "Riscaldamento e Risanamento"; foglio "Output Risc e Risanamento").
 """
 from __future__ import annotations
 
@@ -22,24 +22,20 @@ YEARS = range(2011, 2051)
 FINAL_YEAR = 2050
 
 # =============================================================
-# INPUT (6 variabili -> 3*3*3*5*3*3 = 1215 combinazioni)
+# INPUT (4 variabili -> 3*3*3*3 = 81 combinazioni)
 # =============================================================
 INPUT_GRID: dict[str, list[float]] = {
     "Grant share HP": [0.0, 0.2, 0.4],
-    "Grant share PelletBoiler": [0.0, 0.2, 0.4],
-    "Grant share DH": [0.0, 0.2, 0.4],
-    "Retrofit incentive input": [0.0, 25.0, 50.0, 75.0, 100.0],
+    "Retrofit incentive input": [0.0, 50.0, 100.0],
     "CO2 tax": [0.0, 120.0, 240.0],
     "MuKEn scenario": [0.0, 1.0, 2.0],
 }
 
 INPUT_ORDER = list(INPUT_GRID.keys())
 
-# Scenario Base (colonna "Base" in Input and Output Streamlit.xlsx)
+# Scenario Base (colonna "Base" in Input and Output Streamlit EMS.xlsx)
 BASE_SCENARIO: dict[str, float] = {
     "Grant share HP": 0.2,
-    "Grant share PelletBoiler": 0.2,
-    "Grant share DH": 0.2,
     "Retrofit incentive input": 50.0,
     "CO2 tax": 120.0,
     "MuKEn scenario": 1.0,

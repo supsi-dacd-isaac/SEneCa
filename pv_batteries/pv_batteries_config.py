@@ -1,10 +1,10 @@
 """Configurazione della sezione "PV e Batterie".
 
-Sorgente: "Input and Output Streamlit.xlsx" (fogli "Input" e "Output PV e
+Sorgente: "Input and Output Streamlit EMS.xlsx" (fogli "Input" e "Output PV e
 Batterie"). Gli input sono le righe con "X" nella colonna "PV e Batterie".
 
 Nota FiT: nel modello Vensim e' in CHF/kWh; l'Excel lo esprime in ct/kWh
-(0-10). I valori discreti usati qui sono 0/0.05/0.10 CHF/kWh (= 0/5/10 ct/kWh).
+(0-5). I valori discreti usati qui sono 0/0.05 CHF/kWh (= 0/5 ct/kWh).
 """
 from __future__ import annotations
 
@@ -29,33 +29,40 @@ DISTRICT_ORDER = [
 ]
 
 # =============================================================
-# INPUT (6 variabili -> 3*3*3*3*2*2 = 324 combinazioni)
+# INPUT (7 variabili -> 3*2*3*3*3*2*3 = 972 combinazioni)
 # nome variabile Vensim -> lista di valori discreti ammessi
 # =============================================================
 INPUT_GRID: dict[str, list[float]] = {
     "PV rebate cantonal": [0.0, 0.1, 0.2],
-    "FiT": [0.0, 0.05, 0.10],
+    "FiT": [0.0, 0.05],
     "Battery Rebate": [0.0, 0.25, 0.5],
+    "EMS rebate": [0.0, 0.4, 0.8],
     "PV rebate federal": [0.0, 0.2, 0.4],
-    "PV reg scenario": [0.0, 1.0],
     "Energy Community scenario": [0.0, 1.0],
+    "Buildings PVno connected to RCPv": [1.0, 1.5, 2.0],
 }
 
 INPUT_ORDER = list(INPUT_GRID.keys())
 
 # Input binari in sidebar (bottoni Sì/No invece di slider)
-BINARY_INPUTS = frozenset({"PV reg scenario", "Energy Community scenario"})
+BINARY_INPUTS = frozenset({"Energy Community scenario"})
 BINARY_LABELS = ("No", "Sì")
 
-# Scenario Base (colonna "Base" in Input and Output Streamlit.xlsx)
+# Scenario Base (colonna "Base" in Input and Output Streamlit EMS.xlsx)
 BASE_SCENARIO: dict[str, float] = {
     "PV rebate cantonal": 0.1,
     "FiT": 0.0,
     "Battery Rebate": 0.0,
+    "EMS rebate": 0.0,
     "PV rebate federal": 0.2,
-    "PV reg scenario": 1.0,
     "Energy Community scenario": 0.0,
+    "Buildings PVno connected to RCPv": 1.5,
 }
+
+# Leve che entrano nel modello solo se l'interruttore indicato vale 1: le
+# richieste RCPv sono moltiplicate per Energy Community scenario. Senza RCPv
+# le combinazioni equivalenti condividono la simulazione con il valore Base.
+INACTIVE_UNLESS = {"Buildings PVno connected to RCPv": "Energy Community scenario"}
 
 # Etichette/unita' per la UI (allineate all'Excel)
 INPUT_META = input_metadata(INPUT_ORDER)
@@ -179,6 +186,37 @@ OUTPUTS = [
          {"label": "Produzione PV", "base": "Total PV electricity production District"},
          {"label": "Autoconsumo (SC)", "base": "PV electricity SC by District"},
      ]},
+    {"kind": "line_composite", "unit": "GWh",
+     "title": "Autoconsumo aggiuntivo grazie agli EMS",
+     "desc": "Energia PV autoconsumata in più negli edifici residenziali con EMS: "
+             "carichi dell’edificio e ricarica dei veicoli elettrici spostati nelle ore di "
+             "produzione. È già compresa nell’autoconsumo (SC) della produzione PV.",
+     "time_basis": "flow", "cumulative_title": "Autoconsumo aggiuntivo EMS cumulato",
+     "series": [
+         {"label": "Autoconsumo EMS", "bases": ["EMS self consumption total"]},
+     ]},
+    {"base": "EMS self consumption by District", "kind": "bar", "year": 2050,
+     "title": "Autoconsumo aggiuntivo EMS per distretto",
+     "desc": "Energia PV autoconsumata in più grazie agli EMS in ciascun distretto.",
+     "unit": "GWh",
+     "echarts": True, "district_order": DISTRICT_ORDER, "height": 430},
+    {"kind": "line_composite", "unit": "%",
+     "title": "Diffusione degli EMS",
+     "desc": "Quota dei nuovi impianti PV residenziali installati con un EMS e quota "
+             "degli edifici residenziali con PV che dispongono di un EMS.",
+     "y_min": 0,
+     "series": [
+         {"label": "Nuovi impianti PV con EMS", "bases": ["EMS share of new PV"], "scale": 100},
+         {"label": "Edifici con PV dotati di EMS", "bases": ["EMS share of PV buildings"], "scale": 100},
+     ]},
+    {"kind": "line_composite", "unit": "Mio CHF",
+     "title": "Incentivi per gli EMS",
+     "cumulative_title": "Incentivi cumulati per gli EMS",
+     "desc": "Spesa cantonale annua per il contributo agli EMS residenziali.",
+     "time_basis": "flow", "tooltip_decimals": 2,
+     "series": [
+         {"label": "Contributo EMS", "bases": ["EMS rebate spending"]},
+     ]},
 ]
 
 # Ordine e raggruppamento grafici in pagina (base Vensim o title dei composite)
@@ -210,6 +248,9 @@ OUTPUT_GROUPS: list[dict] = [
         "charts": [
             "Energia PV annuale",
             "Domanda e PV per distretto",
+            "Autoconsumo aggiuntivo grazie agli EMS",
+            "EMS self consumption by District",
+            "Diffusione degli EMS",
         ],
     },
     {
@@ -248,6 +289,13 @@ OUTPUT_GROUPS: list[dict] = [
                     "key": "supplemento-cantonale",
                     "explain": "levy_cantonal",
                     "charts": ["Cantonal Levy Evolution"],
+                },
+            ],
+            [
+                {
+                    "key": "incentivi-ems",
+                    "explain": "ems_rebate",
+                    "charts": ["Incentivi per gli EMS"],
                 },
             ],
         ],

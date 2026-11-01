@@ -7,14 +7,14 @@ from .common import ROOT, MODEL_PY, read
 
 
 def defaults():
-    from pysd_explore_config import base_ui_values
+    from pysd_explore_config import FIXED_PARAMETERS, base_ui_values
     from pv_batteries import exploratory_config as cfg
-    result = base_ui_values()
+    result = {**base_ui_values(), **FIXED_PARAMETERS}
     for name in cfg.POLICY_ORDER:
         result.setdefault(name, 0.0)
     result[cfg.EXPLORATORY_SWITCH] = 0.0
     result.update({name: 0.0 for name in cfg.UNCERTAINTY_ORDER})
-    if len(result) != 40:
+    if len(result) != 42:
         raise ValueError("Reaudit the SURE parameter contract")
     return result
 
@@ -28,8 +28,10 @@ def parameters(values=None):
         raise ValueError("Nonfinite scenario parameter")
     from pysd_explore_config import ALL_INPUTS
     for spec in ALL_INPUTS:
-        if (spec.binary or spec.choice_labels or spec.name.startswith("Provvedimento ")) and result[spec.name] not in spec.values:
+        if (spec.binary or spec.choice_labels) and result[spec.name] not in spec.values:
             raise ValueError(f"Invalid categorical parameter: {spec.name}")
+    if any(result[f"Provvedimento 1.{n}"] not in (0, 1) for n in (2, 3, 4, 7)):
+        raise ValueError("Invalid categorical parameter: Provvedimento")
     if result["Exploratory analysis"] not in (0, 1) or result["Cantonal PV support"] not in (0, 1):
         raise ValueError("Invalid exploratory switch")
     return result

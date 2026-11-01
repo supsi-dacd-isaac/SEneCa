@@ -605,7 +605,8 @@ def _series_from_composite(df: pd.DataFrame, meta: dict) -> dict[str, list[float
         for base in spec["bases"]:
             cols.extend(match_cols(df, base))
         if cols:
-            series[spec["label"]] = _to_float_list(df[cols].sum(axis=1, min_count=len(cols)).tolist())
+            total = df[cols].sum(axis=1, min_count=len(cols)) * spec.get("scale", 1.0)
+            series[spec["label"]] = _to_float_list(total.tolist())
     return series
 
 

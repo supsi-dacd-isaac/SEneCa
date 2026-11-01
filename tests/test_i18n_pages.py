@@ -60,59 +60,6 @@ class RemainingPageTests(unittest.TestCase):
                 self.assert_ok(at)
                 self.assertEqual(before, metric_values(at))
 
-    def test_electricity_all_sections_and_views_keep_data(self):
-        import elettricita_config as cfg
-        at = page('4_Elettricità.py')
-        self.assert_ok(at)
-        binary = next(iter(cfg.BINARY_INPUTS))
-        at.session_state[f'electricity_input_{binary}'] = 'Sì'
-        at.checkbox(key='electricity_compare_base').check().run()
-        for meta in cfg.OUTPUTS:
-            at.session_state['elec_section'] = meta['desc']
-            at.run()
-            views = ['Totale annuo', 'Profilo mensile', 'Profilo orario'] if meta.get('extended_layout') else ['Profilo orario']
-            for view in views:
-                with self.subTest(section=meta['desc'], view=view):
-                    if meta.get('extended_layout'):
-                        at.selectbox(key=f"elec_view_{meta['base']}").set_value(view).run()
-                    self.assert_ok(at)
-                    before = metric_values(at)
-                    at.radio(key='ui_language').set_value('en').run()
-                    self.assert_ok(at)
-                    self.assertEqual(at.title[0].value,'Electricity')
-                    self.assertEqual(at.session_state['elec_section'],meta['desc'])
-                    self.assertEqual(at.session_state[f'electricity_input_{binary}'],'Sì')
-                    self.assertEqual(before,metric_values(at))
-                    if meta.get('extended_layout'):
-                        self.assertEqual(at.selectbox(key=f"elec_view_{meta['base']}").value,view)
-                    at.radio(key='ui_language').set_value('it').run()
-
-    def test_exploration_keeps_policy_values_and_ranking(self):
-        import exploratory_config as cfg
-        at = page('5_Analisi_Esplorativa.py')
-        self.assert_ok(at)
-        name=cfg.POLICY_ORDER[0]
-        at.session_state[f'expl_pol_{name}']=cfg.POLICY_GRID[name][-1]
-        at.run()
-        before=at.dataframe[0].value.select_dtypes('number').to_numpy()
-        at.radio(key='ui_language').set_value('en').run()
-        self.assert_ok(at)
-        self.assertEqual(at.session_state[f'expl_pol_{name}'],cfg.POLICY_GRID[name][-1])
-        self.assertEqual(list(at.dataframe[0].value.columns),['Indicator','Unit','P10','Median','P90'])
-        self.assertTrue((before==at.dataframe[0].value.select_dtypes('number').to_numpy()).all())
-        at.session_state['expl_subpage']='Migliori policy mix'
-        at.run()
-        at.slider(key='expl_w_pv_self_coverage').set_value(.7).run()
-        before=at.dataframe[0].value.select_dtypes('number').to_numpy()
-        weights=[s.value for s in at.slider]
-        at.radio(key='ui_language').set_value('it').run()
-        self.assert_ok(at)
-        self.assertEqual(weights,[s.value for s in at.slider])
-        self.assertTrue((before==at.dataframe[0].value.select_dtypes('number').to_numpy()).all())
-        at.radio(key='ui_language').set_value('en').run()
-        self.assert_ok(at)
-        self.assertIn('Cumulative cantonal spending (CHF million)',at.dataframe[0].value.columns)
-
     def test_methodology_all_steps(self):
         at=page('0_Approccio_System_Dynamics.py')
         for step in ['1 · Definizione del problema','2 · Modello qualitativo','3 · Modello quantitativo','4 · Calibrazione']:

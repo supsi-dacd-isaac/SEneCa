@@ -23,10 +23,16 @@ Questo repository è la versione parallela della webapp per il progetto su
 fotovoltaico, veicoli elettrici, pompe di calore, comunità energetiche ed EMS.
 Usa il modello **SURE v8 con EMS** (variante `ems1`, revisione
 `sure-v8-ems-1`): il modello v8 con il modulo dei sistemi di gestione
-dell'energia residenziali. La home contiene solo la pagina Metodologia. Gli
-store delle pagine "Simulazioni SEneCa" sono ancora quelli v8 e vanno
-rigenerati con `python -m sure_julia.python_batch`; build e validazione Julia
-sono da eseguire prima di una release: vedi [Vensim/README.md](Vensim/README.md).
+dell'energia residenziali. La home contiene solo la pagina Metodologia;
+"Simulazioni SEneCa" comprende PV e batterie (con le leve EMS e RCPv),
+Riscaldamento e risanamento, Veicoli e la simulazione in tempo reale. Le pagine
+Elettricità e Analisi esplorativa sono state tolte. Le griglie seguono
+`Input and Output Streamlit EMS.xlsx` (972 + 81 + 144 combinazioni, 871
+simulazioni distinte) e gli store si rigenerano con
+`python -m sure_julia.python_batch`. Il batch Julia (`sure_julia/batch.py`,
+`scripts/verify_production_data.py`) descrive ancora la struttura SURE con
+Elettricità ed esplorativa: va adattato, insieme a build e validazione Julia,
+prima di una release. Vedi [Vensim/README.md](Vensim/README.md).
 
 ## Riconoscimenti
 

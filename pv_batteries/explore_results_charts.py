@@ -187,7 +187,8 @@ Finanzia:
 - il **contributo unico cantonale** sugli impianti PV, residenziali e non;
 - la **rimunerazione dell'elettricità**, attiva dal 2025 e pari all'energia PV
   immessa in rete moltiplicata per il valore scelto nello scenario;
-- l'**incentivo sulle batterie**, residenziali e non residenziali.
+- l'**incentivo sulle batterie**, residenziali e non residenziali;
+- il **contributo per gli EMS** residenziali.
 
 Da questa somma vengono sottratti gli oneri per la centrale a carbone di Lünen.
 La domanda al denominatore è quella **ticinese che transita in rete**, cioè il
@@ -234,7 +235,19 @@ tariffa di rete**, ed è uno dei motivi per cui le curve del prezzo finale diver
 distretti.
 """
 
+EMS_REBATE_EXPLANATION = """
+È la spesa annua del Cantone per il contributo agli **EMS** (sistemi di gestione
+dell'energia) residenziali, in milioni di franchi. Ogni nuovo impianto PV
+residenziale, individuale o in RCPv, valuta se installare anche un EMS; dal 2026
+il contributo copre la quota scelta del costo d'investimento (1'200 CHF per case
+uni- e bifamiliari, 3'000 CHF per edifici plurifamiliari).
+
+La spesa = EMS installati nell'anno × costo d'investimento × quota del contributo.
+Entra nei fondi cantonali e quindi nel **supplemento cantonale** in bolletta.
+"""
+
 EXPLANATIONS = {
+    "ems_rebate": ("Come si calcola questa spesa", EMS_REBATE_EXPLANATION),
     "levy_federal": (
         "Come viene calcolato il supplemento federale in bolletta",
         LEVY_SHARED + LEVY_FEDERAL,

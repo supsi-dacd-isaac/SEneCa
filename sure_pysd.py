@@ -65,11 +65,10 @@ def __getattr__(name):
 
 
 def _collect_results_output_bases() -> list[str]:
-    """Unione OUTPUT_BASES delle pagine Risultati (PV / Risanamento / Veicoli / Elettricità)."""
+    """Unione OUTPUT_BASES delle pagine Risultati (PV / Risanamento / Veicoli)."""
     pvbat = ROOT / "pv_batteries"
     if str(pvbat) not in sys.path:
         sys.path.insert(0, str(pvbat))
-    from elettricita_config import OUTPUT_BASES as elec_bases
     from pv_batteries_config import OUTPUT_BASES as pv_bases
     from risanamento_config import OUTPUT_BASES as ris_bases
     from veicoli_config import OUTPUT_BASES as vei_bases
@@ -80,8 +79,7 @@ def _collect_results_output_bases() -> list[str]:
     ]
     out: list[str] = []
     for name in (
-        list(pv_bases) + list(ris_bases) + list(vei_bases)
-        + list(elec_bases) + extras
+        list(pv_bases) + list(ris_bases) + list(vei_bases) + extras
     ):
         if name not in out:
             out.append(name)

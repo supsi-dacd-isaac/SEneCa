@@ -1,10 +1,11 @@
-"""Regenerate the four result-section stores with the pinned Python oracle.
+"""Regenerate the three result-section stores with the pinned Python oracle.
 
 This is the local (Windows/macOS) counterpart of ``sure_julia.batch`` for the
-"Simulazioni SEneCa" pages only: PV e batterie, Riscaldamento e risanamento,
-Veicoli and Elettricita'. It uses the same scenario grid, Parquet layout,
-GMD definition and physical checks, but runs ``PythonBackend`` processes
-instead of Julia workers. The exploratory policy-mix store is not touched.
+"Simulazioni SEneCa" pages only: PV e batterie, Riscaldamento e risanamento
+and Veicoli. It uses the same Parquet layout, GMD definition and physical
+checks, but runs ``PythonBackend`` processes instead of Julia workers.
+Destinations whose inputs differ only in a lever that the model ignores
+(``INACTIVE_UNLESS`` in the section config) share one simulation.
 A Julia release still requires the gated procedure in docs/julia-production.md.
 
     python -m sure_julia.python_batch runs/ems1-sections --workers 8
@@ -25,15 +26,28 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-from .batch import atomic_parquet, configs, gmd, hourly
+from .batch import atomic_parquet, configs, gmd
 from .catalog import parameters
 from .common import ROOT, MODEL_REVISION, MODEL_VARIANT, digest, dump, identity, model_sources, read
 from .runtime import frame_from_arrays
 
-SECTIONS = ("pv_batteries", "risanamento", "veicoli", "elettricita")
+SECTIONS = ("pv_batteries", "risanamento", "veicoli")
 DESTINATIONS = {"pv_batteries": "pv_batteries_scenarios.parquet", "pv_batteries_gmd": "pv_batteries_gmd.parquet",
                 "risanamento": "risanamento_scenarios.parquet", "risanamento_gmd": "risanamento_gmd.parquet",
-                "veicoli": "veicoli_scenarios.parquet", "elettricita": "elettricita_hourly.parquet"}
+                "veicoli": "veicoli_scenarios.parquet"}
+
+
+def simulated_inputs(cfg, inputs):
+    """Inputs actually sent to the model: ignored levers go back to Base."""
+    result = dict(inputs)
+    for name, switch in getattr(cfg, "INACTIVE_UNLESS", {}).items():
+        if result.get(switch) == 0:
+            result[name] = cfg.BASE_SCENARIO[name]
+    return result
+
+
+def destination_id(job_id, destination):
+    return f"{job_id[:16]}-{identity(destination)[:12]}"
 
 
 def jobs():
@@ -44,12 +58,12 @@ def jobs():
         names = list(dict.fromkeys(list(cfg.OUTPUT_BASES) + list(getattr(cfg, "GMD_VARS", []))))
         for values in itertools.product(*(cfg.INPUT_GRID[n] for n in cfg.INPUT_ORDER)):
             inputs = dict(zip(cfg.INPUT_ORDER, map(float, values)))
-            params = parameters(inputs)
+            params = parameters(simulated_inputs(cfg, inputs))
             key = identity(params)
             job = result.setdefault(key, {"id": key, "parameters": params, "destinations": [], "outputs": []})
             job["destinations"].append({"section": section, "inputs": inputs})
             job["outputs"] = list(dict.fromkeys(job["outputs"] + names))
-    if sum(len(j["destinations"]) for j in result.values()) != 1779:
+    if sum(len(j["destinations"]) for j in result.values()) != 1197:
         raise ValueError("Result-section grid changed; reapprove coverage")
     return list(result.values())
 
@@ -82,20 +96,18 @@ def _execute(job):
     for dest in job["destinations"]:
         section, inputs = dest["section"], dest["inputs"]
         cfg = CONFIGS[section]
-        if section == "elettricita":
-            frame = hourly(arrays, cfg.OUTPUT_BASES, EXPORT)
-        else:
-            frame = frame_from_arrays({n: arrays[n] for n in cfg.OUTPUT_BASES},
-                                      [EXPORT[n] for n in cfg.OUTPUT_BASES]).reset_index()
+        frame = frame_from_arrays({n: arrays[n] for n in cfg.OUTPUT_BASES},
+                                  [EXPORT[n] for n in cfg.OUTPUT_BASES]).reset_index()
         for name, value in inputs.items():
             frame[name] = value
+        part = destination_id(job["id"], dest)
         if getattr(cfg, "GMD_VARS", []):
-            gmd_path = TARGET / "parts" / f"{section}_gmd" / f"{job['id']}.parquet"
+            gmd_path = TARGET / "parts" / f"{section}_gmd" / f"{part}.parquet"
             atomic_parquet(pd.DataFrame([{**inputs, **gmd(arrays, cfg.GMD_SPEC, EXPORT, gmd_audit), "year": 2050}]), gmd_path)
             paths.append(gmd_path)
         if not np.isfinite(frame.select_dtypes(include="number").to_numpy()).all():
             raise ValueError("Nonfinite release data")
-        path = TARGET / "parts" / section / f"{job['id']}.parquet"
+        path = TARGET / "parts" / section / f"{part}.parquet"
         atomic_parquet(frame, path)
         paths.append(path)
     report = {"status": "complete", "parameters": job["parameters"], "destinations": job["destinations"],
@@ -147,8 +159,6 @@ def consolidate(directory, planned):
             for path in files:
                 writer.write_table(pq.read_table(path))
         temp.replace(release / filename)
-    electricity = [d["inputs"] for j in planned for d in j["destinations"] if d["section"] == "elettricita"]
-    atomic_parquet(pd.DataFrame(electricity), release / "elettricita_combo_index.parquet")
     atomic_parquet(pd.DataFrame(provenance), directory / "release/provenance/sections.parquet")
     import pysd
     dump(directory / "release/provenance/sections.json", {
@@ -156,17 +166,17 @@ def consolidate(directory, planned):
         "model_revision": MODEL_REVISION, "sources": model_sources(),
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/sections.parquet"),
-        "sections": list(SECTIONS), "unchanged": ["exploratory_kpis.parquet", "exploratory/uncertainty_samples.parquet"],
+        "sections": list(SECTIONS), "unused": ["elettricita_hourly.parquet", "exploratory_kpis.parquet"],
         "julia_validation": "pending", "native_vensim_equivalent": False})
 
 
 def install(directory):
     """Copy the consolidated section stores over the installed dataset."""
     source = directory / "release/precomputed"
-    for filename in [*DESTINATIONS.values(), "elettricita_combo_index.parquet"]:
+    for filename in DESTINATIONS.values():
         shutil.copy2(source / filename, ROOT / "precomputed" / filename)
     shutil.copy2(directory / "release/provenance/sections.json", ROOT / "provenance/sections.json")
-    print(f"Installed {len(DESTINATIONS) + 1} section stores from {source}")
+    print(f"Installed {len(DESTINATIONS)} section stores from {source}")
 
 
 def main():

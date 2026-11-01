@@ -15,7 +15,6 @@ _ROOT = Path(__file__).resolve().parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from pv_batteries import elettricita_config as elec_cfg  # noqa: E402
 from pv_batteries import pv_batteries_config as pv_cfg  # noqa: E402
 from pv_batteries import risanamento_config as ris_cfg  # noqa: E402
 from pv_batteries import veicoli_config as vei_cfg  # noqa: E402
@@ -27,16 +26,28 @@ LIVE_SLIDER_STEPS = {
     "PV rebate cantonal": 0.01,
     "FiT": 0.001,  # 0.1 ct./kWh in the interface.
     "Battery Rebate": 0.01,
+    "EMS rebate": 0.05,
     "PV rebate federal": 0.01,
+    "Buildings PVno connected to RCPv": 0.1,
     "Grant share HP": 0.01,
-    "Grant share PelletBoiler": 0.01,
-    "Grant share DH": 0.01,
     "Retrofit incentive input": 1.0,
     "CO2 tax": 1.0,
     "EV charger incentive input": 50.0,
     "CO2 coefficient ICE": 0.05,
     "EV annual cost reduction input": 0.001,
     "ICE fuel price input": 0.01,
+}
+
+# Leve tolte dalle pagine ma presenti nel modello: restano fisse ai valori
+# Base storici della webapp (Provvedimento 1.3 vale 1 in SURE.mdl, qui 0).
+FIXED_PARAMETERS = {
+    "PV reg scenario": 1.0,
+    "Grant share PelletBoiler": 0.2,
+    "Grant share DH": 0.2,
+    "Provvedimento 1.2": 0.0,
+    "Provvedimento 1.3": 0.0,
+    "Provvedimento 1.4": 0.0,
+    "Provvedimento 1.7": 0.0,
 }
 
 
@@ -56,6 +67,7 @@ class ExploreInput:
     scale: float = 1.0
     live_step: float | None = None
     control_label: str = ""
+    requires: str | None = None
 
     @property
     def live_values(self) -> list[float]:
@@ -90,18 +102,13 @@ def _inp(cfg, name: str, *, binary: bool = False, choice_labels=None,
         scale=float(m.get("scale", 1) or 1),
         live_step=LIVE_SLIDER_STEPS.get(name),
         control_label=m.get("control_label", lbl),
+        requires=m.get("requires"),
     )
 
 
 def _build_sections() -> list[tuple[str, list[ExploreInput]]]:
-    pv_inputs = [
-        _inp(pv_cfg, "PV rebate cantonal"),
-        _inp(pv_cfg, "FiT"),
-        _inp(pv_cfg, "Battery Rebate"),
-        _inp(pv_cfg, "PV rebate federal"),
-        _inp(pv_cfg, "PV reg scenario", binary=True),
-        _inp(pv_cfg, "Energy Community scenario", binary=True),
-    ]
+    pv_inputs = [_inp(pv_cfg, name, binary=name in pv_cfg.BINARY_INPUTS)
+                 for name in pv_cfg.INPUT_ORDER]
 
     ris_inputs = []
     for name in ris_cfg.INPUT_ORDER:
@@ -115,17 +122,10 @@ def _build_sections() -> list[tuple[str, list[ExploreInput]]]:
 
     vei_inputs = [_inp(vei_cfg, name) for name in vei_cfg.INPUT_ORDER]
 
-    elec_inputs = []
-    for name in elec_cfg.INPUT_ORDER:
-        if name in ("PV rebate cantonal", "FiT", "PV rebate federal"):
-            continue  # già in sezione PV
-        elec_inputs.append(_inp(elec_cfg, name))
-
     return [
         ("1. PV e Batterie", pv_inputs),
         ("2. Riscaldamento e Risanamento", ris_inputs),
         ("3. Veicoli", vei_inputs),
-        ("4. Elettricità", elec_inputs),
     ]
 
 
@@ -142,7 +142,7 @@ def base_ui_values() -> dict[str, float]:
 
 def ui_to_pysd_params(ui: dict[str, float]) -> dict[str, float]:
     """Converte i valori sidebar nei params PySD (nomi Vensim 1:1)."""
-    params: dict[str, float] = {}
+    params: dict[str, float] = dict(FIXED_PARAMETERS)
     for inp in ALL_INPUTS:
         if not inp.supported or inp.pysd_name is None:
             continue
