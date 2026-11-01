@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 FILES = ('Energy cost.out', 'Renovation.out',
          'PV and Battery and HS and HP.out', 'Vehicle.out')
-VARIANT = 'v8'
+VARIANT = 'ems1'
 ASSIGNMENTS = 53
 
 

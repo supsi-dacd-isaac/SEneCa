@@ -1,4 +1,4 @@
-"""Focused v8 dispatch handoff: fixture, Python base/high, native comparison.
+"""Focused ems1 dispatch handoff: fixture, Python base/high, native comparison.
 
 python scripts/check_dispatch.py --prepare
 python scripts/check_dispatch.py --python
@@ -27,8 +27,8 @@ OUTPUTS = [DISPATCH, CAPACITY, DEMAND, BALANCE, UNSERVED,
            'Electricity market price', 'Energy price', 'Electricity price',
            'Annual CO2 emissions']
 YEARS = np.arange(2011, 2051)
-VARIANT = 'v8'
-DEST = ROOT / 'dist/dispatch-check-v8'
+VARIANT = 'ems1'
+DEST = ROOT / 'dist/dispatch-check-ems1'
 
 
 def digest(path):

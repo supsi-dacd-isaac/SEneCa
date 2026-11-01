@@ -7,6 +7,395 @@ NR RU per kW[NR Large]=
 	~	[NR] Power contribution (SURE tables).
 	|
 
+EMS rebate spending=
+	SUM(EMS adoptions archetype[District!,HS!,Performance!,Type!,Battery!]*EMS investment\
+		[Type!])*IF THEN ELSE(Time>=EMS rebate start year, EMS rebate, 0)/1e+06
+	~	Mio CHF
+	~	[EMS] Cantonal spending for the EMS incentive.
+	|
+
+Residential PV self consumption share=
+	ZIDZ(Residential PV self consumption, SUM(Annual PV prod Residential[District!]))
+	~	Dmnl
+	~	[EMS]
+	|
+
+Residential PV self consumption=
+	SUM(PV kWh self consumed[District!,HS!,Performance!,Type!])/1e+06+SUM(EMS self consumption by District\
+		[District!])
+	~	GWh
+	~	[EMS] Self-consumed residential PV production, including the EMS \
+		contribution (building loads and EV charging).
+	|
+
+EMS self consumption total=
+	SUM(EMS self consumption by District[District!])
+	~	GWh
+	~	[EMS] Extra PV self-consumption due to EMS.
+	|
+
+EMS share of PV buildings=
+	ZIDZ(EMS buildings total, Residential PV buildings)
+	~	Dmnl
+	~	[EMS] Share of the residential PV buildings with EMS (stock).
+	|
+
+Residential PV buildings=
+	SUM(PV buildings[District!,HS!,Performance!,Type!])
+	~	building
+	~	[EMS] Residential buildings with PV.
+	|
+
+EMS buildings total=
+	SUM(EMS buildings[District!,Type!,Battery!,HPpresence!])
+	~	building
+	~	[EMS]
+	|
+
+EMS share of new PV EVyes=
+	ZIDZ(SUM(PV adoptions for EMS[District!,HS!,Performance!,Type!,Battery!]*EV building probability\
+		[District!,Type!]*Probability adoption EMS[District!,HS!,Performance!,Type!,Battery\
+		!,EVyes]), SUM(PV adoptions for EMS[District!,HS!,Performance!,Type!,Battery!]*EV building probability\
+		[District!,Type!]))
+	~	Dmnl
+	~	[EMS]
+	|
+
+EMS share of new PV EVno=
+	ZIDZ(SUM(PV adoptions for EMS[District!,HS!,Performance!,Type!,Battery!]*(1-EV building probability\
+		[District!,Type!])*Probability adoption EMS[District!,HS!,Performance!,Type!,Battery\
+		!,EVno]), SUM(PV adoptions for EMS[District!,HS!,Performance!,Type!,Battery!]*(1-EV building probability\
+		[District!,Type!])))
+	~	Dmnl
+	~	[EMS]
+	|
+
+EMS share of new PV=
+	ZIDZ(SUM(EMS adoptions archetype[District!,HS!,Performance!,Type!,Battery!]), SUM(PV adoptions for EMS\
+		[District!,HS!,Performance!,Type!,Battery!]))
+	~	Dmnl
+	~	[EMS] Share of new residential PV installations with EMS (target for Alpha \
+		EMS in 2025).
+	|
+
+EMS self consumption by District[District]=
+	SUM(EMS kWh self consumed[District,Type!,Battery!,HPpresence!])/1e+06
+	~	GWh
+	~	[EMS]
+	|
+
+EMS kWh self consumed[District,Type,Battery,HPpresence]= INTEG(
+	EMS kWh added[District,Type,Battery,HPpresence]-EMS kWh self consumed[District,Type,\
+		Battery,HPpresence]*EMS removal rate[District,Type,HPpresence],
+	0)
+	~	kWh/year
+	~	[EMS] Extra PV self-consumption of the buildings with EMS (building loads \
+		and EV charging).
+	|
+
+EMS buildings[District,Type,Battery,HPpresence]= INTEG(
+	EMS adoptions[District,Type,Battery,HPpresence]-EMS buildings[District,Type,Battery,\
+		HPpresence]*EMS removal rate[District,Type,HPpresence],
+	0)
+	~	building
+	~	[EMS] Buildings with EMS (replaced at end of life).
+	|
+
+EMS removal rate[District,Type,HPyes]=
+	ZIDZ(SUM(PV removal fraction[District,HS!,Performance!,Type]*PV buildings[District,HS\
+		!,Performance!,Type]*HS heat pump flag[HS!]), SUM(PV buildings[District,HS!,Performance\
+		!,Type]*HS heat pump flag[HS!])) ~~|
+EMS removal rate[District,Type,HPno]=
+	ZIDZ(SUM(PV removal fraction[District,HS!,Performance!,Type]*PV buildings[District,HS\
+		!,Performance!,Type]*(1-HS heat pump flag[HS!])), SUM(PV buildings[District,HS!,Performance\
+		!,Type]*(1-HS heat pump flag[HS!])))
+	~	1/year
+	~	[EMS] Demolition rate of the PV buildings of the cell.
+	|
+
+EMS kWh added[District,Type,Battery,HPyes]=
+	SUM(EMS kWh added archetype[District,HS!,Performance!,Type,Battery]*HS heat pump flag\
+		[HS!]) ~~|
+EMS kWh added[District,Type,Battery,HPno]=
+	SUM(EMS kWh added archetype[District,HS!,Performance!,Type,Battery]*(1-HS heat pump flag\
+		[HS!]))
+	~	kWh/year
+	~	[EMS]
+	|
+
+EMS adoptions[District,Type,Battery,HPyes]=
+	SUM(EMS adoptions archetype[District,HS!,Performance!,Type,Battery]*HS heat pump flag\
+		[HS!]) ~~|
+EMS adoptions[District,Type,Battery,HPno]=
+	SUM(EMS adoptions archetype[District,HS!,Performance!,Type,Battery]*(1-HS heat pump flag\
+		[HS!]))
+	~	building/year
+	~	[EMS]
+	|
+
+EMS kWh added archetype[District,HS,Performance,Type,Battery]=
+	PV adoptions for EMS[District,HS,Performance,Type,Battery]*((1-EV building probability\
+		[District,Type])*Probability adoption EMS[District,HS,Performance,Type,Battery,EVno\
+		]*EMS delta kWh[District,HS,Performance,Type,Battery,EVno]+EV building probability[\
+		District,Type]*Probability adoption EMS[District,HS,Performance,Type,Battery,EVyes]\
+		*EMS delta kWh[District,HS,Performance,Type,Battery,EVyes])
+	~	kWh/year
+	~	[EMS] Extra self-consumed kWh of the new EMS, fixed at adoption.
+	|
+
+EMS adoptions archetype[District,HS,Performance,Type,Battery]=
+	PV adoptions for EMS[District,HS,Performance,Type,Battery]*((1-EV building probability\
+		[District,Type])*Probability adoption EMS[District,HS,Performance,Type,Battery,EVno\
+		]+EV building probability[District,Type]*Probability adoption EMS[District,HS,Performance\
+		,Type,Battery,EVyes])
+	~	building/year
+	~	[EMS] Sum of the two evaluations.
+	|
+
+PV adoptions for EMS[District,HS,Performance,Type,Battery]=
+	PV adoptions by archetype[District,HS,Performance,Type,Battery]+RCPv adoptions by archetype\
+		[District,HS,Performance,Type,Battery]
+	~	building/year
+	~	[EMS] Residential PV adoptions (individual and RCPv); RCPv valued with the \
+		building PV values (simplification).
+	|
+
+Probability adoption EMS[District,HS,Performance,Type,Battery,EVstatus]=
+	IF THEN ELSE(Time<EMS start year, 0, 1/(1+EXP(MIN(50, -Utility EMS[District,HS,Performance\
+		,Type,Battery,EVstatus]))))
+	~	Dmnl
+	~	[EMS] Exponent limited to avoid overflow when the net investment tends to \
+		zero (rebate close to 100%).
+	|
+
+Utility EMS[District,HS,Performance,Type,Battery,EVstatus]=
+	Alpha EMS+EMS alpha type[Type]+Alpha battery District[District]+PV Eco weight*EMS economic utility\
+		[District,HS,Performance,Type,Battery,EVstatus]
+	~	Dmnl
+	~	[EMS] Beta of PV and batteries.
+	|
+
+EMS alpha type[SFH]=
+	Alpha battery Type[SFH] ~~|
+EMS alpha type[DFH]=
+	Alpha battery Type[SFH] ~~|
+EMS alpha type[MFH]=
+	Alpha battery Type[MFH]
+	~	Dmnl
+	~	[EMS] Battery alphas by type (DFH as SFH, as in Utility battery).
+	|
+
+EMS target share 2025=
+	0.3
+	~	Dmnl
+	~	[EMS] Assumed share of new residential PV installations with EMS in 2025 \
+		(reference 0.3); used only by ems_alpha.py.
+	|
+
+Alpha EMS=
+	0.5078
+	~	Dmnl
+	~	[EMS] Intercept fixed so that EMS target share 2025 of the new residential \
+		PV installations have an EMS (ems_alpha.py).
+	|
+
+EMS economic utility[District,HS,Performance,Type,Battery,EVstatus]=
+	(EMS total savings[District,HS,Performance,Type,Battery,EVstatus]-EMS net investment\
+		[Type])/MAX(1, EMS net investment[Type])/EMS lifetime*100
+	~	Dmnl
+	~	[EMS] Same metric as PV and batteries.
+	|
+
+EMS total savings[District,HS,Performance,Type,Battery,EVstatus]=
+	(EMS delta kWh[District,HS,Performance,Type,Battery,EVstatus]*(Electricity price[District\
+		]-Exp expected export price)-EMS annual cost[Type])*(1-(1+Interest rate)^(-EMS lifetime\
+		))/Interest rate
+	~	CHF
+	~	[EMS] Discounted net savings over the EMS lifetime (as Battery total \
+		savings).
+	|
+
+EMS net investment[Type]=
+	EMS investment[Type]*(1-IF THEN ELSE(Time>=EMS rebate start year, EMS rebate, 0))
+	~	CHF/building
+	~	[EMS]
+	|
+
+EMS rebate start year=
+	2026
+	~	year
+	~	[EMS] First year of the EMS incentive (after the calibration year 2025).
+	|
+
+EMS rebate=
+	0
+	~	Dmnl
+	~	[EMS] Lever: share of the EMS investment paid by an incentive, from EMS \
+		rebate start year (slider in Results, 0-0.75).
+	|
+
+EMS lifetime=
+	12
+	~	year
+	~	[EMS] Assumption (battery lifetime in CSEM 2019: 13 years).
+	|
+
+EMS annual cost[Type]=
+	50, 50, 100
+	~	CHF/year
+	~	[EMS] Subscription and service (Solar Manager 44/66 CHF per year; MFH \
+		assumption).
+	|
+
+EMS investment[Type]=
+	1200, 1200, 3000
+	~	CHF/building
+	~	[EMS] Hardware and installation: SFH/DFH consumer EMS (Solar Manager, \
+		digitalSTROM 600-1100 CHF + installation); MFH robust system with MID \
+		meters (assumption).
+	|
+
+EMS delta kWh[District,HS,Performance,Type,Battery,EVno]=
+	EMS delta kWh home[District,HS,Performance,Type,Battery] ~~|
+EMS delta kWh[District,HS,Performance,Type,Battery,EVyes]=
+	EMS delta kWh home[District,HS,Performance,Type,Battery]+EMS delta kWh EV[District,HS\
+		,Performance,Type,Battery]
+	~	kWh/year
+	~	[EMS]
+	|
+
+EMS delta kWh EV[District,HS,Performance,Type,Battery]=
+	MIN(EMS EV shift share*EV charging per EV building[District,Type], MAX(0, EMS PV surplus\
+		[District,HS,Performance,Type,Battery]-EMS delta kWh home[District,HS,Performance,Type\
+		,Battery]))
+	~	kWh/year
+	~	[EMS] Extra self-consumption from EV charging moved to PV hours, limited \
+		by the remaining PV surplus.
+	|
+
+EV charging per EV building[District,Type]=
+	ZIDZ(EV home charging per EV[District]*EV household share[District]*EV home charging access\
+		[Type]*Dwellings per building[District,Type], EV building probability[District,Type\
+		])
+	~	kWh/year
+	~	[EMS] Expected home charging of a building with at least one EV.
+	|
+
+EV building probability[District,Type]=
+	1-(1-EV household share[District]*EV home charging access[Type])^Dwellings per building\
+		[District,Type]
+	~	Dmnl
+	~	[EMS] Probability that a building has at least one EV charging at home.
+	|
+
+EV home charging access[Type]=
+	1, 1, 1
+	~	Dmnl
+	~	[EMS] Share of EV households that can charge at home (no data: 1; probably \
+		lower in MFH, sensitivity).
+	|
+
+EV home charging per EV[District]=
+	ZIDZ(Vehicle[District,BEV]*Annual electricity charged at home EV[BEV]+Vehicle[District\
+		,DieselPHEV]*Annual electricity charged at home EV[DieselPHEV]+Vehicle[District,PetrolPHEV\
+		]*Annual electricity charged at home EV[PetrolPHEV], Vehicle[District,BEV]+Vehicle[\
+		District,DieselPHEV]+Vehicle[District,PetrolPHEV])
+	~	kWh/year
+	~	[EMS] Electricity charged at home per plug-in vehicle (vehicle module).
+	|
+
+EV household share[District]=
+	ZIDZ(Vehicle[District,BEV]+Vehicle[District,DieselPHEV]+Vehicle[District,PetrolPHEV]\
+		, SUM(Vehicle[District,Vechicle!]))
+	~	Dmnl
+	~	[EMS] Share of plug-in vehicles in the district fleet, used as probability \
+		that a dwelling has an EV (PV owners assumed as the average).
+	|
+
+EMS delta kWh home[District,HS,Performance,Type,Battery]=
+	EMS phi archetype[HS,Battery]*EMS PV surplus[District,HS,Performance,Type,Battery]
+	~	kWh/year
+	~	[EMS] Extra self-consumption of the building loads (heat pump, boiler, \
+		appliances).
+	|
+
+EMS PV surplus[District,HS,Performance,Type,Byes]=
+	MAX(0, Battery generation[District,HS,Performance,Type]-Battery direct use[District,\
+		HS,Performance,Type]-Battery charging[District,HS,Performance,Type]) ~~|
+EMS PV surplus[District,HS,Performance,Type,Bno]=
+	MAX(0, Battery generation[District,HS,Performance,Type]-Battery direct use[District,\
+		HS,Performance,Type])
+	~	kWh/year
+	~	[EMS] PV production not self-consumed without EMS (exported) per building.
+	|
+
+EMS EV shift share=
+	IF THEN ELSE(EMS high benefit>0.5, 0.6, 0.3)
+	~	Dmnl
+	~	[EMS] Share of the home EV charging moved to PV hours by the EMS (high: \
+		Gnann & Yu 2025, about +30 pp with EV for 5 kWp; central: half).
+	|
+
+EMS phi archetype[HS,Battery]=
+	HS heat pump flag[HS]*EMS phi[HPyes,Battery]+(1-HS heat pump flag[HS])*EMS phi[HPno,\
+		Battery]
+	~	Dmnl
+	~	[EMS]
+	|
+
+EMS phi[HPpresence,Battery]=
+	IF THEN ELSE(EMS high benefit>0.5, EMS phi high[HPpresence,Battery], EMS phi central\
+		[HPpresence,Battery])
+	~	Dmnl
+	~	[EMS]
+	|
+
+EMS phi high[HPpresence,Battery]=
+	0.08, 0.15; 0.04, 0.07;
+	~	Dmnl
+	~	[EMS] Same with optimized control: CSEM 2019 (optimal heat pump control), \
+		EnergieSchweiz 2020 (up to +15 pp), Gnann & Yu 2025.
+	|
+
+EMS phi central[HPpresence,Battery]=
+	0.03, 0.06; 0.02, 0.03;
+	~	Dmnl
+	~	[EMS] Share of the PV surplus self-consumed thanks to a commercial EMS \
+		(rows HPyes/HPno, columns Byes/Bno): CSEM 2019, EnergieSchweiz 2020, \
+		Mascherbauer et al. 2022.
+	|
+
+HS heat pump flag[HS]=
+	0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0
+	~	Dmnl
+	~	[EMS] 1 for HPST and HeatPump.
+	|
+
+EMS high benefit=
+	0
+	~	Dmnl
+	~	[EMS] 0 = commercial EMS (central values), 1 = optimized EMS (sensitivity).
+	|
+
+EMS start year=
+	2015
+	~	year
+	~	[EMS] First year in which EMS are offered with residential PV (SG-Ready \
+		heat pumps and PV-controlled EV chargers).
+	|
+
+HPpresence:
+	HPyes, HPno
+	~	
+	~	[EMS] Heating with heat pump (HeatPump, HPST) or with other systems.
+	|
+
+EVstatus:
+	EVno, EVyes
+	~	
+	~	[EMS] Building without / with an EV charging at home.
+	|
+
 RoCH federal RUG=
 	SUM(Rebate interpolation weight[Rebate point!]*RoCH federal RUG data[Rebate point!])
 	~	Mio CHF
@@ -3990,7 +4379,7 @@ Flow adoptions DH from HS by archetype[District,HS,Performance,Type,PVpanel]=
 PV electricity SC by District[District]=
 	( SUM(PV kWh self consumed[District,HS!,Performance!,Type!]) + "Total PV kWh self consumed < 30"\
 		[District] + "Total PV kWh self consumed 30 - 100 kW"[District] + "Total PV kWh self consumed > 100 kW"\
-		[District] ) / 1e+06
+		[District] ) / 1e+06 + EMS self consumption by District[District]
 	~	GWh
 	~		|
 
@@ -6369,7 +6758,7 @@ Annual Battery cost reduction=
 
 Annual Total Cantonal Subsidy=
 	Annual incentives RIC TI + Annual Cantonal subsidy CU + Annual incentives Cantonal FiT\
-		 + Annual incentive battery
+		+ Annual incentive battery + EMS rebate spending
 	~	Mio CHF
 	~		|
 
@@ -14424,7 +14813,7 @@ Tech:
 		Simulation Control Parameters
 	|
 
-FINAL TIME  = 2025
+FINAL TIME  = 2050
 	~	year
 	~	The final time for the simulation.
 	|
@@ -20786,84 +21175,84 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,15,0
 V300  Do not put anything below this section - it will be ignored
 *Calibration
 $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
-10,1,Utility HS,471,724,43,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,2,Heating Solution,1089,1001,45,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,3,Vehicle,1011,1528,45,13,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,4,Vehicles by type,1177,1534,59,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,1,Utility HS,-831,140,43,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,2,Heating Solution,-213,417,45,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,3,Vehicle,-291,944,45,13,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,4,Vehicles by type,-125,950,59,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,5,3,4,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,6,BEV vehicles,1341,1324,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,7,HEV vehicles,1341,1434,57,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,8,Diesel vehicles,1341,1537,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,9,Petrol vehicles,1341,1653,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,10,PHEV vehicles,1341,1786,63,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,6,BEV vehicles,39,740,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,7,HEV vehicles,39,850,57,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,8,Diesel vehicles,39,953,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,9,Petrol vehicles,39,1069,43,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,10,PHEV vehicles,39,1202,63,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,11,4,6,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,12,4,7,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,13,4,8,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,14,4,9,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,15,4,10,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,16,Heating Solution,-1149,1367,35,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,17,HeatPumps,1591,504,60,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,18,Heating Solution,591,3655,35,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,16,Heating Solution,-2451,783,35,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,17,HeatPumps,289,-80,60,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,18,Heating Solution,-711,3071,35,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,19,18,17,0,1,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,20,Heating Solution,1405,436,49,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,20,Heating Solution,103,-148,49,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,21,20,17,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,22,Utility HS,2020,864,42,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,23,Average Utility by HS,2241,867,63,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,22,Utility HS,718,280,42,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,23,Average Utility by HS,939,283,63,23,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,24,22,23,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,25,Probability adoption PV Owners,1979,1286,51,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,26,Share of buildings with suitable roof,1979,1286,71,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,27,Share of buildings with suitable roof,1979,1430,71,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,28,Economic Utility HS,2020,981,54,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,29,Average Economic Utility HS,2241,979,80,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,25,Probability adoption PV Owners,677,702,51,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,26,Share of buildings with suitable roof,677,702,71,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,27,Share of buildings with suitable roof,677,846,71,18,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,28,Economic Utility HS,718,397,54,22,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,29,Average Economic Utility HS,939,395,80,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,30,28,29,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,31,Share of buildings with HP by District,1316,1184,90,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,31,Share of buildings with HP by District,14,600,90,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,32,2,31,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,33,Share of buildings with PV by District,1315,1062,89,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,33,Share of buildings with PV by District,13,478,89,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,34,2,33,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,35,HeatPumps by District,1767,613,58,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,35,HeatPumps by District,465,29,58,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,36,17,35,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,37,EV by district,1010,1653,42,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,37,EV by district,-292,1069,42,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,38,3,37,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,39,Adoption PV District,3459,1232,54,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,40,Adoption PV District Data,3467,1359,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,41,Probability of Adoption PV District,3734,1234,66,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,42,Buildings district,3994,1233,45,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,43,PV District Log Likelihood,3732,1359,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,39,Adoption PV District,2157,648,54,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,40,Adoption PV District Data,2165,775,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,41,Probability of Adoption PV District,2432,650,66,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,42,Buildings district,2692,649,45,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,43,PV District Log Likelihood,2430,775,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,44,39,41,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,45,42,41,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,46,41,43,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,47,42,43,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,48,40,43,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,49,Adoption PV Performance,3466,1456,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,50,Adoption PV Performance Data,3474,1583,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,51,Probability of Adoption PV Performance,3741,1458,83,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,52,Buildings Performance,4001,1457,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,53,PV Performance Log Likelihood,3739,1583,82,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,49,Adoption PV Performance,2164,872,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,50,Adoption PV Performance Data,2172,999,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,51,Probability of Adoption PV Performance,2439,874,83,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,52,Buildings Performance,2699,873,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,53,PV Performance Log Likelihood,2437,999,82,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,54,49,51,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,55,52,51,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,56,51,53,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,57,52,53,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,58,50,53,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,59,Adoption PV Type,3482,1698,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,60,Adoption PV Type Data,3490,1825,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,61,Probability of Adoption PV Type,3757,1700,66,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,62,Buildings Type,4017,1699,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,63,PV Type Log Likelihood,3755,1825,82,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,59,Adoption PV Type,2180,1114,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,60,Adoption PV Type Data,2188,1241,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,61,Probability of Adoption PV Type,2455,1116,66,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,62,Buildings Type,2715,1115,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,63,PV Type Log Likelihood,2453,1241,82,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,64,59,61,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,65,62,61,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,66,61,63,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,67,62,63,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,68,60,63,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,69,Consumers adopting PV yes,4207,1278,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,70,Buildings HS Renovation To,4208,1141,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,71,Buildings adopting HS,4210,1003,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,72,Adoption HP District,4545,938,55,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,73,Adoption noHP District Data,4553,1076,76,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,74,Adoption HP District Data,4553,1196,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,75,Average MS HP District,4796,942,62,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,76,Adoption Heating Solution Distirct,5033,940,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,77,Average MS noHP District,5035,1094,66,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,78,HP District Log Likelihood,4798,1196,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,69,Consumers adopting PV yes,2905,694,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,70,Buildings HS Renovation To,2906,557,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,71,Buildings adopting HS,2908,419,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,72,Adoption HP District,3243,354,55,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,73,Adoption noHP District Data,3251,492,76,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,74,Adoption HP District Data,3251,612,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,75,Average MS HP District,3494,358,62,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,76,Adoption Heating Solution Distirct,3731,356,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,77,Average MS noHP District,3733,510,66,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,78,HP District Log Likelihood,3496,612,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,79,72,75,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,80,76,75,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,81,76,77,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -20877,19 +21266,19 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,89,71,72,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,90,70,72,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,91,69,72,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,92,Consumers adopting PV yes,5441,1273,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,93,Buildings HS Renovation To,5442,1136,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,94,Buildings adopting HS,5444,998,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,92,Consumers adopting PV yes,4139,689,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,93,Buildings HS Renovation To,4140,552,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,94,Buildings adopting HS,4142,414,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,95,94,76,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,96,93,76,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,97,92,76,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,98,Adoption HP Performance,4545,1323,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,99,Adoption noHP Performance Data,4553,1461,76,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,100,Adoption HP Performance Data,4553,1581,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,101,Average MS HP Performance,4796,1327,81,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,102,Adoption Heating Solution Performance,5033,1325,85,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,103,Average MS noHP Performance,5035,1479,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,104,HP Performance Log Likelihood,4798,1581,83,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,98,Adoption HP Performance,3243,739,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,99,Adoption noHP Performance Data,3251,877,76,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,100,Adoption HP Performance Data,3251,997,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,101,Average MS HP Performance,3494,743,81,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,102,Adoption Heating Solution Performance,3731,741,85,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,103,Average MS noHP Performance,3733,895,64,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,104,HP Performance Log Likelihood,3496,997,83,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,105,98,101,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,106,102,101,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,107,102,103,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -20906,13 +21295,13 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,118,94,102,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,119,93,102,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,120,92,102,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,121,Adoption HP Type,4564,1716,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,122,Adoption noHP Type Data,4572,1854,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,123,Adoption HP Type Data,4572,1974,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,124,Average MS HP Type,4815,1720,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,125,Adoption Heating Solution Type,5052,1718,91,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,126,Average MS noHP Type,5054,1872,78,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,127,HP Type Log Likelihood,4817,1974,70,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,121,Adoption HP Type,3262,1132,62,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,122,Adoption noHP Type Data,3270,1270,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,123,Adoption HP Type Data,3270,1390,84,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,124,Average MS HP Type,3513,1136,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,125,Adoption Heating Solution Type,3750,1134,91,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,126,Average MS noHP Type,3752,1288,78,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,127,HP Type Log Likelihood,3515,1390,70,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,128,121,124,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,129,125,124,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,130,125,126,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -20929,53 +21318,53 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,141,94,125,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,142,93,125,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,143,92,125,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,144,Heating Solution,3088,128,47,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,145,Buildings by HS,3330,128,59,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,144,Heating Solution,1786,-456,47,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,145,Buildings by HS,2028,-456,59,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,146,144,145,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,147,HeatPumps by Type,1583,614,58,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,148,HeatPumps by Performance,1378,608,73,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,147,HeatPumps by Type,281,30,58,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,148,HeatPumps by Performance,76,24,73,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,149,17,148,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,150,17,147,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,151,Adoption Heating Solutions Data,3124,421,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,152,Adoption Heating Solution,3677,263,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,153,Average MS by HS,3401,264,52,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,154,HS Log Likelihood,3405,420,50,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,155,Consumers adopting PV yes,3950,395,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,156,Buildings HS Renovation To,3951,258,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,157,Buildings adopting HS,3953,120,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,151,Adoption Heating Solutions Data,1822,-163,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,152,Adoption Heating Solution,2375,-321,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,153,Average MS by HS,2099,-320,52,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,154,HS Log Likelihood,2103,-164,50,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,155,Consumers adopting PV yes,2648,-189,74,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,156,Buildings HS Renovation To,2649,-326,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,157,Buildings adopting HS,2651,-464,58,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,158,157,152,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,159,156,152,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,160,155,152,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,161,152,153,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,162,153,154,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,163,151,154,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,164,Adoption PV HeatPump,3475,688,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,165,Adoption PV HeatPump Data,3483,815,79,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,166,Probability of Adoption PV HeatPump,3750,690,83,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,167,Buildings HeatPump,4010,689,53,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,168,PV HeatPump Log Likelihood,3748,815,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,164,Adoption PV HeatPump,2173,104,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,165,Adoption PV HeatPump Data,2181,231,79,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,166,Probability of Adoption PV HeatPump,2448,106,83,31,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,167,Buildings HeatPump,2708,105,53,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,168,PV HeatPump Log Likelihood,2446,231,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,169,164,166,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,170,167,166,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,171,166,168,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,172,167,168,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,173,165,168,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,174,Adoption PV no HeatPump,3460,962,68,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,175,Adoption PV no HeatPump Data,3468,1089,79,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,176,Probability of Adoption PV no HeatPump,3735,964,78,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,177,Buildings no HeatPump,3995,963,60,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,178,PV no HeatPump Log Likelihood,3733,1089,86,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,174,Adoption PV no HeatPump,2158,378,68,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,175,Adoption PV no HeatPump Data,2166,505,79,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,176,Probability of Adoption PV no HeatPump,2433,380,78,39,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,177,Buildings no HeatPump,2693,379,60,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,178,PV no HeatPump Log Likelihood,2431,505,86,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,179,174,176,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,180,177,176,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,181,176,178,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,182,177,178,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,183,175,178,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,184,Adoption HP PVpanel,4543,519,61,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,185,Adoption noHP PVpanel Data,4551,657,76,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,186,Adoption HP PVpanel Data,4551,777,68,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,187,Average MS HP PVpanel,4794,523,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,188,Adoption Heating Solution PVpanel,5031,521,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,189,Average MS noHP PVpanel,5033,675,73,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,190,HP PVpanel Log Likelihood,4796,777,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,184,Adoption HP PVpanel,3241,-65,61,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,185,Adoption noHP PVpanel Data,3249,73,76,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,186,Adoption HP PVpanel Data,3249,193,68,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,187,Average MS HP PVpanel,3492,-61,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,188,Adoption Heating Solution PVpanel,3729,-63,85,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,189,Average MS noHP PVpanel,3731,91,73,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,190,HP PVpanel Log Likelihood,3494,193,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,191,184,187,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,192,188,187,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,193,188,189,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -20992,41 +21381,41 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,204,94,188,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,205,93,188,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,206,92,188,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,207,Time,3605,468,33,12,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,207,Time,2303,-116,33,12,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,208,207,154,0,1,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,209,Adoption Vehicles Data,2184,405,72,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,210,Adoption Vehicles,2636,270,72,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,211,Average MS by Vehicle,2402,273,65,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,212,Vehicles Log Likelihood,2401,405,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,209,Adoption Vehicles Data,882,-179,72,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,210,Adoption Vehicles,1334,-314,72,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,211,Average MS by Vehicle,1100,-311,65,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,212,Vehicles Log Likelihood,1099,-179,64,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,213,210,211,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,214,211,212,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,215,209,212,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,216,Consumers acquiring vehicle,2894,268,77,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,216,Consumers acquiring vehicle,1592,-316,77,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,217,216,210,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,218,Adoption Vehicles District,2659,565,53,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,219,Adoption Vehicles District Data,2193,700,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,220,Average MS Vehicle District,2413,567,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,221,Vehicle District Log Likelihood,2412,705,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,218,Adoption Vehicles District,1357,-19,53,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,219,Adoption Vehicles District Data,891,116,63,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,220,Average MS Vehicle District,1111,-17,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,221,Vehicle District Log Likelihood,1110,121,72,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,222,218,220,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,223,219,221,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,224,220,221,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,225,Consumers acquiring vehicle,2922,565,87,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,225,Consumers acquiring vehicle,1620,-19,87,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,226,225,218,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,227,Building construction by archetype,3109,950,64,31,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,227,Building construction by archetype,1807,366,64,31,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,228,227,39,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,229,227,49,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,230,227,59,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,231,Heating Solution,3109,810,47,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,231,Heating Solution,1807,226,47,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,232,231,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,233,231,174,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,234,227,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,235,227,174,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,236,Owners adopting PV,3109,1081,51,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,237,Renters adopting PV,3109,1199,51,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,238,Owners adopting RCP,3109,1317,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,239,Renters adopting RCP,3109,1435,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,240,Owners adopting RCPv,3109,1553,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,241,Renters adopting RCPv,3109,1671,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,236,Owners adopting PV,1807,497,51,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,237,Renters adopting PV,1807,615,51,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,238,Owners adopting RCP,1807,733,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,239,Renters adopting RCP,1807,851,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,240,Owners adopting RCPv,1807,969,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,241,Renters adopting RCPv,1807,1087,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,242,236,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,243,237,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,244,238,164,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -21057,101 +21446,101 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,269,239,59,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,270,240,59,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,271,241,59,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,272,Economic Utility HS no incentives,2020,1096,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,273,Average Economic Utility HS no incentives,2241,1097,60,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,272,Economic Utility HS no incentives,718,512,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,273,Average Economic Utility HS no incentives,939,513,60,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,274,272,273,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,275,Buildings with PV by District,1334,857,50,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,275,Buildings with PV by District,32,273,50,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,276,2,275,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,277,Buildings with PV Type,1339,767,64,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,277,Buildings with PV Type,37,183,64,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,278,2,277,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,279,Adoption Battery Type,1967,1286,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,280,Adoption Battery Type Data,1975,1413,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,281,Probability of Adoption Battery Type,2242,1288,74,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,282,Buildings PV Bno Type,2500,1287,50,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,283,Battery Type Log Likelihood,2240,1413,61,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,279,Adoption Battery Type,665,702,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,280,Adoption Battery Type Data,673,829,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,281,Probability of Adoption Battery Type,940,704,74,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,282,Buildings PV Bno Type,1198,703,50,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,283,Battery Type Log Likelihood,938,829,61,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,284,279,281,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,285,282,281,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,286,281,283,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,287,282,283,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,288,280,283,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,289,Consumers adopting PV yes with battery,1717,1420,77,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,289,Consumers adopting PV yes with battery,415,836,77,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,290,289,279,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,291,Adoption Battery District,1973,1559,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,292,Adoption Battery District Data,1981,1686,61,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,293,Probability of Adoption Battery District,2244,1573,61,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,294,Buildings PV Bno District,2506,1560,48,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,295,Battery District Log Likelihood,2246,1686,62,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,291,Adoption Battery District,671,975,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,292,Adoption Battery District Data,679,1102,61,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,293,Probability of Adoption Battery District,942,989,61,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,294,Buildings PV Bno District,1204,976,48,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,295,Battery District Log Likelihood,944,1102,62,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,296,291,293,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,297,294,293,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,298,293,295,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,299,294,295,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,300,292,295,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,301,289,291,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,302,Consumers adopting RCPv yes with battery,1722,1286,84,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,303,Buildings construction with battery,1714,1559,60,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,302,Consumers adopting RCPv yes with battery,420,702,84,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,303,Buildings construction with battery,412,975,60,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,304,302,279,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,305,303,279,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,306,302,291,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,307,303,291,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,308,Total cumulative buildings by Type and PV,2040,-733,61,35,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
-12,309,48,2341,-745,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
-1,310,312,309,100,0,0,22,0,192,0,-1--1--1,,1|(2278,-745)|
-1,311,312,308,4,0,0,22,0,192,0,-1--1--1,,1|(2157,-745)|
-11,312,0,2220,-745,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
-10,313,Annual buildings by Arch,2220,-715,59,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,314,Dwellings per building,2445,-711,55,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,308,Total cumulative buildings by Type and PV,738,-1317,61,35,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,309,48,1039,-1329,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,310,312,309,100,0,0,22,0,192,0,-1--1--1,,1|(976,-1329)|
+1,311,312,308,4,0,0,22,0,192,0,-1--1--1,,1|(855,-1329)|
+11,312,0,918,-1329,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,313,Annual buildings by Arch,918,-1299,59,22,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,314,Dwellings per building,1143,-1295,55,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,315,314,313,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,316,Heating Solution,2168,-570,35,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,316,Heating Solution,866,-1154,35,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,317,316,313,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,318,Share primary houses,2045,-567,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,318,Share primary houses,743,-1151,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,319,318,313,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,320,Total cumulative cost Federal Levy by arch,1539,-340,59,38,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
-12,321,48,1874,-338,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
-1,322,324,321,100,0,0,22,0,192,0,-1--1--1,,1|(1812,-338)|
-1,323,324,320,4,0,0,22,0,192,0,-1--1--1,,1|(1673,-338)|
-11,324,0,1755,-338,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
-10,325,Annual cost Federal Levy by arch,1755,-301,57,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,326,El consumption per building,2103,-477,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,320,Total cumulative cost Federal Levy by arch,237,-924,59,38,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,321,48,572,-922,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,322,324,321,100,0,0,22,0,192,0,-1--1--1,,1|(510,-922)|
+1,323,324,320,4,0,0,22,0,192,0,-1--1--1,,1|(371,-922)|
+11,324,0,453,-922,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,325,Annual cost Federal Levy by arch,453,-885,57,29,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,326,El consumption per building,801,-1061,61,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,327,326,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,328,Owned buildings with RCPv PVno,2103,-342,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,328,Owned buildings with RCPv PVno,801,-926,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,329,328,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,330,PV annual generation per building RCPv,2103,-129,57,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,330,PV annual generation per building RCPv,801,-713,57,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,331,330,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,332,Rented buildings with RCPv PVno,2103,-409,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,332,Rented buildings with RCPv PVno,801,-993,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,333,332,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,334,Self consumption degree RCPv,2103,-274,68,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,334,Self consumption degree RCPv,801,-858,68,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,335,334,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,336,316,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,337,318,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,338,Levy Evolution,1754,-171,45,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,338,Levy Evolution,452,-755,45,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,339,338,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,340,PV annual generation per building,2103,24,54,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,340,PV annual generation per building,801,-560,54,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,341,340,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,342,Self consumption degree,2103,-206,68,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,342,Self consumption degree,801,-790,68,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,343,342,325,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,344,Time,1726,26,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,344,Time,424,-558,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,345,344,325,0,1,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,346,Buildings RCPv by archetype,2103,-53,62,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,346,Buildings RCPv by archetype,801,-637,62,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,347,346,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,348,Self consumption degree with Storage,2103,187,79,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,349,Self consumption degree with Storage RCPv,2103,110,74,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,348,Self consumption degree with Storage,801,-397,79,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,349,Self consumption degree with Storage RCPv,801,-474,74,27,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,350,348,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,351,349,325,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,352,Cumulative cost Federal Levy by Type and PV,1542,-464,57,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,352,Cumulative cost Federal Levy by Type and PV,240,-1048,57,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,353,320,352,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,354,Average annual Federal Levy cost by Type and PV,1546,-575,74,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,354,Average annual Federal Levy cost by Type and PV,244,-1159,74,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,355,352,354,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,356,308,354,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,357,Average annual Federal Levy cost by Type,1354,-580,56,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,357,Average annual Federal Levy cost by Type,52,-1164,56,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,358,352,357,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,359,308,357,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,360,Total cumulative cost Cantonal Levy by arch,2635,-337,59,38,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
-12,361,48,2290,-340,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
-1,362,364,361,100,0,0,22,0,192,0,-1--1--1,,1|(2368,-340)|
-1,363,364,360,4,0,0,22,0,192,0,-1--1--1,,1|(2512,-340)|
-11,364,0,2442,-340,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
-10,365,Annual cost Cantonal Levy by arch,2442,-314,73,18,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,366,Cantonal Levy Evolution,2439,-194,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,360,Total cumulative cost Cantonal Levy by arch,1333,-921,59,38,3,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,361,48,988,-924,10,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,362,364,361,100,0,0,22,0,192,0,-1--1--1,,1|(1066,-924)|
+1,363,364,360,4,0,0,22,0,192,0,-1--1--1,,1|(1210,-924)|
+11,364,0,1140,-924,6,8,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,365,Annual cost Cantonal Levy by arch,1140,-898,73,18,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,366,Cantonal Levy Evolution,1137,-778,57,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,367,366,365,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,368,326,365,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,369,316,365,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
@@ -21165,63 +21554,63 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 1,377,342,365,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,378,348,365,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,379,346,365,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,380,Time,2572,-288,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,380,Time,1270,-872,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,381,380,365,0,1,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,382,Cumulative cost Cantonal Levy by Type and PV,2639,-472,78,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,383,Average annual Cantonal Levy cost by Type and PV,2637,-577,87,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,382,Cumulative cost Cantonal Levy by Type and PV,1337,-1056,78,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,383,Average annual Cantonal Levy cost by Type and PV,1335,-1161,87,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,384,382,383,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,385,Average annual Cantonal Levy cost by Type,2830,-582,75,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,385,Average annual Cantonal Levy cost by Type,1528,-1166,75,27,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,386,382,385,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,387,360,382,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,388,308,383,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,389,308,385,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,390,Batteries,1588,393,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,390,Batteries,286,-191,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,391,20,390,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,392,Batteries by Type,1344,274,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,393,Batteries by Performance,1499,274,57,28,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,394,Batteries by District,1654,274,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
-10,395,Batteries by HS,1810,274,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,392,Batteries by Type,42,-310,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,393,Batteries by Performance,197,-310,57,28,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,394,Batteries by District,352,-310,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,395,Batteries by HS,508,-310,57,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,396,390,392,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,397,390,393,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,398,390,394,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,399,390,395,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,400,Time,2241,1767,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,400,Time,939,1183,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,401,400,295,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,402,Time,2240,1475,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,402,Time,938,891,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,403,402,283,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,404,Time,3755,1870,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,404,Time,2453,1286,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,405,404,63,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,406,Time,3739,1628,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,406,Time,2437,1044,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,407,406,53,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,408,Time,3732,1404,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,408,Time,2430,820,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,409,408,43,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,410,Time,3733,1134,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,410,Time,2431,550,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,411,410,178,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,412,Time,3748,860,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,412,Time,2446,276,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,413,412,168,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,414,Time,112,1714,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,415,Annual cost Cantonal Levy by Type and PV,2442,-500,61,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,414,Time,-1190,1130,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,415,Annual cost Cantonal Levy by Type and PV,1140,-1084,61,29,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,416,313,415,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,417,365,415,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,418,Annual cost Federal Levy by Type and PV,1759,-503,84,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,418,Annual cost Federal Levy by Type and PV,457,-1087,84,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,419,313,418,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
 1,420,325,418,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,421,Share of buildings with PV by Type,1350,964,73,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,421,Share of buildings with PV by Type,48,380,73,18,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,422,2,421,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,423,Time,4817,2013,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,423,Time,3515,1429,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,424,423,127,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,425,Time,4798,1626,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,425,Time,3496,1042,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,426,425,104,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
-10,427,Time,4798,1253,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,428,Time,4796,822,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,427,Time,3496,669,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,428,Time,3494,238,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
 1,429,428,190,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,430,427,78,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,431,Share of buildings with PV,1172,766,62,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,431,Share of buildings with PV,-130,182,62,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,432,2,431,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,433,Time,2798,2753,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
-10,434,Adoption vehicles smooth,2636,130,58,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,433,Time,1496,2169,29,10,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+10,434,Adoption vehicles smooth,1334,-454,58,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,435,210,434,0,0,0,0,0,192,0,-1--1--1,,1|(0,0)|
-10,436,Calibration end year,3993,1104,68,20,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,436,Calibration end year,2691,520,68,20,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
 1,437,436,43,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,438,436,53,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 1,439,436,63,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
@@ -21230,118 +21619,307 @@ $-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,46,0
 \\\---/// Sketch information - do not modify anything except names
 V300  Do not put anything below this section - it will be ignored
 *Results
-$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,65,0
-12,1,0,2254,286,221,177,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,61,0
+12,1,0,2008,713,221,177,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 Levy Evolution,Graph
-12,2,0,2253,709,221,178,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,2,0,2007,1136,221,178,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 Cantonal Levy Evolution,Graph
-12,3,0,588,289,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,3,0,342,716,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 PV residential power by Type[Type],Graph
-12,4,0,1172,291,260,201,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,4,0,926,718,260,201,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 "Capacity PV 30 - 100 kW",Graph
-12,5,0,1723,291,264,201,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,5,0,1477,718,264,201,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 "Capacity PV > 100 kW",Graph
-12,6,0,585,707,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,6,0,339,1134,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total PV electricity production,Graph
-12,7,0,1175,707,264,198,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,7,0,929,1134,264,198,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total PV electricity SC,Graph
-12,8,0,1726,708,264,199,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,8,0,1480,1135,264,199,8,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total PV electricity injected in the grid,Graph
-12,9,0,581,1126,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,9,0,335,1553,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Cantonal annual grid upgrading cost,Graph
-12,10,0,2814,318,77,57,8,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,10,0,2568,745,77,57,8,79,0,0,0,0,0,0,0,0,0,0,0,0
 Energy Community scenario,0,1,1
-12,11,0,2966,679,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,11,0,2720,1106,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 PV rebate federal,0,0.4,0.2
-12,12,0,3054,149,80,58,8,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,12,0,2808,576,80,58,8,79,0,0,0,0,0,0,0,0,0,0,0,0
 FiT,0,0.1,0.025
-12,13,0,1209,1128,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,13,0,963,1555,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Electricity price[District],Graph
-12,14,0,3106,1134,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,14,0,2860,1561,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Batteries by Type[Type],Graph
-12,15,0,3060,472,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,15,0,2814,899,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Battery Rebate,0,0.5,0.125
-12,16,0,2478,1133,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,16,0,2232,1560,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Annual cost Cantonal Levy by Type and PV[Type,PVpanel],Graph
-12,17,0,1843,1134,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,17,0,1597,1561,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Annual cost Federal Levy by Type and PV[Type,PVpanel],Graph
-12,18,0,575,1883,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
+12,18,0,329,2310,300,200,0,15,0,0,1,0,0,0,0,0,0,0,0,0
 Specific_consumption
-12,19,0,1198,1885,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,19,0,952,2312,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Cumulative CO2 emissions,Bar Graph
-12,20,0,2820,483,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,20,0,2574,910,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Buildings PVno connected to RCPv,1,2,0.5
-12,21,0,3059,305,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,21,0,2813,732,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 PV rebate cantonal,0,0.2,0.1
-12,22,0,2812,141,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,22,0,2566,568,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 PV reg scenario,0,1,1
-12,23,0,1695,1723,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,23,0,1449,2150,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Grant share HP,0,0.4,0.2
-12,24,0,1702,1894,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,24,0,1456,2321,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Grant share PelletBoiler,0,0.4,0.2
-12,25,0,1943,2002,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,25,0,1697,2429,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Grant share DH,0,0.4,0.2
-12,26,0,1943,1833,77,57,8,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,26,0,1697,2260,77,57,8,79,0,0,0,0,0,0,0,0,0,0,0,0
 MuKEn scenario,0,2,1
-12,27,0,657,2332,375,229,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+12,27,0,411,2759,375,229,8,15,0,0,1,0,0,0,0,0,0,0,0,0
 Annual_consumption
-12,28,0,1375,2341,323,231,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+12,28,0,1129,2768,323,231,8,15,0,0,1,0,0,0,0,0,0,0,0,0
 Annual_incentives
-12,29,0,1950,1675,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,29,0,1704,2102,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 CO2 tax,0,240,120
-12,30,0,2177,1956,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,30,0,1931,2383,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Retrofit incentive input,0,120,60
-12,31,0,2035,2352,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,31,0,1789,2779,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Building area by Performance[Performance],Graph
-12,32,0,4938,1880,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,32,0,4692,2307,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 EV charger incentive input,0,8000,2000
-12,33,0,3201,2331,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,33,0,2955,2758,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Vehicles by type[Vechicle],Graph
-12,34,0,4942,2064,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,34,0,4696,2491,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 CO2 coefficient ICE,0,5,1
-12,35,0,5189,1968,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,35,0,4943,2395,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 ICE fuel price input,2,3,0.5
-12,36,0,5197,2147,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,36,0,4951,2574,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Diesel price input,2,3,0.5
-12,37,0,5190,2343,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,37,0,4944,2770,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 EV annual cost reduction input,0,0.03,0.01
-12,38,0,905,3438,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,38,0,659,3865,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total electricity produced monthly[M1,Supplier],Bar Graph
-12,39,0,1553,3438,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,39,0,1307,3865,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total electricity produced monthly[M7,Supplier],Bar Graph
-12,40,0,557,2994,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,40,0,311,3421,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Annual electricity dispatched[Supplier],Bar Graph
-12,41,0,1850,2996,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,41,0,1604,3423,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Annual exported electricity[Supplier],Bar Graph
-12,42,0,2693,2967,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,42,0,2447,3394,80,58,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 PV rebate federal,0,0.4,0.2
-12,43,0,2415,2962,80,58,8,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,43,0,2169,3389,80,58,8,79,0,0,0,0,0,0,0,0,0,0,0,0
 FiT,0,0.1,0.025
-12,44,0,1226,2998,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,44,0,980,3425,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Total electricity produced annual[Supplier],Bar Graph
-12,45,0,2695,3140,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,45,0,2449,3567,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 "Provvedimento 1.3",0,1,1
-12,46,0,4452,1884,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,46,0,4206,2311,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Cumulative CO2 emissions vehicles,Bar Graph
-12,47,0,3841,2326,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,47,0,3595,2753,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Annual CO2 emissions vehicles flow,Graph
-12,48,0,4468,2325,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,48,0,4222,2752,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 EV by district,Bar Graph
-12,49,0,4936,2274,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,49,0,4690,2701,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 ICE ban year,2035,2050,5
-12,50,0,3816,1879,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
+12,50,0,3570,2306,300,200,0,15,0,0,2,0,0,0,0,0,0,0,0,0
 Adoption Vehicles[Vechicle],Graph
-12,51,0,2406,3146,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,51,0,2160,3573,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 "Provvedimento 1.2",0,1,1
-12,52,0,2681,3339,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,52,0,2435,3766,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 "Provvedimento 1.7",0,1,1
-12,53,0,2401,3347,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,53,0,2155,3774,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 "Provvedimento 1.4",0,1,1
-12,54,0,2685,3543,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,54,0,2439,3970,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Cambiamento climatico Hydro,0,1,1
-12,55,0,2385,3544,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+12,55,0,2139,3971,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
 Deflussi minimi LPAc,0,1,1
+12,56,0,665,267,300,200,8,15,0,0,1,0,0,0,0,0,0,0,0,0
+EMS_share
+12,57,0,1335,267,300,200,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+EMS self consumption total,Graph
+12,58,0,1970,262,300,200,8,15,0,0,2,0,0,0,0,0,0,0,0,0
+EMS rebate spending,Graph
+12,59,0,2663,372,80,65,0,79,0,0,0,0,0,0,0,0,0,0,0,0
+EMS rebate,0,0.75,0.05
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Utility EMS
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,37,0
+10,1,EMS start year,200,150,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,2,EMS high benefit,530,150,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,3,HS heat pump flag,860,150,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,4,EMS phi central,1190,150,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,5,EMS phi high,1520,150,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,6,EMS phi,200,260,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,7,EMS phi archetype,530,260,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,8,EMS EV shift share,860,260,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,9,EMS PV surplus,1190,260,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,10,EMS delta kWh home,1520,260,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,11,EV household share,200,370,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,12,EV home charging per EV,530,370,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,13,EV home charging access,860,370,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,14,EV building probability,1190,370,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,15,EV charging per EV building,1520,370,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,16,EMS delta kWh EV,200,480,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,17,EMS delta kWh,530,480,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,18,EMS investment,860,480,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,19,EMS annual cost,1190,480,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,20,EMS lifetime,1520,480,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,21,EMS rebate,200,590,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,22,EMS rebate start year,530,590,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,23,EMS net investment,860,590,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,24,EMS total savings,1190,590,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,25,EMS economic utility,1520,590,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,26,Alpha EMS,200,700,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,27,EMS target share 2025,530,700,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,28,EMS alpha type,860,700,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,29,Utility EMS,1190,700,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,30,Probability adoption EMS,1520,700,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,31,PV adoptions for EMS,200,810,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,32,EMS adoptions archetype,530,810,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,33,EMS kWh added archetype,860,810,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,34,EMS adoptions,1190,810,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,35,EMS kWh added,1520,810,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,36,EMS removal rate,200,920,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,37,EMS buildings,530,920,60,30,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,38,EMS kWh self consumed,860,920,60,30,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,39,EMS self consumption by District,1190,920,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,40,EMS share of new PV,1520,920,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,41,EMS share of new PV EVno,200,1030,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,42,EMS share of new PV EVyes,530,1030,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,43,EMS buildings total,860,1030,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,44,Residential PV buildings,1190,1030,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,45,EMS share of PV buildings,1520,1030,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,46,EMS self consumption total,200,1140,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,47,Residential PV self consumption,530,1140,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,48,Residential PV self consumption share,860,1140,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,49,EMS rebate spending,1190,1140,70,26,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,50,2,6,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,51,4,6,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,52,5,6,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,53,6,7,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,54,3,7,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,55,2,8,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,56,Battery charging,1190,304,37,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,57,56,9,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,58,Battery direct use,1190,304,54,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,59,58,9,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,60,Battery generation,1190,304,44,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,61,60,9,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,62,7,10,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,63,9,10,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,64,Vehicle,200,414,37,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,65,64,11,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,66,Annual electricity charged at home EV,530,414,80,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,67,66,12,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,68,Vehicle,530,414,37,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,69,68,12,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,70,Dwellings per building,1190,414,55,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,71,70,14,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,72,13,14,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,73,11,14,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,74,Dwellings per building,1520,414,55,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,75,74,15,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,76,14,15,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,77,13,15,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,78,12,15,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,79,11,15,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,80,10,16,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,81,8,16,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,82,9,16,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,83,15,16,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,84,16,17,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,85,10,17,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,86,18,23,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,87,21,23,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,88,22,23,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,89,Time,860,634,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,90,89,23,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,91,Electricity price,1190,634,41,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,92,91,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,93,19,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,94,17,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,95,20,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,96,Exp expected export price,1190,634,55,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,97,96,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,98,Interest rate,1190,634,52,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,99,98,24,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,100,20,25,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,101,23,25,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,102,24,25,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,103,Alpha battery Type,860,744,53,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,104,103,28,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,105,Alpha battery District,1190,744,53,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,106,105,29,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,107,26,29,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,108,28,29,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,109,25,29,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,110,PV Eco weight,1190,744,34,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,111,110,29,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,112,1,30,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,113,Time,1520,744,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,114,113,30,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,115,29,30,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,116,PV adoptions by archetype,200,854,66,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,117,116,31,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,118,RCPv adoptions by archetype,200,854,65,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,119,118,31,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,120,14,32,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,121,30,32,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,122,31,32,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,123,17,33,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,124,14,33,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,125,30,33,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,126,31,33,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,127,32,34,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,128,3,34,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,129,33,35,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,130,3,35,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,131,3,36,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,132,PV buildings,200,964,55,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,133,132,36,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,134,PV removal fraction,200,964,48,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,135,134,36,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,136,34,37,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,137,36,37,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,138,35,38,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,139,36,38,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,140,38,39,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,141,32,40,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,142,31,40,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,143,14,41,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,144,30,41,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,145,31,41,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,146,14,42,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,147,30,42,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,148,31,42,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,149,37,43,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,150,PV buildings,1190,1074,55,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,151,150,44,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,152,43,45,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,153,44,45,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,154,39,46,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,155,39,47,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,156,PV kWh self consumed,530,1184,50,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,157,156,47,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,158,Annual PV prod Residential,860,1184,62,18,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,159,158,48,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,160,47,48,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,161,32,49,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,162,18,49,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,163,21,49,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+1,164,22,49,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
+10,165,Time,1190,1184,29,10,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|||128-128-128,0,0,0,0,0,0
+1,166,165,49,0,0,0,0,0,64,0,-1--1--1,,1|(0,0)|
 ///---\\\
+:GRAPH EMS_share
+:TITLE Share with EMS
+:X-AXIS Time
+:SCALE
+:VAR EMS share of new PV
+:DATASET 
+:LINE-WIDTH 1
+:VAR EMS share of PV buildings
+:DATASET 
+:LINE-WIDTH 1
+
 :GRAPH Annual_consumption
 :TITLE Annual consumption
 :X-AXIS Time
@@ -21396,8 +21974,10 @@ Deflussi minimi LPAc,0,1,1
 :DATASET 
 :LINE-WIDTH 1
 :L<%^E!@
+1:PVinput.vdfx
+1:Base.vdfx
 4:Time
-5:Historical energy price[District]
+5:Adoption PV Type[Type]
 6:Bellinzona
 6:BEV
 6:Blenio
@@ -21405,8 +21985,12 @@ Deflussi minimi LPAc,0,1,1
 6:Byes
 6:DFH
 6:DH
+6:Diesel
+6:DieselHEV
+6:DieselPHEV
 6:EH
 6:ElectricHeater
+6:EVno
 6:Gas
 6:GasBoiler
 6:GasST
@@ -21417,6 +22001,7 @@ Deflussi minimi LPAc,0,1,1
 6:High
 6:HP
 6:HPST
+6:HPyes
 6:Import
 6:Leventina
 6:Locarno
@@ -21433,6 +22018,9 @@ Deflussi minimi LPAc,0,1,1
 6:OilST
 6:pellet
 6:PelletBoiler
+6:Petrol
+6:PetrolHEV
+6:PetrolPHEV
 6:pextra
 6:ppriority
 6:ptype
@@ -21453,11 +22041,11 @@ Deflussi minimi LPAc,0,1,1
 6:Wood
 6:WoodBoiler
 6:WoodST
-9:Energy cost
-19:53,9
-24:0
-25:100
-26:100
+9:Base 2
+19:46,12
+24:2011
+25:2050
+26:2050
 57:1
 54:0
 55:0

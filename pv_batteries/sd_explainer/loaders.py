@@ -127,15 +127,6 @@ def production_line_series(
 
 
 @st.cache_data(show_spinner=False)
-def load_workshop_priorities() -> pd.DataFrame:
-    """Priorità indicate dagli stakeholder: voce, menzioni alta e bassa.
-
-    Valori estratti dal grafico del settimo workshop (ottobre 2025).
-    """
-    return pd.read_csv(PLOTS_DATA / "Workshop_priorities.csv", sep=";")
-
-
-@st.cache_data(show_spinner=False)
 def _load_map_template() -> str | None:
     """Legge una sola volta l'HTML statico, senza includere credenziali nella cache."""
     if not MAP_HTML.exists():

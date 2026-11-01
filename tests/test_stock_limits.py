@@ -1,4 +1,4 @@
-"""Regression checks against the actual v8 source and physical acceptance gate."""
+"""Regression checks against the actual ems1 source and physical acceptance gate."""
 import ast
 from pathlib import Path
 import tempfile
@@ -81,7 +81,7 @@ class StockLimitsTests(unittest.TestCase):
 
     def test_canonical_source_contains_the_shared_budget(self):
         native = budget_audit((ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1"))
-        prepared = budget_audit((ROOT / "Vensim/SURE_pysd_v8.mdl").read_text(encoding="latin-1"))
+        prepared = budget_audit((ROOT / "Vensim/SURE_pysd_ems1.mdl").read_text(encoding="latin-1"))
         self.assertEqual(native, prepared)
         self.assertEqual(sum(map(len, native["requests"].values())), 10)
         changed = (ROOT / "Vensim/SURE.mdl").read_text(encoding="latin-1").replace("MIN(Available PV adoption", "MAX(Available PV adoption", 1)

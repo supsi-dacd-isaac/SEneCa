@@ -23,7 +23,6 @@ from sd_explainer.loaders import (
     load_production_csv,
     load_pv_buildings_input,
     load_sector_csv,
-    load_workshop_priorities,
     production_line_series,
     sector_csv_to_stacked,
     sector_pie_at_year,
@@ -31,10 +30,9 @@ from sd_explainer.loaders import (
 from sd_explainer.paths import (
     IMAGE_ARCHITECTURE,
     IMAGE_CLD,
-    IMAGE_WORKSHOP,
     MAP_HTML,
 )
-from ui_colors import SUPSI_PURPLE, data_color
+from ui_colors import SUPSI_PURPLE
 
 DISTRICTS = [
     "Bellinzona", "Blenio", "Leventina", "Locarno",
@@ -262,71 +260,20 @@ def _render_model_architecture() -> None:
         )
 
 
-def _render_policy_priorities() -> None:
+def _render_policy_levers() -> None:
     st.markdown(tr("### Quali policy possono essere valutate?"))
     st.markdown(
         tr("""
-        Le leve rappresentate nel modello non sono state scelte a tavolino. Nei
-        workshop gli stakeholder hanno indicato quali temi considerassero
-        **prioritari** e quali marginali per una decisione cantonale: il grafico
-        riporta quante volte ciascuna voce è stata segnalata a priorità alta o bassa.
-        """)
-    )
+        Le leve manipolabili sono gli strumenti che un Cantone può effettivamente
+        usare: incentivi al fotovoltaico, agli accumuli domestici e ai sistemi di
+        gestione dell'energia (EMS), comunità energetiche, incentivi a pompe di
+        calore e risanamento, tassa CO₂, regolamentazioni sul riscaldamento fossile
+        e misure per la mobilità elettrica.
 
-    prio = load_workshop_priorities()
-    order = st.segmented_control(
-        tr("Ordina per"),
-        ["Priorità alta", "Priorità bassa"],
-        format_func={value: tr(value) for value in ["Priorità alta", "Priorità bassa"]}.get,
-        default="Priorità alta",
-        key="sd_prio_order",
-    )
-    if (order or "Priorità alta") == "Priorità alta":
-        prio = prio.sort_values("Priorità Alta")
-    else:
-        prio = prio.sort_values("Priorità Bassa")
-
-    labels = [str(v) for v in prio["Voce"].tolist()]
-    options = {
-        "toolbox": {"feature": {"saveAsImage": {}, "dataView": {"readOnly": True}}},
-        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
-        "legend": {"top": 0, "data": ["Priorità Alta", "Priorità Bassa"]},
-        "grid": {"left": 330, "right": 40, "top": 40, "bottom": 40},
-        "xAxis": {"type": "value", "name": "menzioni", "minInterval": 1},
-        "yAxis": {"type": "category", "data": labels, "axisLabel": {"width": 320}},
-        "series": [
-            {
-                "name": "Priorità Alta",
-                "type": "bar",
-                "itemStyle": {"color": data_color(0)},
-                "data": [int(v) for v in prio["Priorità Alta"].tolist()],
-            },
-            {
-                "name": "Priorità Bassa",
-                "type": "bar",
-                "itemStyle": {"color": data_color(1)},
-                "data": [int(v) for v in prio["Priorità Bassa"].tolist()],
-            },
-        ],
-    }
-    render_echarts(
-        options, chart_key="sd_workshop_priorities", height=760, tooltip_decimals=0,
-    )
-    st.caption(
-        tr("Esito dell'esercizio di prioritizzazione con il gruppo core degli "
-        "stakeholder (settimo workshop, ottobre 2025).")
-    )
-
-    st.markdown(
-        tr("""
-        Questa lista spiega buona parte di come il modello si è sviluppato. Le voci in
-        cima — accumuli domestici, teleriscaldamento, prezzi di mercato, obblighi di
-        efficienza, incentivi al fotovoltaico, comunità energetiche e ricarica
-        pubblica — sono diventate leve manipolabili,
-        mentre i temi giudicati marginali sono rimasti fuori o sono entrati come
-        semplici assunzioni di scenario. Anche la profondità di rappresentazione
-        segue la stessa logica: dove gli stakeholder chiedevano di poter confrontare
-        politiche alternative, il modello è endogeno e dettagliato.
+        La profondità di rappresentazione segue lo stesso criterio: dove serve
+        confrontare politiche alternative il modello è endogeno e dettagliato,
+        mentre i temi di contesto, come i prezzi di mercato dei vettori energetici,
+        entrano come assunzioni di scenario.
         """)
     )
 
@@ -342,30 +289,23 @@ def render_step_problem_definition() -> None:
         quello energetico, il primo passo consiste nel definire chiaramente il sistema
         oggetto di studio, individuandone i confini e gli elementi principali.
 
-        Questo è ciò che abbiamo fatto durante il primo incontro, in cui abbiamo descritto
-        gli elementi del sistema sulla base delle tre categorie definite dal
-        **Multi-Level Perspective (MLP)**:
+        Per farlo, gli elementi del sistema sono descritti sulla base delle tre
+        categorie definite dal **Multi-Level Perspective (MLP)**:
 
         - :earth_africa: **Landscape** → livello macro: contesto esterno e fattori di lungo periodo
         - :brick: **Regimes** → livello intermedio: strutture, regole e pratiche consolidate
         - :arrow_heading_up: **Nicchie** → livello micro: innovazioni e sperimentazioni
         """)
     )
-    with st.container():
-        _show_image(
-            IMAGE_WORKSHOP,
-            tr("Risultati dell'analisi svolta durante il primo workshop. "
-            "Il numero nei cerchi indica le menzioni del relativo elemento."),
-        )
 
     st.markdown(
         tr("""
-        #### A cosa è servito questo esercizio
+        #### A cosa serve questa mappatura
 
-        La mappatura MLP è servita soprattutto a decidere **che cosa sta dentro il
+        La mappatura MLP serve soprattutto a decidere **che cosa sta dentro il
         confine del sistema cantonale e che cosa no**.
 
-        Alcuni elementi emersi dal workshop restano fuori dal perimetro endogeno e
+        Alcuni elementi del sistema restano fuori dal perimetro endogeno e
         sono assunti come **dati di fatto**: il modello non ne calcola l'evoluzione,
         la riceve come ipotesi di scenario. È il caso, ad esempio, delle **tensioni
         geopolitiche**, che entrano solo attraverso il loro effetto sui prezzi dei
@@ -391,7 +331,7 @@ def render_step_problem_definition() -> None:
     _render_model_architecture()
 
     st.divider()
-    _render_policy_priorities()
+    _render_policy_levers()
 
 
 def render_step_qualitative_model() -> None:
@@ -431,15 +371,13 @@ def render_step_qualitative_model() -> None:
     with st.container():
         _show_image(
             IMAGE_CLD,
-            tr("Causal Loop Diagram dei principali feedback del modello SURE-Ticino: "
-            "sedici loop collegano adozione tecnologica, domanda dalla rete, prezzo "
-            "dell'elettricità, costi di rete e strumenti di policy. Il CLD è una rappresentazione " 
-            "qualitativa della struttura causale: non mostra parametri, formule, ritardi né la " 
-            "disaggregazione per archetipo. Il comportamento simulato nasce dall'implementazione " 
-            "quantitativa congiunta di queste relazioni, non dalla presenza grafica di un singolo loop. "
-            "mostra parametri, formule, ritardi né la disaggregazione per archetipo. Il "
-            "comportamento simulato nasce dall'implementazione quantitativa congiunta di "
-            "queste relazioni, non dalla presenza grafica di un singolo loop."),
+            tr("Causal Loop Diagram dei principali feedback del modello: sedici loop "
+            "collegano adozione tecnologica, domanda dalla rete, prezzo "
+            "dell'elettricità, costi di rete e strumenti di policy. Il CLD è una "
+            "rappresentazione qualitativa della struttura causale: non mostra "
+            "parametri, formule, ritardi né la disaggregazione per archetipo. Il "
+            "comportamento simulato nasce dall'implementazione quantitativa congiunta "
+            "di queste relazioni, non dalla presenza grafica di un singolo loop."),
         )
 
     st.markdown(tr("#### Le quattro famiglie di feedback"))

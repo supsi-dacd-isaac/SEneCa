@@ -1,6 +1,6 @@
-"""Entrypoint Streamlit del modello SURE.
+"""Entrypoint Streamlit della webapp SEneCa con EMS e comunità energetiche.
 
-Router: Introduzione, Simulazioni SEneCa, Analisi esplorativa (policy mix e
+Router: Metodologia, Simulazioni SEneCa, Analisi esplorativa (policy mix e
 simulazione live).
 """
 from __future__ import annotations
@@ -13,10 +13,9 @@ st.set_page_config(page_title="SEneCa", layout="wide")
 
 pages = {
     tr("Home"): [
-        st.Page("pages/home.py", title=tr("Contesto e scopo"), default=True),
         st.Page(
             "pages/0_Approccio_System_Dynamics.py", url_path="Approccio_System_Dynamics",
-            title=tr("Metodologia"),
+            title=tr("Metodologia"), default=True,
         ),
     ],
     tr("Simulazioni SEneCa"): [

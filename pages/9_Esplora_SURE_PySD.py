@@ -70,7 +70,7 @@ def _params_fingerprint(params: dict[str, float]) -> str:
 # ENGINE
 # =============================================================
 def default_variant() -> str:
-    """Base supportata v8; le simulazioni usano il modello canonico corretto."""
+    """Base supportata ems1; le simulazioni usano il modello canonico corretto."""
     return paths.variant()
 
 
@@ -81,8 +81,9 @@ def run_live(engine_id: str, params_fp: str, params_json: str, _engine, _on_prog
 
 
 def get_scenario(ui: dict[str, float], variant: str, title="Scenario") -> tuple[pd.DataFrame, str]:
-    if variant != "v8":
-        raise ValueError("Il backend di produzione richiede SURE v8")
+    from sure_julia.common import MODEL_VARIANT
+    if variant != MODEL_VARIANT:
+        raise ValueError(f"Il backend di produzione richiede la variante {MODEL_VARIANT}")
     from sure_julia.catalog import parameters
     params = parameters(cfg.ui_to_pysd_params(ui))
     engine_id = backend.engine_identity()
@@ -120,7 +121,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
     n_ok = sum(1 for i in cfg.ALL_INPUTS if i.supported)
     n_tot = len(cfg.ALL_INPUTS)
     st.sidebar.caption(
-        tr('Sezioni allineate alle pagine Simulazioni SEneCa. **{v0}/{v1}** leve applicate al modello SURE v8.', v0=n_ok, v1=n_tot)
+        tr('Sezioni allineate alle pagine Simulazioni SEneCa. **{v0}/{v1}** leve applicate al modello.', v0=n_ok, v1=n_tot)
     )
     ui: dict[str, float] = {}
 

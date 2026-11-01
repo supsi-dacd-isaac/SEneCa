@@ -85,9 +85,9 @@ class TranslationTests(unittest.TestCase):
         at = AppTest.from_file(str(ROOT/'app.py'), default_timeout=30).run()
         at.radio(key='ui_language').set_value('en').run()
         self.assertFalse(at.exception)
-        self.assertEqual(at.title[0].value, 'The SEneCa model for Ticino')
+        self.assertEqual(at.title[0].value, 'Methodology')
         at.radio(key='ui_language').set_value('it').run()
-        self.assertEqual(at.title[0].value, 'Modello SEneCa per il Ticino')
+        self.assertEqual(at.title[0].value, 'Metodologia')
 
     @unittest.skipUnless(cfg.CONSOLIDATED_TRAJ.exists(), 'Install the pinned data release for the PV integration test')
     def test_pv_values_options_history_and_all_sections_survive_language_switch(self):

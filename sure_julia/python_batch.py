@@ -7,8 +7,8 @@ GMD definition and physical checks, but runs ``PythonBackend`` processes
 instead of Julia workers. The exploratory policy-mix store is not touched.
 A Julia release still requires the gated procedure in docs/julia-production.md.
 
-    python -m sure_julia.python_batch runs/v8-sections --workers 8
-    python -m sure_julia.python_batch runs/v8-sections --install
+    python -m sure_julia.python_batch runs/ems1-sections --workers 8
+    python -m sure_julia.python_batch runs/ems1-sections --install
 """
 import argparse
 import concurrent.futures

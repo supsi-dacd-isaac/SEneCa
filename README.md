@@ -19,13 +19,14 @@ Python–Julia e i controlli fisici del batch sono superati; restano documentati
 i piccoli scarti dell’allocatore nativo Vensim nella
 [diagnosi e validazione v7](docs/validation/dispatch-correction.md).
 
-Questo ramo porta il modello a **SURE v8** (`sure-v8-nr-calendar-1`):
-sottomodello FV non residenziale, calendario delle installazioni, nuovi input
-e calibrazione del 30 ottobre 2026. Gli store delle pagine "Simulazioni
-SEneCa" sono rigenerati con il backend Python
-(`python -m sure_julia.python_batch`); policy mix e incertezza restano quelli
-di `data-v2.0.0`. Build e validazione Julia della v8 sono ancora da eseguire
-prima di una release: vedi [Vensim/README.md](Vensim/README.md).
+Questo repository è la versione parallela della webapp per il progetto su
+fotovoltaico, veicoli elettrici, pompe di calore, comunità energetiche ed EMS.
+Usa il modello **SURE v8 con EMS** (variante `ems1`, revisione
+`sure-v8-ems-1`): il modello v8 con il modulo dei sistemi di gestione
+dell'energia residenziali. La home contiene solo la pagina Metodologia. Gli
+store delle pagine "Simulazioni SEneCa" sono ancora quelli v8 e vanno
+rigenerati con `python -m sure_julia.python_batch`; build e validazione Julia
+sono da eseguire prima di una release: vedi [Vensim/README.md](Vensim/README.md).
 
 ## Riconoscimenti
 
@@ -213,10 +214,10 @@ nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
 
 ## Sorgenti del modello e manutenzione
 
-Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v8.mdl` e `.py`
-sono i derivati usati per il runtime `sure-v8-nr-calendar-1`. Le quattro
+Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_ems1.mdl` e `.py`
+sono i derivati usati per il runtime `sure-v8-ems-1`. Le quattro
 calibrazioni originali sono conservate in `Vensim/calibration/`, con manifest
-e checksum; `constants_ref_v8.pkl` contiene 30 gruppi in Float64 derivati da
+e checksum; `constants_ref_ems1.pkl` contiene 30 gruppi in Float64 derivati da
 53 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.
 
 I controlli riproducibili del budget PV e della calibrazione sono:
@@ -230,7 +231,7 @@ La pipeline `retranslate_sure_pipeline.py` e i relativi script preparano un
 nuovo sorgente upstream da Vensim: non producono da soli un modello validato
 per l’app. Una modifica alle equazioni richiede la procedura completa nella
 [guida Julia](docs/julia-production.md), inclusa la rigenerazione dei dati.
-Senza `SURE_VARIANT` viene selezionata la base supportata `v8`.
+Senza `SURE_VARIANT` viene selezionata la base supportata `ems1`.
 
 La [mappa del repository](docs/repository-inventory.md) distingue file necessari,
 strumenti di manutenzione e materiale storico rimosso. Le vecchie versioni e

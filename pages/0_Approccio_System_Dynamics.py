@@ -30,6 +30,44 @@ from sd_explainer.render import (  # noqa: E402
     render_step_qualitative_model,
     render_step_quantitative_model,
 )
+from pv_batteries.responsive import wrapping_columns  # noqa: E402
+
+CAN_ANSWER = [
+    "Come possono evolvere nel lungo periodo la diffusione di **fotovoltaico, "
+    "pompe di calore, risanamenti, batterie, veicoli elettrici, sistemi di "
+    "gestione dell'energia (EMS) e comunità energetiche** sotto differenti "
+    "condizioni regolatorie.",
+    "Quali effetti producono diverse combinazioni di **incentivi, tasse, "
+    "supplementi sulla rete e regolamentazioni**.",
+    "Come l'**elettrificazione di riscaldamento e trasporti** modifica la "
+    "domanda elettrica cantonale e la sua ripartizione tra settori.",
+    "Come **autoconsumo, EMS, comunità energetiche e produzione decentralizzata** "
+    "incidono sulla domanda servita dalla rete, sui costi di distribuzione e sul "
+    "prezzo dell'elettricità.",
+    "Come evolvono **produzione cantonale, import/export e autosufficienza** "
+    "sotto differenti scenari di domanda e offerta.",
+    "Quali **interazioni** emergono tra strumenti di policy e meccanismi di "
+    "finanziamento: incentivi PV e supplementi, tassa CO₂ e Programma Edifici.",
+    "Quale effetto ha un **policy mix** su consumi, emissioni, costi per gli "
+    "utenti, **equità distributiva** e differenze tra distretti.",
+]
+
+CANNOT_ANSWER = [
+    "Prevedere con precisione l'**anno o il numero esatto** di future "
+    "installazioni tecnologiche.",
+    "Individuare automaticamente la combinazione **«ottimale»** di tecnologie o "
+    "politiche minimizzando una funzione obiettivo.",
+    "Rappresentare le **decisioni individuali** di singole famiglie, imprese o "
+    "proprietari di edifici.",
+    "Dimensionare impianti o svolgere valutazioni tecnico-economiche riferite a "
+    "un **singolo edificio**.",
+    "Verificare la **fattibilità elettrica locale**: power flow, congestioni, "
+    "tensioni, capacità di linee e trasformatori.",
+    "Simulare il funzionamento **operativo del mercato elettrico** o l'unit "
+    "commitment degli impianti.",
+    "Rappresentare in modo endogeno **cambiamenti macroeconomici** o "
+    "trasformazioni strutturali dell'industria.",
+]
 
 STEPS = {
     "1 · Definizione del problema": render_step_problem_definition,
@@ -48,6 +86,40 @@ def _go_to_step(offset: int) -> None:
 
 
 st.title(tr("Metodologia"))
+st.markdown(
+    tr("""
+**SEneCa** (Sistema Energetico Cantonale) è il simulatore con cui si esplora
+la transizione energetica ticinese. Mostra come le politiche e i fattori
+esterni di oggi possono plasmarne l'evoluzione fino al 2050: diffusione del
+fotovoltaico, risanamento degli edifici, mobilità elettrica, domanda di
+elettricità, costi per gli utenti ed equità tra distretti.
+""")
+)
+
+st.subheader(tr("Cosa può e non può fare il modello"))
+st.info(
+    tr("""
+**Il modello simula, non prevede e non ottimizza.** Permette di formulare
+esperimenti *what-if*: si modificano politiche, regolamentazioni e ipotesi di
+contesto e si osservano le conseguenze dinamiche che ne derivano, inclusi
+effetti indiretti e inattesi tra settori. Il suo valore non sta nell'indicare
+un unico percorso «corretto», ma nel fornire un ambiente trasparente in cui
+confrontare alternative e capire quali relazioni causali generano le differenze
+tra scenari.
+"""),
+    icon=":material/lightbulb:",
+)
+st.markdown(tr("""Domande alle quali il modello può e non può contribuire:"""))
+col_can, col_cannot = wrapping_columns(2, key="method_scope")
+with col_can.container(border=True):
+    st.markdown(tr(":green-badge[:material/check_circle: Può contribuire a rispondere a]"))
+    st.markdown("\n".join(f"- {tr(item)}" for item in CAN_ANSWER))
+with col_cannot.container(border=True):
+    st.markdown(tr(":red-badge[:material/block: Non è destinato a]"))
+    st.markdown("\n".join(f"- {tr(item)}" for item in CANNOT_ANSWER))
+
+st.divider()
+
 st.subheader(tr("Approccio System Dynamics"))
 
 render_sd_intro()
@@ -56,9 +128,9 @@ st.divider()
 
 st.markdown(tr("### Lo sviluppo del modello in quattro passi"))
 st.markdown(
-    tr("Dalla definizione del problema con gli stakeholder ai modelli "
-    "qualitativi, ai dati storici e alla calibrazione. Il percorso prepara "
-    "alla lettura delle sezioni Simulazioni SEneCa.")
+    tr("Dalla definizione del problema ai modelli qualitativi, ai dati storici "
+    "e alla calibrazione. Il percorso prepara alla lettura delle sezioni "
+    "Simulazioni SEneCa.")
 )
 
 st.session_state.setdefault(STEP_KEY, STEP_LABELS[0])

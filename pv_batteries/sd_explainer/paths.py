@@ -12,9 +12,8 @@ PV_INPUT_CSV = ROOT / "Vensim" / "PVinput.csv"
 HP_INPUT_CSV = ROOT / "Vensim" / "HPinput.csv"
 EV_INPUT_CSV = ROOT / "Vensim" / "EVinput.csv"
 HOUR_FACTORS_CSV = ROOT / "Vensim" / "Input Hour Factors.csv"
-# Canonical v8 baseline; export provenance is stored beside the CSV.
-SIM_ADOPTIONS_CSV = PLOTS_DATA / "calibration_sim_adoptions_v8.csv"
+# Canonical ems1 baseline; export provenance is stored beside the CSV.
+SIM_ADOPTIONS_CSV = PLOTS_DATA / "calibration_sim_adoptions_ems1.csv"
 
-IMAGE_WORKSHOP = IMAGES / "Image_1.png"
 IMAGE_CLD = IMAGES / "Image_5.png"
 IMAGE_ARCHITECTURE = IMAGES / "Image_3.png"

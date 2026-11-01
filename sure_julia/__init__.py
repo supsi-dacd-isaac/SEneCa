@@ -1,1 +1,1 @@
-"""Pinned SURE v8 translation and execution backends."""
+"""Pinned SURE v8 + EMS translation and execution backends."""

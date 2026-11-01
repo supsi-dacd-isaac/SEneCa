@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "variant": "v8",
+  "variant": "ems1",
   "source": "WP13/Vensim/TI/Claude/out and calibration files supplied 2026-10-30",
   "files": {
     "Energy cost.out": {
