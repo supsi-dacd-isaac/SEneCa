@@ -34,6 +34,27 @@ simulazioni distinte) e gli store si rigenerano con
 Elettricità ed esplorativa: va adattato, insieme a build e validazione Julia,
 prima di una release. Vedi [Vensim/README.md](Vensim/README.md).
 
+### Avvio locale della webapp EMS (Windows)
+
+La release dati pinata in `data-release.json` contiene ancora i dati v7: per
+la webapp EMS i dati arrivano in uno ZIP a parte (`seneca-ems-dati-*.zip`,
+con un LEGGIMI). Non eseguire `scripts/data_release.py fetch`, che li
+sostituirebbe con quelli v7. Serve Python 3.11; Julia, Vensim e Docker no.
+
+```bash
+git clone --branch ems-webapp https://github.com/supsi-dacd-isaac/SEneCa.git SEneCa-EMS
+```
+
+Estrarre lo ZIP nella cartella `SEneCa-EMS`, poi da PowerShell:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts\avvia_webapp_ems.ps1
+```
+
+Al primo avvio lo script crea `.venv` e installa le dipendenze bloccate
+(qualche minuto); poi la webapp si apre su http://localhost:8501. Con
+`-Porta 8502` usa un'altra porta.
+
 ## Riconoscimenti
 
 Il modello SEneCa e questa applicazione sono stati sviluppati da SUPSI
