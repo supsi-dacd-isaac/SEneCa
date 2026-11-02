@@ -28,7 +28,6 @@ from sd_explainer.loaders import (
     sector_pie_at_year,
 )
 from sd_explainer.paths import (
-    IMAGE_ARCHITECTURE,
     IMAGE_CLD,
     MAP_HTML,
 )
@@ -211,127 +210,66 @@ def render_sd_intro() -> None:
     )
 
 
-def _render_model_architecture() -> None:
-    st.markdown(tr("### Architettura complessiva del modello"))
-    st.markdown(
-        tr("""
-        Il modello è organizzato in **quattro macrocomponenti**: la *domanda e
-        adozione delle tecnologie* (residenziale, trasporti, industria e terziario)
-        determina consumi e autoconsumo; l'*offerta energetica e il bilancio
-        elettrico* confrontano quella domanda con la produzione decentralizzata e
-        centralizzata, determinando dispaccio, import ed export.
-
-        Le altre due chiudono i cicli di retroazione: le *utility e le reti di
-        distribuzione* traducono bilancio e costi di rete nel prezzo finale
-        dell'elettricità, mentre le *autorità pubbliche* agiscono con incentivi,
-        tasse e regolamentazioni, il cui finanziamento dipende a sua volta dai
-        consumi. Prezzo e politiche tornano così a orientare le adozioni successive.
-        """)
-    )
-
-    with st.container():
-        _show_image(
-            IMAGE_ARCHITECTURE,
-            tr("Architettura funzionale del modello: quattro macrocomponenti che formano "
-            "un unico sistema dinamico."),
-        )
-
-    col_a, col_b, col_c = wrapping_columns(3, key="sd_architecture")
-    with col_a.container(border=True):
-        st.markdown(tr("**:material/layers: Struttura ibrida**"))
-        st.markdown(
-            tr("Rappresentazione *bottom-up* del residenziale tramite **archetipi "
-            "edilizi**, aggregata *top-down* in domanda, produzione, costi ed "
-            "emissioni; prezzi e costi di rete tornano poi a orientare le decisioni.")
-        )
-    with col_b.container(border=True):
-        st.markdown(tr("**:timer_clock: Risoluzione temporale**"))
-        st.markdown(
-            tr("Orizzonte **2011-2050** con passo **annuale**, coerente con i cicli di "
-            "sostituzione e investimento. Il solo bilancio elettrico usa **profili "
-            "orari** su giorni rappresentativi.")
-        )
-    with col_c.container(border=True):
-        st.markdown(tr("**:material/map: Risoluzione spaziale**"))
-        st.markdown(
-            tr("**Otto distretti** ticinesi per le caratteristiche territoriali, più il "
-            "livello **cantonale** per bilancio e rete e quello **federale** per gli "
-            "strumenti nazionali.")
-        )
-
-
-def _render_policy_levers() -> None:
-    st.markdown(tr("### Quali policy possono essere valutate?"))
-    st.markdown(
-        tr("""
-        Le leve manipolabili sono gli strumenti che un Cantone può effettivamente
-        usare: incentivi al fotovoltaico, agli accumuli domestici e ai sistemi di
-        gestione dell'energia (EMS), comunità energetiche, incentivi a pompe di
-        calore e risanamento, tassa CO₂, regolamentazioni sul riscaldamento fossile
-        e misure per la mobilità elettrica.
-
-        La profondità di rappresentazione segue lo stesso criterio: dove serve
-        confrontare politiche alternative il modello è endogeno e dettagliato,
-        mentre i temi di contesto, come i prezzi di mercato dei vettori energetici,
-        entrano come assunzioni di scenario.
-        """)
-    )
-
-
 def render_step_problem_definition() -> None:
     st.markdown(
         tr("""
-        ### Definizione problema
+        ### Definizione del problema
 
-        L'obiettivo finale è costruire un modello che rappresenti nel modo più accurato
-        possibile il comportamento del sistema in analisi. Poiché lo studio della
-        transizione è un problema complesso che coinvolge un sistema complesso, come
-        quello energetico, il primo passo consiste nel definire chiaramente il sistema
-        oggetto di studio, individuandone i confini e gli elementi principali.
-
-        Per farlo, gli elementi del sistema sono descritti sulla base delle tre
-        categorie definite dal **Multi-Level Perspective (MLP)**:
-
-        - :earth_africa: **Landscape** → livello macro: contesto esterno e fattori di lungo periodo
-        - :brick: **Regimes** → livello intermedio: strutture, regole e pratiche consolidate
-        - :arrow_heading_up: **Nicchie** → livello micro: innovazioni e sperimentazioni
+        Prima di costruire un modello bisogna chiarire **quale problema si vuole
+        studiare** e, di conseguenza, quale parte del sistema rappresentare. La
+        transizione energetica tocca tecnologie, mercati, regole, comportamenti,
+        clima e geopolitica: un modello che volesse includere tutto sarebbe
+        ingestibile e difficile da leggere. Il primo passo consiste quindi nel
+        tracciare il **perimetro** del sistema, cioè decidere che cosa il modello
+        deve spiegare dall'interno e che cosa può trattare come contesto.
         """)
     )
+
+    col_out, col_in = wrapping_columns(2, key="sd_boundary")
+    with col_out.container(border=True):
+        st.markdown(tr("**:material/public: Fuori dal perimetro: il contesto**"))
+        st.markdown(
+            tr("""
+            Alcuni fattori pesano molto sul sistema energetico cantonale, ma il
+            Cantone non li governa: il modello non ne calcola l'evoluzione, la
+            riceve come **ipotesi di scenario**. È il caso, ad esempio, delle
+            **tensioni geopolitiche**, che entrano solo attraverso il loro effetto
+            sui prezzi dei vettori energetici, o del **cambiamento climatico**, il
+            cui andamento è esogeno. Cambiare queste ipotesi significa cambiare
+            scenario, non far girare una dinamica interna al modello.
+            """)
+        )
+    with col_in.container(border=True):
+        st.markdown(tr("**:material/home_work: Dentro il perimetro: ciò che il modello simula**"))
+        st.markdown(
+            tr("""
+            Il modello si concentra sugli ambiti in cui le decisioni di famiglie,
+            aziende e autorità ticinesi determinano l'evoluzione del sistema e in
+            cui le politiche cantonali possono fare la differenza:
+
+            - **Edifici** — stock edilizio, riscaldamento, risanamento, PV, batterie
+              ed EMS
+            - **Produzione e distribuzione dell'energia** — impianti, bilancio
+              elettrico, reti e prezzo finale
+            - **Trasporti** — parco veicoli, motorizzazioni e infrastruttura di
+              ricarica
+            """)
+        )
 
     st.markdown(
         tr("""
-        #### A cosa serve questa mappatura
+        Le abitudini, le preferenze e le resistenze al cambiamento della
+        popolazione non sono modellate esplicitamente, ma sono incorporate nel
+        comportamento osservato: i parametri delle decisioni sono **calibrati su
+        dati storici**, che già le contengono.
 
-        La mappatura MLP serve soprattutto a decidere **che cosa sta dentro il
-        confine del sistema cantonale e che cosa no**.
-
-        Alcuni elementi del sistema restano fuori dal perimetro endogeno e
-        sono assunti come **dati di fatto**: il modello non ne calcola l'evoluzione,
-        la riceve come ipotesi di scenario. È il caso, ad esempio, delle **tensioni
-        geopolitiche**, che entrano solo attraverso il loro effetto sui prezzi dei
-        vettori energetici, o del **cambiamento climatico**, il cui andamento è
-        esogeno. Cambiare queste ipotesi significa cambiare scenario, non far girare
-        una dinamica interna al modello.
-
-        I **regimi** individuati come principali sono invece il cuore di ciò che il
-        modello simula:
-
-        - **Edifici** — stock edilizio, riscaldamento, risanamento, PV e batterie
-        - **Produzione e distribuzione dell'energia** — impianti, bilancio elettrico,
-          reti e prezzo finale
-        - **Trasporti** — parco veicoli, motorizzazioni e infrastruttura di ricarica
-        - **Elementi culturali** — non modellati esplicitamente, ma incorporati nel
-          comportamento osservato: i parametri delle decisioni sono **calibrati su
-          dati storici**, che già contengono abitudini, preferenze e resistenze al
-          cambiamento della popolazione ticinese
+        Un perimetro chiaro permette di concentrare il dettaglio dove serve: gli
+        ambiti interni sono descritti con le relazioni causali che legano adozioni,
+        prezzi, costi e politiche, mentre il contesto resta semplice e trasparente.
+        Rende anche esplicito che cosa il modello **non** può dire: ogni risultato
+        va letto alla luce delle ipotesi fatte sui fattori esterni.
         """)
     )
-
-    st.divider()
-    _render_model_architecture()
-
-    st.divider()
-    _render_policy_levers()
 
 
 def render_step_qualitative_model() -> None:

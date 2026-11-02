@@ -88,17 +88,42 @@ def _go_to_step(offset: int) -> None:
 st.title(tr("Metodologia"))
 st.markdown(
     tr("""
-**SEneCa** (Sistema Energetico Cantonale) è il simulatore con cui si esplora
-la transizione energetica ticinese. Mostra come le politiche e i fattori
-esterni di oggi possono plasmarne l'evoluzione fino al 2050: diffusione del
-fotovoltaico, risanamento degli edifici, mobilità elettrica, domanda di
-elettricità, costi per gli utenti ed equità tra distretti.
+**SEneCa** (Sistema Energetico Cantonale) è un simulatore della transizione
+energetica del Canton Ticino. Permette di esplorare come le politiche pubbliche
+e i fattori esterni di oggi possono influenzare l'evoluzione del sistema
+energetico cantonale fino al 2050: la diffusione di fotovoltaico, batterie e
+sistemi di gestione dell'energia (EMS), le comunità energetiche, il passaggio
+alle pompe di calore e il risanamento degli edifici, la mobilità elettrica, la
+domanda di elettricità e i costi che ne derivano per gli utenti, con le
+differenze tra distretti.
+
+Alla base c'è un modello di **System Dynamics** che rappresenta il Ticino dal
+2011 al 2050, con passo annuale e otto distretti. Gli edifici residenziali sono
+descritti per **archetipi** (tipo di edificio, sistema di riscaldamento,
+efficienza dell'involucro, presenza di fotovoltaico), affiancati dal parco
+veicoli e dal bilancio elettrico cantonale. Prezzi, costi di rete e strumenti
+di policy collegano queste parti tra loro, e i parametri che descrivono le
+decisioni di famiglie e proprietari sono **calibrati sulle adozioni osservate**
+negli ultimi anni.
+
+Nelle pagine **Simulazioni SEneCa** si confrontano scenari già calcolati,
+scegliendo combinazioni di incentivi, tasse e regolamentazioni per fotovoltaico
+e batterie, riscaldamento e risanamento, veicoli; la pagina **Simulazione in
+tempo reale** fa girare il modello con valori scelti liberamente. I risultati
+vanno letti come **confronto tra scenari**: mostrano come cambia il sistema al
+variare delle politiche, non una previsione di ciò che accadrà.
+
+Qui sotto trovi l'approccio metodologico, che cosa il modello può e non può
+fare e, in quattro passi, come è stato costruito.
 """)
 )
 
-st.subheader(tr("Cosa può e non può fare il modello"))
-st.info(
-    tr("""
+with st.expander(tr("Approccio System Dynamics"), icon=":material/hub:"):
+    render_sd_intro()
+
+with st.expander(tr("Cosa può e non può fare il modello"), icon=":material/rule:"):
+    st.info(
+        tr("""
 **Il modello simula, non prevede e non ottimizza.** Permette di formulare
 esperimenti *what-if*: si modificano politiche, regolamentazioni e ipotesi di
 contesto e si osservano le conseguenze dinamiche che ne derivano, inclusi
@@ -107,22 +132,16 @@ un unico percorso «corretto», ma nel fornire un ambiente trasparente in cui
 confrontare alternative e capire quali relazioni causali generano le differenze
 tra scenari.
 """),
-    icon=":material/lightbulb:",
-)
-st.markdown(tr("""Domande alle quali il modello può e non può contribuire:"""))
-col_can, col_cannot = wrapping_columns(2, key="method_scope")
-with col_can.container(border=True):
-    st.markdown(tr(":green-badge[:material/check_circle: Può contribuire a rispondere a]"))
-    st.markdown("\n".join(f"- {tr(item)}" for item in CAN_ANSWER))
-with col_cannot.container(border=True):
-    st.markdown(tr(":red-badge[:material/block: Non è destinato a]"))
-    st.markdown("\n".join(f"- {tr(item)}" for item in CANNOT_ANSWER))
-
-st.divider()
-
-st.subheader(tr("Approccio System Dynamics"))
-
-render_sd_intro()
+        icon=":material/lightbulb:",
+    )
+    st.markdown(tr("""Domande alle quali il modello può e non può contribuire:"""))
+    col_can, col_cannot = wrapping_columns(2, key="method_scope")
+    with col_can.container(border=True):
+        st.markdown(tr(":green-badge[:material/check_circle: Può contribuire a rispondere a]"))
+        st.markdown("\n".join(f"- {tr(item)}" for item in CAN_ANSWER))
+    with col_cannot.container(border=True):
+        st.markdown(tr(":red-badge[:material/block: Non è destinato a]"))
+        st.markdown("\n".join(f"- {tr(item)}" for item in CANNOT_ANSWER))
 
 st.divider()
 

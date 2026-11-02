@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pv_batteries"))
 from chart_views import historical_series, transform_series
 from sd_explainer.loaders import load_calibration_series, load_pv_buildings_input
 from pv_batteries.history_data import available_history, calibration_observations
-from sd_explainer.paths import IMAGE_ARCHITECTURE, IMAGE_CLD, PV_INPUT_CSV, SIM_ADOPTIONS_CSV
+from sd_explainer.paths import IMAGE_CLD, PV_INPUT_CSV, SIM_ADOPTIONS_CSV
 
 
 class TemporalViewsTests(unittest.TestCase):
@@ -210,7 +210,7 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         self.assertEqual(sum(values[-1] for values in series.values()), 14231.)
 
     def test_methodology_asset_names_match_case_on_linux(self):
-        for image in (IMAGE_ARCHITECTURE, IMAGE_CLD):
+        for image in (IMAGE_CLD,):
             self.assertIn(image.name, [p.name for p in image.parent.iterdir()])
 
 
