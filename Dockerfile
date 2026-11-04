@@ -36,12 +36,14 @@ RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure
 FROM runtime AS application
 ARG CODE_VERSION=dev
 ARG DATA_RELEASE_TAG=unknown
+ARG SOURCE_REVISION=unknown
 ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic PYTHONPATH=/app SURE_BACKEND=julia STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
 COPY --from=model-builder /opt/julia-depot /opt/julia-depot
 COPY . /app
 COPY --from=model-builder /app/sure_julia/generated /app/sure_julia/generated
 RUN rm -rf /opt/pysd /opt/translator && python scripts/data_release.py verify && python scripts/verify_julia_release.py
 LABEL org.opencontainers.image.source="https://github.com/supsi-dacd-isaac/SEneCa" \
+      org.opencontainers.image.revision="${SOURCE_REVISION}" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${CODE_VERSION}" \
       ch.supsi.seneca.data-release="${DATA_RELEASE_TAG}"

@@ -1,0 +1,17 @@
+services:
+  streamlit-app:
+    image: ghcr.io/supsi-dacd-isaac/seneca-ems:${SENECA_IMAGE_TAG:?Set an explicit EMS preview version}
+    pull_policy: always
+    ports:
+      - "${SENECA_PORT:?Set the dedicated EMS port}:8501"
+    environment:
+      SURE_VARIANT: ems1
+      SURE_BACKEND: julia
+      PYTHONPATH: /app
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    container_name: seneca-streamlit-ems

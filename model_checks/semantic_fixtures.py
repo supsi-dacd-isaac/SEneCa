@@ -9,6 +9,7 @@ def model_cases():
         "Negative base": "-2",
         "Negative even power": "Negative base^2",
         "Negative odd power": "Negative base^3",
+        "Bounded base power": "MAX(0.2,MIN(1,Time/3))^2.5",
         "Zero power zero": "0^0",
         "Xidz below": "XIDZ(4,0.000000999,11)",
         "Xidz boundary": "XIDZ(4,0.000001,11)",
@@ -43,6 +44,9 @@ def model_cases():
         ("lazy_initialization", "Input=IF THEN ELSE(Time>=0,7,1/(Time-Time)) ~~|\nOutput=INTEG(1,Input) ~~|", ["Input", "Output"]),
         ("frozen_initial", "Input=Time+7 ~~|\nFrozen=INITIAL(Input) ~~|\nOutput=INTEG(Frozen,0) ~~|", ["Input", "Frozen", "Output"]),
         ("truth_array", "D: neg,small,zero,one ~~|\nMask[neg]=-1 ~~|\nMask[small]=0.1 ~~|\nMask[zero]=0 ~~|\nMask[one]=1 ~~|\nInput[D]=IF THEN ELSE(Mask[D],5,6) ~~|\nOutput[D]=INTEG(Input[D],0) ~~|", ["Input", "Output"]),
+        ("bounded_array_power", "D: a,b ~~|\nX[a]=0.2 ~~|\nX[b]=0.8 ~~|\nInput[D]=(1-MIN(0.9,MAX(0.1,X[D]+Time/10)))^2.5 ~~|\nOutput[D]=INTEG(Input[D],0) ~~|", ["Input", "Output"]),
+        ("lookup_power", "Curve([(0,0)-(8,2)],(0,0),(8,2)) ~~|\nD: a,b ~~|\nX[a]=0.2 ~~|\nX[b]=0.8 ~~|\nScalar=1.03^(-MIN(16,Curve(Time))) ~~|\nInput[D]=1.03^(-MIN(16,Curve(X[D]+Time))) ~~|\nOutput[D]=INTEG(Input[D],0) ~~|", ["Scalar", "Input", "Output"]),
+        ("ems_numerical_zero", "D: zero,residue,boundary,positive ~~|\nBuildings[zero]=0 ~~|\nBuildings[residue]=1e-19 ~~|\nBuildings[boundary]=1e-10 ~~|\nBuildings[positive]=1e-9 ~~|\nRemoval[D]=IF THEN ELSE(Buildings[D]>1e-10,MIN(1,Buildings[D]*0.02/IF THEN ELSE(Buildings[D]>1e-10,Buildings[D],1)),0) ~~|\nLoss[D]=INTEG(-Loss[D]*Removal[D],7000) ~~|", ["Removal", "Loss"]),
     ]
 
 

@@ -75,20 +75,30 @@ def main():
         live = get_engine(backend.engine_identity())
         warmup = dict(live.warmup)
         app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=900).run()
-        app.switch_page("pages/5_Analisi_Esplorativa.py").run()
-        if app.exception or app.error or len(app.dataframe[0].value) != 9:
-            raise RuntimeError(f"Policy mix UI failed: {app.exception}; {app.error}")
-        app.session_state['expl_subpage'] = 'Migliori policy mix'
-        app.run()
-        if app.exception or app.error or len(app.slider) != 9:
-            raise RuntimeError(f"Policy mix ranking failed: {app.exception}; {app.error}")
         app.switch_page("pages/9_Esplora_SURE_PySD.py").run()
         if app.exception:
             raise RuntimeError(str(app.exception))
+        app.select_slider(key="exp_EMS rebate").set_value(.4).run()
         button = next(b for b in app.button if "Simula e confronta" in b.label)
         button.click().run(timeout=900)
-        if app.exception or "exp_user_df" not in app.session_state:
+        if app.exception or app.error or "exp_user_df" not in app.session_state:
             raise RuntimeError(f"Live UI failed: {app.exception}")
+        # A non-base EMS scenario must reach the engine through the real page.
+        from pv_batteries import pv_batteries_config as pv
+        import pandas as pd
+        import numpy as np
+        received = pd.read_parquet(pv.CONSOLIDATED_TRAJ)
+        for name, value in {**pv.BASE_SCENARIO, "EMS rebate": .4}.items():
+            received = received.loc[received[name] == value]
+        received = received.sort_values("Time").set_index("Time")
+        actual = app.session_state["exp_user_df"]
+        columns = received.columns.difference(pv.INPUT_ORDER)
+        from .ems_store_validation import compare_values
+        if (list(actual.index) != list(received.index) or not compare_values(
+                received[columns].to_numpy(), actual[columns].to_numpy())["pass"]):
+            raise RuntimeError("Live EMS page disagrees with the supplied 40% scenario")
+        if np.array_equal(actual["EMS share of new PV"], app.session_state["exp_base_df"]["EMS share of new PV"]):
+            raise RuntimeError("The EMS input did not change the live results")
         startup = {"warmup": warmup, "first_user_request": dict(live.last_timing),
                    "same_engine": get_engine(backend.engine_identity()) is live,
                    "same_worker": live.process.pid == warmup["worker_pid"],

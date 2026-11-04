@@ -1,8 +1,8 @@
 {
-  "revision": "sure-v8-ems-1",
+  "revision": "sure-v8-ems-2",
   "sources": {
-    "Vensim\\SURE.mdl": "fa56485b5a4bac6aadc841ef925fbc5698a262c52bf4efdf2ffcba2faa405f25",
-    "Vensim\\SURE_pysd_ems1.mdl": "28398a5b311154871f7a60a3938f3397fa2662400da4de62454259c9dd17da08"
+    "Vensim/SURE.mdl": "602f2275e79ef8c9cbb75127a9716765a31806eb30a327841ff36576e8f564c7",
+    "Vensim/SURE_pysd_ems1.mdl": "c08b26f75a30978de224f4a8c32942da29bbad8865ccd3463c618b95c1f3a514"
   },
   "pass": true,
   "checks": {

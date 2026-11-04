@@ -47,12 +47,17 @@ DATA_PATHS = (
     "precomputed/veicoli_scenarios.parquet",
 )
 PROVENANCE_PATHS = ("provenance/scenarios.parquet", "provenance/build.json")
-TAG_RE = re.compile(r"data-v[0-9]+\.[0-9]+\.[0-9]+\Z")
+EMS_DATA_PATHS = tuple(p for p in DATA_PATHS if p.startswith((
+    "precomputed/pv_batteries_", "precomputed/risanamento_", "precomputed/veicoli_"))) + (
+    "provenance/sections.parquet", "provenance/sections.json", "provenance/build.json")
+TAG_RE = re.compile(r"data-(?:ems-)?v[0-9]+\.[0-9]+\.[0-9]+\Z")
 SHA_RE = re.compile(r"[0-9a-f]{64}\Z")
 
 
 def data_paths(tag: str) -> tuple[str, ...]:
     """Read historical archives unchanged; v2 omits the obsolete published model."""
+    if tag.startswith("data-ems-v"):
+        return EMS_DATA_PATHS
     if tag == "data-v1.0.0":
         return DATA_PATHS
     paths = DATA_PATHS
@@ -102,7 +107,7 @@ def _add_bytes(archive: tarfile.TarFile, name: str, content: bytes) -> None:
 
 def package_data(root: Path, output: Path, tag: str, source_commit: str) -> dict:
     if not TAG_RE.fullmatch(tag):
-        raise ValueError("Il tag dati deve avere forma data-vX.Y.Z")
+        raise ValueError("Il tag dati deve avere forma data-vX.Y.Z o data-ems-vX.Y.Z")
     if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
         raise ValueError("source_commit deve essere un commit SHA completo")
     files = [_validate_source(root, relative) for relative in data_paths(tag)]

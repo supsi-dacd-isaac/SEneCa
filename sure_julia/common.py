@@ -7,14 +7,14 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "ems1"
-MODEL_REVISION = "sure-v8-ems-1"
+MODEL_REVISION = "sure-v8-ems-2"
 MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
 MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
 CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"
 
 
 def model_sources():
-    return {str(p.relative_to(ROOT)): digest(p) for p in
+    return {p.relative_to(ROOT).as_posix(): digest(p) for p in
             [MODEL_PY, MODEL_MDL, CALIBRATION, ROOT / "Vensim/SURE.mdl",
              ROOT / "Vensim/calibration/manifest.json",
              *sorted((ROOT / "Vensim/calibration").glob("*.out")),

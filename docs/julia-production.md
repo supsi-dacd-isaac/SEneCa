@@ -1,5 +1,10 @@
 # SURE v7 production backend
 
+> On the experimental EMS branch the model is `sure-v8-ems-1`. The v7 release
+> evidence below does not certify that model or its supplied dataset. See the
+> [EMS translation and numerical assessment](validation/EMS_JULIA.md) before
+> preparing an EMS instance.
+
 The supported model is `sure-v7-dispatch-1`. Its retained validation evidence
 is under `docs/validation/`; small-model regression fixtures are under
 `model_checks/`. Obsolete models and experiment runners are available in

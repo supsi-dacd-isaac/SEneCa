@@ -53,6 +53,26 @@ class DataReleaseTests(unittest.TestCase):
         second = data_release.package_data(self.source, self.root / "other", "data-v1.0.0", "a" * 40)
         self.assertEqual(first["sha256"], second["sha256"])
 
+    def test_ems_archive_has_its_own_complete_file_contract(self):
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        for name in data_release.EMS_DATA_PATHS:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.suffix == ".parquet":
+                pq.write_table(pa.table({"value": [1.]}), path)
+            else:
+                path.write_text('{"test": true}\n')
+        output = self.root / "ems"
+        pin = data_release.package_data(self.source, output, "data-ems-v0.1.0", "b" * 40)
+        self.assertEqual(data_release.load_pin(output / "data-release.json"), pin)
+        destination = self.root / "installed-ems"
+        data_release.install_archive(output / pin["asset"], destination, pin)
+        data_release.verify_installed(destination, pin)
+        self.assertFalse((destination / "precomputed/exploratory_kpis.parquet").exists())
+        self.assertIn("provenance/sections.json", data_release.data_paths(pin["tag"]))
+        self.assertNotEqual(data_release.data_paths(pin["tag"]), data_release.data_paths("data-v2.0.0"))
+
     def test_new_release_requires_and_verifies_provenance(self) -> None:
         with self.assertRaisesRegex(ValueError, "mancante"):
             data_release.package_data(self.source, self.root / "new", "data-v1.1.0", "b" * 40)

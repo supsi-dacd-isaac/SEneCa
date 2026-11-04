@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name != 'release' || (startsWith(github.event.release.tag_name, 'v') && !github.event.release.prerelease)
+    if: github.event_name != 'release' || (startsWith(github.event.release.tag_name, 'v') && !github.event.release.prerelease) || (startsWith(github.event.release.tag_name, 'ems-v') && github.event.release.prerelease)
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +31,7 @@ jobs:
       contents: read
       packages: write
     env:
-      IMAGE: ghcr.io/supsi-dacd-isaac/seneca
+      IMAGE: ${{ startsWith(github.ref_name, 'ems-v') && 'ghcr.io/supsi-dacd-isaac/seneca-ems' || 'ghcr.io/supsi-dacd-isaac/seneca' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -43,8 +43,14 @@ jobs:
         shell: bash
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == release ]]; then
-            [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-            git merge-base --is-ancestor HEAD origin/main
+            if [[ "${GITHUB_REF_NAME}" == ems-v* ]]; then
+              [[ "${GITHUB_REF_NAME}" =~ ^ems-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+              git merge-base --is-ancestor origin/ems-webapp HEAD
+              python3 -c 'import json; assert json.load(open("data-release.json"))["tag"].startswith("data-ems-v")'
+            else
+              [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+              git merge-base --is-ancestor HEAD origin/main
+            fi
             echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           else
             echo "tag=check-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
@@ -70,6 +76,7 @@ jobs:
           tags: seneca:smoke
           cache-from: |
             type=registry,ref=${{ env.IMAGE }}:buildcache-${{ matrix.arch }}
+            type=registry,ref=ghcr.io/supsi-dacd-isaac/seneca:buildcache-${{ matrix.arch }}
             type=gha,scope=sure-${{ matrix.arch }}
           # Only release/main builds update the shared cache. Manual branch
           # checks can read it, but cannot replace it with unmerged changes.
@@ -77,6 +84,7 @@ jobs:
           build-args: |
             CODE_VERSION=${{ steps.version.outputs.tag }}
             DATA_RELEASE_TAG=${{ steps.version.outputs.data }}
+            SOURCE_REVISION=${{ github.sha }}
       - name: Unit tests and numerical simulation through the app
         run: |
           docker run --rm --entrypoint python seneca:smoke -m unittest discover -s tests -v
@@ -122,7 +130,7 @@ jobs:
     permissions:
       packages: write
     env:
-      IMAGE: ghcr.io/supsi-dacd-isaac/seneca
+      IMAGE: ${{ startsWith(github.ref_name, 'ems-v') && 'ghcr.io/supsi-dacd-isaac/seneca-ems' || 'ghcr.io/supsi-dacd-isaac/seneca' }}
     steps:
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
@@ -131,10 +139,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish immutable version and latest
+        if: ${{ !startsWith(github.ref_name, 'ems-v') }}
         run: |
           if docker manifest inspect "${IMAGE}:${GITHUB_REF_NAME}" >/dev/null 2>&1; then
             echo "Refusing to overwrite released version" >&2
             exit 1
           fi
           docker buildx imagetools create --tag "${IMAGE}:${GITHUB_REF_NAME}" --tag "${IMAGE}:latest" \
+            "${IMAGE}:${GITHUB_REF_NAME}-amd64" "${IMAGE}:${GITHUB_REF_NAME}-arm64"
+      - name: Publish immutable EMS preview
+        if: startsWith(github.ref_name, 'ems-v')
+        run: |
+          if docker manifest inspect "${IMAGE}:${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Refusing to overwrite released EMS preview" >&2
+            exit 1
+          fi
+          docker buildx imagetools create --tag "${IMAGE}:${GITHUB_REF_NAME}" \
             "${IMAGE}:${GITHUB_REF_NAME}-amd64" "${IMAGE}:${GITHUB_REF_NAME}-arm64"

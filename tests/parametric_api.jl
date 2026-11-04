@@ -8,7 +8,9 @@ values = Dict(String(k) => Float64(v) for (k, v) in JSON3.read(read(joinpath(dir
 
 @testset "SURE parameter API" begin
     parameters = model.parameters_from_dict(values)
-    @test length(fieldnames(typeof(parameters))) == 40
+    @test length(fieldnames(typeof(parameters))) == 42
+    @test Set(keys(values)) == Set(model.PARAMETER_NAMES)
+    @test all(name in keys(values) for name in ("EMS rebate", "Buildings PVno connected to RCPv"))
     @test all(==(Float64), fieldtypes(typeof(parameters)))
     @test parameters == model.DEFAULT_PARAMETERS
     @test model.parameters_from_dict(Dict(reverse(collect(values)))) == parameters

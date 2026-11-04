@@ -2860,7 +2860,7 @@
         "id": "7b3a1acff6a0d070c00300d9d07fb22786c2df01e0e218d72f6bdc490ed44bd6",
         "component": "Total Cantonal demand 5 years avg",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.input",
+        "vensim_ast_path": "ast.arguments[2]",
         "plan": {
           "reduced_order": [
             "District"
@@ -2924,21 +2924,6 @@
             "Battery": 2
           },
           "blocksize": 60
-        }
-      },
-      {
-        "id": "7dcb30733297e7ef9f99570cd8b147962481988482e4ff029622676ce6f96ea9",
-        "component": "Total Cantonal demand 5 years avg",
-        "vensim_component_index": 0,
-        "vensim_ast_path": "ast.initial",
-        "plan": {
-          "reduced_order": [
-            "District"
-          ],
-          "reduced_sizes": {
-            "District": 8
-          },
-          "blocksize": 8
         }
       },
       {
@@ -3516,7 +3501,7 @@
         "id": "905535224918bd6f47e3e51dd8b38d89943c0df12ca4d7a621c2935a140c3fc6",
         "component": "PV electricity SC by District",
         "vensim_component_index": 0,
-        "vensim_ast_path": "ast.arguments[0].arguments[0]",
+        "vensim_ast_path": "ast.arguments[0].arguments[0].arguments[0]",
         "plan": {
           "reduced_order": [
             "HS",

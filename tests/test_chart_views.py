@@ -173,7 +173,8 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         if audit['validated_julia_comparison_pass'] == 'pending':
             self.assertIsNone(audit['baseline_sha256'])
         else:
-            self.assertEqual(audit['validated_python_outputs_exact'], 136)
+            from sure_julia.catalog import outputs
+            self.assertEqual(audit['validated_python_outputs_exact'], len(outputs()))
             self.assertTrue(audit['validated_julia_comparison_pass'])
         frame = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
         self.assertEqual(list(frame.index), list(range(2011, 2026)))

@@ -1,25 +1,25 @@
 {
-  "model_revision": "sure-v8-ems-1",
+  "model_revision": "sure-v8-ems-2",
   "model_sources": {
-    "Vensim\\SURE_pysd_ems1.py": "4e929f9ed301d0004c862e6bfed3f63fcaf7fbc1ba06e98884c569127c87ef78",
-    "Vensim\\SURE_pysd_ems1.mdl": "28398a5b311154871f7a60a3938f3397fa2662400da4de62454259c9dd17da08",
+    "Vensim/SURE_pysd_ems1.py": "f23f859cc4b1946d5c353d84116c3dd98b06a04197fc503ae8928d94b90eb82b",
+    "Vensim/SURE_pysd_ems1.mdl": "c08b26f75a30978de224f4a8c32942da29bbad8865ccd3463c618b95c1f3a514",
     "constants_ref_ems1.pkl": "a8ddcb78b7c46d7bcdfba7ece95065503ab92b61f073683128a1ae4d7f733daa",
-    "Vensim\\SURE.mdl": "fa56485b5a4bac6aadc841ef925fbc5698a262c52bf4efdf2ffcba2faa405f25",
-    "Vensim\\calibration\\manifest.json": "f556361fc68c11d34ed4ca451a017bf8e5eb16dc77d84b6be9368dc0daaf30aa",
-    "Vensim\\calibration\\Energy cost.out": "145d0ae90c5827f020990c64052938f32996ab007bd94ea455c57021d63e354c",
-    "Vensim\\calibration\\PV and Battery and HS and HP.out": "6a85d3a626938a5c0e13b791529bf162650f3bb533dc5875c2b2b34f82d99026",
-    "Vensim\\calibration\\Renovation.out": "a8e3dd4c0004f3458e22a66306d24493153e3496986f6338b1ee44861f7d14b9",
-    "Vensim\\calibration\\Vehicle.out": "380b76943ed3fcdbbfea04303dde3ed6df18e18d925bc9faed8bf68c6127116e",
-    "sure_julia\\pv_budget.py": "0db926a5f8fb9b8911042011eb2f84141609e16d13155a83f3453b08bb98694f",
-    "sure_julia\\pv-budget.json": "7ba3309f0ab69d72245d8b1c1da856514614751f730356f37f6ee16efe069e8b",
-    "fix_selfref_sure.py": "64a000daf1d622d4a4dcc1cc52dd34b4b1ab1a0e0936569af7aebead9b5b7905",
-    "fix_allocate_sure.py": "825219905ddc3b7fddcab441a623cf3ccc8b1d99180a7d85cf052364695bac78",
-    "Vensim\\EVinput_pysd_ems1.csv": "5c00efe73a1151ea9da24f474ee8e4bb5a7c195ef841eccc74e42eb5dc29211c",
-    "Vensim\\HPinput_pysd_ems1.csv": "edbc2a25d848192ce7af3ae8752f7593302356248dd873337a308ccf14b5fb1b",
-    "Vensim\\Input Hour Factors_pysd_ems1.csv": "5ef2e0da8a54d72fe3dd170279e9991b5c399dea503918f2576ccfb98d368a60",
-    "Vensim\\Input2011_pysd_ems1.csv": "00019b48e3e584d04436c9615eaebc66a48d073c3ce91b837397dc2eb7970749",
-    "Vensim\\InputRenovation_pysd_ems1.csv": "ca97bbb345ff23d94a6bf45d1d864972bca44211c79cd2d1b21bed44825fa727",
-    "Vensim\\PVinput_pysd_ems1.csv": "bc8c8168384efb19b71301b1894a948af9367a4b8f91e05eecf08b26522e9be0"
+    "Vensim/SURE.mdl": "602f2275e79ef8c9cbb75127a9716765a31806eb30a327841ff36576e8f564c7",
+    "Vensim/calibration/manifest.json": "b357584eac44848437582e9d44c73ff335b20f0d180481a334304f297a892a0f",
+    "Vensim/calibration/Energy cost.out": "145d0ae90c5827f020990c64052938f32996ab007bd94ea455c57021d63e354c",
+    "Vensim/calibration/PV and Battery and HS and HP.out": "6a85d3a626938a5c0e13b791529bf162650f3bb533dc5875c2b2b34f82d99026",
+    "Vensim/calibration/Renovation.out": "a8e3dd4c0004f3458e22a66306d24493153e3496986f6338b1ee44861f7d14b9",
+    "Vensim/calibration/Vehicle.out": "380b76943ed3fcdbbfea04303dde3ed6df18e18d925bc9faed8bf68c6127116e",
+    "sure_julia/pv_budget.py": "b0e103b526d7662b4e32b243e4afe78f456e883e4d2a6f27b15567d1d8d25f42",
+    "sure_julia/pv-budget.json": "c701a6a716f762d2a8998c666aded09ee5ba9df5ab6cb354cc6434c6381d7c11",
+    "fix_selfref_sure.py": "bee4ad9bd96593895c30538af72fe1e59fd97762f2be2d3c0cf5c64fa31adce1",
+    "fix_allocate_sure.py": "6d350a8a4e2e3f75830c3b27ce8a80786251ae40456de1a1b6124d2ff23542a6",
+    "Vensim/EVinput_pysd_ems1.csv": "c49a265d07a8aadb823a7d4d2a7b74d56b13cf3808ddb6c3590919704070b8a9",
+    "Vensim/HPinput_pysd_ems1.csv": "c0483791620ff8646d4491fd6249990705c2209b58027a48290651d9828af0df",
+    "Vensim/Input Hour Factors_pysd_ems1.csv": "9fa7ccafb9ba17f44e45ef4d8c4d96945f8185129f1e718ede61d2ea45b0f8ea",
+    "Vensim/Input2011_pysd_ems1.csv": "68100f34e517b6b695ecdec2b84f3863d95d6e5693e6fed714e8e88dbc575516",
+    "Vensim/InputRenovation_pysd_ems1.csv": "5c77b326fc0dbd52fbeb2bfe09b43d4c9c4292dad517b2aea7a7479168473d49",
+    "Vensim/PVinput_pysd_ems1.csv": "e39b389e4c4ca1aac3ad252b84210698a2d11ddb82b26dc4b94a152479ebd688"
   },
   "years": [
     2011,
@@ -113,8 +113,11 @@
     "Adoption Vehicles"
   ],
   "engine": "PySD 3.14.3; canonical calibration; synchronous DELAY FIXED; baseline policy",
-  "validated_python_outputs_exact": "pending",
-  "validated_julia_comparison_pass": "pending",
-  "baseline_sha256": null,
-  "csv_sha256": "0d6b141d9f0dc991833b6068d44034cd1b7f644223150a209a291092f62cb51f"
+  "validated_python_outputs_exact": 141,
+  "validated_julia_comparison_pass": true,
+  "baseline_sha256": {
+    "python.npz": "a3232289c884531062ebf8979e9a6c4c5eacbd26e15e7619d69c2c4bf132006c",
+    "julia.npz": "71d81e82af28455e4368ee404649e4e15ded0871746f755041fc92be4b2ae50a"
+  },
+  "csv_sha256": "7c60e9e9513f6798bdce012694c25eeffdf6f28dacb75b5457ae615dbdd1c4d1"
 }

@@ -21,31 +21,24 @@ def negative_stock_regression():
 
 
 def cases():
+    """EMS live contract: lever boundaries, cross-effects and intermediate values."""
     from pysd_explore_config import ALL_INPUTS
-    from pv_batteries import exploratory_config as exp
     base = defaults()
-    result = {"base": base}
-    # Worst negative dwelling weight in the original 8,171-scenario batch.
-    result["regression_negative_stock"] = negative_stock_regression()
+    result = {"base": base, "regression_negative_stock": negative_stock_regression()}
     for name, select in [("low", min), ("mid", lambda v: sorted(v)[len(v)//2]), ("high", max)]:
         result[name] = parameters({i.name: float(select(i.values)) for i in ALL_INPUTS})
-    for run in read(ROOT / "model_checks/native_scenarios.json")["runs"]:
-        result[run["id"]] = parameters(run["inputs"])
     for i, spec in enumerate(ALL_INPUTS):
         values = spec.values if spec.binary or spec.choice_labels else [min(spec.values), max(spec.values)]
         for j, v in enumerate(values):
-            result[f"lever_{i:02d}_{j}"] = {**base, spec.name: float(v)}
-    for i, policy in enumerate(exp.all_policy_combos()):
-        result[f"policy_{i:03d}"] = parameters({**policy, exp.EXPLORATORY_SWITCH: 1})
-    for i, (name, bounds) in enumerate(exp.UNCERTAINTY_BOUNDS.items()):
-        for j, value in enumerate(bounds):
-            result[f"uncertainty_{i:02d}_{j}"] = parameters({name: value, exp.EXPLORATORY_SWITCH: 1})
-    samples = pd.read_parquet(exp.SAMPLES_PATH)
-    exp.validate_samples(samples)
-    for which, select in [("min", min), ("max", max)]:
-        policy = {k: select(v) for k, v in exp.POLICY_GRID.items()}
-        for i, sample in enumerate(samples[exp.UNCERTAINTY_ORDER].to_dict("records")):
-            result[f"sample_{which}_{i:02d}"] = parameters({**policy, **sample, exp.EXPLORATORY_SWITCH: 1})
+            result[f"lever_{i:02d}_{j}"] = parameters({spec.name: float(v)})
+    for rebate, community, connected in itertools.product((0., .4, .8), (0., 1.), (1., 1.5, 2.)):
+        name = f"ems_{rebate:g}_rcpv_{community:g}_connected_{connected:g}"
+        result[name] = parameters({"EMS rebate": rebate, "Energy Community scenario": community,
+                                   "Buildings PVno connected to RCPv": connected})
+    # The live controls also expose values outside the precomputed grid.
+    result["live_intermediate"] = parameters({"EMS rebate": .35, "Energy Community scenario": 1.,
+        "Buildings PVno connected to RCPv": 1.7, "PV rebate cantonal": .13, "FiT": .027,
+        "Battery Rebate": .19, "PV rebate federal": .31})
     return result
 
 
@@ -65,7 +58,11 @@ def compare(reference, candidate, export, exact=False):
         limit = np.zeros_like(a) if exact or name.strip('"') in discrete else 1e-10*scale + 1e-8*np.abs(a)
         failed = error > limit
         row = {"variable": name, "pass": not bool(failed.any()), "cells": a.size,
-               "failures": int(failed.sum()), "max_abs": float(error.max())}
+               "failures": int(failed.sum()), "max_abs": float(error.max()),
+               "exact": bool(np.array_equal(a, b)),
+               "max_scaled_error": float((error / np.maximum(1., abs(a))).max())}
+        if not exact and name.strip('"') not in discrete:
+            row["max_tolerance_fraction"] = float((error / limit).max())
         if failed.any():
             index = tuple(np.argwhere(failed)[0])
             spec = next(v for v in export if v["name"] == name)
@@ -271,7 +268,7 @@ def main():
     all_cases = cases()
     selected = {n: all_cases[n] for n in args.cases} if args.cases else all_cases
     stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "cases": selected,
-             "samples": digest(ROOT / "precomputed/exploratory/uncertainty_samples.parquet")}
+             "profile": "ems1-live-0-40-80"}
     args.directory.mkdir(parents=True, exist_ok=True)
     dump(args.directory / "summary.json", {"pass": False, "complete_suite": False, "status": "running"})
     (args.directory / "certificate.json").unlink(missing_ok=True)

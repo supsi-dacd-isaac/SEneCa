@@ -57,7 +57,7 @@ def prepare(check=False):
     audits = [budget_audit(p.read_text(encoding="latin-1")) for p in sources]
     if audits[0] != audits[1]:
         raise ValueError("Native and preprocessed PV source budgets differ")
-    audit = {"revision": REVISION, "sources": {str(p.relative_to(ROOT)): digest(p) for p in sources},
+    audit = {"revision": REVISION, "sources": {p.relative_to(ROOT).as_posix(): digest(p) for p in sources},
              "pass": True, "checks": audits[0]["checks"], "native_preprocessed_requests_identical": True}
     target = Path(__file__).with_name("pv-budget.json")
     if check:
