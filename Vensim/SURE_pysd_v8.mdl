@@ -1833,12 +1833,12 @@ PV buildings[District,HS,Performance,Type]=
 	|
 
 PV removal fraction[District,HS,Performance,Type]=
-	IF THEN ELSE(PV buildings[District,HS,Performance,Type]>0,MIN(1/TIME STEP,
+	IF THEN ELSE(PV buildings[District,HS,Performance,Type]>1e-10,MIN(1/TIME STEP,
 	SUM(Building demolition by archetype[District,HS,Performance,Type,PVyes,Battery!])/IF THEN ELSE\
-		(PV buildings[District,HS,Performance,Type]>0,
+		(PV buildings[District,HS,Performance,Type]>1e-10,
 	PV buildings[District,HS,Performance,Type],1)),0)
 	~	1/year
-	~	[CORE E19] Share of PV buildings demolished in the year.
+	~	[CORE E19] Share of PV buildings demolished in the year. Stocks at or below 1e-10 buildings are numerical zero.
 	|
 
 Dispatchable supply by supplier[Month,Hour,Supplier]=

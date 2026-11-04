@@ -1,8 +1,8 @@
 {
-  "revision": "sure-v8-nr-calendar-1",
+  "revision": "sure-v8-nr-calendar-2",
   "sources": {
-    "Vensim\\SURE.mdl": "d1b39735a4b1101709ce6a9ee58a32dcdcb3fc18ede7148c5e99df6958092ef9",
-    "Vensim\\SURE_pysd_v8.mdl": "a814d6b1e961f9cfdead5310f6cb9a61efe5ba2a8c83d89b9430236f1e96f033"
+    "Vensim/SURE.mdl": "95ef3b0aaa0516b281bdb5cd5938a387a71baa4f3062e973003cb26446222808",
+    "Vensim/SURE_pysd_v8.mdl": "395ee5625980335e99999d1444143a2559b5cc70ce4005ef5e99d8d04a41928d"
   },
   "pass": true,
   "checks": {

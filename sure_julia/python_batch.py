@@ -60,8 +60,8 @@ def all_outputs():
                               list(cfgs[s].OUTPUT_BASES) + list(getattr(cfgs[s], "GMD_VARS", []))))
 
 
-def initialize(directory):
-    global ENGINE, TARGET, EXPORT, CONFIGS
+def initialize(directory, verify_julia=False):
+    global ENGINE, JULIA, TARGET, EXPORT, CONFIGS
     from .python_backend import PythonBackend
     TARGET = Path(directory)
     ENGINE = PythonBackend(outputs=all_outputs())
@@ -69,11 +69,23 @@ def initialize(directory):
                   "coords": {d: ENGINE.dimensions[d] for d in ENGINE.variables[n].get("subscripts", [])}}
               for n in ENGINE.outputs}
     CONFIGS = configs()
+    JULIA = None
+    if verify_julia:
+        from .runtime import JuliaBackend
+        JULIA = JuliaBackend(timeout=900)
 
 
 def _execute(job):
     started = time.perf_counter()
     arrays = ENGINE.run_arrays(job["parameters"], job["outputs"])
+    comparison = None
+    if globals().get("JULIA") is not None:
+        from .validation import compare
+        candidate = JULIA.run_arrays(job["parameters"], job["outputs"])
+        comparison = compare(arrays, candidate, JULIA.export)
+        if not comparison["pass"]:
+            dump(TARGET / "comparisons" / f"{job['id']}.json", comparison)
+            raise ValueError("Julia differs from the regenerated Python scenario")
     value_hash = hashlib.sha256()
     for name in sorted(arrays):
         value_hash.update(name.encode())
@@ -101,7 +113,8 @@ def _execute(job):
     report = {"status": "complete", "parameters": job["parameters"], "destinations": job["destinations"],
               "value_sha256": value_hash.hexdigest(), "timing": ENGINE.last_timing, "physical": ENGINE.last_physical,
               "elapsed_seconds": time.perf_counter()-started, "gmd_weight_audit": gmd_audit,
-              "warnings": ENGINE.warnings, "files": {str(p.relative_to(TARGET)): digest(p) for p in paths}}
+              "warnings": ENGINE.warnings, "files": {str(p.relative_to(TARGET)): digest(p) for p in paths},
+              "julia_comparison": comparison}
     dump(TARGET / "completed" / f"{job['id']}.json", report)
     (TARGET / "failed" / f"{job['id']}.json").unlink(missing_ok=True)
     return job["id"], report["elapsed_seconds"]
@@ -125,10 +138,14 @@ def consolidate(directory, planned):
     release = directory / "release/precomputed"
     release.mkdir(parents=True, exist_ok=True)
     provenance = []
+    generation = read(directory / "manifest.json")
+    verify_julia = generation.get("verify_julia", False)
     for job in planned:
         report = read(directory / "completed" / f"{job['id']}.json")
         if report["parameters"] != job["parameters"] or not report["physical"]["pass"]:
             raise ValueError("Completed job differs or failed physical checks")
+        if verify_julia and not (report.get("julia_comparison") or {}).get("pass"):
+            raise ValueError("Missing Python-Julia comparison for a generated scenario")
         for name, expected in report["files"].items():
             if digest(directory / name) != expected:
                 raise ValueError("Completed output checksum differs")
@@ -157,7 +174,9 @@ def consolidate(directory, planned):
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/sections.parquet"),
         "sections": list(SECTIONS), "unchanged": ["exploratory_kpis.parquet", "exploratory/uncertainty_samples.parquet"],
-        "julia_validation": "pending", "native_vensim_equivalent": False})
+        "julia_validation": ({"pass": True, "scenarios": len(planned),
+                              "build_sha256": generation["julia_build"]} if verify_julia else "pending"),
+        "native_vensim_equivalent": False})
 
 
 def install(directory):
@@ -175,6 +194,8 @@ def main():
     parser.add_argument("--workers", type=int, default=max(1, multiprocessing.cpu_count() - 2))
     parser.add_argument("--pilot", type=int, default=0, help="Run only N evenly spaced scenarios")
     parser.add_argument("--install", action="store_true", help="Install a consolidated run into precomputed/")
+    parser.add_argument("--verify-julia", action="store_true",
+                        help="Require strict Julia agreement for every regenerated Python scenario")
     args = parser.parse_args()
     if args.install:
         return install(args.directory)
@@ -185,6 +206,8 @@ def main():
              "code": {str(p.relative_to(ROOT)): digest(p) for p in
                       [*Path(__file__).parent.glob("*.py"), *(ROOT / "pv_batteries").glob("*config.py"),
                        ROOT / "pv_batteries/gmd.py", ROOT / "pysd_explore_config.py", ROOT / "sure_pysd.py"]}}
+    if args.verify_julia:
+        stamp.update(verify_julia=True, julia_build=digest(ROOT / "sure_julia/generated/build.json"))
     args.directory.mkdir(parents=True, exist_ok=True)
     manifest = args.directory / "manifest.json"
     if manifest.exists() and read(manifest) != stamp:
@@ -212,7 +235,7 @@ def main():
     if pending:
         context = multiprocessing.get_context("spawn")
         with concurrent.futures.ProcessPoolExecutor(args.workers, mp_context=context, initializer=initialize,
-                                                    initargs=(str(args.directory),)) as pool:
+                                                    initargs=(str(args.directory), args.verify_julia)) as pool:
             futures = [pool.submit(execute, job) for job in pending]
             try:
                 for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
@@ -231,6 +254,9 @@ def main():
         dump(args.directory / "summary.json", {"complete": False, "scenarios": len(planned), "failed": failed,
                                                 "seconds": time.perf_counter()-started, "workers": args.workers})
         raise SystemExit(f"{len(failed)} scenarios failed; see {args.directory / 'failed'}. Nothing consolidated.")
+    if model_sources() != stamp["sources"] or (args.verify_julia and
+            digest(ROOT / "sure_julia/generated/build.json") != stamp["julia_build"]):
+        raise ValueError("Model or Julia build changed during generation")
     if not args.pilot:
         consolidate(args.directory, planned)
     dump(args.directory / "summary.json", {"complete": True, "scenarios": len(planned),

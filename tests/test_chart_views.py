@@ -168,13 +168,9 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         self.assertEqual(audit['model_revision'], MODEL_REVISION)
         self.assertEqual(audit['model_sources'], model_sources())
         self.assertEqual(audit['csv_sha256'], hashlib.sha256(SIM_ADOPTIONS_CSV.read_bytes()).hexdigest())
-        # The v8 curves come from the Python oracle; the Julia comparison is a
-        # release gate still to be run (scripts/export_calibration_plot.py --baseline).
-        if audit['validated_julia_comparison_pass'] == 'pending':
-            self.assertIsNone(audit['baseline_sha256'])
-        else:
-            self.assertEqual(audit['validated_python_outputs_exact'], 136)
-            self.assertTrue(audit['validated_julia_comparison_pass'])
+        from sure_julia.catalog import outputs
+        self.assertEqual(audit['validated_python_outputs_exact'], len(outputs()))
+        self.assertIs(audit['validated_julia_comparison_pass'], True)
         frame = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
         self.assertEqual(list(frame.index), list(range(2011, 2026)))
         for tech, years in audit['observation_years'].items():

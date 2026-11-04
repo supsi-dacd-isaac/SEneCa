@@ -6458,10 +6458,10 @@ def pv_buildings():
 )
 def pv_removal_fraction():
     """
-    [CORE E19] Share of PV buildings demolished in the year.
+    [CORE E19] Share of PV buildings demolished in the year. Stocks at or below 1e-10 buildings are numerical zero.
     """
     return if_then_else(
-        pv_buildings() > 0,
+        pv_buildings() > 1e-10,
         lambda: np.minimum(
             1 / time_step(),
             sum(
@@ -6472,7 +6472,7 @@ def pv_removal_fraction():
                 dim=["Battery!"],
             )
             / if_then_else(
-                pv_buildings() > 0,
+                pv_buildings() > 1e-10,
                 lambda: pv_buildings(),
                 lambda: xr.DataArray(
                     1,
