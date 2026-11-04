@@ -42,6 +42,18 @@ def verify(root):
         sample_hash = digest(root / "precomputed/exploratory/uncertainty_samples.parquet")
         if sample_hash != generation["sample_sha256"] or sample_hash != reviewed["uncertainty_samples_sha256"]:
             raise ValueError("The v8 uncertainty draws changed")
+        sections = provenance["section_validation"]
+        if (sections.get("pass") is not True or sections["scenarios"] != 1771
+                or sections["configurations"] != 1779
+                or sections["model_revision"] != actual["model_revision"]
+                or len(sections["sections"]) != 6
+                or any(s["python_julia"]["cells_beyond_tolerance"] for s in sections["sections"].values())):
+            raise ValueError("Incomplete v8 section equivalence audit")
+        curves = provenance["calibration_curves"]
+        if (curves["model_sources"] != actual["sources"]
+                or curves["validated_julia_comparison_pass"] is not True
+                or curves["csv_sha256"] != digest(root / "content/system_dynamics/plots_data/calibration_sim_adoptions_v8.csv")):
+            raise ValueError("Calibration plots and dataset have different model identities")
     import pandas as pd
     from pv_batteries.exploratory import validate_kpi_store
     from pv_batteries.exploratory_config import validate_samples

@@ -109,6 +109,19 @@ def audit(preview, paired, generated, output):
         print(section, "PASS", verified["cells"], "cells; preview differences:",
               preview_delta["cells_beyond_tolerance"], flush=True)
     dump(output, result)
+    provenance_path = generated / "release/provenance/build.json"
+    provenance = read(provenance_path)
+    if (provenance["model"]["sources"] != model_sources()
+            or provenance["generation_manifest_sha256"] != digest(generated / "manifest.json")):
+        raise ValueError("Cannot attest a release from a different model or run")
+    calibration = ROOT / "content/system_dynamics/plots_data/calibration_sim_adoptions_v8.json"
+    curves = read(calibration)
+    if (curves["model_sources"] != model_sources()
+            or curves["validated_julia_comparison_pass"] is not True
+            or curves["csv_sha256"] != digest(calibration.with_suffix(".csv"))):
+        raise ValueError("Calibration curves do not match the validated model")
+    provenance.update(section_validation=result, calibration_curves=curves)
+    dump(provenance_path, provenance)
 
 
 if __name__ == "__main__":
