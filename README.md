@@ -7,25 +7,27 @@ sostituzione dei sistemi di riscaldamento, elettrificazione della mobilita',
 bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
 Il modello è sviluppato in Vensim e tradotto con
-[PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
-simulazioni live di SURE v7 con Julia; il backend Python resta selezionabile.
-La release `v0.4.0` usa il modello `sure-v7-dispatch-1` e i dati
-`data-v2.0.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
-incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
-La v7 integra la correzione del contributo cantonale FER, la calibrazione
-ricevuta il 16 ottobre 2026 e il dispatch per priorità. Il budget condiviso
-limita le adozioni PV agli edifici disponibili. Tutti i 418 confronti
-Python–Julia e i controlli fisici del batch sono superati; restano documentati
-i piccoli scarti dell’allocatore nativo Vensim nella
-[diagnosi e validazione v7](docs/validation/dispatch-correction.md).
+[PySD](https://pysd.readthedocs.io/). La versione principale usa **SURE v8**
+(`sure-v8-nr-calendar-2`) per gli scenari precalcolati e le simulazioni live con
+Julia; il backend Python resta selezionabile esplicitamente.
 
-Questo ramo porta il modello a **SURE v8** (`sure-v8-nr-calendar-1`):
-sottomodello FV non residenziale, calendario delle installazioni, nuovi input
-e calibrazione del 30 ottobre 2026. Gli store delle pagine "Simulazioni
-SEneCa" sono rigenerati con il backend Python
-(`python -m sure_julia.python_batch`); policy mix e incertezza restano quelli
-di `data-v2.0.0`. Build e validazione Julia della v8 sono ancora da eseguire
-prima di una release: vedi [Vensim/README.md](Vensim/README.md).
+La v8 introduce il fotovoltaico non residenziale, il calendario delle
+installazioni, nuovi input e la calibrazione del 30 ottobre 2026, oltre alle
+perdite delle batterie residenziali. Conserva FER, budget condiviso delle
+adozioni FV e dispatch per priorità. La revisione 2 stabilizza il trattamento
+degli stock FV prossimi a zero, con la stessa modifica in Vensim, Python e Julia.
+
+La griglia principale comprende 14.571 simulazioni distinte per 14.579
+configurazioni, incluse **12.800 combinazioni di policy mix e incertezza**:
+128 politiche × gli stessi 100 campioni della v7, con nove KPI. Tutti i risultati
+devono essere rigenerati con la v8; lo ZIP di anteprima contiene invece dati
+misti v8 Python/v7 Julia e non va usato come release.
+
+Il rilascio richiede 427 confronti Python–Julia, controlli fisici, isolamento
+degli stati, benchmark seriale/parallelo e verifica completa delle sezioni.
+La procedura e i limiti della verifica sono nella [guida Julia](docs/julia-production.md).
+Non si rivendica equivalenza con Vensim nativo. La linea EMS è un progetto
+separato, con modello, dati e release dedicati.
 
 ## Riconoscimenti
 
@@ -214,7 +216,7 @@ nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
 ## Sorgenti del modello e manutenzione
 
 Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v8.mdl` e `.py`
-sono i derivati usati per il runtime `sure-v8-nr-calendar-1`. Le quattro
+sono i derivati usati per il runtime `sure-v8-nr-calendar-2`. Le quattro
 calibrazioni originali sono conservate in `Vensim/calibration/`, con manifest
 e checksum; `constants_ref_v8.pkl` contiene 30 gruppi in Float64 derivati da
 53 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.

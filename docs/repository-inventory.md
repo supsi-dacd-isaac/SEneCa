@@ -1,6 +1,6 @@
 # File del repository e modello supportato
 
-Il ramo di sviluppo usa **sure-v8-nr-calendar-1** e la calibrazione
+Il ramo di sviluppo usa **sure-v8-nr-calendar-2** e la calibrazione
 ricevuta il 30 ottobre 2026. La release `v0.4.0` usa ancora
 `sure-v7-dispatch-1` con il dataset `data-v2.0.0`; i dati pubblicati
 restano immutabili fino alla validazione Julia della v8.
@@ -20,7 +20,7 @@ Tutto il materiale rimosso resta recuperabile nel
 | `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v8.pkl` | Quattro file ricevuti, 53 assegnazioni originali e 30 gruppi ricostruiti in Float64. |
 | CSV nativi in `Vensim/` | Storici mostrati nell’app e sorgenti dei dati preparati per PySD. |
 | `content/system_dynamics/` restante | Immagini, mappa, storici e priorità del workshop effettivamente letti dalle pagine. |
-| `calibration_sim_adoptions_v8.csv` e `.json` | Curve della baseline v8 per il confronto di calibrazione, con provenienza; il confronto con la baseline Julia resta da eseguire. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `calibration_sim_adoptions_v8.csv` e `.json` | Curve della baseline v8 per il confronto di calibrazione, con provenienza; il confronto con la baseline Julia è obbligatorio prima della release. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
 | `nr_capacity_history.csv` | Storico FV 30–100 e >100 kW esportato da `SURE.mdl` (`scripts/export_nr_history.py`). |
 | `Input and Output Streamlit.xlsx` | Specifica delle leve e degli output, verificata dai test e registrata nella provenienza del batch. |
 | `SEneCa_documentation.pdf` | Documento scaricabile dalla home. |
@@ -32,7 +32,7 @@ Tutto il materiale rimosso resta recuperabile nel
 Le versioni v6, le copie `pvbounded`, il vecchio pickle e gli script di
 `Vensim_test_runs/` sono rimossi. Le fixture ancora utili sono conservate in
 `model_checks/dispatch_vectors.npy` e il ponte Windows in `vensim_windows.py`.
-La provenienza del nuovo batch registra tutti i sorgenti v7 e i file OUT.
+La provenienza del nuovo batch registra tutti i sorgenti v8 e i file OUT.
 
 Dalla patch `v0.4.1`, i grafici di calibrazione ricavano il periodo dai valori
 disponibili per ogni tecnologia: PV e pompe di calore includono il 2025,

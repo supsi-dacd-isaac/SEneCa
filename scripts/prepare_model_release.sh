@@ -98,6 +98,23 @@ echo full-regeneration > "$root/stage"
 python -u -m sure_julia.batch "$root/full" --workers 32 --validation "$root/validation" > "$root/full.log" 2>&1
 echo section-equivalence > "$root/stage"
 python -u -m sure_julia.python_batch "$root/section-equivalence" --workers 32 --verify-julia > "$root/section-equivalence.log" 2>&1
+echo section-audit > "$root/stage"
+python scripts/audit_v8_sections.py precomputed "$root/section-equivalence" "$root/full" "$root/section-audit.json" > "$root/section-audit.log" 2>&1
+echo native-input-staging > "$root/stage"
+python - "$root" <<'PY'
+from pathlib import Path
+import shutil, sys
+from sure_julia.common import ROOT, digest, read
+destination=Path(sys.argv[1])/'full/release/Vensim'
+destination.mkdir(parents=True, exist_ok=True)
+for name, expected in read(ROOT/'docs/validation/v8-inputs.json')['native_inputs'].items():
+    source=ROOT/'Vensim'/name
+    if digest(source) != expected:
+        raise ValueError('Native source changed during generation')
+    shutil.copy2(source, destination/name)
+    if digest(destination/name) != expected:
+        raise ValueError('Native input staging failed')
+PY
 echo final-audit > "$root/stage"
 python scripts/verify_production_data.py "$root/full" "$root/data-audit.json" --resources "$root/resources.jsonl" > "$root/data-audit.log" 2>&1
 echo ready-for-release > "$root/stage"
