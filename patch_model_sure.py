@@ -35,6 +35,7 @@ import sure_paths as paths  # noqa: E402
 MODEL_DIR = paths.VENSIM
 SRC_MDL = paths.SRC_MDL
 ENC = "latin-1"
+FINAL_YEAR = 2050
 
 
 def join_continuations(text: str) -> str:
@@ -189,6 +190,11 @@ def main():
         return "\n\n".join(eqs) if eqs else m.group(0)
 
     new_text, n = EQ_PAT.subn(repl, text)
+    # Il sorgente puo' essere salvato in configurazione di calibrazione
+    # (FINAL TIME = 2025): le run dell'app coprono sempre 2011-2050.
+    new_text, n_final = re.subn(r"(?m)^FINAL TIME\s*=\s*\d+", f"FINAL TIME  = {FINAL_YEAR}", new_text)
+    if n_final != 1:
+        raise SystemExit("FINAL TIME non trovato in modo univoco in SURE.mdl")
 
     print(f"\nEquazioni GET VDF DATA trovate: {stats['matches']}")
     print(f"Equazioni GET DIRECT DATA generate: {stats['eqs']}")

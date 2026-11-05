@@ -1,13 +1,13 @@
-:COMSYS After 1984 simulations
-:COMSYS Best payoff is -642310
-:COMSYS Normally terminated optimization
+:COMSYS After 18 simulations
+:COMSYS Best payoff is -625198
+:COMSYS User terminated optimization session
 :OPTIMIZER=Powell
 :SENSITIVITY=Off
 :MULTIPLE_START=Off
 :RANDOM_NUMBER=Default
 :OUTPUT_LEVEL=On
 :TRACE=Off
-:MAX_ITERATIONS=1000
+:MAX_ITERATIONS=100
 :RESTART_MAX=3
 :PASS_LIMIT=2
 :FRACTIONAL_TOLERANCE=0.0003
@@ -33,21 +33,21 @@
 :MCKNN=0
 :MCEPSILON=0.01
 :MCFTEMP=1
--8 <= Alpha old = -1.76831  <= 0
-0 <= Share of consumers considering PV weight = 1.62728  <= 5
-0 <= PV Eco weight = 0.107293  <= 1
-0 <= House Value Utility PV weight = 1.09761  <= 20
--5 <= Primary houses PV weight = 0  <= 0
-0 <= HP for PV weight = 1.40756  <= 2
-0 <= Peer effect HS weight = 1.52587  <= 10
--10 <= Economic Utility weight = -1.34438  <= 0
--5 <= Green Utility weight = 0  <= 0
-0 <= Double Tech weight = 2.24336  <= 5
-0 <= PV for HP weight = 2.42349  <= 5
-0 <= House Value weight = 20.9362  <= 40
--2 <= Alpha Type[MFH] = -0.659401  <= 0
--5 <= Grid HS weight = -1.13113  <= 0
--10 <= Alpha battery = 1.4747  <= 10
-0 <= PE battery weight = 1.38241  <= 10
--10 <= Alpha battery Type[SFH] = -0.650305  <= 10
--10 <= Alpha battery Type[MFH] = -2.28661  <= 10
+-8 <= Alpha old = -2.62316  <= 0
+0 <= Share of consumers considering PV weight = 1.39145  <= 5
+0 <= PV Eco weight = 0.102874  <= 1
+0 <= House Value Utility PV weight = 2.30962  <= 20
+-5 <= Primary houses PV weight = -0.0123089  <= 0
+0 <= HP for PV weight = 1.25723  <= 2
+-2 <= Alpha Type[MFH] = -0.405265  <= 0
+-2 <= Concern coefficient = 0.67959  <= 2
+0 <= Peer effect HS weight = 0.865134  <= 5
+-5 <= Economic Utility weight = -0.840557  <= 0
+0 <= PV for HP weight = 2.82664  <= 5
+0 <= House Value weight = 13.3524  <= 40
+-5 <= Grid HS weight = -0.949047  <= 0
+0 <= Double Tech weight = 2.37705  <= 5
+0 <= Alpha battery = 1.14931  <= 5
+-5 <= Alpha battery Type[SFH] = -0.581249  <= 0
+-5 <= Alpha battery Type[MFH] = -1.81516  <= 0
+0 <= PE battery weight = 1.37161  <= 5

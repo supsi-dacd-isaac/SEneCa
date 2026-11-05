@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 from streamlit.testing.v1 import AppTest
 
@@ -64,7 +65,8 @@ render_echarts_line(df, {'base':'PV', 'kind':'line', 'title':'PV', 'unit':'MW',
         self.assertEqual(history.index.max(), 2026)
         self.assertEqual(set(history), {"30–100 kW", "> 100 kW"})
         annual = transform_series(history, "stock", "annual").reindex(range(2011, 2051))
-        self.assertEqual(annual.loc[2025].tolist(), [7815., 13478.])
+        # From v8: yearly register additions in SURE.mdl (NR Observed kW, 2025).
+        np.testing.assert_allclose(annual.loc[2025].tolist(), [3336.71, 12397.7])
         self.assertTrue(annual.loc[2026:].isna().all().all())
 
     def test_vehicle_history_only_overlays_bev_and_keeps_other_simulated_types(self):
@@ -143,7 +145,7 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
             if checked:
                 history_captions = [
                     i for i, el in enumerate(elements)
-                    if el.type == "caption" and el.value.startswith(("Dati disponibili:", "Dati di input"))
+                    if el.type == "caption" and el.value.startswith(("Dati disponibili:", "Dati osservati"))
                 ]
                 self.assertEqual(len(history_captions), 2)
                 self.assertTrue(all(i > check_pos for i in history_captions))
@@ -155,8 +157,8 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         expected = raw.loc[rows, years].astype(float).sum().tolist()
         self.assertEqual(series["Osservato"], expected)
         self.assertEqual(years[-1], '2025')
-        self.assertEqual(series["Osservato"][-1], 1232.)
-        self.assertEqual(sum(series["Osservato"]), 14199.)
+        self.assertEqual(series["Osservato"][-1], 1280.)
+        self.assertEqual(sum(series["Osservato"]), 14231.)
         self.assertIsNotNone(series["Simulato"][-1])
         self.assertNotEqual(series["Simulato"][-1], series["Osservato"][-1])
 
@@ -166,8 +168,9 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         self.assertEqual(audit['model_revision'], MODEL_REVISION)
         self.assertEqual(audit['model_sources'], model_sources())
         self.assertEqual(audit['csv_sha256'], hashlib.sha256(SIM_ADOPTIONS_CSV.read_bytes()).hexdigest())
-        self.assertEqual(audit['validated_python_outputs_exact'], 137)
-        self.assertTrue(audit['validated_julia_comparison_pass'])
+        from sure_julia.catalog import outputs
+        self.assertEqual(audit['validated_python_outputs_exact'], len(outputs()))
+        self.assertIs(audit['validated_julia_comparison_pass'], True)
         frame = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
         self.assertEqual(list(frame.index), list(range(2011, 2026)))
         for tech, years in audit['observation_years'].items():
@@ -200,7 +203,7 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
     def test_cumulative_pv_history_includes_2025_without_empty_2026(self):
         years, series = load_pv_buildings_input('Tipo di edificio')
         self.assertEqual(years[-1], '2025')
-        self.assertEqual(sum(values[-1] for values in series.values()), 14199.)
+        self.assertEqual(sum(values[-1] for values in series.values()), 14231.)
 
     def test_workshop_asset_name_matches_case_on_linux(self):
         self.assertIn(IMAGE_WORKSHOP.name, [p.name for p in IMAGE_WORKSHOP.parent.iterdir()])

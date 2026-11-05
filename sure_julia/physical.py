@@ -19,6 +19,11 @@ OUTPUTS = [
     "Consumers adopting RCPv yes with battery",
 ]
 TRANSFERS = OUTPUTS[6:]
+V8_OUTPUTS = ["NR Stock", "NR Installed kW", "NR Orders", "NR Completed", "NR Pending count",
+              "NR Orders kW district", "NR Installed kW district", "NR Pending kW district",
+              "Battery charging", "Battery delivered", "Battery loss",
+              "Battery loss RCPv", "Calendar pending total", "PV removal fraction"]
+OUTPUTS += V8_OUTPUTS
 
 
 def check(arrays):
@@ -30,7 +35,7 @@ def check(arrays):
         a = arrays[name]
         if a.shape[0] != 40 or not np.isfinite(a).all():
             return {"pass": False, "reason": "Invalid physical diagnostic", "variable": name}
-    for name in ["Heating Solution", "Annual archetypes", "Total Res buildings", *TRANSFERS]:
+    for name in ["Heating Solution", "Annual archetypes", "Total Res buildings", *TRANSFERS, *V8_OUTPUTS]:
         a = arrays[name]
         tolerance = 1e-10*np.maximum(1.,np.abs(a).max(axis=0))
         bad = a < -tolerance
@@ -64,5 +69,14 @@ def check(arrays):
     fine, coarse = s.sum(axis=(2,5,6)),arrays['Total Res buildings']
     balanced('fine_coarse_changes',fine-fine[0],coarse-coarse[0])
     balanced('external_balance',s[1:].sum(axis=(2,3,5,6)),s[:-1].sum(axis=(2,3,5,6))+(arrays['Buildings construction with battery'][:-1]-arrays['Building demolition by archetype'][:-1]).sum(axis=(2,3,5,6)))
+    balanced('nr_stock_euler', arrays['NR Stock'][1:],
+             arrays['NR Stock'][:-1] + arrays['NR Installed kW'][:-1])
+    balanced('nr_pending_count_euler', arrays['NR Pending count'][1:],
+             arrays['NR Pending count'][:-1] + arrays['NR Orders'][:-1] - arrays['NR Completed'][:-1])
+    balanced('nr_pending_kw_euler', arrays['NR Pending kW district'][1:],
+             arrays['NR Pending kW district'][:-1] + arrays['NR Orders kW district'][:-1]
+             - arrays['NR Installed kW district'][:-1])
+    balanced('battery_energy_balance', arrays['Battery charging'],
+             arrays['Battery delivered'] + arrays['Battery loss'])
     return {"pass": all(r['pass'] for r in rows.values()), "checks": rows,
             "initial_fine_coarse_max_abs": float(abs(fine[0]-coarse[0]).max())}

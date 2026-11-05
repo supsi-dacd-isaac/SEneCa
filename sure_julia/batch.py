@@ -238,9 +238,10 @@ def consolidate(directory, planned):
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/scenarios.parquet"),
         "numerical_tolerance": {"atol_scale": 1e-10, "rtol": 1e-8},
-        "reference": "SURE v7 with shared PV source budget; synchronous DELAY FIXED; exact allocation",
+        "reference": "SURE v8 with NR, installation calendar and stable PV numerical zero; synchronous DELAY FIXED; exact allocation",
         "native_vensim_equivalent": False,
-        "legacy_vensim_files": "Historical input/reference archives retained from data-v1.0.0; not Julia outputs"})
+        "native_inputs": {p.name: digest(p) for p in sorted((ROOT / "Vensim").glob("*.vdfx"))},
+        "validation_certificate": read(directory / "validation-certificate.json")})
 
 
 def compare_pilots(serial, parallel, output):
@@ -304,6 +305,7 @@ def main():
     if manifest.exists() and read(manifest) != stamp:
         raise ValueError("Cannot resume a different configuration")
     dump(manifest, stamp)
+    dump(args.directory / "validation-certificate.json", certificate)
     pending = []
     for job in planned:
         done = args.directory / "completed" / f"{job['id']}.json"

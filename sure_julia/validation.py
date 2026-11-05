@@ -46,6 +46,14 @@ def cases():
         policy = {k: select(v) for k, v in exp.POLICY_GRID.items()}
         for i, sample in enumerate(samples[exp.UNCERTAINTY_ORDER].to_dict("records")):
             result[f"sample_{which}_{i:02d}"] = parameters({**policy, **sample, exp.EXPLORATORY_SWITCH: 1})
+    # Cross the v8 installation calendar and battery-loss boundaries; the
+    # intermediate values exercise the live controls beyond the stored grid.
+    for federal, cantonal, battery in itertools.product((.2, .4), (0., .2), (0., .5)):
+        result[f"v8_calendar_{federal}_{cantonal}_{battery}"] = parameters({
+            "PV rebate federal": federal, "PV rebate cantonal": cantonal,
+            "Battery Rebate": battery, "FiT": .1})
+    result["v8_live_intermediate"] = parameters({"PV rebate cantonal": .13,
+        "FiT": .027, "Battery Rebate": .19, "PV rebate federal": .31})
     return result
 
 
@@ -65,7 +73,11 @@ def compare(reference, candidate, export, exact=False):
         limit = np.zeros_like(a) if exact or name.strip('"') in discrete else 1e-10*scale + 1e-8*np.abs(a)
         failed = error > limit
         row = {"variable": name, "pass": not bool(failed.any()), "cells": a.size,
-               "failures": int(failed.sum()), "max_abs": float(error.max())}
+               "failures": int(failed.sum()), "max_abs": float(error.max()),
+               "exact": bool(np.array_equal(a, b)),
+               "max_scaled_error": float((error / np.maximum(1., abs(a))).max())}
+        if not exact and name.strip('"') not in discrete:
+            row["max_tolerance_fraction"] = float((error / limit).max())
         if failed.any():
             index = tuple(np.argwhere(failed)[0])
             spec = next(v for v in export if v["name"] == name)

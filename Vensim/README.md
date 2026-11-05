@@ -1,24 +1,63 @@
-# SURE v7 canonico
+# SURE v8 canonico
 
-Usare `SURE.mdl`: contiene la calibrazione v7, la correzione FER, il budget
-condiviso delle adozioni PV e il dispatch `ALLOCATE BY PRIORITY`.
-`SURE_pysd_v7.mdl` e `.py` sono i derivati per Python e Julia.
+Usare `SURE.mdl`: rispetto alla v7 aggiunge il sottomodello FV non
+residenziale (`NR class`, verosimiglianza binomiale negativa), il calendario
+delle installazioni FV, l’economia "Study" degli incentivi storici, il rebate
+federale interpolato e le perdite delle batterie residenziali. Mantiene la
+correzione FER, il budget condiviso delle adozioni PV e il dispatch
+`ALLOCATE BY PRIORITY`. `SURE_pysd_v8.mdl` e `.py` sono i derivati per
+Python e Julia. Il sorgente è salvato in configurazione di calibrazione
+(`FINAL TIME = 2025`): `patch_model_sure.py` porta il derivato a 2050.
 
-I cinque file `calibration/*.out` sono quelli ricevuti il 16 ottobre 2026.
-Il manifest registra 56 assegnazioni e 33 gruppi; `constants_ref_v7.pkl`
-viene ricostruito dai decimali originali in Float64, senza ricalibrazione.
-I CSV correnti sono la sorgente dei dati: i VDFX nativi vanno rigenerati
-da questi CSV, in particolare HPinput, e non copiati dal vecchio ZIP.
+I quattro file `calibration/*.out` sono quelli ricevuti il 30 ottobre 2026
+(`WP13/Vensim/TI/Claude/out and calibration files`). `PV power.out` non
+esiste più: i parametri NR sono nel modello. Il manifest registra 53
+assegnazioni e 30 gruppi; `constants_ref_v8.pkl` viene ricostruito dai
+decimali originali in Float64, senza ricalibrazione.
+
+I sei VDFX vengono dalla stessa cartella. Senza `vendll64.dll` i CSV si
+esportano aprendo Vensim DSS con uno script di comandi, gli stessi della DLL:
+
+```text
+SPECIAL>LOADMODEL|SURE.mdl
+MENU>VDF2TAB|PVinput.vdfx|PVinput.tab||
+...
+MENU>EXIT
+```
+
+`vendss64.exe export.cmd` scrive i `.tab`; `tab_to_csv` di
+`pysd_export_vdf.py` li converte nei CSV. EVinput e Input Hour Factors,
+invariati, riproducono byte per byte i CSV v7. PVinput non contiene più
+le capacità 30–100 e >100 kW: lo storico del grafico è esportato da
+`scripts/export_nr_history.py`.
 
 ```shell
 python scripts/import_calibration.py --check
 python -m sure_julia.pv_budget --check
-python retranslate_sure_pipeline.py --run --variant v7 --skip-export --reuse-constants constants_ref_v7.pkl
-python -m unittest discover -s tests -p test_dispatch.py
+python retranslate_sure_pipeline.py --run --variant v8 --skip-export --reuse-constants constants_ref_v8.pkl
+python -m unittest discover -s tests
 ```
 
-La [diagnosi numerica](../docs/validation/dispatch-correction.md) distingue
-l’errore residuo dell’allocatore Vensim dalla validazione Python–Julia.
-La nuova release è subordinata ai controlli completi e alla rigenerazione.
-Le versioni v6 sono recuperabili nella storia Git; i vecchi VPMX non sono
-modelli alternativi supportati.
+Correzione del 1° novembre 2026 in `Calendar order fraction`: il termine
+al netto degli ordini pendenti usa `XIDZ(..., 1)` invece di `ZIDZ`. Con
+meno di 1e-6 edifici disponibili `ZIDZ` restituiva 0 e il calendario
+accettava nuovi ordini oltre lo stock (stock negativo di 3,7e-8 edifici
+nello scenario PV 0,2/0,4 al 2042, anche in Vensim nativo).
+
+Revisione `sure-v8-nr-calendar-2`: in `PV removal fraction` entrambi i test
+usano `PV buildings > 1e-10`. Quantità inferiori sono zero numerico; questa
+correzione comune a Vensim, Python e Julia evita che residui di arrotondamento
+attivino diversamente la rimozione delle perdite di batteria. Gli input e i
+parametri di calibrazione rimangono invariati. La soglia è già verificata nel
+modello EMS ed è stata validata separatamente sulla variante principale v8.
+
+`GAMMA LN` non è implementata da PySD 3.14.3: `fix_functions_sure.py` la
+sostituisce con `scipy.special.gammaln`. Serve solo all’obiettivo di
+calibrazione NR, non alla dinamica.
+
+Gli store delle pagine "Simulazioni SEneCa" possono essere rigenerati con
+il backend Python (`python -m sure_julia.python_batch`). La build, la
+validazione Python–Julia e la rigenerazione completa per `data-v3.0.0`
+sono documentate nel [rapporto v8](../docs/validation/v8-release.md).
+Per riprodurle seguire la [guida Julia](../docs/julia-production.md).
+Le versioni v7 sono recuperabili nella storia Git.

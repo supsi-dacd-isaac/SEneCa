@@ -1,11 +1,13 @@
-"""Verify the shared PV adoption budget already present in canonical SURE v7.
+"""Verify the shared PV adoption budget already present in canonical SURE v8.
 
 The correction is part of Vensim/SURE.mdl; no second executable model is generated.
+From v8 the budget is the annual source stock (TIME STEP is 1 year) and the
+installation calendar completes orders capped by that same budget.
 """
 import argparse
 from pathlib import Path
 import re
-from .common import ROOT, MODEL_REVISION, digest, dump, read
+from .common import ROOT, MODEL_MDL, MODEL_REVISION, digest, dump, read
 
 REVISION = MODEL_REVISION
 FLOWS = [f"{owner} adopting {kind}" for owner in ("Owners", "Renters")
@@ -16,7 +18,7 @@ MARKER = "\\\\\\---///"
 
 
 def equations():
-    available = (f"MAX(0, Heating Solution{SOURCE_DIMS}/TIME STEP"
+    available = (f"MAX(0, Heating Solution{SOURCE_DIMS}"
                  f" - MAX(0, Building demolition by archetype{SOURCE_DIMS})"
                  f" - MAX(0, Buildings HS Renovation From{SOURCE_DIMS}))")
     demand = " + ".join(f"MAX(0, Requested {name}{DIMS})" for name in FLOWS)
@@ -27,7 +29,8 @@ def equations():
     factor = f"({accepted}/IF THEN ELSE({total}>0, {total}, 1))"
     return {"Available PV adoption": available, "Total PV request": demand,
             "Accepted PV adoption": f"MIN({budget}, {total})",
-            **{name: f"MAX(0, Requested {name}{DIMS}) * {factor}" for name in FLOWS}}
+            **{name: f"IF THEN ELSE(Calendar enabled>0.5, Calendar completed {name.replace(' adopting', '')}{DIMS},"
+                     f" MAX(0, Requested {name}{DIMS}) * {factor})" for name in FLOWS}}
 
 
 
@@ -50,7 +53,7 @@ def budget_audit(source):
 
 
 def prepare(check=False):
-    sources = [ROOT / "Vensim/SURE.mdl", ROOT / "Vensim/SURE_pysd_v7.mdl"]
+    sources = [ROOT / "Vensim/SURE.mdl", MODEL_MDL]
     audits = [budget_audit(p.read_text(encoding="latin-1")) for p in sources]
     if audits[0] != audits[1]:
         raise ValueError("Native and preprocessed PV source budgets differ")

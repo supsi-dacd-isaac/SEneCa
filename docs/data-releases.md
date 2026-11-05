@@ -17,6 +17,13 @@ sono ricostruiti dai CSV correnti della v7. La riesportazione nativa è
 verificata su tutte le serie e gli anni; sorgenti e checksum sono registrati
 in `provenance/build.json`. Gli archivi v1 restano immutabili e leggibili.
 
+La linea v3 dei dati usa SURE v8: nove Parquet rigenerati con Julia, inclusi
+i 12.800 risultati esplorativi, e i sei VDFX ricevuti con gli input v8.
+Conserva esattamente i 100 campioni di incertezza della v7. La provenienza
+include il certificato completo Python–Julia e gli hash degli input verificati;
+non rivendica equivalenza con Vensim nativo. Lo ZIP di anteprima del 2 novembre
+contiene risultati misti v8 Python/v7 Julia e non è una release.
+
 Il download non richiede Git LFS o Vensim:
 
 ```bash
@@ -32,29 +39,32 @@ dall'asset dati allegato alla release.
 
 ## Pubblicare una nuova versione dei dati
 
-1. Partire da un checkout aggiornato, eseguire `fetch` per recuperare il
-   precedente snapshot e sostituire solo i file che devono cambiare. Per
-   rigenerare gli output Julia seguire la [procedura validata](julia-production.md).
+1. Partire da un checkout isolato. Per riprodurre una release esistente usare
+   `fetch`; per una migrazione del modello predisporre gli input approvati e
+   conservare separatamente lo snapshot di confronto. Non scaricare il vecchio
+   snapshot sopra i nuovi input. Per rigenerare gli output Julia seguire la
+   [procedura validata](julia-production.md).
    Vensim DSS serve per rigenerare i riferimenti nativi Vensim. Verificare la
    correttezza scientifica dei nuovi output prima di pubblicarli.
 2. Installare `requirements.txt` e preparare un tag dati mai usato, per esempio:
 
    ```bash
-   python scripts/data_release.py pack --tag data-v2.0.0 --source-commit "$(git rev-parse HEAD)"
+   python scripts/data_release.py pack --tag data-v3.0.0 --source-commit "$(git rev-parse HEAD)"
    ```
 
-   `pack` richiede 17 file per v2, 18 per v1.1–v1.2 e 16 per v1.0.0, rifiuta puntatori LFS e Parquet vuoti o
+   `pack` richiede 17 file per v2 e v3, 18 per v1.1–v1.2 e 16 per v1.0.0, rifiuta puntatori LFS e Parquet vuoti o
    illeggibili, e produce in `dist/data-release/` l'archivio, `SHA256SUMS.txt`
    e un nuovo `data-release.json`. I percorsi dei file rimangono quelli attesi
    dal codice; se cambiano, aggiornare e testare insieme il tool e l'app.
 3. Pubblicare gli asset sullo **stesso repository**, con un tag dati nuovo:
 
    ```bash
-   gh release create data-v2.0.0 \
-     dist/data-release/seneca-data-v2.0.0.tar.gz \
+   gh release create data-v3.0.0 \
+     dist/data-release/seneca-data-v3.0.0.tar.gz \
      dist/data-release/SHA256SUMS.txt \
      --target "$(git rev-parse HEAD)" \
-     --title "SEneCa data v2.0.0" \
+     --title "SEneCa data v3.0.0" \
+     --latest=false \
      --notes-file dist/data-release/release-notes.md
    ```
 

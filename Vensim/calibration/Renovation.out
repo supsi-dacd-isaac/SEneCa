@@ -1,6 +1,6 @@
-:COMSYS After 1182 simulations
-:COMSYS Best payoff is -55707.1
-:COMSYS Normally terminated optimization
+:COMSYS After 746 simulations
+:COMSYS Best payoff is -37738.8
+:COMSYS User terminated optimization session
 :OPTIMIZER=Powell
 :SENSITIVITY=Off
 :MULTIPLE_START=Off
@@ -33,29 +33,29 @@
 :MCKNN=0
 :MCEPSILON=0.01
 :MCFTEMP=1
--20 <= Coeff VeryLow[SFH,VeryLow] = 5.0367  <= 20
--20 <= Coeff VeryLow[SFH,Low] = 3.4674  <= 20
--20 <= Coeff VeryLow[SFH,Moderate] = -1.75271  <= 20
--20 <= Coeff VeryLow[SFH,High] = -3.50107  <= 20
--20 <= Coeff VeryLow[SFH,VeryHigh] = -6.63161  <= 20
--20 <= Coeff VeryLow[MFH,VeryLow] = 23.9471  <= 30
--20 <= Coeff VeryLow[MFH,Low] = 14.5418  <= 20
--20 <= Coeff VeryLow[MFH,Moderate] = 5.38603  <= 20
--20 <= Coeff VeryLow[MFH,High] = -0.0840068  <= 20
--30 <= Coeff VeryLow[MFH,VeryHigh] = -6.40669  <= 20
--20 <= Coeff Low[SFH,Low] = 5.62286  <= 20
--20 <= Coeff Low[SFH,Moderate] = 1.58866  <= 20
--20 <= Coeff Low[SFH,High] = -0.628445  <= 20
+-20 <= Coeff VeryLow[SFH,VeryLow] = 6.11726  <= 20
+-20 <= Coeff VeryLow[SFH,Low] = 3.5394  <= 20
+-20 <= Coeff VeryLow[SFH,Moderate] = -1.24186  <= 20
+-20 <= Coeff VeryLow[SFH,High] = -3.1383  <= 20
+-20 <= Coeff VeryLow[SFH,VeryHigh] = -6.35646  <= 20
+-20 <= Coeff VeryLow[MFH,VeryLow] = 23.8378  <= 30
+-20 <= Coeff VeryLow[MFH,Low] = 14.5793  <= 20
+-20 <= Coeff VeryLow[MFH,Moderate] = 5.45803  <= 20
+-20 <= Coeff VeryLow[MFH,High] = -0.196007  <= 20
+-30 <= Coeff VeryLow[MFH,VeryHigh] = -6.61472  <= 20
+-20 <= Coeff Low[SFH,Low] = 5.93404  <= 20
+-20 <= Coeff Low[SFH,Moderate] = 1.55266  <= 20
+-20 <= Coeff Low[SFH,High] = -0.592445  <= 20
 -20 <= Coeff Low[SFH,VeryHigh] = -4.25396  <= 20
--20 <= Coeff Low[MFH,Low] = 11.7735  <= 20
--20 <= Coeff Low[MFH,Moderate] = 5.54908  <= 20
--20 <= Coeff Low[MFH,High] = -0.12553  <= 20
--20 <= Coeff Low[MFH,VeryHigh] = -6.86471  <= 20
--20 <= Coeff Moderate[SFH,Moderate] = 4.47645  <= 20
+-20 <= Coeff Low[MFH,Low] = 15.2363  <= 20
+-20 <= Coeff Low[MFH,Moderate] = 5.64663  <= 20
+-20 <= Coeff Low[MFH,High] = -0.334818  <= 20
+-20 <= Coeff Low[MFH,VeryHigh] = -7.23782  <= 20
+-20 <= Coeff Moderate[SFH,Moderate] = 5.25736  <= 20
 -20 <= Coeff Moderate[SFH,High] = 1.476  <= 20
 -20 <= Coeff Moderate[SFH,VeryHigh] = -2.40767  <= 20
--20 <= Coeff Moderate[MFH,Moderate] = 7.40086  <= 20
+-20 <= Coeff Moderate[MFH,Moderate] = 8.64957  <= 20
 -20 <= Coeff Moderate[MFH,High] = 1.5834  <= 20
--20 <= Coeff Moderate[MFH,VeryHigh] = -5.44207  <= 20
--20 <= Coeff High[SFH,High] = 3.36  <= 20
--20 <= Coeff High[MFH,High] = 5.28086  <= 20
+-20 <= Coeff Moderate[MFH,VeryHigh] = -5.52  <= 20
+-20 <= Coeff High[SFH,High] = 4.76797  <= 20
+-20 <= Coeff High[MFH,High] = 6.63238  <= 20

@@ -76,7 +76,6 @@ def _collect_results_output_bases() -> list[str]:
 
     # Extra storici Esplora (tabella delta) se non già nei Results
     extras = [
-        "Power by Type",
         "Annual CO2 emissions",
     ]
     out: list[str] = []

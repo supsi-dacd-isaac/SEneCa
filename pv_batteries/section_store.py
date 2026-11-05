@@ -19,11 +19,13 @@ def base_combo_key(cfg) -> str:
 def load_traj_store(cfg) -> dict[str, pd.DataFrame]:
     store: dict[str, pd.DataFrame] = {}
     if cfg.CONSOLIDATED_TRAJ.exists():
-        raw = pd.read_parquet(cfg.CONSOLIDATED_TRAJ)
+        # Indice impostato una sola volta: con il Copy-on-Write di pandas 3,
+        # set_index su ogni gruppo ricopia l'intero store finché le viste dei
+        # gruppi precedenti restano vive (972 combo PV: minuti invece di secondi).
+        raw = pd.read_parquet(cfg.CONSOLIDATED_TRAJ).set_index("Time")
         for key, g in raw.groupby(cfg.INPUT_ORDER):
             key = key if isinstance(key, tuple) else (key,)
-            store[combo_key(key)] = (
-                g.drop(columns=cfg.INPUT_ORDER).set_index("Time").sort_index())
+            store[combo_key(key)] = g.drop(columns=cfg.INPUT_ORDER).sort_index()
         return store
     traj_dir = cfg.STORE_DIR / "traj"
     if traj_dir.exists():

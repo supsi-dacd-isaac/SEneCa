@@ -39,7 +39,7 @@ def apply():
         for operator, argument, ast_argument in zip(node.operators, args[1:], node.arguments[1:]):
             right_axes = _vector_expression_axes(self, ast_argument)
             if axes is None or right_axes is None:
-                raise ValueError("Cannot prove scalar/array semantics of POWER operands")
+                raise ValueError(f"Cannot prove scalar/array semantics of POWER operands: {node!r}")
             axes = axes | right_axes
             operator = ARITHMETIC_OPS.get(operator, operator)
             if operator == "^":

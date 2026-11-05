@@ -7,17 +7,29 @@ sostituzione dei sistemi di riscaldamento, elettrificazione della mobilita',
 bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
 Il modello è sviluppato in Vensim e tradotto con
-[PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
-simulazioni live di SURE v7 con Julia; il backend Python resta selezionabile.
-La release `v0.4.0` usa il modello `sure-v7-dispatch-1` e i dati
-`data-v2.0.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
-incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
-La v7 integra la correzione del contributo cantonale FER, la calibrazione
-ricevuta il 16 ottobre 2026 e il dispatch per priorità. Il budget condiviso
-limita le adozioni PV agli edifici disponibili. Tutti i 418 confronti
-Python–Julia e i controlli fisici del batch sono superati; restano documentati
-i piccoli scarti dell’allocatore nativo Vensim nella
-[diagnosi e validazione v7](docs/validation/dispatch-correction.md).
+[PySD](https://pysd.readthedocs.io/). La versione principale usa **SURE v8**
+(`sure-v8-nr-calendar-2`) per gli scenari precalcolati e le simulazioni live con
+Julia; il backend Python resta selezionabile esplicitamente.
+
+La v8 introduce il fotovoltaico non residenziale, il calendario delle
+installazioni, nuovi input e la calibrazione del 30 ottobre 2026, oltre alle
+perdite delle batterie residenziali. Conserva FER, budget condiviso delle
+adozioni FV e dispatch per priorità. La revisione 2 stabilizza il trattamento
+degli stock FV prossimi a zero, con la stessa modifica in Vensim, Python e Julia.
+
+La griglia principale comprende 14.571 simulazioni distinte per 14.579
+configurazioni, incluse **12.800 combinazioni di policy mix e incertezza**:
+128 politiche × gli stessi 100 campioni della v7, con nove KPI. Tutti i risultati
+sono stati rigenerati con Julia v8 per `data-v3.0.0`; lo ZIP di anteprima
+contiene invece dati misti v8 Python/v7 Julia e non va usato come release.
+
+Sono superati 427 confronti Python–Julia, controlli fisici, isolamento
+degli stati, benchmark seriale/parallelo e 1.771 confronti delle sezioni.
+Il [rapporto v8](docs/validation/v8-release.md) raccoglie risultati e differenze
+rispetto all'anteprima ricevuta.
+La procedura e i limiti della verifica sono nella [guida Julia](docs/julia-production.md).
+Non si rivendica equivalenza con Vensim nativo. La linea EMS è un progetto
+separato, con modello, dati e release dedicati.
 
 ## Riconoscimenti
 
@@ -81,7 +93,7 @@ aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
 ## Docker
 
 Per provare le modifiche dell'interfaccia con il runtime Julia e i dati della
-release `v0.4.0`, senza ricompilare il modello:
+release `v0.6.0`, senza ricompilare il modello:
 
 ```bash
 docker compose -f docker-compose.local.yml up -d
@@ -120,9 +132,11 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.4.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.6.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`; v0.4.0 usa v7.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`;
+v0.4.0–v0.5.0 usano v7 e v0.6.0 usa v8. Anche un override di variante
+presente nel file ambiente deve corrispondere all'immagine scelta.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
@@ -205,11 +219,11 @@ nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
 
 ## Sorgenti del modello e manutenzione
 
-Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v7.mdl` e `.py`
-sono i derivati usati per il runtime `sure-v7-dispatch-1`. Le cinque
+Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v8.mdl` e `.py`
+sono i derivati usati per il runtime `sure-v8-nr-calendar-2`. Le quattro
 calibrazioni originali sono conservate in `Vensim/calibration/`, con manifest
-e checksum; `constants_ref_v7.pkl` contiene 33 gruppi in Float64 derivati da
-56 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.
+e checksum; `constants_ref_v8.pkl` contiene 30 gruppi in Float64 derivati da
+53 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.
 
 I controlli riproducibili del budget PV e della calibrazione sono:
 
@@ -222,7 +236,7 @@ La pipeline `retranslate_sure_pipeline.py` e i relativi script preparano un
 nuovo sorgente upstream da Vensim: non producono da soli un modello validato
 per l’app. Una modifica alle equazioni richiede la procedura completa nella
 [guida Julia](docs/julia-production.md), inclusa la rigenerazione dei dati.
-Senza `SURE_VARIANT` viene selezionata la base supportata `v7`.
+Senza `SURE_VARIANT` viene selezionata la base supportata `v8`.
 
 La [mappa del repository](docs/repository-inventory.md) distingue file necessari,
 strumenti di manutenzione e materiale storico rimosso. Le vecchie versioni e

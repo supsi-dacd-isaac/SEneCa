@@ -1,5 +1,5 @@
-:COMSYS After 24 simulations
-:COMSYS Best payoff is -0.633344
+:COMSYS After 12 simulations
+:COMSYS Best payoff is -0.638932
 :COMSYS Normally terminated optimization
 :OPTIMIZER=Powell
 :SENSITIVITY=Off
@@ -33,4 +33,4 @@
 :MCKNN=0
 :MCEPSILON=0.01
 :MCFTEMP=1
--100 <= Import marginal cost dummy variable = 67.1955  <= 100
+-100 <= Import marginal cost dummy variable = 70.1303  <= 100

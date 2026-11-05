@@ -79,7 +79,7 @@ OUTPUTS = [
      "annual_label": "Nuova potenza installata nell’anno",
      "history": "pv_capacity",
      "history_position": "bottom",
-     "history_note": "Dati di input da PVinput.csv, disponibili per 30–100 e >100 kW. "
+     "history_note": "Dati osservati del modello (registro impianti), disponibili per 30–100 e >100 kW. "
                      "La classe <30 kW non ha una serie storica separata.",
      "series": [
          {"label": "< 30 kW", "bases": ['"Capacity PV < 30 kW total"']},

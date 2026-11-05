@@ -1,4 +1,4 @@
-"""Build/check the canonical calibration from the five supplied Vensim OUT files."""
+"""Build/check the canonical calibration from the four supplied Vensim OUT files."""
 from pathlib import Path
 import argparse
 import hashlib
@@ -9,8 +9,10 @@ import sys
 import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-FILES = ('Energy cost.out', 'PV power.out', 'Renovation.out',
+FILES = ('Energy cost.out', 'Renovation.out',
          'PV and Battery and HS and HP.out', 'Vehicle.out')
+VARIANT = 'v8'
+ASSIGNMENTS = 53
 
 
 def parse(directory):
@@ -32,15 +34,15 @@ def parse(directory):
         if not assigned:
             raise ValueError(f'Empty calibration file: {name}')
         sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'assignments': assigned}
-    if len(values) != 56:
-        raise ValueError('Expected all 56 calibration assignments')
+    if len(values) != ASSIGNMENTS:
+        raise ValueError(f'Expected all {ASSIGNMENTS} calibration assignments')
     return values, sources
 
 
 def prepare(check=False):
     import sure_paths as paths
     import sure_pysd as sp
-    paths.set_variant('v7')
+    paths.set_variant(VARIANT)
     values, sources = parse(ROOT / 'Vensim/calibration')
     model = sp.load_model(prune=False)
     params = {}
@@ -67,12 +69,12 @@ def prepare(check=False):
         exported[name] = {'dims': dims,
             'coords': {d: list(map(str, value.coords[d].values)) for d in dims},
             'values': value.values.tolist() if dims else float(value)}
-    manifest = {'schema': 1, 'variant': 'v7', 'source': 'Model (1).zip supplied 2026-10-16',
-        'archive_sha256': '482a6135aa31b76725b65d3423ffc239c051ab362a88387a63b66b5d297bcbdd',
+    manifest = {'schema': 1, 'variant': VARIANT,
+        'source': 'WP13/Vensim/TI/Claude/out and calibration files supplied 2026-10-30',
         'files': sources, 'assignments': len(values), 'groups': len(exported),
         'precision': 'Decimal values from OUT loaded as Float64; no recalibration performed',
         'parameters': exported}
-    target = ROOT / 'constants_ref_v7.pkl'
+    target = ROOT / f'constants_ref_{VARIANT}.pkl'
     audit = ROOT / 'Vensim/calibration/manifest.json'
     if check:
         if pickle.loads(target.read_bytes()) != exported or json.loads(audit.read_text()) != manifest:

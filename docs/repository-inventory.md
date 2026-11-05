@@ -1,8 +1,9 @@
 # File del repository e modello supportato
 
-La release `v0.4.0` usa **sure-v7-dispatch-1** e la calibrazione
-ricevuta il 16 ottobre 2026. I dati v6 già pubblicati restano immutabili;
-la v7 usa il dataset rigenerato `data-v2.0.0`.
+La versione principale usa **sure-v8-nr-calendar-2**, la calibrazione
+ricevuta il 30 ottobre 2026 e il dataset Julia `data-v3.0.0`.
+Le release v0.4.0–v0.5.0 e `data-v2.0.0` conservano il precedente
+modello `sure-v7-dispatch-1` e restano immutabili.
 Tutto il materiale rimosso resta recuperabile nel
 [tag v0.3.1](https://github.com/supsi-dacd-isaac/SEneCa/tree/v0.3.1).
 
@@ -14,12 +15,13 @@ Tutto il materiale rimosso resta recuperabile nel
 | `pv_batteries/` | Configurazioni, lettura degli store, indicatori, grafici e contenuti divulgativi. |
 | `sure_backend.py`, `sure_live.py`, `sure_pysd.py`, `sure_paths.py`, `pysd_explore_config.py` | Selezione del motore, processo live, parametri e adattatore Python. |
 | `sure_julia/` | Generazione Julia, motori, controlli fisici, validazione e batch del modello corretto. L’allocatore corrente è `priority_allocation.jl`. |
-| `Vensim/SURE.mdl` | Unico sorgente nativo v7, con FER, budget PV e dispatch corretti. |
-| `Vensim/SURE_pysd_v7.mdl`, `.py` e `*_pysd_v7.csv` | Traduzione Python e input del medesimo modello. |
-| `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v7.pkl` | Cinque file ricevuti, 56 assegnazioni originali e 33 gruppi ricostruiti in Float64. |
+| `Vensim/SURE.mdl` | Unico sorgente nativo v8, con FER, budget PV, calendario FV, sottomodello NR e dispatch corretti. |
+| `Vensim/SURE_pysd_v8.mdl`, `.py` e `*_pysd_v8.csv` | Traduzione Python e input del medesimo modello. |
+| `Vensim/calibration/*.out`, `manifest.json`, `constants_ref_v8.pkl` | Quattro file ricevuti, 53 assegnazioni originali e 30 gruppi ricostruiti in Float64. |
 | CSV nativi in `Vensim/` | Storici mostrati nell’app e sorgenti dei dati preparati per PySD. |
 | `content/system_dynamics/` restante | Immagini, mappa, storici e priorità del workshop effettivamente letti dalle pagine. |
-| `calibration_sim_adoptions_v7.csv` e `.json` | Curve della baseline v7 per il confronto di calibrazione, con provenienza e verifica contro la baseline validata. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `calibration_sim_adoptions_v8.csv` e `.json` | Curve della baseline v8, riesportate e verificate contro Python e Julia, con provenienza. Gli osservati arrivano da `PVinput.csv`, `HPinput.csv` ed `EVinput.csv`. |
+| `nr_capacity_history.csv` | Storico FV 30–100 e >100 kW esportato da `SURE.mdl` (`scripts/export_nr_history.py`). |
 | `Input and Output Streamlit.xlsx` | Specifica delle leve e degli output, verificata dai test e registrata nella provenienza del batch. |
 | `SEneCa_documentation.pdf` | Documento scaricabile dalla home. |
 | `data-release.json`, `scripts/data_release.py` | Identità, download e verifica del dataset immutabile. |
@@ -30,7 +32,7 @@ Tutto il materiale rimosso resta recuperabile nel
 Le versioni v6, le copie `pvbounded`, il vecchio pickle e gli script di
 `Vensim_test_runs/` sono rimossi. Le fixture ancora utili sono conservate in
 `model_checks/dispatch_vectors.npy` e il ponte Windows in `vensim_windows.py`.
-La provenienza del nuovo batch registra tutti i sorgenti v7 e i file OUT.
+La provenienza del nuovo batch registra tutti i sorgenti v8 e i file OUT.
 
 Dalla patch `v0.4.1`, i grafici di calibrazione ricavano il periodo dai valori
 disponibili per ogni tecnologia: PV e pompe di calore includono il 2025,
@@ -69,9 +71,11 @@ modello Vensim restano disponibili in `scripts/`.
 
 ## Dati e file locali
 
-`precomputed/`, `provenance/` e sei `.vdfx` ricostruiti dai CSV v7 sono
-installati da `data-v2.0.0`. Il vecchio `SURE.vpmx` è escluso dal nuovo
-manifest. I dataset v1 e i relativi manifest restano immutabili.
+`precomputed/`, `provenance/` e i sei `.vdfx` ricevuti con gli input v8 sono
+installati da `data-v3.0.0`. I nove Parquet applicativi sono rigenerati con
+Julia v8; i 100 campioni di incertezza sono identici a quelli della v7.
+Il vecchio `SURE.vpmx` è escluso dal manifest. I dataset precedenti restano
+immutabili.
 
 `sure_julia/generated/` viene costruita da Docker. `dist/`, ambienti virtuali,
 cache e risultati locali non sono versionati e non vengono eliminati da
@@ -79,6 +83,11 @@ questa pulizia. `.env`, chiavi e dati locali restano esclusi da Git;
 anche `.DS_Store` e `.agents/` sono ignorati.
 
 ## Verifiche della pulizia
+
+Controlli v8 del 4–5 novembre 2026: 427 casi di accettazione e 1.771
+scenari delle sezioni confrontati con Python, 14.571 simulazioni complete,
+pilot seriale/parallelo identico e audit dei dati superato. Evidenze e limiti
+nel [rapporto v8](validation/v8-release.md).
 
 Controlli v7 del 16 ottobre 2026: 418 confronti Python–Julia superati,
 14.571 simulazioni complete, pilot seriale/parallelo identico e audit finale

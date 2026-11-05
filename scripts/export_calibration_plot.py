@@ -31,18 +31,20 @@ def export(baseline, destination):
     finally:
         engine.close()
     variables, dimensions = inventory()
-    with np.load(baseline / 'python.npz') as original, np.load(baseline / 'julia.npz') as julia:
-        if set(original.files) != set(outputs()) or set(julia.files) != set(original.files):
-            raise ValueError('Incomplete validated baseline')
-        if any(not np.array_equal(arrays[n], original[n]) for n in original.files):
-            raise ValueError('Additional outputs changed the validated Python baseline')
-        specs = [{'name': n, 'dims': variables[n].get('subscripts', []),
-                  'coords': {d: dimensions[d] for d in variables[n].get('subscripts', [])}}
-                 for n in original.files]
-        comparison = compare({n: arrays[n] for n in original.files},
-                             {n: julia[n] for n in julia.files}, specs)
-        if not comparison['pass']:
-            raise ValueError('Calibration extraction disagrees with the Julia baseline')
+    comparison = {'pass': 'pending'}
+    if baseline is not None:
+        with np.load(baseline / 'python.npz') as original, np.load(baseline / 'julia.npz') as julia:
+            if set(original.files) != set(outputs()) or set(julia.files) != set(original.files):
+                raise ValueError('Incomplete validated baseline')
+            if any(not np.array_equal(arrays[n], original[n]) for n in original.files):
+                raise ValueError('Additional outputs changed the validated Python baseline')
+            specs = [{'name': n, 'dims': variables[n].get('subscripts', []),
+                      'coords': {d: dimensions[d] for d in variables[n].get('subscripts', [])}}
+                     for n in original.files]
+            comparison = compare({n: arrays[n] for n in original.files},
+                                 {n: julia[n] for n in julia.files}, specs)
+            if not comparison['pass']:
+                raise ValueError('Calibration extraction disagrees with the Julia baseline')
     specs = [{'name': n, 'dims': variables[n].get('subscripts', []),
               'coords': {d: dimensions[d] for d in variables[n].get('subscripts', [])}} for n in NAMES]
     frame = frame_from_arrays({n: arrays[n] for n in NAMES}, specs, flatten=True)
@@ -58,16 +60,18 @@ def export(baseline, destination):
         'model_revision': MODEL_REVISION, 'model_sources': model_sources(),
         'years': years, 'observation_years': observation_years, 'outputs': NAMES,
         'engine': 'PySD 3.14.3; canonical calibration; synchronous DELAY FIXED; baseline policy',
-        'validated_python_outputs_exact': len(outputs()), 'validated_julia_comparison_pass': comparison['pass'],
-        'baseline_sha256': {n: hashlib.sha256((baseline/n).read_bytes()).hexdigest()
-                            for n in ('python.npz', 'julia.npz')},
+        'validated_python_outputs_exact': len(outputs()) if baseline is not None else 'pending',
+        'validated_julia_comparison_pass': comparison['pass'],
+        'baseline_sha256': None if baseline is None else {n: hashlib.sha256((baseline/n).read_bytes()).hexdigest()
+                                                          for n in ('python.npz', 'julia.npz')},
         'csv_sha256': hashlib.sha256(destination.read_bytes()).hexdigest()})
-    print(f'Exported {len(frame)} years; {len(outputs())} validated outputs unchanged')
+    print(f'Exported {len(frame)} years; Julia comparison: {comparison["pass"]}')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('baseline', type=Path)
     parser.add_argument('destination', type=Path)
+    parser.add_argument('--baseline', type=Path,
+                        help='Validated python.npz/julia.npz; without it the Julia comparison stays pending')
     args = parser.parse_args()
     export(args.baseline, args.destination)
