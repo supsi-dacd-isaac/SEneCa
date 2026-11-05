@@ -20,11 +20,13 @@ degli stock FV prossimi a zero, con la stessa modifica in Vensim, Python e Julia
 La griglia principale comprende 14.571 simulazioni distinte per 14.579
 configurazioni, incluse **12.800 combinazioni di policy mix e incertezza**:
 128 politiche × gli stessi 100 campioni della v7, con nove KPI. Tutti i risultati
-devono essere rigenerati con la v8; lo ZIP di anteprima contiene invece dati
-misti v8 Python/v7 Julia e non va usato come release.
+sono stati rigenerati con Julia v8 per `data-v3.0.0`; lo ZIP di anteprima
+contiene invece dati misti v8 Python/v7 Julia e non va usato come release.
 
-Il rilascio richiede 427 confronti Python–Julia, controlli fisici, isolamento
-degli stati, benchmark seriale/parallelo e verifica completa delle sezioni.
+Sono superati 427 confronti Python–Julia, controlli fisici, isolamento
+degli stati, benchmark seriale/parallelo e 1.771 confronti delle sezioni.
+Il [rapporto v8](docs/validation/v8-release.md) raccoglie risultati e differenze
+rispetto all'anteprima ricevuta.
 La procedura e i limiti della verifica sono nella [guida Julia](docs/julia-production.md).
 Non si rivendica equivalenza con Vensim nativo. La linea EMS è un progetto
 separato, con modello, dati e release dedicati.
@@ -91,7 +93,7 @@ aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
 ## Docker
 
 Per provare le modifiche dell'interfaccia con il runtime Julia e i dati della
-release `v0.4.0`, senza ricompilare il modello:
+release `v0.6.0`, senza ricompilare il modello:
 
 ```bash
 docker compose -f docker-compose.local.yml up -d
@@ -130,9 +132,11 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.4.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.6.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`; v0.4.0 usa v7.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`;
+v0.4.0–v0.5.0 usano v7 e v0.6.0 usa v8. Anche un override di variante
+presente nel file ambiente deve corrispondere all'immagine scelta.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 

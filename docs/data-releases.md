@@ -49,21 +49,22 @@ dall'asset dati allegato alla release.
 2. Installare `requirements.txt` e preparare un tag dati mai usato, per esempio:
 
    ```bash
-   python scripts/data_release.py pack --tag data-v2.0.0 --source-commit "$(git rev-parse HEAD)"
+   python scripts/data_release.py pack --tag data-v3.0.0 --source-commit "$(git rev-parse HEAD)"
    ```
 
-   `pack` richiede 17 file per v2, 18 per v1.1–v1.2 e 16 per v1.0.0, rifiuta puntatori LFS e Parquet vuoti o
+   `pack` richiede 17 file per v2 e v3, 18 per v1.1–v1.2 e 16 per v1.0.0, rifiuta puntatori LFS e Parquet vuoti o
    illeggibili, e produce in `dist/data-release/` l'archivio, `SHA256SUMS.txt`
    e un nuovo `data-release.json`. I percorsi dei file rimangono quelli attesi
    dal codice; se cambiano, aggiornare e testare insieme il tool e l'app.
 3. Pubblicare gli asset sullo **stesso repository**, con un tag dati nuovo:
 
    ```bash
-   gh release create data-v2.0.0 \
-     dist/data-release/seneca-data-v2.0.0.tar.gz \
+   gh release create data-v3.0.0 \
+     dist/data-release/seneca-data-v3.0.0.tar.gz \
      dist/data-release/SHA256SUMS.txt \
      --target "$(git rev-parse HEAD)" \
-     --title "SEneCa data v2.0.0" \
+     --title "SEneCa data v3.0.0" \
+     --latest=false \
      --notes-file dist/data-release/release-notes.md
    ```
 
