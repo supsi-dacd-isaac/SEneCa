@@ -18,8 +18,9 @@ Uscita, nella cartella <out>:
     names.txt     un nome di serie per riga, come nel .tab (Var[elem,...])
     times.f64     istanti (T)
     values.f64    matrice row-major (serie × T), NaN dove il .tab è vuoto
-    status.u8     0 = Float64 dal .vdfx; 1 = 6 cifre (blocco ambiguo);
-                  2 = 6 cifre (nessun blocco)
+    status.u8     0 = Float64 dal .vdfx (blocco univoco); 1 = 6 cifre (blocco ambiguo);
+                  2 = 6 cifre (nessun blocco); 3 = Float64 scelto per posizione tra più candidati
+    candidates.json  candidati Float64 delle righe di stato 1 e 3
     meta.json     conteggi, checksum dei sorgenti
 """
 from __future__ import annotations
@@ -148,8 +149,10 @@ def build(vdfx: Path, tab: Path, out: Path) -> dict:
             inside = [([o for o in offs if lo < o < hi], v) for offs, v in cand[keys[i][0]]]
             inside = [(o, v) for o, v in inside if o]
             if len(inside) == 1:
+                # scelta per posizione: plausibile ma non certa (i blocchi delle
+                # costanti non seguono sempre l'ordine delle righe) -> stato 3
                 chosen[i] = inside[0][1]
-                status[i] = 0
+                status[i] = 3
                 if len(inside[0][0]) == 1:
                     pos[i] = inside[0][0][0]
                     progress = True
@@ -163,8 +166,22 @@ def build(vdfx: Path, tab: Path, out: Path) -> dict:
 
     out.mkdir(parents=True, exist_ok=True)
     # candidati Float64 delle serie rimaste ambigue, per la scelta con il modello
-    amb = {names[i]: [v.tolist() for _, v in cand[keys[i][0]]] for i in range(len(names)) if status[i] == 1}
+    MAXC = 8   # oltre questo numero di candidati distinti la riga resta a 6 cifre
+    amb = {names[i]: [v.tolist() for _, v in cand[keys[i][0]]] for i in range(len(names))
+           if status[i] == 1 and len(cand[keys[i][0]]) <= MAXC}
     (out / "ambiguous.json").write_text(json.dumps(amb), encoding="utf-8")
+    # tutti i candidati Float64 (con i vuoti del .tab) per le righe di stato 1 e 3:
+    # il confronto accetta il candidato che coincide
+    cands = {}
+    for i in range(len(names)):
+        if status[i] in (1, 3) and len(cand[keys[i][0]]) <= MAXC:
+            blank = list(keys[i][1])
+            cl = []
+            for _, v in cand[keys[i][0]]:
+                w = v.copy(); w[blank] = np.nan
+                cl.append([None if np.isnan(x) else float(x) for x in w])
+            cands[str(i)] = cl
+    (out / "candidates.json").write_text(json.dumps(cands), encoding="utf-8")
     (out / "names.txt").write_text("\n".join(names) + "\n", encoding="utf-8")
     times.astype("<f8").tofile(out / "times.f64")
     values.astype("<f8").tofile(out / "values.f64")
@@ -177,7 +194,7 @@ def build(vdfx: Path, tab: Path, out: Path) -> dict:
         "six_digits_ambiguous": int((status == 1).sum()),
         "six_digits_unmatched": int((status == 2).sum()),
         "block_candidates": int(len(idx)),
-        "resolved_by_position": resolved,
+        "resolved_by_position": int((status == 3).sum()),
     }
     (out / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return meta

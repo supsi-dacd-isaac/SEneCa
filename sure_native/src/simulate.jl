@@ -83,7 +83,8 @@ function read_changes(path)
     out
 end
 
-function simulate(G, inputs; changes=Pair{String,Float64}[], final_time=nothing, record=true, inject=nothing, cache_data=true)
+function simulate(G, inputs; changes=Pair{String,Float64}[], final_time=nothing, record=true, inject=nothing, cache_data=true,
+                  setvals=Pair{String,Float64}[])
     slots = slot_index(G)
     x = zeros(G.NX); r = zeros(G.NR)
     G.init_constants!(x, 0.0, 1)
@@ -91,14 +92,25 @@ function simulate(G, inputs; changes=Pair{String,Float64}[], final_time=nothing,
         haskey(slots, k) || error("costante non trovata: $k")
         x[slots[k]] = Float64(Float32(v))  # come READCIN di Vensim
     end
+    # SETVAL di Vensim scrive il valore in Float64 (verificato con 0.123456789 e sul
+    # Base del foglio: PV rebate federal = 0.2 esatto).
+    for (k, v) in setvals
+        haskey(slots, k) || error("costante non trovata: $k")
+        x[slots[k]] = v
+    end
     final_time === nothing || (x[slots["final time"]] = final_time)
     t0, dt, tf = x[slots["initial time"]], x[slots["time step"]], x[slots["final time"]]
     times = collect(t0:dt:tf)
-    empty!(G.DATA); append!(G.DATA, cache_data ? load_data_cached(G, inputs, times) : load_data(G, inputs, times))
+    # Le tabelle si sostituiscono solo se cambiano: più simulazioni con gli stessi
+    # istanti possono girare in parallelo (thread) senza toccare lo stato globale.
+    tabs = cache_data ? load_data_cached(G, inputs, times) : load_data(G, inputs, times)
+    if !(length(G.DATA) == length(tabs) && all(G.DATA[i] === tabs[i] for i in eachindex(tabs)))
+        empty!(G.DATA); append!(G.DATA, tabs)
+    end
     st = SimState(dt, Vector{DelayBuf}(undef, G.NDELAY))
     # inject: slot => valori per istante, scritti subito dopo ALLOCATE BY PRIORITY
-    G.ALLOC_HOOK[] = inject === nothing ? nothing :
-        (x, k) -> (for (s, v) in inject; x[s] = v[k]; end)
+    (inject === nothing && G.ALLOC_HOOK[] === nothing) || (G.ALLOC_HOOK[] = inject === nothing ? nothing :
+        (x, k) -> (for (s, v) in inject; x[s] = v[k]; end))
     G.init_rest!(x, t0, 1, st)
     out = record ? zeros(G.NX, length(times)) : zeros(0, 0)
     for k in eachindex(times)
