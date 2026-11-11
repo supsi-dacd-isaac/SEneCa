@@ -8,6 +8,7 @@ il build nativo sure_native/generated, gli scenari generati dal batch
 Uso: python deploy/make_staging_bundle.py RELEASE_DIR [OUT.tar.gz]
 RELEASE_DIR è la cartella release/ del batch (sure_julia.batch).
 """
+import io
 import subprocess
 import sys
 import tarfile
@@ -30,16 +31,22 @@ def main(release, out=None):
     out = Path(out or ROOT / "dist" / f"seneca-staging-{commit}.tar.gz")
     out.parent.mkdir(parents=True, exist_ok=True)
     prefix = "seneca-staging"
-    tracked = [p for p in git("ls-files", "-z").split("\0") if p]
     count = 0
     with tarfile.open(out, "w:gz") as tar:
         def add(src, arc):
             nonlocal count
             tar.add(src, arcname=f"{prefix}/{arc}", recursive=False)
             count += 1
-        for p in tracked:
-            if (ROOT / p).is_file():
-                add(ROOT / p, p)
+        # file del commit come sono nel repository (fine riga LF), non la copia Windows
+        raw = subprocess.run(["git", "-c", "core.autocrlf=false", "archive", "--format=tar", "HEAD"],
+                             cwd=ROOT, check=True, capture_output=True).stdout
+        with tarfile.open(fileobj=io.BytesIO(raw)) as src:
+            for m in src.getmembers():
+                if m.isfile():
+                    data = src.extractfile(m)
+                    m.name = f"{prefix}/{m.name}"
+                    tar.addfile(m, data)
+                    count += 1
         for p in sorted((ROOT / "sure_native/generated").rglob("*")):
             if p.is_file():
                 add(p, p.relative_to(ROOT).as_posix())
