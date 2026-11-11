@@ -16,7 +16,7 @@ import pandas as pd
 import xarray as xr
 
 from .catalog import parameters
-from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, digest, identity, read
+from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, NATIVE_REVISION, digest, identity, read
 
 
 def frame_from_arrays(arrays, export, *, flatten=True):
@@ -43,8 +43,10 @@ class JuliaBackend:
         self.metadata = read(self.directory / "build.json")
         if not self.metadata.get("complete"):
             raise ValueError("Incomplete Julia build")
-        if self.metadata.get("model_revision") != MODEL_REVISION:
-            raise ValueError(f"Julia build must use {MODEL_REVISION}")
+        self.native = self.metadata.get("worker") == "native"
+        expected_revision = NATIVE_REVISION if self.native else MODEL_REVISION
+        if self.metadata.get("model_revision") != expected_revision:
+            raise ValueError(f"Julia build must use {expected_revision}")
         for name, expected in self.metadata["artifacts"].items():
             if digest(self.directory / name) != expected:
                 raise ValueError(f"Julia artifact checksum differs: {name}")
@@ -82,8 +84,14 @@ class JuliaBackend:
         binary = os.environ.get("SURE_JULIA_BIN", "julia")
         self.log = tempfile.NamedTemporaryFile(prefix="sure-julia-", suffix=".log", mode="w+", delete=False)
         self.log_path = self.log.name
-        self.process = subprocess.Popen([binary, "--startup-file=no", f"--project={CONFIG}", str(CONFIG / "worker.jl"),
-                                        str(self.directory / self.metadata["model"]), str(self.directory / "export.json")],
+        if self.native:   # traduzione nativa di SURE.mdl: stesso protocollo, altro worker
+            native = ROOT / "sure_native"
+            command = [binary, "--startup-file=no", f"--project={native}", str(native / "webapp_worker.jl"),
+                       str(self.directory), str(self.directory / "export.json")]
+        else:
+            command = [binary, "--startup-file=no", f"--project={CONFIG}", str(CONFIG / "worker.jl"),
+                       str(self.directory / self.metadata["model"]), str(self.directory / "export.json")]
+        self.process = subprocess.Popen(command,
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log, text=True, bufsize=1, env=env)
         process = self.process
         def consume():

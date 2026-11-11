@@ -32,4 +32,5 @@ _coherence_*.log
 coherence_report*.csv
 constants_mismatch*.csv
 sure_julia/generated/
+sure_native/generated/
 provenance/

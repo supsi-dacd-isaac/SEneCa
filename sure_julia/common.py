@@ -8,6 +8,8 @@ CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "v8"
 MODEL_REVISION = "sure-v8-nr-calendar-1"
+# Traduzione nativa di Vensim/SURE.mdl (sure_native), validata su 76 scenari Vensim
+NATIVE_REVISION = "sure-native-20261111"
 MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
 MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
 CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"

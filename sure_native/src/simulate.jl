@@ -84,7 +84,7 @@ function read_changes(path)
 end
 
 function simulate(G, inputs; changes=Pair{String,Float64}[], final_time=nothing, record=true, inject=nothing, cache_data=true,
-                  setvals=Pair{String,Float64}[])
+                  setvals=Pair{String,Float64}[], record_slots=nothing)
     slots = slot_index(G)
     x = zeros(G.NX); r = zeros(G.NR)
     G.init_constants!(x, 0.0, 1)
@@ -112,11 +112,12 @@ function simulate(G, inputs; changes=Pair{String,Float64}[], final_time=nothing,
     (inject === nothing && G.ALLOC_HOOK[] === nothing) || (G.ALLOC_HOOK[] = inject === nothing ? nothing :
         (x, k) -> (for (s, v) in inject; x[s] = v[k]; end))
     G.init_rest!(x, t0, 1, st)
-    out = record ? zeros(G.NX, length(times)) : zeros(0, 0)
+    # record_slots: registra solo le celle richieste (righe nell'ordine dato)
+    out = !record ? zeros(0, 0) : record_slots === nothing ? zeros(G.NX, length(times)) : zeros(length(record_slots), length(times))
     for k in eachindex(times)
         t = times[k]
         G.step_aux!(x, t, k)
-        record && (out[:, k] = x)
+        record && (record_slots === nothing ? (out[:, k] = x) : (out[:, k] = view(x, record_slots)))
         k == length(times) && break
         G.step_rates!(x, r, t, k, st)
         G.step_update!(x, r, dt, st)
