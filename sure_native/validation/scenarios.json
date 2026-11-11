@@ -10,7 +10,7 @@
   {
    "name": "FiT",
    "min": 0.0,
-   "max": 10.0,
+   "max": 0.1,
    "base": 0.0
   },
   {
@@ -200,7 +200,7 @@
    "final_time": 2050,
    "settings": {
     "PV rebate cantonal": 0.2,
-    "FiT": 10.0,
+    "FiT": 0.1,
     "Battery Rebate": 0.5,
     "Grant share HP": 0.4,
     "Retrofit incentive input": 100.0,
@@ -322,7 +322,7 @@
    "final_time": 2050,
    "settings": {
     "PV rebate cantonal": 0.1,
-    "FiT": 10.0,
+    "FiT": 0.1,
     "Battery Rebate": 0.0,
     "Grant share HP": 0.2,
     "Retrofit incentive input": 50.0,

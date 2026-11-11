@@ -42,6 +42,10 @@ def read_levers(xlsx: Path) -> list[dict]:
             continue
         name = str(name).strip()
         lo, hi, base = float(r[col["Min"]]), float(r[col["Max"]]), float(r[col["Base"]])
+        # unità del foglio -> unità del modello (FiT: ct./kWh nel foglio, CHF/kWh nel modello)
+        unit = str(r[col[next(h for h in col if h.startswith("Unit"))]] or "").strip()
+        if unit.startswith("ct"):
+            lo, hi, base = lo / 100, hi / 100, base / 100
         if name in levers:  # stessa variabile in più pagine (FiT): intervallo più ampio
             prev = levers[name]
             if prev["base"] != base:
