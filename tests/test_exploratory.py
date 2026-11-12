@@ -109,8 +109,8 @@ class ExploratoryTests(unittest.TestCase):
         from sure_julia.batch import jobs
         with patch('sure_julia.batch.pd.read_parquet', return_value=cfg.build_uncertainty_samples()):
             planned = jobs()
-        self.assertEqual(len(planned), 14571)
-        self.assertEqual(sum(len(j['destinations']) for j in planned), 14579)
+        self.assertEqual(len(planned), 13905)
+        self.assertEqual(sum(len(j['destinations']) for j in planned), 13913)
         exploratory = [j for j in planned if any(d['section'] == 'exploratory' for d in j['destinations'])]
         self.assertEqual(len(exploratory), 12800)
         for job in exploratory:

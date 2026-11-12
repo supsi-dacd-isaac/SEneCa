@@ -56,6 +56,14 @@ POLICY_LABELS = {
         "help": "Raggruppamento ai fini del consumo proprio virtuale (RCPv). "
                 "Sì abilita questa possibilità nel modello; le adesioni sono simulate.",
     },
+    "Buildings PVno connected to RCPv": {
+        "label": "Edifici senza PV connessi a un RCPv",
+        "control_label": "Edifici senza PV per RCPv",
+        "short_label": "Edifici senza PV per RCPv",
+        "unit": "edifici",
+        "help": "Numero di edifici senza PV che aderiscono a ogni RCPv insieme "
+                "all’edificio con l’impianto. Conta solo se l’RCPv è abilitato.",
+    },
     "Grant share HP": {
         "label": "Contributo per pompe di calore",
         "short_label": "Contributo pompe di calore",

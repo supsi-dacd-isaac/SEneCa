@@ -4026,3 +4026,12 @@ msgstr ""
 "- **Imports**: electricity from outside the canton.\n"
 "\n"
 "Imports and exports can coexist: generation and demand change from hour to hour."
+
+msgid "Edifici senza PV connessi a un RCPv"
+msgstr "Buildings without PV connected to an RCPv"
+
+msgid "Edifici senza PV per RCPv"
+msgstr "Buildings without PV per RCPv"
+
+msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
+msgstr "Number of buildings without PV that join each RCPv together with the building that has the system. Applies only when RCPv is enabled."

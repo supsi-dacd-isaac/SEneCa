@@ -29,7 +29,7 @@ DISTRICT_ORDER = [
 ]
 
 # =============================================================
-# INPUT (6 variabili -> 3*3*3*3*2*2 = 324 combinazioni)
+# INPUT (7 variabili -> 3*3*3*3*2*2*2 = 648 combinazioni)
 # nome variabile Vensim -> lista di valori discreti ammessi
 # =============================================================
 INPUT_GRID: dict[str, list[float]] = {
@@ -39,6 +39,7 @@ INPUT_GRID: dict[str, list[float]] = {
     "PV rebate federal": [0.0, 0.2, 0.4],
     "PV reg scenario": [0.0, 1.0],
     "Energy Community scenario": [0.0, 1.0],
+    "Buildings PVno connected to RCPv": [1.0, 2.0],
 }
 
 INPUT_ORDER = list(INPUT_GRID.keys())
@@ -54,7 +55,8 @@ BASE_SCENARIO: dict[str, float] = {
     "Battery Rebate": 0.0,
     "PV rebate federal": 0.2,
     "PV reg scenario": 1.0,
-    "Energy Community scenario": 0.0,
+    "Energy Community scenario": 1.0,
+    "Buildings PVno connected to RCPv": 1.0,
 }
 
 # Etichette/unita' per la UI (allineate all'Excel)

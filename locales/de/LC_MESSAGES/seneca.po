@@ -4044,3 +4044,12 @@ msgstr ""
 "\n"
 "Importe und Exporte können gleichzeitig auftreten: Erzeugung und Bedarf ändern sich von Stunde zu"
 " Stunde."
+
+msgid "Edifici senza PV connessi a un RCPv"
+msgstr "Gebäude ohne PV, die an einen vZEV angeschlossen sind"
+
+msgid "Edifici senza PV per RCPv"
+msgstr "Gebäude ohne PV pro vZEV"
+
+msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
+msgstr "Anzahl Gebäude ohne PV, die sich jedem vZEV zusammen mit dem Gebäude mit der Anlage anschliessen. Gilt nur, wenn der vZEV aktiviert ist."

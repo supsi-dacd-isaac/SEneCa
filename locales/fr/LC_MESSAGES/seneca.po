@@ -4067,3 +4067,12 @@ msgstr ""
 "\n"
 "Importations et exportations peuvent coexister : production et demande varient d’une heure à "
 "l’autre."
+
+msgid "Edifici senza PV connessi a un RCPv"
+msgstr "Bâtiments sans PV raccordés à un RCPv"
+
+msgid "Edifici senza PV per RCPv"
+msgstr "Bâtiments sans PV par RCPv"
+
+msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
+msgstr "Nombre de bâtiments sans PV qui rejoignent chaque RCPv avec le bâtiment équipé de l’installation. Ne s’applique que si le RCPv est activé."
