@@ -117,7 +117,8 @@ class JuliaBackend:
             raise ValueError("Unknown or duplicate requested outputs")
         requested = list(names)
         from .physical import OUTPUTS as PHYSICAL_OUTPUTS
-        names = list(dict.fromkeys(names + PHYSICAL_OUTPUTS))
+        # diagnostics the build does not export (v8 checks on the native build) are skipped by check()
+        names = list(dict.fromkeys(names + [n for n in PHYSICAL_OUTPUTS if n in catalog]))
         with self.lock, tempfile.TemporaryDirectory(prefix="sure-result-") as temporary:
             self._start()
             self.request_id += 1

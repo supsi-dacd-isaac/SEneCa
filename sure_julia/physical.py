@@ -23,19 +23,23 @@ V8_OUTPUTS = ["NR Stock", "NR Installed kW", "NR Orders", "NR Completed", "NR Pe
               "NR Orders kW district", "NR Installed kW district", "NR Pending kW district",
               "Battery charging", "Battery delivered", "Battery loss",
               "Battery loss RCPv", "Calendar pending total", "PV removal fraction"]
+BASE_OUTPUTS = list(OUTPUTS)
 OUTPUTS += V8_OUTPUTS
 
 
 def check(arrays):
-    missing = set(OUTPUTS)-set(arrays)
+    missing = set(BASE_OUTPUTS)-set(arrays)
     if missing:
         return {"pass": False, "reason": "Missing physical diagnostics", "missing": sorted(missing)}
+    # The v8 PySD build exports these diagnostics; the native build of 11.11.2026
+    # does not (same model variables, not in its export.json).
+    v8 = all(name in arrays for name in V8_OUTPUTS)
     rows = {}
-    for name in OUTPUTS:
+    for name in BASE_OUTPUTS + (V8_OUTPUTS if v8 else []):
         a = arrays[name]
         if a.shape[0] != 40 or not np.isfinite(a).all():
             return {"pass": False, "reason": "Invalid physical diagnostic", "variable": name}
-    for name in ["Heating Solution", "Annual archetypes", "Total Res buildings", *TRANSFERS, *V8_OUTPUTS]:
+    for name in ["Heating Solution", "Annual archetypes", "Total Res buildings", *TRANSFERS, *(V8_OUTPUTS if v8 else [])]:
         a = arrays[name]
         tolerance = 1e-10*np.maximum(1.,np.abs(a).max(axis=0))
         bad = a < -tolerance
@@ -69,6 +73,13 @@ def check(arrays):
     fine, coarse = s.sum(axis=(2,5,6)),arrays['Total Res buildings']
     balanced('fine_coarse_changes',fine-fine[0],coarse-coarse[0])
     balanced('external_balance',s[1:].sum(axis=(2,3,5,6)),s[:-1].sum(axis=(2,3,5,6))+(arrays['Buildings construction with battery'][:-1]-arrays['Building demolition by archetype'][:-1]).sum(axis=(2,3,5,6)))
+    if v8:
+        v8_balances(arrays, balanced)
+    return {"pass": all(r['pass'] for r in rows.values()), "checks": rows,
+            "initial_fine_coarse_max_abs": float(abs(fine[0]-coarse[0]).max())}
+
+
+def v8_balances(arrays, balanced):
     balanced('nr_stock_euler', arrays['NR Stock'][1:],
              arrays['NR Stock'][:-1] + arrays['NR Installed kW'][:-1])
     balanced('nr_pending_count_euler', arrays['NR Pending count'][1:],
@@ -78,5 +89,3 @@ def check(arrays):
              - arrays['NR Installed kW district'][:-1])
     balanced('battery_energy_balance', arrays['Battery charging'],
              arrays['Battery delivered'] + arrays['Battery loss'])
-    return {"pass": all(r['pass'] for r in rows.values()), "checks": rows,
-            "initial_fine_coarse_max_abs": float(abs(fine[0]-coarse[0]).max())}
