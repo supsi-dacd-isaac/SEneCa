@@ -1,0 +1,717 @@
+{
+  "pass": true,
+  "rows": [
+    {
+      "scenario_id": "abf9766c3da37a126e708cbc7f7b0d0b04c0fd713f35f65877ddf80a6b305d5d",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 14.294730132445693,
+      "parallel_seconds": 16.22124551422894
+    },
+    {
+      "scenario_id": "f0de66a84efaf6f6591b77c3c709b15f208159ec105d7e4d642a6c1574b82a66",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 13.960170542821288,
+      "parallel_seconds": 18.234841641038656
+    },
+    {
+      "scenario_id": "2a3b89166c3c6e9f478acd55d365a91d3ec505d4d1b768a2877dc976e0f05216",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.499287839978933,
+      "parallel_seconds": 18.304113052785397
+    },
+    {
+      "scenario_id": "0d4631a19715bb7275b43e22d8665790df2b5c168b85312c3e24ac9037a71efd",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.084007434546947,
+      "parallel_seconds": 16.975281540304422
+    },
+    {
+      "scenario_id": "6a5fec299a09a330d80781af4e04e4fad535f99c0f9c0fbe54f7d4520e01e061",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.351841803640127,
+      "parallel_seconds": 16.677423611283302
+    },
+    {
+      "scenario_id": "1e6fac6fe8e7a4a8a51b90bab0f9a31e9b94992c08fb1002888028f69e2e1887",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.74433514289558,
+      "parallel_seconds": 17.991743464022875
+    },
+    {
+      "scenario_id": "9b08b39a346c54031ca262671a05171f84de74fc2a78cdc05ebe8f97a99296d3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.801982196047902,
+      "parallel_seconds": 16.866203375160694
+    },
+    {
+      "scenario_id": "3a550019879d56b4fbda3056df6d039cc23364dbaba82cf0a0f6c05a352fe2a3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.84107213281095,
+      "parallel_seconds": 15.523069465532899
+    },
+    {
+      "scenario_id": "b1660a903f1404dc650a466d19d5300ec08bc30642edf15b89faf9f8375c5f57",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.485284583643079,
+      "parallel_seconds": 18.26458789035678
+    },
+    {
+      "scenario_id": "c1829896a2a0212f1a38abf314bf0b4556fbb1b7c74d1f52abf34993ae027262",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.05105683580041,
+      "parallel_seconds": 17.19700078293681
+    },
+    {
+      "scenario_id": "2fe149a0e27ea82346cbbd6303855e5d0e17978f6e21d4ee04a86441b7136ff5",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.368487674742937,
+      "parallel_seconds": 18.65904643945396
+    },
+    {
+      "scenario_id": "956cda9b446913db6b7d182ad14b219cc0deeb2230094906741996513a2dc215",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.358291344717145,
+      "parallel_seconds": 18.235482193529606
+    },
+    {
+      "scenario_id": "dae25cefe33bc925cfb4648a79571efb7087b391e45fd37b7e72b57ec731848f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.66885082423687,
+      "parallel_seconds": 18.794146979227662
+    },
+    {
+      "scenario_id": "b0d00524068f2424a954a3abce552d1f3e5e6f297e6210a2dc64a0c2c76aa438",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 13.000108007341623,
+      "parallel_seconds": 18.001832135021687
+    },
+    {
+      "scenario_id": "9b80c0b5981670b9ebdaa6b74d286c7a98ea1f3243f1c2a631ad9a0fb06522bd",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.597596580162644,
+      "parallel_seconds": 17.90569273941219
+    },
+    {
+      "scenario_id": "d2596daa93a13ed5940a7ad2a21067aa4cf71d5376ec10dcc4e56c9673b0ecac",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.301956225186586,
+      "parallel_seconds": 19.433850940316916
+    },
+    {
+      "scenario_id": "4f0f977a55eee1d294cbebe9964ce4d2d6bfa421f16b4866778d6222743e20a3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.572286428883672,
+      "parallel_seconds": 18.53894357010722
+    },
+    {
+      "scenario_id": "49cca68e8f0da520d20dd710a8800f09db8756a60c96e7e0445fed4f44d3bc10",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.218529984354973,
+      "parallel_seconds": 17.976625142619014
+    },
+    {
+      "scenario_id": "00121e2759d61e0fe281aa533c0b313efc2b8f21e9f0f16b5f1014787b52e37b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.580525210127234,
+      "parallel_seconds": 18.274658912792802
+    },
+    {
+      "scenario_id": "0e5e5ad10e8ff2507eb86c788d5ad78009a42455d79edee1d664aab722b783ad",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.376894375309348,
+      "parallel_seconds": 17.919741278514266
+    },
+    {
+      "scenario_id": "d28608531b8312c7463c0a5457fffa5ebd9e96653e8e15cddc2b0a8b30041ee7",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.59676556661725,
+      "parallel_seconds": 18.59896459057927
+    },
+    {
+      "scenario_id": "5ff6079b56a0c346c8ff3a025d07e75e2f710d659026e11c3254616d4882f585",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.863196516409516,
+      "parallel_seconds": 19.012889217585325
+    },
+    {
+      "scenario_id": "718f7a5ed96716a765cda71900f23b91c34a8fcbb44177ca73bbef769fe614d7",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 13.481706392019987,
+      "parallel_seconds": 18.076413806527853
+    },
+    {
+      "scenario_id": "dd96ff6971be73cad99847366a7244e1164b799ace04af5a72f4582dd2eb840c",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.999306462705135,
+      "parallel_seconds": 17.346460139378905
+    },
+    {
+      "scenario_id": "ecac6e097325543bcb1cc4d8a9d681c3258fb5472375211669cbcd09ea1fece8",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.672930900007486,
+      "parallel_seconds": 18.21543844975531
+    },
+    {
+      "scenario_id": "2a5e818c7fbd5395b8a89a7490c42e6c5c167a6ad6c5aeadae62b48b402193c4",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.326523710042238,
+      "parallel_seconds": 19.115987475961447
+    },
+    {
+      "scenario_id": "d97616b99e1203022fb30e05074eaa2626ea1817219e3fc50b65cb7956f86239",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.592676736414433,
+      "parallel_seconds": 19.48781479895115
+    },
+    {
+      "scenario_id": "c408021fee75623512b072345798efd570da21bc606fa32bda5d2c77b3623ea2",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.290822064504027,
+      "parallel_seconds": 14.911895962432027
+    },
+    {
+      "scenario_id": "2212b5dfc1622cf20612524a965b4b360cae76705a0e7629599f49213e782254",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.602882107719779,
+      "parallel_seconds": 19.376874092966318
+    },
+    {
+      "scenario_id": "aa6a016d607effa4919a86a24228f5e6e5473e5baab0cb71255a8c4bca028e8b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.260413657873869,
+      "parallel_seconds": 16.708018507808447
+    },
+    {
+      "scenario_id": "6f87f39a6921d30f3fd23506cea2ad41c6c361da50b5c75e9521ef6cb56d412a",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.588461393490434,
+      "parallel_seconds": 15.766385676339269
+    },
+    {
+      "scenario_id": "ee9a68146b8bfc6b1e4bb1abc1fe130aff1ec81c35515f6f72ca058276cd7aca",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.916193600744009,
+      "parallel_seconds": 17.916268391534686
+    },
+    {
+      "scenario_id": "023257c800b8c7571a6af8f733ce235f8a593db0ee1d75b400d63a05bd55cf64",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.62448693998158,
+      "parallel_seconds": 17.560031585395336
+    },
+    {
+      "scenario_id": "3a57328e64492e1abf608defd12b3286af8d03a2e20eed5e80ea58528da04b24",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.533185202628374,
+      "parallel_seconds": 16.7891757581383
+    },
+    {
+      "scenario_id": "01a73664ca9a21f5161d09893fe86c93ec6385c246d04dfdefe017ac98c5a5bb",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.970389265567064,
+      "parallel_seconds": 26.76946995407343
+    },
+    {
+      "scenario_id": "69d8e98e1bd791522d8f3dbb467d68ceaec76cc92bae00e85d942df8180c688b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.624348474666476,
+      "parallel_seconds": 16.986981747671962
+    },
+    {
+      "scenario_id": "c45c95df770b571ac2c249e4a62dc266ca9b4929b38162cac8b5360291bd38c0",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.880967622622848,
+      "parallel_seconds": 17.638162199407816
+    },
+    {
+      "scenario_id": "07720da4b74e61fbcd3da673af967f1fc8391911ef156d629dc2aa69bf700bf5",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.776287090033293,
+      "parallel_seconds": 18.23136403784156
+    },
+    {
+      "scenario_id": "c6f703ff241b7773e7590b17bca5058b9ccc950c4d1b1f985e9e1fd10c1b7a8f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.241845391690731,
+      "parallel_seconds": 19.647846680134535
+    },
+    {
+      "scenario_id": "1a1a63a8c9db5b4da128763611e471f61f2b05cd92bf011edf644d2bd0e12750",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.595820754766464,
+      "parallel_seconds": 17.732160164043307
+    },
+    {
+      "scenario_id": "9db15c3a521d025f7fcf20fd0bd6c1273a757fade277bff317ea0feab38bb44b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.310409303754568,
+      "parallel_seconds": 19.826695915311575
+    },
+    {
+      "scenario_id": "9818038a78943ee6b6edbc2f97b81076398be0ae78c4b93c6d4b7aa846bf9091",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.582573527470231,
+      "parallel_seconds": 18.17710812576115
+    },
+    {
+      "scenario_id": "4d707e2b9a9f560cda7a399e921d87ec9d78eb1bed86216b0c1e7d28271014bf",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.2276241350919,
+      "parallel_seconds": 20.248971505090594
+    },
+    {
+      "scenario_id": "fd92917ee045c6d8c50e2928cb355fd876d0ce7b2c17722de401782251889294",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.578754961490631,
+      "parallel_seconds": 17.902695070952177
+    },
+    {
+      "scenario_id": "612f4066ff61c5d2e1f12d609f4555ba26d7da744e528b324e14280e35dea125",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.294377578422427,
+      "parallel_seconds": 18.997976895421743
+    },
+    {
+      "scenario_id": "6428967acb787ca8cbfddcda464ca11944f12af035f829520961b4fde7734522",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.993364943191409,
+      "parallel_seconds": 16.98727693594992
+    },
+    {
+      "scenario_id": "1c2dd87b3dda546e4ece820de8be0f7dde59801109b2027be4e0d90f31770c33",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 13.678531931713223,
+      "parallel_seconds": 15.68223948404193
+    },
+    {
+      "scenario_id": "c533a05ed39b31b3cc6888eb7b8c7e054e2be89c9653ee907c10917003e37410",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.708173766732216,
+      "parallel_seconds": 18.48987352475524
+    },
+    {
+      "scenario_id": "f3c7e1eb74126e5f8dfe052b1d28bc4533fb0b3feec9b07a77c87e9086becec3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.964201966300607,
+      "parallel_seconds": 17.811733404174447
+    },
+    {
+      "scenario_id": "1da47573d71b1bf28fd529893ea82d6f4c1cb5eeaee0063de0094d32aff047c1",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.922468127682805,
+      "parallel_seconds": 18.073547514155507
+    },
+    {
+      "scenario_id": "62434236f14297018e530dd6e3a336b6fe821ce6ad069bbbac3e7781c0311023",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.536418097093701,
+      "parallel_seconds": 19.72078494541347
+    },
+    {
+      "scenario_id": "f2103afda5ff7f610c4588a9cf6923b0cbad0e1a759aa9086af83419dd56c68f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.260748138651252,
+      "parallel_seconds": 16.505179839208722
+    },
+    {
+      "scenario_id": "7f08a3e1f76ab24e4ffc2826cf17e834ef52e72de34e99cc58ba7960bc198d07",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.597378781065345,
+      "parallel_seconds": 17.70818297378719
+    },
+    {
+      "scenario_id": "6f88e887f196995daecf98c1cd3a44a55c902811618b830a37a044a61abbe17d",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.466300500556827,
+      "parallel_seconds": 19.898406902328134
+    },
+    {
+      "scenario_id": "b4d1cb5921dbc30216e6b013af463ac9a1f9093b1226427e7d826f9f8d2372fa",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.538657035678625,
+      "parallel_seconds": 18.129479391500354
+    },
+    {
+      "scenario_id": "bed64e1d64e1b3f1c43b37b4ab2dd622fb8211c630474f13a514f70fdd5dff12",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.629255179315805,
+      "parallel_seconds": 18.23554550856352
+    },
+    {
+      "scenario_id": "b6fd0b5b09117ed463850548c63485eb1d76353922790ee6151e05e1dcd44632",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.301224583759904,
+      "parallel_seconds": 20.106763172894716
+    },
+    {
+      "scenario_id": "109968240f3b460eb517d8e3c413fc1c812ea7ea2359b66e30a3eec28f83d72f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.606498522683978,
+      "parallel_seconds": 17.512647373601794
+    },
+    {
+      "scenario_id": "fe213e860d30c0d9c453b9a036b09fbb72feffa4e35d47f2b12162db64d63d3f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.666892193257809,
+      "parallel_seconds": 20.501495791599154
+    },
+    {
+      "scenario_id": "5fcf01d862e7eb91040686398cba56338eb396b6043b3479aadd12a346c1d2a9",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.60665176436305,
+      "parallel_seconds": 20.887402676045895
+    },
+    {
+      "scenario_id": "36b41d3c9fb42342b56394f8cda1e779b7179231e236c85a750ac0f2d5e205e2",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.359410608187318,
+      "parallel_seconds": 26.02647529914975
+    },
+    {
+      "scenario_id": "e7273f859d7f9e3fe737bc54f83ccdc9d710f4d3dd54ef58f6bb9962478f4420",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.655911773443222,
+      "parallel_seconds": 15.088598707690835
+    },
+    {
+      "scenario_id": "c235b468aeb09786e5ec060dc172fa8f14c7298aacab53ab87f5466523d83d70",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.578698946163058,
+      "parallel_seconds": 17.62238167412579
+    },
+    {
+      "scenario_id": "7f57ec35c498a64b7c56e68153dd6f59cc3db8ca55645161ba109e7088200045",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 13.537610702216625,
+      "parallel_seconds": 15.206276735290885
+    },
+    {
+      "scenario_id": "ea8d1b9fe76d32843ef09c49e38753d2adedbe46c168c56b77aec52f8a9eb010",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.564135320484638,
+      "parallel_seconds": 15.97227274812758
+    },
+    {
+      "scenario_id": "2cfb7b7318dcae3eb22c129cb4047df9829fbb2620f9dee8784f765908019f2a",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.208187939599156,
+      "parallel_seconds": 15.782661968842149
+    },
+    {
+      "scenario_id": "8cf8ef802c67b009e9cd569f0cdb9f0bd36e4f51e87e1b9e6c73057908dfcdc7",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.575707165524364,
+      "parallel_seconds": 15.801039719954133
+    },
+    {
+      "scenario_id": "58c6777b3b2cdfa77cc991877cedfc986181c497a2141193c96b9d6392922c48",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.98267763108015,
+      "parallel_seconds": 15.622332012280822
+    },
+    {
+      "scenario_id": "284998512dbf5e531a0beae045ef056f343ed27c66352e0635a25c6d3d22745f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.602613762021065,
+      "parallel_seconds": 15.71540273167193
+    },
+    {
+      "scenario_id": "97469eca4dc51f582e956624ee6277e2695fea99891268a0405f9ac4e8150112",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.293940367177129,
+      "parallel_seconds": 16.208679178729653
+    },
+    {
+      "scenario_id": "ad80bd31f9bd9e06ad08ea03639f5d085fe9c72da0d21cd669f3e18207d1dcb2",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.583040533587337,
+      "parallel_seconds": 15.841373976320028
+    },
+    {
+      "scenario_id": "89895163fef348bc8f5311252fd8578477306400c673567242368c9754d57c59",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.921816913411021,
+      "parallel_seconds": 16.828454112634063
+    },
+    {
+      "scenario_id": "4859ab31dfecc94f84b5e3c798eddd3e09c80420fbde943f6eba5a2176fdf9bb",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.225733639672399,
+      "parallel_seconds": 15.445842074230313
+    },
+    {
+      "scenario_id": "f822d3e45bec2ce4ae59b60ceb5194ae159e1cec5d112fe283dc120febba4a3b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.626890009269118,
+      "parallel_seconds": 15.643733263015747
+    },
+    {
+      "scenario_id": "ba01151f9c53b61ac175457317ebeccfc754e2bfcad51bb94babd30f73d6605b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.246969323605299,
+      "parallel_seconds": 17.375270837917924
+    },
+    {
+      "scenario_id": "7436f47597449947cfd1076c5fd7e51553e533a41863ddef6e6ede741d3d8948",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.532173108309507,
+      "parallel_seconds": 17.057612039148808
+    },
+    {
+      "scenario_id": "346538650bece3035b3986f2f1accd5f6865e6958c882a0c70dbc8db5167e89c",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.230447106063366,
+      "parallel_seconds": 16.666085487231612
+    },
+    {
+      "scenario_id": "427195c6398e2c20a42fe76da33fa9073e95d38ee1d04ee7d4715cac463941d3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.114122200757265,
+      "parallel_seconds": 15.516424620524049
+    },
+    {
+      "scenario_id": "00a43adc4a4d1a4a2623122db29179cb55342715641c2094793d216d6048a9a0",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.899735677987337,
+      "parallel_seconds": 15.961120624095201
+    },
+    {
+      "scenario_id": "4210dc50c0470fa7943f8a8de59aede39eacf6ad1e53653b21040c4288c2a3fe",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.563478477299213,
+      "parallel_seconds": 16.13902596384287
+    },
+    {
+      "scenario_id": "730372dc34acce027b5a1747f15ae4cbf137951c2f788a55bf0bd7151cf2db3f",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.587590152397752,
+      "parallel_seconds": 17.2682875841856
+    },
+    {
+      "scenario_id": "151c81197e2407a1d60494df0cb253fbd21ba9afcdb31401aba4637e70ecb881",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.18754461966455,
+      "parallel_seconds": 16.30964494124055
+    },
+    {
+      "scenario_id": "4566cf8f74a014fe654fb918c9dbd9a688e967932dc49d13e9747d7b86597c5b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.55753018334508,
+      "parallel_seconds": 16.420218048617244
+    },
+    {
+      "scenario_id": "f000c85cc914e3ec6bbe76317731a33f65f36e62281f059d4a19777febc519ea",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.55052537098527,
+      "parallel_seconds": 16.270628795027733
+    },
+    {
+      "scenario_id": "3e8cd91c7fb7dc611d4fb31508ce038658a9184e2ef27088748008c7db75c4db",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.601209837943316,
+      "parallel_seconds": 15.276224041357636
+    },
+    {
+      "scenario_id": "c080eb039e5dc960af94d9e332611a123f112c1d6eec4d043f301cf49f06d0a3",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.189731670543551,
+      "parallel_seconds": 17.07897499203682
+    },
+    {
+      "scenario_id": "160bcb684f3e3d104aa8971c8c6d7d752adbd7ba71119da066c715a76b8ee4ff",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.56776569597423,
+      "parallel_seconds": 18.552171990275383
+    },
+    {
+      "scenario_id": "c4d5ed4fdc239ba581fc44a5c379b63966fc0069811c0dfeb4d20c3115a9d710",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.14698544330895,
+      "parallel_seconds": 17.02614501863718
+    },
+    {
+      "scenario_id": "fee30fc4c1458042005fc92ac5a22b5d7264e35c31e5f4b1a47e977719db63a6",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.51969239115715,
+      "parallel_seconds": 16.80165646597743
+    },
+    {
+      "scenario_id": "e2fed5482209c63a626d79994e22a036154360401f8d92ccbdf865e0b94f126c",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.186322417110205,
+      "parallel_seconds": 16.911589520052075
+    },
+    {
+      "scenario_id": "fdd1fdb8c5613baa203038dfd7e7293c7670e60df6c6648bf9330af3b619ef37",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.600078109651804,
+      "parallel_seconds": 15.834237899631262
+    },
+    {
+      "scenario_id": "a2061c699b8077aa5c27d3004e78097e4fb14be5e106b8ba196313a06d85cce5",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.22420815937221,
+      "parallel_seconds": 16.658400762826204
+    },
+    {
+      "scenario_id": "4bc3350c3c36af8b531bdae0983251df914c99c155efddce4a935fb01d3c1020",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.542865093797445,
+      "parallel_seconds": 15.82088560052216
+    },
+    {
+      "scenario_id": "3e477d22570cba0307e3fca57fa5d2b7d7cf7833986f819a43358d5700b51e66",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.56587909720838,
+      "parallel_seconds": 14.505956895649433
+    },
+    {
+      "scenario_id": "2a054ba03234c340fdc37a75ee4cfd1e4d469e9f33773697e677398e6bd885e4",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.211108688265085,
+      "parallel_seconds": 14.93502114713192
+    },
+    {
+      "scenario_id": "b69bdab0c932440cd18542dc10b9ed46a05235f9071c79070221f6e86f0ec5b2",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.608394648879766,
+      "parallel_seconds": 13.457096518948674
+    },
+    {
+      "scenario_id": "6d239ff6dc4b144fa95955e3c66cc4e1d912ca25506a219fd919b3bf39d7e370",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.18476496823132,
+      "parallel_seconds": 14.437668135389686
+    },
+    {
+      "scenario_id": "878ee1c70f60874f83f299881322d5bbe239f1103e0205d5b6525ce3fcbc4b39",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.530738614499569,
+      "parallel_seconds": 14.861833713948727
+    },
+    {
+      "scenario_id": "b1f36420afaf31b7e36d58a4f0b47ec2cd099d02c1823d9ab153b909418eaf4b",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 12.650865986943245,
+      "parallel_seconds": 14.380760433152318
+    },
+    {
+      "scenario_id": "a223bbb12f7c21c51207d617b0a60facb0a4b56b0fd9186c1e99c36014dae631",
+      "pass": true,
+      "parquet_files_exact": true,
+      "serial_seconds": 11.521479208022356,
+      "parallel_seconds": 13.721400391310453
+    }
+  ],
+  "serial": {
+    "complete": true,
+    "scenarios": 100,
+    "seconds": 1328.2195457089692,
+    "workers": 1
+  },
+  "parallel": {
+    "complete": true,
+    "scenarios": 100,
+    "seconds": 230.83245535194874,
+    "workers": 32
+  }
+}

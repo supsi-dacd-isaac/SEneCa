@@ -185,6 +185,18 @@ class PhysicalGateTests(unittest.TestCase):
             a["Heating Solution"][10, 0, 0, 0, 0, 0, 0] = value
             self.assertFalse(check(a)["pass"])
 
+    def test_v8_nonresidential_and_battery_balances_are_required(self):
+        for variable, gate in [("NR Installed kW", "nr_stock_euler"),
+                               ("NR Orders", "nr_pending_count_euler"),
+                               ("NR Orders kW district", "nr_pending_kw_euler"),
+                               ("Battery loss", "battery_energy_balance")]:
+            with self.subTest(variable=variable):
+                a = self.arrays()
+                a[variable][10] = 1.
+                result = check(a)
+                self.assertFalse(result["pass"])
+                self.assertFalse(result["checks"][gate]["pass"])
+
     def test_unpaired_transfer_and_drifting_population_fail(self):
         for source, gate in [("Consumers leaving HS for old age", "heating_transfer"),
                              ("Buildings HS Renovation From", "renovation_transfer"),

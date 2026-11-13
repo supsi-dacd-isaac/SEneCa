@@ -10,12 +10,19 @@ Il modello è sviluppato in Vensim (`Vensim/SURE.mdl`, con la calibrazione
 dell'11 novembre 2026). La webapp usa una traduzione diretta Vensim → Julia
 (`sure_native`), senza PySD: il build `sure_native/generated` è nel
 repository con i suoi checksum ed è validato contro Vensim DSS su 76 scenari.
-I dati `data-v3.0.0` contengono 13.905 simulazioni distinte per 13.913
+I dati `data-v4.0.0` contengono 13.905 simulazioni distinte per 13.913
 configurazioni delle pagine (PV e batterie 648, riscaldamento 225, veicoli 144,
 elettricità 96) e 12.800 combinazioni di policy mix e incertezza con nove KPI.
 Il backend Python/PySD e il build `sure_julia/generated` restano selezionabili
 con `SURE_BACKEND` e `SURE_JULIA_MODEL`. Procedura: [sure_native/README.md](sure_native/README.md);
 staging su Elettra: [deploy/STAGING.md](deploy/STAGING.md).
+
+La release precedente (`v0.6.0`, dati `data-v3.0.0`) usava la traduzione PySD
+di SURE v8 (`sure-v8-nr-calendar-2`), verificata con 427 confronti
+Python–Julia ma senza equivalenza con Vensim nativo: vedi il
+[rapporto v8](docs/validation/v8-release.md) e la [guida Julia](docs/julia-production.md).
+La linea EMS è un progetto separato, con modello, dati e release dedicati.
+
 
 ## Riconoscimenti
 
@@ -79,7 +86,7 @@ aggiornamenti dei dati vedi [la guida alle release dati](docs/data-releases.md).
 ## Docker
 
 Per provare le modifiche dell'interfaccia con il runtime Julia e i dati della
-release `v0.4.0`, senza ricompilare il modello:
+release `v0.6.0`, senza ricompilare il modello:
 
 ```bash
 docker compose -f docker-compose.local.yml up -d
@@ -118,9 +125,11 @@ docker compose -f docker-compose.prod.yml up -d
 
 Una nuova release non aggiorna da sola il container in esecuzione: l'operatore
 esegue questi comandi quando decide di distribuire la versione. Per fissare
-una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.4.0` (o un altro
+una versione o fare rollback, impostare `SENECA_IMAGE_TAG=v0.6.0` (o un altro
 tag pubblicato) prima dei comandi. Per ripristinare `v0.1.1` impostare anche
-`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`; v0.4.0 usa v7.
+`SURE_VARIANT=v3` e `SURE_BACKEND=python`; v0.2.0–v0.3.1 usano `SURE_VARIANT=v6`;
+v0.4.0–v0.5.0 usano v7 e v0.6.0 usa v8. Anche un override di variante
+presente nel file ambiente deve corrispondere all'immagine scelta.
 `SENECA_PORT` cambia la porta host, che di
 default è 8501. Entrambi i Compose leggono la chiave CARTO solo a runtime.
 
@@ -204,7 +213,7 @@ nel tag `v0.3.1`. Non usarli per rigenerare gli store del modello corretto.
 ## Sorgenti del modello e manutenzione
 
 Il sorgente canonico è `Vensim/SURE.mdl`; `SURE_pysd_v8.mdl` e `.py`
-sono i derivati usati per il runtime `sure-v8-nr-calendar-1`. Le quattro
+sono i derivati usati per il runtime `sure-v8-nr-calendar-2`. Le quattro
 calibrazioni originali sono conservate in `Vensim/calibration/`, con manifest
 e checksum; `constants_ref_v8.pkl` contiene 30 gruppi in Float64 derivati da
 53 assegnazioni. I vecchi modelli eseguibili sono rimossi dal checkout.

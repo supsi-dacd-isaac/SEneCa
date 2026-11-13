@@ -1,0 +1,25 @@
+{
+  "model_variant": "v8",
+  "preview_commit": "342ecfcd9b3dcaa2af3377a408e54375ae821e1a",
+  "preview_archive_sha256": "03e6c7126eb9e451657805a0ae5fcc3b699c7661b6ec1114748e3b6021d2a816",
+  "native_inputs": {
+    "EVinput.vdfx": "7b73265682b727ab3fc837639e38ffc7abc83c3a320a406342cfdf7e2a538608",
+    "HPinput.vdfx": "6a7eccfaf4d7b1e9921d4b9dd36c4ef61f459f98f0850948b3d436121cf85be3",
+    "Input Hour Factors.vdfx": "f7cf7a8acb5781dd065bff169f8001fe8961580469255bf51121b1b95c846638",
+    "Input2011.vdfx": "0f67b53aa3ac522602e539bd63e465e46d2bd55936b0cfd4bea8599864cc1a07",
+    "InputRenovation.vdfx": "666eacd197c9bfb108cbac52e6ee7c2ea3b346e4e0871d609f3da9a78152458b",
+    "PVinput.vdfx": "3004ea299ea8ec2e1769dac9b18e242f9eab5a287e84569ec6f607acf3ea3ab3"
+  },
+  "uncertainty_samples_sha256": "d27dcf0c7e8d60b619f5a566ad6ea955eeba296344cc9f35b4f159519f543677",
+  "reference_backend": "PySD 3.14.3",
+  "native_vensim_equivalent": false,
+  "preview_stores_sha256": {
+    "elettricita_combo_index.parquet": "a46d8e9f97952eb3d65700f618d1336bed3fd8b352cefff35bef8053de1ffba4",
+    "elettricita_hourly.parquet": "eb3b49a4a5a12c2e0d280b178612237fc9c6ed27ef43124d032794440588987f",
+    "pv_batteries_gmd.parquet": "c6cfe007c8375371552453ea031da45cd95f75c8f9bfba43b0a7b596d73bd614",
+    "pv_batteries_scenarios.parquet": "1d15fbce24a7729bc071c9d25d45b5f90558a1a08f7d7002f6e1b13a17599e01",
+    "risanamento_gmd.parquet": "641cb8f1740c3c2f229bde84e4616d4e0378a38d56869b6155755daa20bbe3f0",
+    "risanamento_scenarios.parquet": "dfb8fd0ab2d1c4e0157df1fd68b3d058578ebf9c7c1138ea00f3201cdab8b1ed",
+    "veicoli_scenarios.parquet": "28c1de712b4905c7078a447e492c1ec10b0fb598d45bde14c60aafa8b665d160"
+  }
+}

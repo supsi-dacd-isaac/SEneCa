@@ -78,5 +78,7 @@ logs/
 *.temp
 
 # Documentation evidence and local generated models are not runtime inputs.
-docs/validation/
+docs/validation/*
+# Small reviewed input manifest is required by release verification at runtime.
+!docs/validation/v8-inputs.json
 sure_julia/generated/

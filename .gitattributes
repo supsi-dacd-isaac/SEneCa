@@ -1,9 +1,12 @@
 # Il .mdl e un sorgente di testo, ma con terminazioni di riga che Vensim
 # gestisce da se: niente normalizzazione.
-*.mdl -text
+*.mdl -text whitespace=cr-at-eol
 *.pdf binary
 *.pkl binary
 *.xlsx binary
+# Keep runtime/provenance text identical across Windows and Unix checkouts.
+*.py text eol=lf
+*.json text eol=lf
 # Preserve the received calibration bytes for provenance checks.
 Vensim/calibration/*.out -text
 # CSV input and calibration-curve hashes use the canonical LF checkout bytes.

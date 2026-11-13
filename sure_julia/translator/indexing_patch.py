@@ -112,10 +112,12 @@ def _vector_expression_axes(self, node):
     Individual coordinate labels remove an axis; scalar arithmetic preserves
     the union of its operands' axes. More complex calls stay unclassified.
     """
-    from pysd.translators.structures.abstract_expressions import ReferenceStructure, ArithmeticStructure, LogicStructure
+    from pysd.translators.structures.abstract_expressions import ReferenceStructure, ArithmeticStructure, LogicStructure, CallStructure
     if isinstance(node, (int, float)):
         return set()
     if isinstance(node, ReferenceStructure):
+        if node.reference.lower() == "time" and node.subscripts is None:
+            return set()
         identifier = self.namespace.get(node.reference)
         if identifier is None:
             return None
@@ -127,7 +129,16 @@ def _vector_expression_axes(self, node):
             elif spec in self.subs_elems or any(_clean(spec) == _clean(dim) for dim in self.subs_elems):
                 axes.add(_range(self, spec))
         return axes
-    if isinstance(node, (ArithmeticStructure, LogicStructure)):
+    # MIN/MAX preserve the labelled union of their operands, as in PySD.
+    elementwise = isinstance(node, CallStructure) and node.function.reference.lower() in {"min", "max"}
+    # A scalar lookup maps each input value to one value, preserving its axes.
+    scalar_lookup = False
+    if isinstance(node, CallStructure) and len(node.arguments) == 1:
+        identifier = self.namespace.get(node.function.reference)
+        known = self.lookup_names | getattr(self.namespace, "_seneca_scalar_lookups", set())
+        scalar_lookup = (identifier in known and not self.var_dims.get(identifier, [])
+                         and node.function.subscripts is None)
+    if isinstance(node, (ArithmeticStructure, LogicStructure)) or elementwise or scalar_lookup:
         axes = set()
         for argument in node.arguments:
             child = _vector_expression_axes(self, argument)
@@ -180,6 +191,15 @@ def apply():
 
     def process(self, elem, identifier, is_control=False):
         from .reduction_policy import context
+        from pysd.translators.structures.abstract_expressions import LookupsStructure
+        if not hasattr(self.namespace, "_seneca_scalar_lookups"):
+            # Upstream pre-registers external lookups, but not named tables.
+            # Resolve forward references without treating arbitrary calls as scalar.
+            self.namespace._seneca_scalar_lookups = {
+                self.namespace.get(e.name) for e in self.abstract_elements
+                if e.components and all(isinstance(c.ast, LookupsStructure) for c in e.components)
+                and not self._element_dims(e)
+            }
         previous = getattr(self.namespace, "_seneca_sum_context", {})
         self.namespace._seneca_sum_context = context(self, elem)
         if not hasattr(self.namespace, "_seneca_sum_policy_used"):

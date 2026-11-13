@@ -17,7 +17,7 @@ def model_directory():
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "v8"
-MODEL_REVISION = "sure-v8-nr-calendar-1"
+MODEL_REVISION = "sure-v8-nr-calendar-2"
 # Traduzione nativa di Vensim/SURE.mdl (sure_native), validata su 76 scenari Vensim
 NATIVE_REVISION = "sure-native-20261111"
 MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
@@ -26,7 +26,7 @@ CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"
 
 
 def model_sources():
-    return {str(p.relative_to(ROOT)): digest(p) for p in
+    return {p.relative_to(ROOT).as_posix(): digest(p) for p in
             [MODEL_PY, MODEL_MDL, CALIBRATION, ROOT / "Vensim/SURE.mdl",
              ROOT / "Vensim/calibration/manifest.json",
              *sorted((ROOT / "Vensim/calibration").glob("*.out")),

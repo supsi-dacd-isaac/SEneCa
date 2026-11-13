@@ -44,12 +44,20 @@ meno di 1e-6 edifici disponibili `ZIDZ` restituiva 0 e il calendario
 accettava nuovi ordini oltre lo stock (stock negativo di 3,7e-8 edifici
 nello scenario PV 0,2/0,4 al 2042, anche in Vensim nativo).
 
+Revisione `sure-v8-nr-calendar-2`: in `PV removal fraction` entrambi i test
+usano `PV buildings > 1e-10`. Quantità inferiori sono zero numerico; questa
+correzione comune a Vensim, Python e Julia evita che residui di arrotondamento
+attivino diversamente la rimozione delle perdite di batteria. Gli input e i
+parametri di calibrazione rimangono invariati. La soglia è già verificata nel
+modello EMS ed è stata validata separatamente sulla variante principale v8.
+
 `GAMMA LN` non è implementata da PySD 3.14.3: `fix_functions_sure.py` la
 sostituisce con `scipy.special.gammaln`. Serve solo all’obiettivo di
 calibrazione NR, non alla dinamica.
 
 Gli store delle pagine "Simulazioni SEneCa" possono essere rigenerati con
-il backend Python (`python -m sure_julia.python_batch`). La release Julia
-richiede ancora la build, la validazione Python–Julia e la rigenerazione
-completa descritte nella [guida Julia](../docs/julia-production.md).
+il backend Python (`python -m sure_julia.python_batch`). La build, la
+validazione Python–Julia e la rigenerazione completa per `data-v3.0.0`
+sono documentate nel [rapporto v8](../docs/validation/v8-release.md).
+Per riprodurle seguire la [guida Julia](../docs/julia-production.md).
 Le versioni v7 sono recuperabili nella storia Git.
