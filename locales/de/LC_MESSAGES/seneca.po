@@ -4053,3 +4053,27 @@ msgstr "Gebäude ohne PV pro vZEV"
 
 msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
 msgstr "Anzahl Gebäude ohne PV, die sich jedem vZEV zusammen mit dem Gebäude mit der Anlage anschliessen. Gilt nur, wenn der vZEV aktiviert ist."
+
+msgid "Deflussi minimi secondo la LPAc"
+msgstr "Restwassermengen nach GSchG"
+
+msgid "Deflussi minimi (LPAc)"
+msgstr "Restwassermengen (GSchG)"
+
+msgid "Deflussi minimi LPAc"
+msgstr "Restwasser GSchG"
+
+msgid "Applica dal 2026 i deflussi minimi della legge federale sulla protezione delle acque (LPAc). Nel modello riduce di 305 GWh l’afflusso annuo agli impianti idroelettrici ad accumulo del Ticino."
+msgstr "Wendet ab 2026 die Restwassermengen des Gewässerschutzgesetzes (GSchG) an. Im Modell verringert dies den jährlichen Zufluss zu den Speicherkraftwerken im Tessin um 305 GWh."
+
+msgid "Effetto del cambiamento climatico sull’idroelettrico"
+msgstr "Auswirkung des Klimawandels auf die Wasserkraft"
+
+msgid "Cambiamento climatico (idroelettrico)"
+msgstr "Klimawandel (Wasserkraft)"
+
+msgid "Cambiamento climatico idro"
+msgstr "Klimawandel Wasserkraft"
+
+msgid "Effetto del cambiamento climatico sugli afflussi agli impianti idroelettrici ad accumulo. Nel modello l’afflusso annuo cresce gradualmente dal 2026, fino a 225 GWh in più nel 2050."
+msgstr "Auswirkung des Klimawandels auf die Zuflüsse zu Speicherkraftwerken. Im Modell steigt der jährliche Zufluss ab 2026 schrittweise, bis 2050 um 225 GWh."

@@ -171,8 +171,8 @@ def load_calibration_series(
 
     L'osservato è la somma delle serie in `Vensim/PVinput.csv`, `HPinput.csv`
     o `EVinput.csv`, gli stessi dati letti da SURE tramite i file `.vdfx`.
-    Il simulato viene dalla baseline v8 in `calibration_sim_adoptions_v8.csv`,
-    verificata contro gli output Python e Julia della validazione completa.
+    Il simulato viene dal build nativo in `calibration_sim_adoptions_v8.csv`,
+    verificato contro il run base di Vensim (stessa calibrazione).
     """
     _, rows = CALIBRATION_INPUTS[tech]
     observed = calibration_observations(tech)

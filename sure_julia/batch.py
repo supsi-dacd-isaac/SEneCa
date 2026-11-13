@@ -51,7 +51,7 @@ def jobs():
                 inputs = dict(zip(cfg.INPUT_ORDER, map(float, values)))
                 add(inputs, {"section": section, "inputs": inputs},
                     list(dict.fromkeys(list(cfg.OUTPUT_BASES) + list(getattr(cfg, "GMD_VARS", [])))))
-    if sum(len(j["destinations"]) for j in result.values()) != 13913:
+    if sum(len(j["destinations"]) for j in result.values()) != 14201:
         raise ValueError("Scenario grid changed; reapprove coverage")
     return list(result.values())
 

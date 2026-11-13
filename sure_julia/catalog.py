@@ -14,7 +14,7 @@ def defaults():
         result.setdefault(name, 0.0)
     result[cfg.EXPLORATORY_SWITCH] = 0.0
     result.update({name: 0.0 for name in cfg.UNCERTAINTY_ORDER})
-    if len(result) != 39:
+    if len(result) != 41:
         raise ValueError("Reaudit the SURE parameter contract")
     return result
 

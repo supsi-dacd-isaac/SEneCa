@@ -20,13 +20,13 @@ class ProductionTests(unittest.TestCase):
     def test_catalog_covers_every_requested_component(self):
         variables, _ = inventory()
         self.assertFalse(set(outputs()) - set(variables))
-        self.assertEqual(len(defaults()), 39)
+        self.assertEqual(len(defaults()), 41)
 
     def test_parameters_are_complete_strict_and_do_not_round(self):
         a = parameters({"FiT": .123456781})
         b = parameters({"FiT": .123456782})
         self.assertNotEqual(identity(a), identity(b))
-        self.assertEqual(len(a), 39)
+        self.assertEqual(len(a), 41)
         for values in [{"unknown": 1}, {"FiT": float("nan")}, {"Provvedimento 1.2": .5}]:
             with self.assertRaises(ValueError):
                 parameters(values)

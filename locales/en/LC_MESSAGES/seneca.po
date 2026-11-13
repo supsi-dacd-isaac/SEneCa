@@ -4035,3 +4035,27 @@ msgstr "Buildings without PV per RCPv"
 
 msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
 msgstr "Number of buildings without PV that join each RCPv together with the building that has the system. Applies only when RCPv is enabled."
+
+msgid "Deflussi minimi secondo la LPAc"
+msgstr "Minimum residual flows under the WPA (LPAc)"
+
+msgid "Deflussi minimi (LPAc)"
+msgstr "Minimum residual flows (LPAc)"
+
+msgid "Deflussi minimi LPAc"
+msgstr "Minimum flows LPAc"
+
+msgid "Applica dal 2026 i deflussi minimi della legge federale sulla protezione delle acque (LPAc). Nel modello riduce di 305 GWh l’afflusso annuo agli impianti idroelettrici ad accumulo del Ticino."
+msgstr "Applies from 2026 the minimum residual flows of the Federal Water Protection Act (LPAc). In the model it reduces the annual inflow to storage hydropower plants in Ticino by 305 GWh."
+
+msgid "Effetto del cambiamento climatico sull’idroelettrico"
+msgstr "Effect of climate change on hydropower"
+
+msgid "Cambiamento climatico (idroelettrico)"
+msgstr "Climate change (hydropower)"
+
+msgid "Cambiamento climatico idro"
+msgstr "Climate change hydro"
+
+msgid "Effetto del cambiamento climatico sugli afflussi agli impianti idroelettrici ad accumulo. Nel modello l’afflusso annuo cresce gradualmente dal 2026, fino a 225 GWh in più nel 2050."
+msgstr "Effect of climate change on inflows to storage hydropower plants. In the model the annual inflow grows gradually from 2026, up to 225 GWh more in 2050."

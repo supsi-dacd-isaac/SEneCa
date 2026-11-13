@@ -4076,3 +4076,27 @@ msgstr "Bâtiments sans PV par RCPv"
 
 msgid "Numero di edifici senza PV che aderiscono a ogni RCPv insieme all’edificio con l’impianto. Conta solo se l’RCPv è abilitato."
 msgstr "Nombre de bâtiments sans PV qui rejoignent chaque RCPv avec le bâtiment équipé de l’installation. Ne s’applique que si le RCPv est activé."
+
+msgid "Deflussi minimi secondo la LPAc"
+msgstr "Débits résiduels minimaux selon la LEaux"
+
+msgid "Deflussi minimi (LPAc)"
+msgstr "Débits résiduels (LEaux)"
+
+msgid "Deflussi minimi LPAc"
+msgstr "Débits minimaux LEaux"
+
+msgid "Applica dal 2026 i deflussi minimi della legge federale sulla protezione delle acque (LPAc). Nel modello riduce di 305 GWh l’afflusso annuo agli impianti idroelettrici ad accumulo del Ticino."
+msgstr "Applique dès 2026 les débits résiduels minimaux de la loi fédérale sur la protection des eaux (LEaux). Dans le modèle, l’apport annuel aux centrales hydroélectriques à accumulation du Tessin diminue de 305 GWh."
+
+msgid "Effetto del cambiamento climatico sull’idroelettrico"
+msgstr "Effet du changement climatique sur l’hydroélectricité"
+
+msgid "Cambiamento climatico (idroelettrico)"
+msgstr "Changement climatique (hydroélectricité)"
+
+msgid "Cambiamento climatico idro"
+msgstr "Changement climatique hydro"
+
+msgid "Effetto del cambiamento climatico sugli afflussi agli impianti idroelettrici ad accumulo. Nel modello l’afflusso annuo cresce gradualmente dal 2026, fino a 225 GWh in più nel 2050."
+msgstr "Effet du changement climatique sur les apports aux centrales hydroélectriques à accumulation. Dans le modèle, l’apport annuel augmente progressivement dès 2026, jusqu’à 225 GWh de plus en 2050."
