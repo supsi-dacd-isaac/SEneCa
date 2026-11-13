@@ -16,7 +16,7 @@ import pandas as pd
 import xarray as xr
 
 from .catalog import parameters
-from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, NATIVE_REVISION, digest, identity, read
+from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, NATIVE_REVISION, digest, identity, model_directory, read
 
 
 def frame_from_arrays(arrays, export, *, flatten=True):
@@ -39,7 +39,7 @@ class JuliaBackend:
     backend = "julia"
 
     def __init__(self, directory=None, timeout=300):
-        self.directory = Path(directory or os.environ.get("SURE_JULIA_MODEL", ROOT / "sure_julia/generated")).resolve()
+        self.directory = Path(directory).resolve() if directory else model_directory()
         self.metadata = read(self.directory / "build.json")
         if not self.metadata.get("complete"):
             raise ValueError("Incomplete Julia build")

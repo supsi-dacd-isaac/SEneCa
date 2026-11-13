@@ -1,0 +1,16 @@
+{
+  "vdfx": "EVinput.vdfx",
+  "tab": "EVinput.tab",
+  "vdfx_sha256": "7b73265682b727ab3fc837639e38ffc7abc83c3a320a406342cfdf7e2a538608",
+  "series": 63,
+  "times": [
+    2011.0,
+    2024.0,
+    14
+  ],
+  "float64": 63,
+  "six_digits_ambiguous": 0,
+  "six_digits_unmatched": 0,
+  "block_candidates": 63,
+  "resolved_by_position": 0
+}

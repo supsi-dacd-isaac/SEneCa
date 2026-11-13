@@ -1,0 +1,16 @@
+{
+  "vdfx": "Input2011.vdfx",
+  "tab": "Input2011.tab",
+  "vdfx_sha256": "0f67b53aa3ac522602e539bd63e465e46d2bd55936b0cfd4bea8599864cc1a07",
+  "series": 3000,
+  "times": [
+    2011.0,
+    2025.0,
+    15
+  ],
+  "float64": 2998,
+  "six_digits_ambiguous": 2,
+  "six_digits_unmatched": 0,
+  "block_candidates": 3000,
+  "resolved_by_position": 2
+}

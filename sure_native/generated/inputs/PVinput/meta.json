@@ -1,0 +1,16 @@
+{
+  "vdfx": "PVinput.vdfx",
+  "tab": "PVinput.tab",
+  "vdfx_sha256": "3004ea299ea8ec2e1769dac9b18e242f9eab5a287e84569ec6f607acf3ea3ab3",
+  "series": 54,
+  "times": [
+    2011.0,
+    2025.0,
+    15
+  ],
+  "float64": 54,
+  "six_digits_ambiguous": 0,
+  "six_digits_unmatched": 0,
+  "block_candidates": 54,
+  "resolved_by_position": 0
+}

@@ -12,25 +12,40 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from sure_julia.common import ROOT, MODEL_REVISION, YEARS, digest, dump, read
+from sure_julia.batch import BUILD_JSON, configs, jobs
+from sure_julia.catalog import defaults
+from sure_julia.common import ROOT, YEARS, digest, dump, read
 from pv_batteries import exploratory_config as exp
 from pv_batteries.exploratory import validate_kpi_store
+from pv_batteries.policy_labels import POLICY_LABELS
 
 
+def grid_sizes():
+    """Configurations per section, from the same grids used by the batch."""
+    sizes = {}
+    for section, cfg in configs().items():
+        if section == "exploratory":
+            sizes[section] = len(cfg.all_policy_combos()) * pq.ParquetFile(cfg.SAMPLES_PATH).metadata.num_rows
+        else:
+            sizes[section] = int(np.prod([len(cfg.INPUT_GRID[n]) for n in cfg.INPUT_ORDER]))
+    return sizes
+
+
+CONFIGURATIONS = grid_sizes()
+SCENARIOS = len(jobs())
+YEARS_COUNT = len(YEARS)
 ROWS = {
-    "precomputed/pv_batteries_scenarios.parquet": 12960,
-    "precomputed/risanamento_scenarios.parquet": 48600,
-    "precomputed/veicoli_scenarios.parquet": 5760,
+    "precomputed/pv_batteries_scenarios.parquet": CONFIGURATIONS["pv_batteries"] * YEARS_COUNT,
+    "precomputed/risanamento_scenarios.parquet": CONFIGURATIONS["risanamento"] * YEARS_COUNT,
+    "precomputed/veicoli_scenarios.parquet": CONFIGURATIONS["veicoli"] * YEARS_COUNT,
     "precomputed/elettricita_hourly.parquet": 40919040,
-    "precomputed/elettricita_combo_index.parquet": 96,
-    "precomputed/exploratory_kpis.parquet": 12800,
-    "precomputed/pv_batteries_gmd.parquet": 324,
-    "precomputed/risanamento_gmd.parquet": 1215,
+    "precomputed/elettricita_combo_index.parquet": CONFIGURATIONS["elettricita"],
+    "precomputed/exploratory_kpis.parquet": CONFIGURATIONS["exploratory"],
+    "precomputed/pv_batteries_gmd.parquet": CONFIGURATIONS["pv_batteries"],
+    "precomputed/risanamento_gmd.parquet": CONFIGURATIONS["risanamento"],
     "precomputed/exploratory/uncertainty_samples.parquet": 100,
-    "provenance/scenarios.parquet": 14571,
+    "provenance/scenarios.parquet": SCENARIOS,
 }
-CONFIGURATIONS = {"pv_batteries": 324, "risanamento": 1215,
-                  "veicoli": 144, "elettricita": 96, "exploratory": 12800}
 
 
 def require(condition, message):
@@ -42,13 +57,14 @@ def verify(directory, resources=None):
     directory = Path(directory)
     release = directory / "release"
     summary, manifest = read(directory / "summary.json"), read(directory / "manifest.json")
-    require(summary["complete"] and summary["scenarios"] == 14571, "Incomplete dataset")
+    require(summary["complete"] and summary["scenarios"] == SCENARIOS, "Incomplete dataset")
     require(not list((directory / "failed").glob("*.json")), "Failed scenarios remain")
     provenance_build = read(release / "provenance/build.json")
-    require(provenance_build["model"].get("model_revision") == MODEL_REVISION, "Wrong model revision")
+    model_revision = read(BUILD_JSON)["model_revision"]
+    require(provenance_build["model"].get("model_revision") == model_revision, "Wrong model revision")
     require(provenance_build["generation_manifest_sha256"] == digest(directory / "manifest.json"), "Generation manifest differs")
     require(provenance_build["generation"] == manifest, "Generation provenance differs")
-    require(manifest["build"] == digest(ROOT / "sure_julia/generated/build.json"), "Generated build differs")
+    require(manifest["build"] == digest(BUILD_JSON), "Generated build differs")
     require(provenance_build["scenarios_sha256"] == digest(release / "provenance/scenarios.parquet"), "Scenario provenance checksum differs")
     files = {}
     for name, expected in ROWS.items():
@@ -58,6 +74,10 @@ def verify(directory, resources=None):
         previous = ROOT / name
         if previous.exists():
             expected_columns = set(pq.read_schema(previous).names)
+            section = name.removeprefix("precomputed/").split("_scenarios")[0].split("_gmd")[0]
+            if section in CONFIGURATIONS and section != "exploratory":
+                # Input columns follow the current slider grid; outputs must not change.
+                expected_columns = (expected_columns - set(POLICY_LABELS)) | set(configs()[section].INPUT_ORDER)
             if name == "precomputed/exploratory_kpis.parquet":
                 expected_columns |= {"pv_self_coverage", "pv_self_consumed_gwh", "electricity_demand_gwh"}
             require(expected_columns == set(reader.schema_arrow.names), f"Application columns differ: {name}")
@@ -74,7 +94,7 @@ def verify(directory, resources=None):
     validate_kpi_store(exploratory)
     rows = pq.read_table(release / "provenance/scenarios.parquet").to_pylist()
     by_id = {row["scenario_id"]: row for row in rows}
-    require(len(by_id) == 14571 == len(manifest["jobs"]), "Duplicate/missing scenarios")
+    require(len(by_id) == SCENARIOS == len(manifest["jobs"]), "Duplicate/missing scenarios")
     require(set(by_id) == {job["id"] for job in manifest["jobs"]}, "Scenario coverage differs")
     times, negative, minimum = [], 0, 0.0
     destinations = collections.Counter()
@@ -82,7 +102,7 @@ def verify(directory, resources=None):
         report = read(directory / "completed" / (job["id"] + ".json"))
         row = by_id[job["id"]]
         require(report["status"] == "complete", f"Incomplete scenario: {job['id']}")
-        require(len(report["parameters"]) == 40 and report["parameters"] == job["parameters"] == json.loads(row["parameters_json"]), "Scenario inputs differ")
+        require(len(report["parameters"]) == len(defaults()) and report["parameters"] == job["parameters"] == json.loads(row["parameters_json"]), "Scenario inputs differ")
         require(report["destinations"] == job["destinations"] == json.loads(row["destinations_json"]), "Scenario destinations differ")
         require(report["value_sha256"] == row["output_sha256"], "Numerical output identity differs")
         require(report["timing"]["years"] == YEARS, "Incomplete simulation years")
@@ -98,7 +118,7 @@ def verify(directory, resources=None):
         times.append(report["elapsed_seconds"])
         destinations.update(dest["section"] for dest in job["destinations"])
     require(dict(destinations) == CONFIGURATIONS, "Incomplete application configuration grids")
-    result = {"pass": True, "model_revision": MODEL_REVISION, "files": files,
+    result = {"pass": True, "model_revision": model_revision, "files": files,
               "scenarios": len(by_id), "configurations": dict(destinations), "batch": summary,
               "scenario_seconds": {"mean": statistics.mean(times), "median": statistics.median(times),
                                    "min": min(times), "max": max(times)},

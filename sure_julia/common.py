@@ -4,6 +4,16 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Native translation of Vensim/SURE.mdl, shipped in the repository. The PySD
+# build (sure_julia/generated) stays selectable through SURE_JULIA_MODEL.
+DEFAULT_MODEL = ROOT / "sure_native/generated"
+
+
+def model_directory():
+    import os
+    return Path(os.environ.get("SURE_JULIA_MODEL", DEFAULT_MODEL)).resolve()
+
+
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "v8"

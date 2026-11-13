@@ -16,11 +16,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .catalog import parameters
-from .common import ROOT, YEARS, digest, dump, identity, read
+from .common import ROOT, YEARS, digest, dump, identity, model_directory, read
 from .runtime import JuliaBackend, frame_from_arrays
 
 # build usato dal batch: lo stesso scelto da JuliaBackend (SURE_JULIA_MODEL)
-BUILD_JSON = Path(os.environ.get("SURE_JULIA_MODEL", ROOT / "sure_julia/generated")).resolve() / "build.json"
+BUILD_JSON = model_directory() / "build.json"
 
 
 def configs():
