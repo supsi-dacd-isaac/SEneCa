@@ -6,26 +6,16 @@ fotovoltaico e delle batterie residenziali, risanamento degli edifici e
 sostituzione dei sistemi di riscaldamento, elettrificazione della mobilita',
 bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
-Il modello è sviluppato in Vensim e tradotto con
-[PySD](https://pysd.readthedocs.io/). La webapp serve scenari precalcolati e
-simulazioni live di SURE v7 con Julia; il backend Python resta selezionabile.
-La release `v0.4.0` usa il modello `sure-v7-dispatch-1` e i dati
-`data-v2.0.0`: 14.571 simulazioni distinte coprono 14.579 configurazioni,
-incluse 12.800 combinazioni di policy mix e incertezza con nove KPI.
-La v7 integra la correzione del contributo cantonale FER, la calibrazione
-ricevuta il 16 ottobre 2026 e il dispatch per priorità. Il budget condiviso
-limita le adozioni PV agli edifici disponibili. Tutti i 418 confronti
-Python–Julia e i controlli fisici del batch sono superati; restano documentati
-i piccoli scarti dell’allocatore nativo Vensim nella
-[diagnosi e validazione v7](docs/validation/dispatch-correction.md).
-
-Questo ramo porta il modello a **SURE v8** (`sure-v8-nr-calendar-1`):
-sottomodello FV non residenziale, calendario delle installazioni, nuovi input
-e calibrazione del 30 ottobre 2026. Gli store delle pagine "Simulazioni
-SEneCa" sono rigenerati con il backend Python
-(`python -m sure_julia.python_batch`); policy mix e incertezza restano quelli
-di `data-v2.0.0`. Build e validazione Julia della v8 sono ancora da eseguire
-prima di una release: vedi [Vensim/README.md](Vensim/README.md).
+Il modello è sviluppato in Vensim (`Vensim/SURE.mdl`, con la calibrazione
+dell'11 novembre 2026). La webapp usa una traduzione diretta Vensim → Julia
+(`sure_native`), senza PySD: il build `sure_native/generated` è nel
+repository con i suoi checksum ed è validato contro Vensim DSS su 76 scenari.
+I dati `data-v3.0.0` contengono 13.905 simulazioni distinte per 13.913
+configurazioni delle pagine (PV e batterie 648, riscaldamento 225, veicoli 144,
+elettricità 96) e 12.800 combinazioni di policy mix e incertezza con nove KPI.
+Il backend Python/PySD e il build `sure_julia/generated` restano selezionabili
+con `SURE_BACKEND` e `SURE_JULIA_MODEL`. Procedura: [sure_native/README.md](sure_native/README.md);
+staging su Elettra: [deploy/STAGING.md](deploy/STAGING.md).
 
 ## Riconoscimenti
 
