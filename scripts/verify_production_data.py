@@ -38,7 +38,8 @@ ROWS = {
     "precomputed/pv_batteries_scenarios.parquet": CONFIGURATIONS["pv_batteries"] * YEARS_COUNT,
     "precomputed/risanamento_scenarios.parquet": CONFIGURATIONS["risanamento"] * YEARS_COUNT,
     "precomputed/veicoli_scenarios.parquet": CONFIGURATIONS["veicoli"] * YEARS_COUNT,
-    "precomputed/elettricita_hourly.parquet": 40919040,
+    # 426240 hourly rows per combination (years × months × hours × series)
+    "precomputed/elettricita_hourly.parquet": 426240 * CONFIGURATIONS["elettricita"],
     "precomputed/elettricita_combo_index.parquet": CONFIGURATIONS["elettricita"],
     "precomputed/exploratory_kpis.parquet": CONFIGURATIONS["exploratory"],
     "precomputed/pv_batteries_gmd.parquet": CONFIGURATIONS["pv_batteries"],
@@ -74,8 +75,9 @@ def verify(directory, resources=None):
         previous = ROOT / name
         if previous.exists():
             expected_columns = set(pq.read_schema(previous).names)
-            section = name.removeprefix("precomputed/").split("_scenarios")[0].split("_gmd")[0]
-            if section in CONFIGURATIONS and section != "exploratory":
+            stem = name.removeprefix("precomputed/")
+            section = next((s for s in CONFIGURATIONS if stem.startswith(s + "_")), None)
+            if section and section != "exploratory":
                 # Input columns follow the current slider grid; outputs must not change.
                 expected_columns = (expected_columns - set(POLICY_LABELS)) | set(configs()[section].INPUT_ORDER)
             if name == "precomputed/exploratory_kpis.parquet":

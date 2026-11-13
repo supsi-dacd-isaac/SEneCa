@@ -10,9 +10,9 @@ Il modello è sviluppato in Vensim (`Vensim/SURE.mdl`, con la calibrazione
 dell'11 novembre 2026). La webapp usa una traduzione diretta Vensim → Julia
 (`sure_native`), senza PySD: il build `sure_native/generated` è nel
 repository con i suoi checksum ed è validato contro Vensim DSS su 76 scenari.
-I dati `data-v4.0.0` contengono 13.905 simulazioni distinte per 13.913
+I dati `data-v4.0.0` contengono 14.193 simulazioni distinte per 14.201
 configurazioni delle pagine (PV e batterie 648, riscaldamento 225, veicoli 144,
-elettricità 96) e 12.800 combinazioni di policy mix e incertezza con nove KPI.
+elettricità 384) e 12.800 combinazioni di policy mix e incertezza con nove KPI.
 Il backend Python/PySD e il build `sure_julia/generated` restano selezionabili
 con `SURE_BACKEND` e `SURE_JULIA_MODEL`. Procedura: [sure_native/README.md](sure_native/README.md);
 staging su Elettra: [deploy/STAGING.md](deploy/STAGING.md).
