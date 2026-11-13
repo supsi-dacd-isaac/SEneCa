@@ -23,6 +23,8 @@ ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS
 WORKDIR /app
 # Julia packages of the native worker (versions pinned in sure_native/Manifest.toml)
 COPY sure_native/Project.toml sure_native/Manifest.toml /app/sure_native/
+# Project.toml is the SureNative package: Pkg.precompile also needs its sources
+COPY sure_native/src /app/sure_native/src
 RUN julia --startup-file=no --project=/app/sure_native -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 ARG CODE_VERSION=dev
 ARG DATA_RELEASE_TAG=unknown
