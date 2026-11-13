@@ -55,7 +55,7 @@ def export(baseline, destination):
     if not years or not np.isfinite(frame.to_numpy()).all():
         raise ValueError('Invalid calibration plot data')
     destination.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(destination, index_label='Time')
+    frame.to_csv(destination, index_label='Time', lineterminator='\n')
     dump(destination.with_suffix('.json'), {
         'model_revision': MODEL_REVISION, 'model_sources': model_sources(),
         'years': years, 'observation_years': observation_years, 'outputs': NAMES,
@@ -156,7 +156,7 @@ def export_native(destination, vensim_reference):
     if not years or not np.isfinite(frame.to_numpy()).all():
         raise ValueError('Invalid calibration plot data')
     destination.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(destination, index_label='Time')
+    frame.to_csv(destination, index_label='Time', lineterminator='\n')
     dump(destination.with_suffix('.json'), {
         'model_revision': NATIVE_REVISION, 'model_sources': read(build / 'build.json')['sources'],
         'years': years, 'observation_years': observation_years, 'outputs': NAMES,
