@@ -9,7 +9,7 @@ services:
   streamlit-app:
     build:
       context: ..
-      dockerfile: deploy/Dockerfile.staging-native
+      dockerfile: Dockerfile   # la stessa immagine della produzione
       args:
         HTTP_PROXY: ${HTTP_PROXY:-${http_proxy:-}}
         HTTPS_PROXY: ${HTTPS_PROXY:-${https_proxy:-}}

@@ -32,8 +32,10 @@ docker compose -f deploy/docker-compose.staging.yml up -d --build
 docker compose -f deploy/docker-compose.staging.yml logs -f   # attendere "Julia worker ready"
 ```
 
-La build dell'immagine esegue `deploy/check_staging_release.py`: si ferma se gli
-scenari precalcolati non sono stati generati con lo stesso build nativo.
+L'immagine è costruita con lo stesso `Dockerfile` della produzione. La build
+verifica la release dati (`scripts/data_release.py verify`) e si ferma se gli
+scenari precalcolati non sono stati generati con lo stesso build nativo
+(`scripts/verify_julia_release.py`).
 L'avvio compila il modello (circa un minuto) prima di accettare richieste.
 
 Indirizzo: `http://<elettra>:8503`

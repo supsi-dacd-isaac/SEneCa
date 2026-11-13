@@ -60,6 +60,8 @@ def main(release, out=None):
             add(src, p)
         for p in PROVENANCE_PATHS:
             add(release / p, p)
+        # marker della release dati installata: il Dockerfile di produzione la verifica
+        add(ROOT / ".data-release-installed.json", ".data-release-installed.json")
         (ROOT / "dist").mkdir(exist_ok=True)
         stamp = ROOT / "dist" / "STAGING_COMMIT"
         stamp.write_text(commit + "\n", encoding="utf-8")
