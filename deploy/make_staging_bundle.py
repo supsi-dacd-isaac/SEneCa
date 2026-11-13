@@ -40,15 +40,18 @@ def main(release, out=None):
         # file del commit come sono nel repository (fine riga LF), non la copia Windows
         raw = subprocess.run(["git", "-c", "core.autocrlf=false", "archive", "--format=tar", "HEAD"],
                              cwd=ROOT, check=True, capture_output=True).stdout
+        tracked = set()
         with tarfile.open(fileobj=io.BytesIO(raw)) as src:
             for m in src.getmembers():
                 if m.isfile():
+                    tracked.add(m.name)
                     data = src.extractfile(m)
                     m.name = f"{prefix}/{m.name}"
                     tar.addfile(m, data)
                     count += 1
+        # build nativo: dal commit se versionato, altrimenti dalla copia locale
         for p in sorted((ROOT / "sure_native/generated").rglob("*")):
-            if p.is_file():
+            if p.is_file() and p.relative_to(ROOT).as_posix() not in tracked:
                 add(p, p.relative_to(ROOT).as_posix())
         for p in [d for d in DATA_PATHS if not d.endswith(".vpmx")]:   # .vpmx non usato dalla webapp
             src = release / p if p.startswith("precomputed/") else ROOT / p
