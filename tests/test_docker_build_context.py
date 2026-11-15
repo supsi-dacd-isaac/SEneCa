@@ -15,6 +15,10 @@ class DockerBuildContextTests(unittest.TestCase):
         dockerfile = (ROOT / "Dockerfile").read_text()
         self.assertIn(f"SURE_JULIA_MODEL=/app/{BUILD}", dockerfile)
         self.assertIn("scripts/verify_julia_release.py", dockerfile)
+        if not (ROOT / ".dockerignore").exists():
+            # inside the image: .dockerignore is not copied, the build itself is present
+            self.assertTrue((ROOT / BUILD / "build.json").is_file())
+            return
         ignored = [line.strip() for line in (ROOT / ".dockerignore").read_text().splitlines()
                    if line.strip() and not line.startswith("#")]
         for pattern in ignored:
