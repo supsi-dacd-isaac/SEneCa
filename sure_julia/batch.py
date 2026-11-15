@@ -16,8 +16,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .catalog import parameters
-from .common import ROOT, YEARS, digest, dump, identity, read
+from .common import ROOT, YEARS, digest, dump, identity, model_directory, read
 from .runtime import JuliaBackend, frame_from_arrays
+
+# build usato dal batch: lo stesso scelto da JuliaBackend (SURE_JULIA_MODEL)
+BUILD_JSON = model_directory() / "build.json"
 
 
 def configs():
@@ -48,7 +51,7 @@ def jobs():
                 inputs = dict(zip(cfg.INPUT_ORDER, map(float, values)))
                 add(inputs, {"section": section, "inputs": inputs},
                     list(dict.fromkeys(list(cfg.OUTPUT_BASES) + list(getattr(cfg, "GMD_VARS", [])))))
-    if sum(len(j["destinations"]) for j in result.values()) != 14579:
+    if sum(len(j["destinations"]) for j in result.values()) != 14201:
         raise ValueError("Scenario grid changed; reapprove coverage")
     return list(result.values())
 
@@ -127,7 +130,7 @@ def hourly(arrays, names, export):
 
 def initialize(directory, affinity=None):
     global ENGINE, TARGET, EXPORT, CONFIGS
-    if affinity is not None:
+    if affinity is not None and hasattr(os, "sched_setaffinity"):   # solo Linux
         os.sched_setaffinity(0, {affinity.get()})
     pa.set_cpu_count(1)
     pa.set_io_thread_count(1)
@@ -233,15 +236,20 @@ def consolidate(directory, planned):
     shutil.copy2(ROOT / "precomputed/exploratory/uncertainty_samples.parquet", release / "exploratory/uncertainty_samples.parquet")
     atomic_parquet(pd.DataFrame(provenance), directory / "release/provenance/scenarios.parquet")
     dump(directory / "release/provenance/build.json", {
-        "backend": "julia", "model": read(ROOT / "sure_julia/generated/build.json"),
+        "backend": "julia", "model": read(BUILD_JSON),
         "generation": read(directory / "manifest.json"),
         "generation_manifest_sha256": digest(directory / "manifest.json"),
         "scenarios_sha256": digest(directory / "release/provenance/scenarios.parquet"),
         "numerical_tolerance": {"atol_scale": 1e-10, "rtol": 1e-8},
-        "reference": "SURE v8 with NR, installation calendar and stable PV numerical zero; synchronous DELAY FIXED; exact allocation",
-        "native_vensim_equivalent": False,
         "native_inputs": {p.name: digest(p) for p in sorted((ROOT / "Vensim").glob("*.vdfx"))},
-        "validation_certificate": read(directory / "validation-certificate.json")})
+        **({"reference": "Native Julia translation of Vensim/SURE.mdl (sure_native); exact allocation; "
+                         "validated against Vensim DSS on 76 scenarios",
+            "native_vensim_equivalent": "validated: inject runs within 1e-8 relative; full runs differ only through "
+                                        "the approximate Vensim ALLOCATE BY PRIORITY"}
+           if read(BUILD_JSON).get("worker") == "native" else
+           {"reference": "SURE v8 with NR, installation calendar and stable PV numerical zero; synchronous DELAY FIXED; exact allocation",
+            "native_vensim_equivalent": False,
+            "validation_certificate": read(directory / "validation-certificate.json")})})
 
 
 def compare_pilots(serial, parallel, output):
@@ -282,13 +290,13 @@ def main():
     for name, expected in certificate["evidence"].items():
         if digest(args.validation / name) != expected:
             raise ValueError("Validation evidence changed")
-    if read(args.validation / "manifest.json")["build"] != digest(ROOT / "sure_julia/generated/build.json"):
+    if read(args.validation / "manifest.json")["build"] != digest(BUILD_JSON):
         raise ValueError("Validation belongs to another build")
     planned = jobs()
     from pv_batteries import exploratory_config as exp
     if args.pilot:
         planned = [planned[i] for i in np.linspace(0, len(planned)-1, 100, dtype=int)]
-    stamp = {"build": digest(ROOT / "sure_julia/generated/build.json"), "jobs": planned,
+    stamp = {"build": digest(BUILD_JSON), "jobs": planned,
              "exploratory_design": {"n_samples": exp.N_SAMPLES, "seed": exp.SAMPLE_SEED,
                  "sampling": "Latin hypercube, uniform marginals; same sample set for each policy mix",
                  "policy_grid": exp.POLICY_GRID, "uncertainty_bounds": exp.UNCERTAINTY_BOUNDS,
@@ -319,7 +327,7 @@ def main():
     if not args.consolidate_only and pending:
         context = multiprocessing.get_context("spawn")
         affinity = context.Queue()
-        cpus = sorted(os.sched_getaffinity(0))
+        cpus = sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else list(range(os.cpu_count()))
         if not 1 <= args.workers <= len(cpus):
             raise ValueError("Workers exceed allocated cores")
         for cpu in cpus[:args.workers]:

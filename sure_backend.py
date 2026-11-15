@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-from sure_julia.common import ROOT, MODEL_PY, CALIBRATION, model_sources, digest, identity, read
+from sure_julia.common import ROOT, model_directory, MODEL_PY, CALIBRATION, model_sources, digest, identity, read
 from sure_pysd import LIVE_OUTPUTS as OUTPUTS
 
 
@@ -15,7 +15,7 @@ def backend_name():
 
 def engine_identity():
     name = backend_name()
-    directory = Path(os.environ.get("SURE_JULIA_MODEL", ROOT / "sure_julia/generated")).resolve()
+    directory = model_directory()
     model = directory / "build.json" if name == "julia" else MODEL_PY
     return identity({"backend": name, "model": digest(model), "data": read(ROOT / "data-release.json"),
                      "live_outputs": OUTPUTS,

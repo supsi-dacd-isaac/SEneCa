@@ -29,8 +29,6 @@ LIVE_SLIDER_STEPS = {
     "Battery Rebate": 0.01,
     "PV rebate federal": 0.01,
     "Grant share HP": 0.01,
-    "Grant share PelletBoiler": 0.01,
-    "Grant share DH": 0.01,
     "Retrofit incentive input": 1.0,
     "CO2 tax": 1.0,
     "EV charger incentive input": 50.0,
@@ -101,6 +99,7 @@ def _build_sections() -> list[tuple[str, list[ExploreInput]]]:
         _inp(pv_cfg, "PV rebate federal"),
         _inp(pv_cfg, "PV reg scenario", binary=True),
         _inp(pv_cfg, "Energy Community scenario", binary=True),
+        _inp(pv_cfg, "Buildings PVno connected to RCPv"),
     ]
 
     ris_inputs = []

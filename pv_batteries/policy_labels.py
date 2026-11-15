@@ -56,6 +56,14 @@ POLICY_LABELS = {
         "help": "Raggruppamento ai fini del consumo proprio virtuale (RCPv). "
                 "Sì abilita questa possibilità nel modello; le adesioni sono simulate.",
     },
+    "Buildings PVno connected to RCPv": {
+        "label": "Edifici senza PV connessi a un RCPv",
+        "control_label": "Edifici senza PV per RCPv",
+        "short_label": "Edifici senza PV per RCPv",
+        "unit": "edifici",
+        "help": "Numero di edifici senza PV che aderiscono a ogni RCPv insieme "
+                "all’edificio con l’impianto. Conta solo se l’RCPv è abilitato.",
+    },
     "Grant share HP": {
         "label": "Contributo per pompe di calore",
         "short_label": "Contributo pompe di calore",
@@ -165,6 +173,24 @@ POLICY_LABELS = {
         "help": "Aumento della capacità di accumulazione invernale dei bacini idroelettrici "
                 "esistenti. Nel modello trasferisce fino a 89 GWh dalla stagione estiva "
                 "a quella invernale nel 2050.",
+    },
+    "Deflussi minimi LPAc": {
+        "label": "Deflussi minimi secondo la LPAc",
+        "control_label": "Deflussi minimi (LPAc)",
+        "short_label": "Deflussi minimi LPAc",
+        "kind": "binary",
+        "help": "Applica dal 2026 i deflussi minimi della legge federale sulla protezione "
+                "delle acque (LPAc). Nel modello riduce di 305 GWh l’afflusso annuo agli "
+                "impianti idroelettrici ad accumulo del Ticino.",
+    },
+    "Cambiamento climatico Hydro": {
+        "label": "Effetto del cambiamento climatico sull’idroelettrico",
+        "control_label": "Cambiamento climatico (idroelettrico)",
+        "short_label": "Cambiamento climatico idro",
+        "kind": "binary",
+        "help": "Effetto del cambiamento climatico sugli afflussi agli impianti idroelettrici "
+                "ad accumulo. Nel modello l’afflusso annuo cresce gradualmente dal 2026, "
+                "fino a 225 GWh in più nel 2050.",
     },
     "Cantonal PV support": {
         "label": "Incentivi cantonali PV (investimento e immissione in rete)",

@@ -1,0 +1,4516 @@
+[
+    {
+        "name": "PV residential power by Type",
+        "kind": "aux",
+        "dims": [
+            "Type"
+        ],
+        "julia_name": "pv residential power by type",
+        "coords": {
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "\"Capacity PV < 30 kW total\"",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "capacity pv < 30 kw total",
+        "coords": {
+        }
+    },
+    {
+        "name": "\"Capacity PV 30 - 100 kW total\"",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "capacity pv 30 - 100 kw total",
+        "coords": {
+        }
+    },
+    {
+        "name": "\"Capacity PV > 100 kW total\"",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "capacity pv > 100 kw total",
+        "coords": {
+        }
+    },
+    {
+        "name": "Share of buildings with PV by Type",
+        "kind": "aux",
+        "dims": [
+            "Type"
+        ],
+        "julia_name": "share of buildings with pv by type",
+        "coords": {
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Share of buildings with PV by District",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "share of buildings with pv by district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Battery residential Type",
+        "kind": "aux",
+        "dims": [
+            "Type"
+        ],
+        "julia_name": "battery residential type",
+        "coords": {
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "\"Total Battery capacity < 100 kW\"",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total battery capacity < 100 kw",
+        "coords": {
+        }
+    },
+    {
+        "name": "\"Total Battery capacity > 100 kW\"",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total battery capacity > 100 kw",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total Battery capacity District",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "total battery capacity district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Batteries by Type",
+        "kind": "aux",
+        "dims": [
+            "Type"
+        ],
+        "julia_name": "batteries by type",
+        "coords": {
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Electricity price",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "electricity price",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Energy price",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "energy price",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "TSO charge",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "tso charge",
+        "coords": {
+        }
+    },
+    {
+        "name": "DSO charge",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "dso charge",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Annual grid upgrading cost District",
+        "kind": "smooth",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "annual grid upgrading cost district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Levy Evolution",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "levy evolution",
+        "coords": {
+        }
+    },
+    {
+        "name": "Cantonal Levy Evolution",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "cantonal levy evolution",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total PV electricity production",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total pv electricity production",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total PV electricity injected in the grid",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total pv electricity injected in the grid",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total PV electricity SC",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total pv electricity sc",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total annual demand Districts",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "total annual demand districts",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Total PV electricity production District",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "total pv electricity production district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "PV electricity SC by District",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "pv electricity sc by district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Average electricity and heating and retrofit cost",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "average electricity and heating and retrofit cost",
+        "coords": {
+        }
+    },
+    {
+        "name": "Specific final consumption",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "specific final consumption",
+        "coords": {
+        }
+    },
+    {
+        "name": "Specific net final consumption",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "specific net final consumption",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Oil",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption oil",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Gas",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption gas",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Wood",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption wood",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Electricity EH",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption electricity eh",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Electricity HP",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption electricity hp",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Ambient Heat",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption ambient heat",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption Solar",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption solar",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual consumption DH",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual consumption dh",
+        "coords": {
+        }
+    },
+    {
+        "name": "Building area by Performance",
+        "kind": "aux",
+        "dims": [
+            "Performance"
+        ],
+        "julia_name": "building area by performance",
+        "coords": {
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ]
+        }
+    },
+    {
+        "name": "Annual incentives Renovation",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual incentives renovation",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual incentives Heating Technologies",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual incentives heating technologies",
+        "coords": {
+        }
+    },
+    {
+        "name": "Annual cantonal funds needed",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual cantonal funds needed",
+        "coords": {
+        }
+    },
+    {
+        "name": "Cumulative CO2 emissions",
+        "kind": "stock",
+        "dims": [
+        ],
+        "julia_name": "cumulative co2 emissions",
+        "coords": {
+        }
+    },
+    {
+        "name": "Adoption Vehicles",
+        "kind": "aux",
+        "dims": [
+            "Vechicle"
+        ],
+        "julia_name": "adoption vehicles",
+        "coords": {
+            "Vechicle": [
+                "BEV",
+                "DieselHEV",
+                "PetrolHEV",
+                "Diesel",
+                "Petrol",
+                "DieselPHEV",
+                "PetrolPHEV"
+            ]
+        }
+    },
+    {
+        "name": "Vehicles by type",
+        "kind": "aux",
+        "dims": [
+            "Vechicle"
+        ],
+        "julia_name": "vehicles by type",
+        "coords": {
+            "Vechicle": [
+                "BEV",
+                "DieselHEV",
+                "PetrolHEV",
+                "Diesel",
+                "Petrol",
+                "DieselPHEV",
+                "PetrolPHEV"
+            ]
+        }
+    },
+    {
+        "name": "Annual CO2 emissions vehicles flow",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual co2 emissions vehicles flow",
+        "coords": {
+        }
+    },
+    {
+        "name": "EV by district",
+        "kind": "aux",
+        "dims": [
+            "District"
+        ],
+        "julia_name": "ev by district",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ]
+        }
+    },
+    {
+        "name": "Cumulative CO2 emissions vehicles",
+        "kind": "stock",
+        "dims": [
+        ],
+        "julia_name": "cumulative co2 emissions vehicles",
+        "coords": {
+        }
+    },
+    {
+        "name": "Electricity dispatched",
+        "kind": "alloc",
+        "dims": [
+            "Month",
+            "Hour",
+            "Supplier"
+        ],
+        "julia_name": "electricity dispatched",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ],
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "Hourly exported electricity",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour",
+            "Supplier"
+        ],
+        "julia_name": "hourly exported electricity",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ],
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "Electricity consumed",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour",
+            "Supplier"
+        ],
+        "julia_name": "electricity consumed",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ],
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "Hourly available supply by Supplier",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour",
+            "Supplier"
+        ],
+        "julia_name": "hourly available supply by supplier",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ],
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "PHS hourly demand",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "phs hourly demand",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Annual CO2 emissions",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "annual co2 emissions",
+        "coords": {
+        }
+    },
+    {
+        "name": "Building demolition by archetype",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "building demolition by archetype",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings adopting HS for old age",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings adopting hs for old age",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Consumers adopting PV yes with battery",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "consumers adopting pv yes with battery",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Consumers adopting RCPv yes with battery",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "consumers adopting rcpv yes with battery",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings construction with battery",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings construction with battery",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Initial Heating Solution battery",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "initial heating solution battery",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Share HS by archetype",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "share hs by archetype",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings HS Renovation From",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings hs renovation from",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings HS Renovation To",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings hs renovation to",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings adopting HS",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings adopting hs",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Consumers leaving HS for old age",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "consumers leaving hs for old age",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Buildings leaving HS",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "buildings leaving hs",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Heating Solution",
+        "kind": "stock",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "heating solution",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Consumers adopting PV no",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel",
+            "Battery"
+        ],
+        "julia_name": "consumers adopting pv no",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "Annual fuel cost archetype",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "annual fuel cost archetype",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Ground High exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "ground high exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Ground High scaled",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "ground high scaled",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Ground Low exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "ground low exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "House Value coefficient HT",
+        "kind": "aux",
+        "dims": [
+            "Performance",
+            "HS"
+        ],
+        "julia_name": "house value coefficient ht",
+        "coords": {
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS no incentives noDH",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs no incentives nodh",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS no incentives noDH noGas",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs no incentives nodh nogas",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS no incentives noGas",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs no incentives nogas",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS noDH",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs nodh",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS noDH noGas",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs nodh nogas",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Market Share HS noGas",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "market share hs nogas",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Overall demolition rate",
+        "kind": "aux",
+        "dims": [
+            "Type"
+        ],
+        "julia_name": "overall demolition rate",
+        "coords": {
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Owners adopting PV",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "owners adopting pv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Owners adopting RCP",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "owners adopting rcp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Peer effect HS factor",
+        "kind": "aux",
+        "dims": [
+            "HS",
+            "District",
+            "Type"
+        ],
+        "julia_name": "peer effect hs factor",
+        "coords": {
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Renters adopting PV",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "renters adopting pv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Renters adopting RCP",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "renters adopting rcp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Roof High exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "roof high exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Roof High scaled",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "roof high scaled",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Roof Low exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "roof low exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility HS",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "utility hs",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility HS exp 3",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "utility hs exp 3",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility HS exp 3 no incentives",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "utility hs exp 3 no incentives",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility HS no incentives",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "utility hs no incentives",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility PV no Eco",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "utility pv no eco",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility battery",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "utility battery",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility battery RCPv",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "utility battery rcpv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Utility vehicle",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Vechicle"
+        ],
+        "julia_name": "utility vehicle",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Vechicle": [
+                "BEV",
+                "DieselHEV",
+                "PetrolHEV",
+                "Diesel",
+                "Petrol",
+                "DieselPHEV",
+                "PetrolPHEV"
+            ]
+        }
+    },
+    {
+        "name": "Vehicle range factor change",
+        "kind": "aux",
+        "dims": [
+            "Vechicle"
+        ],
+        "julia_name": "vehicle range factor change",
+        "coords": {
+            "Vechicle": [
+                "BEV",
+                "DieselHEV",
+                "PetrolHEV",
+                "Diesel",
+                "Petrol",
+                "DieselPHEV",
+                "PetrolPHEV"
+            ]
+        }
+    },
+    {
+        "name": "Wall High exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "wall high exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Wall High scaled",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "wall high scaled",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Wall Low exp",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "wall low exp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Hourly demand and PHS",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "hourly demand and phs",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "PV reg scenario",
+        "kind": "const",
+        "dims": [
+        ],
+        "julia_name": "pv reg scenario",
+        "coords": {
+        }
+    },
+    {
+        "name": "Energy Community scenario",
+        "kind": "const",
+        "dims": [
+        ],
+        "julia_name": "energy community scenario",
+        "coords": {
+        }
+    },
+    {
+        "name": "MuKEn scenario",
+        "kind": "const",
+        "dims": [
+        ],
+        "julia_name": "muken scenario",
+        "coords": {
+        }
+    },
+    {
+        "name": "Electricity and heating and retrofit annual cost",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "electricity and heating and retrofit annual cost",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Average levy minus incentives archetype",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "average levy minus incentives archetype",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Average tax minus incentives archetype",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "average tax minus incentives archetype",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Batteries",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "Battery"
+        ],
+        "julia_name": "batteries",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ],
+            "Battery": [
+                "Byes",
+                "Bno"
+            ]
+        }
+    },
+    {
+        "name": "HeatPumps",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Type",
+            "Performance"
+        ],
+        "julia_name": "heatpumps",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Total annual electricity consumed",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total annual electricity consumed",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total annual electricity demand",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total annual electricity demand",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total annual electricity dispatched",
+        "kind": "aux",
+        "dims": [
+        ],
+        "julia_name": "total annual electricity dispatched",
+        "coords": {
+        }
+    },
+    {
+        "name": "Total Res buildings",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "total res buildings",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "HS VeryNew",
+        "kind": "stock",
+        "dims": [
+            "HS"
+        ],
+        "julia_name": "hs verynew",
+        "coords": {
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ]
+        }
+    },
+    {
+        "name": "HS New",
+        "kind": "stock",
+        "dims": [
+            "HS"
+        ],
+        "julia_name": "hs new",
+        "coords": {
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ]
+        }
+    },
+    {
+        "name": "HS Old",
+        "kind": "stock",
+        "dims": [
+            "HS"
+        ],
+        "julia_name": "hs old",
+        "coords": {
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ]
+        }
+    },
+    {
+        "name": "HS VeryOld",
+        "kind": "stock",
+        "dims": [
+            "HS"
+        ],
+        "julia_name": "hs veryold",
+        "coords": {
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ]
+        }
+    },
+    {
+        "name": "Priority vector by supplier",
+        "kind": "aux",
+        "dims": [
+            "Supplier",
+            "pprofile"
+        ],
+        "julia_name": "priority vector by supplier",
+        "coords": {
+            "pprofile": [
+                "ptype",
+                "ppriority",
+                "pwidth",
+                "pextra"
+            ],
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "Marginal cost by supplier",
+        "kind": "aux",
+        "dims": [
+            "Supplier"
+        ],
+        "julia_name": "marginal cost by supplier",
+        "coords": {
+            "Supplier": [
+                "Solar",
+                "Wind",
+                "Nuclear",
+                "RoR",
+                "Hydro",
+                "Import",
+                "PHS",
+                "Coal",
+                "Waste"
+            ]
+        }
+    },
+    {
+        "name": "Hourly imported electricity",
+        "kind": "delay",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "hourly imported electricity",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "PHS hourly supply",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "phs hourly supply",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Hour factor PHS consumption",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "hour factor phs consumption",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Seasonal PHS monthly demand",
+        "kind": "aux",
+        "dims": [
+            "Month"
+        ],
+        "julia_name": "seasonal phs monthly demand",
+        "coords": {
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Seasonal PHS monthly production",
+        "kind": "aux",
+        "dims": [
+            "Month"
+        ],
+        "julia_name": "seasonal phs monthly production",
+        "coords": {
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Seasonal PHS hourly demand",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "seasonal phs hourly demand",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Seasonal PHS hourly production",
+        "kind": "aux",
+        "dims": [
+            "Month",
+            "Hour"
+        ],
+        "julia_name": "seasonal phs hourly production",
+        "coords": {
+            "Hour": [
+                "H1",
+                "H2",
+                "H3",
+                "H4",
+                "H5",
+                "H6",
+                "H7",
+                "H8",
+                "H9",
+                "H10",
+                "H11",
+                "H12",
+                "H13",
+                "H14",
+                "H15",
+                "H16",
+                "H17",
+                "H18",
+                "H19",
+                "H20",
+                "H21",
+                "H22",
+                "H23",
+                "H24"
+            ],
+            "Month": [
+                "M1",
+                "M2",
+                "M3",
+                "M4",
+                "M5",
+                "M6",
+                "M7",
+                "M8",
+                "M9",
+                "M10",
+                "M11",
+                "M12"
+            ]
+        }
+    },
+    {
+        "name": "Annual archetypes",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "annual archetypes",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Owners adopting RCPv",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "owners adopting rcpv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Renters adopting RCPv",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "renters adopting rcpv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Owners adopting PV",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested owners adopting pv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Owners adopting RCP",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested owners adopting rcp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Owners adopting RCPv",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested owners adopting rcpv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Renters adopting PV",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested renters adopting pv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Renters adopting RCP",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested renters adopting rcp",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Requested Renters adopting RCPv",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "requested renters adopting rcpv",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Available PV adoption",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "available pv adoption",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Total PV request",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "total pv request",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Accepted PV adoption",
+        "kind": "aux",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type"
+        ],
+        "julia_name": "accepted pv adoption",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    },
+    {
+        "name": "Cumulative archetype HH",
+        "kind": "stock",
+        "dims": [
+            "District",
+            "HS",
+            "Performance",
+            "Type",
+            "PVpanel"
+        ],
+        "julia_name": "cumulative archetype hh",
+        "coords": {
+            "District": [
+                "Bellinzona",
+                "Blenio",
+                "Leventina",
+                "Locarno",
+                "Lugano",
+                "Mendrisio",
+                "Riviera",
+                "Vallemaggia"
+            ],
+            "HS": [
+                "Oil",
+                "Gas",
+                "ElectricHeater",
+                "Wood",
+                "OilST",
+                "GasST",
+                "WoodST",
+                "HPST",
+                "HeatPump",
+                "pellet",
+                "DH"
+            ],
+            "Performance": [
+                "VeryLow",
+                "Low",
+                "Moderate",
+                "High",
+                "VeryHigh"
+            ],
+            "PVpanel": [
+                "PVyes",
+                "PVno"
+            ],
+            "Type": [
+                "SFH",
+                "DFH",
+                "MFH"
+            ]
+        }
+    }
+]

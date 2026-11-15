@@ -4,10 +4,22 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Native translation of Vensim/SURE.mdl, shipped in the repository. The PySD
+# build (sure_julia/generated) stays selectable through SURE_JULIA_MODEL.
+DEFAULT_MODEL = ROOT / "sure_native/generated"
+
+
+def model_directory():
+    import os
+    return Path(os.environ.get("SURE_JULIA_MODEL", DEFAULT_MODEL)).resolve()
+
+
 CONFIG = Path(__file__).resolve().parent / "julia"
 YEARS = list(range(2011, 2051))
 MODEL_VARIANT = "v8"
 MODEL_REVISION = "sure-v8-nr-calendar-2"
+# Traduzione nativa di Vensim/SURE.mdl (sure_native), validata su 76 scenari Vensim
+NATIVE_REVISION = "sure-native-20261111"
 MODEL_PY = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.py"
 MODEL_MDL = ROOT / f"Vensim/SURE_pysd_{MODEL_VARIANT}.mdl"
 CALIBRATION = ROOT / f"constants_ref_{MODEL_VARIANT}.pkl"
@@ -32,7 +44,14 @@ def dump(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
-    temporary.replace(path)
+    for attempt in range(20):
+        try:
+            temporary.replace(path)
+            break
+        except PermissionError:   # Windows: file aperto per un attimo da antivirus o indicizzazione
+            if attempt == 19:
+                raise
+            __import__("time").sleep(0.05 * (attempt + 1))
 
 
 def digest(path):

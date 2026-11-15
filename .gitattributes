@@ -12,3 +12,6 @@ Vensim/calibration/*.out -text
 # CSV input and calibration-curve hashes use the canonical LF checkout bytes.
 Vensim/*_pysd_v8.csv text eol=lf
 content/system_dynamics/plots_data/calibration_sim_adoptions_v8.csv text eol=lf
+# Native build: checksums in build.json cover the exact bytes.
+sure_native/generated/** -text
+sure_native/model/calibration.out -text

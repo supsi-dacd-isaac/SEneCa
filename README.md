@@ -6,30 +6,23 @@ fotovoltaico e delle batterie residenziali, risanamento degli edifici e
 sostituzione dei sistemi di riscaldamento, elettrificazione della mobilita',
 bilancio orario del sistema elettrico e ricadute sul prezzo dell'elettricita'.
 
-Il modello è sviluppato in Vensim e tradotto con
-[PySD](https://pysd.readthedocs.io/). La versione principale usa **SURE v8**
-(`sure-v8-nr-calendar-2`) per gli scenari precalcolati e le simulazioni live con
-Julia; il backend Python resta selezionabile esplicitamente.
+Il modello è sviluppato in Vensim (`Vensim/SURE.mdl`, con la calibrazione
+dell'11 novembre 2026). La webapp usa una traduzione diretta Vensim → Julia
+(`sure_native`), senza PySD: il build `sure_native/generated` è nel
+repository con i suoi checksum ed è validato contro Vensim DSS su 76 scenari.
+I dati `data-v4.0.0` contengono 14.193 simulazioni distinte per 14.201
+configurazioni delle pagine (PV e batterie 648, riscaldamento 225, veicoli 144,
+elettricità 384) e 12.800 combinazioni di policy mix e incertezza con nove KPI.
+Il backend Python/PySD e il build `sure_julia/generated` restano selezionabili
+con `SURE_BACKEND` e `SURE_JULIA_MODEL`. Procedura: [sure_native/README.md](sure_native/README.md);
+staging su Elettra: [deploy/STAGING.md](deploy/STAGING.md).
 
-La v8 introduce il fotovoltaico non residenziale, il calendario delle
-installazioni, nuovi input e la calibrazione del 30 ottobre 2026, oltre alle
-perdite delle batterie residenziali. Conserva FER, budget condiviso delle
-adozioni FV e dispatch per priorità. La revisione 2 stabilizza il trattamento
-degli stock FV prossimi a zero, con la stessa modifica in Vensim, Python e Julia.
+La release precedente (`v0.6.0`, dati `data-v3.0.0`) usava la traduzione PySD
+di SURE v8 (`sure-v8-nr-calendar-2`), verificata con 427 confronti
+Python–Julia ma senza equivalenza con Vensim nativo: vedi il
+[rapporto v8](docs/validation/v8-release.md) e la [guida Julia](docs/julia-production.md).
+La linea EMS è un progetto separato, con modello, dati e release dedicati.
 
-La griglia principale comprende 14.571 simulazioni distinte per 14.579
-configurazioni, incluse **12.800 combinazioni di policy mix e incertezza**:
-128 politiche × gli stessi 100 campioni della v7, con nove KPI. Tutti i risultati
-sono stati rigenerati con Julia v8 per `data-v3.0.0`; lo ZIP di anteprima
-contiene invece dati misti v8 Python/v7 Julia e non va usato come release.
-
-Sono superati 427 confronti Python–Julia, controlli fisici, isolamento
-degli stati, benchmark seriale/parallelo e 1.771 confronti delle sezioni.
-Il [rapporto v8](docs/validation/v8-release.md) raccoglie risultati e differenze
-rispetto all'anteprima ricevuta.
-La procedura e i limiti della verifica sono nella [guida Julia](docs/julia-production.md).
-Non si rivendica equivalenza con Vensim nativo. La linea EMS è un progetto
-separato, con modello, dati e release dedicati.
 
 ## Riconoscimenti
 

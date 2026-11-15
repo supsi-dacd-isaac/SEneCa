@@ -48,9 +48,8 @@ FINAL_YEAR = 2050
 # "Additional annual inflow for Ticino") non esistono piu' nel modello: sono
 # state sostituite dai quattro provvedimenti binari del PECC.
 #
-# "Deflussi minimi LPAc" e "Cambiamento climatico Hydro" non sono piu' input
-# della pagina: non vengono impostati, quindi restano al default del modello
-# pubblicato (entrambi = 1).
+# "Deflussi minimi LPAc" e "Cambiamento climatico Hydro": Sì/No, base Sì
+# (= default di SURE.mdl), come nel foglio Input dell'11.11.2026.
 #
 # Nota FiT: nel modello Vensim e' in CHF/kWh; l'Excel lo esprime in ct/kWh
 # (0-5 sulla pagina Elettricità, due valori). I valori discreti usati qui
@@ -69,6 +68,10 @@ INPUT_GRID: dict[str, list[float]] = {
 
     "Provvedimento 1.7": [0.0, 1.0],
 
+    "Deflussi minimi LPAc": [0.0, 1.0],
+
+    "Cambiamento climatico Hydro": [0.0, 1.0],
+
 }
 
 
@@ -78,7 +81,7 @@ INPUT_ORDER = list(INPUT_GRID.keys())
 # Input binari in sidebar (bottoni Sì/No invece di slider)
 BINARY_INPUTS = frozenset({
     "Provvedimento 1.2", "Provvedimento 1.3", "Provvedimento 1.4",
-    "Provvedimento 1.7",
+    "Provvedimento 1.7", "Deflussi minimi LPAc", "Cambiamento climatico Hydro",
 })
 BINARY_LABELS = ("No", "Sì")
 
@@ -90,6 +93,8 @@ BASE_SCENARIO: dict[str, float] = {
     "Provvedimento 1.3": 0.0,
     "Provvedimento 1.4": 0.0,
     "Provvedimento 1.7": 0.0,
+    "Deflussi minimi LPAc": 1.0,
+    "Cambiamento climatico Hydro": 1.0,
 }
 
 INPUT_META = input_metadata(INPUT_ORDER)

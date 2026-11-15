@@ -1,0 +1,16 @@
+{
+  "vdfx": "Input Hour Factors.vdfx",
+  "tab": "Input Hour Factors.tab",
+  "vdfx_sha256": "f7cf7a8acb5781dd065bff169f8001fe8961580469255bf51121b1b95c846638",
+  "series": 4943,
+  "times": [
+    2011.0,
+    2049.0,
+    39
+  ],
+  "float64": 4913,
+  "six_digits_ambiguous": 30,
+  "six_digits_unmatched": 0,
+  "block_candidates": 4943,
+  "resolved_by_position": 60
+}

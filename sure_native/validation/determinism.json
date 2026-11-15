@@ -1,0 +1,33 @@
+{
+    "scenarios": [
+        "base",
+        "all_min",
+        "oat_04_max",
+        "lhs_00",
+        "lhs_07",
+        "lhs_15",
+        "lhs_29",
+        "oat_10_min"
+    ],
+    "serial_repeat_identical": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+    ],
+    "threads": 4,
+    "parallel_identical": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+    ]
+}

@@ -16,7 +16,7 @@ import pandas as pd
 import xarray as xr
 
 from .catalog import parameters
-from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, digest, identity, read
+from .common import CONFIG, ROOT, YEARS, MODEL_REVISION, NATIVE_REVISION, digest, identity, model_directory, read
 
 
 def frame_from_arrays(arrays, export, *, flatten=True):
@@ -39,12 +39,14 @@ class JuliaBackend:
     backend = "julia"
 
     def __init__(self, directory=None, timeout=300):
-        self.directory = Path(directory or os.environ.get("SURE_JULIA_MODEL", ROOT / "sure_julia/generated")).resolve()
+        self.directory = Path(directory).resolve() if directory else model_directory()
         self.metadata = read(self.directory / "build.json")
         if not self.metadata.get("complete"):
             raise ValueError("Incomplete Julia build")
-        if self.metadata.get("model_revision") != MODEL_REVISION:
-            raise ValueError(f"Julia build must use {MODEL_REVISION}")
+        self.native = self.metadata.get("worker") == "native"
+        expected_revision = NATIVE_REVISION if self.native else MODEL_REVISION
+        if self.metadata.get("model_revision") != expected_revision:
+            raise ValueError(f"Julia build must use {expected_revision}")
         for name, expected in self.metadata["artifacts"].items():
             if digest(self.directory / name) != expected:
                 raise ValueError(f"Julia artifact checksum differs: {name}")
@@ -82,8 +84,14 @@ class JuliaBackend:
         binary = os.environ.get("SURE_JULIA_BIN", "julia")
         self.log = tempfile.NamedTemporaryFile(prefix="sure-julia-", suffix=".log", mode="w+", delete=False)
         self.log_path = self.log.name
-        self.process = subprocess.Popen([binary, "--startup-file=no", f"--project={CONFIG}", str(CONFIG / "worker.jl"),
-                                        str(self.directory / self.metadata["model"]), str(self.directory / "export.json")],
+        if self.native:   # traduzione nativa di SURE.mdl: stesso protocollo, altro worker
+            native = ROOT / "sure_native"
+            command = [binary, "--startup-file=no", f"--project={native}", str(native / "webapp_worker.jl"),
+                       str(self.directory), str(self.directory / "export.json")]
+        else:
+            command = [binary, "--startup-file=no", f"--project={CONFIG}", str(CONFIG / "worker.jl"),
+                       str(self.directory / self.metadata["model"]), str(self.directory / "export.json")]
+        self.process = subprocess.Popen(command,
                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log, text=True, bufsize=1, env=env)
         process = self.process
         def consume():
@@ -109,7 +117,8 @@ class JuliaBackend:
             raise ValueError("Unknown or duplicate requested outputs")
         requested = list(names)
         from .physical import OUTPUTS as PHYSICAL_OUTPUTS
-        names = list(dict.fromkeys(names + PHYSICAL_OUTPUTS))
+        # diagnostics the build does not export (v8 checks on the native build) are skipped by check()
+        names = list(dict.fromkeys(names + [n for n in PHYSICAL_OUTPUTS if n in catalog]))
         with self.lock, tempfile.TemporaryDirectory(prefix="sure-result-") as temporary:
             self._start()
             self.request_id += 1

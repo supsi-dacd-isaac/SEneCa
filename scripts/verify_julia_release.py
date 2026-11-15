@@ -6,6 +6,35 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+# Files the native worker loads at run time: a change here changes the numbers.
+NATIVE_RUNTIME = ("sure_native/Manifest.toml", "sure_native/Project.toml", "sure_native/webapp_worker.jl",
+                  "sure_native/src/parser.jl", "sure_native/src/runtime.jl", "sure_native/src/simulate.jl")
+
+
+def verify_native(root, expected):
+    from sure_julia.common import NATIVE_REVISION, digest
+    directory = root / "sure_native/generated"
+    actual = json.loads((directory / "build.json").read_text())
+    if not actual.get("complete") or actual.get("model_revision") != NATIVE_REVISION:
+        raise ValueError("Incomplete native build or different revision")
+    for key in ("worker", "artifacts", "sources", "years", "float", "model_revision"):
+        if actual[key] != expected[key]:
+            raise ValueError(f"Runtime and pinned dataset use different model {key}")
+    for name, value in actual["artifacts"].items():
+        if digest(directory / name) != value:
+            raise ValueError(f"Native build file differs from its build record: {name}")
+    for path in NATIVE_RUNTIME:
+        if expected["implementation"][path] not in line_ending_digests(root / path):
+            raise ValueError(f"Runtime file differs from data generation: {path}")
+
+
+def line_ending_digests(path):
+    """Digests of the file with LF or CRLF endings: the data were generated on
+    Windows, the image is built from the LF files stored in git."""
+    import hashlib
+    lf = path.read_bytes().replace(b"\r\n", b"\n")
+    return {hashlib.sha256(data).hexdigest() for data in (lf, lf.replace(b"\n", b"\r\n"))}
+
 
 def verify(root):
     root = Path(root)
@@ -16,44 +45,47 @@ def verify(root):
     if provenance["backend"] != "julia":
         raise ValueError("Expected a Julia-generated dataset")
     expected = provenance["model"]
-    actual = json.loads((root / "sure_julia/generated/build.json").read_text())
-    # Build metadata also includes non-numerical runners and diagnostics, which
-    # can evolve without changing the generated equations or their inputs.
-    for key in ("artifacts", "sources", "defaults", "parameters", "years", "float", "delay_policy", "model_revision"):
-        if actual[key] != expected[key]:
-            raise ValueError(f"Runtime and pinned dataset use different model {key}")
-    for path in ("sure_julia/julia/Manifest.toml", "sure_julia/julia/Project.toml", "sure_julia/python.lock"):
-        if actual["implementation"][path] != expected["implementation"][path]:
-            raise ValueError(f"Runtime dependency lock differs from data generation: {path}")
-    if int(pin["tag"].removeprefix("data-v").split(".")[0]) >= 3:
-        from sure_julia.common import digest
-        certificate = provenance["validation_certificate"]
-        generation = provenance["generation"]
-        encoded = (json.dumps(certificate, indent=2, ensure_ascii=False, allow_nan=False) + "\n").encode()
-        if (certificate.get("pass") is not True or not certificate.get("complete_suite")
-                or len(certificate["cases"]) != 427 or not all(certificate["cases"].values())
-                or certificate["build"] != generation["build"]
-                or hashlib.sha256(encoded).hexdigest() != generation["validation_certificate_sha256"]):
-            raise ValueError("Missing or inconsistent full v8 validation certificate")
-        reviewed = json.loads((root / "docs/validation/v8-inputs.json").read_text())
-        native = {p.name: digest(p) for p in (root / "Vensim").glob("*.vdfx")}
-        if native != reviewed["native_inputs"] or native != provenance["native_inputs"]:
-            raise ValueError("Native inputs differ from the reviewed v8 source")
-        sample_hash = digest(root / "precomputed/exploratory/uncertainty_samples.parquet")
-        if sample_hash != generation["sample_sha256"] or sample_hash != reviewed["uncertainty_samples_sha256"]:
-            raise ValueError("The v8 uncertainty draws changed")
-        sections = provenance["section_validation"]
-        if (sections.get("pass") is not True or sections["scenarios"] != 1771
-                or sections["configurations"] != 1779
-                or sections["model_revision"] != actual["model_revision"]
-                or len(sections["sections"]) != 6
-                or any(s["python_julia"]["cells_beyond_tolerance"] for s in sections["sections"].values())):
-            raise ValueError("Incomplete v8 section equivalence audit")
-        curves = provenance["calibration_curves"]
-        if (curves["model_sources"] != actual["sources"]
-                or curves["validated_julia_comparison_pass"] is not True
-                or curves["csv_sha256"] != digest(root / "content/system_dynamics/plots_data/calibration_sim_adoptions_v8.csv")):
-            raise ValueError("Calibration plots and dataset have different model identities")
+    if expected.get("worker") == "native":
+        verify_native(root, expected)
+    else:
+        actual = json.loads((root / "sure_julia/generated/build.json").read_text())
+        # Build metadata also includes non-numerical runners and diagnostics, which
+        # can evolve without changing the generated equations or their inputs.
+        for key in ("artifacts", "sources", "defaults", "parameters", "years", "float", "delay_policy", "model_revision"):
+            if actual[key] != expected[key]:
+                raise ValueError(f"Runtime and pinned dataset use different model {key}")
+        for path in ("sure_julia/julia/Manifest.toml", "sure_julia/julia/Project.toml", "sure_julia/python.lock"):
+            if actual["implementation"][path] != expected["implementation"][path]:
+                raise ValueError(f"Runtime dependency lock differs from data generation: {path}")
+        if int(pin["tag"].removeprefix("data-v").split(".")[0]) >= 3:
+            from sure_julia.common import digest
+            certificate = provenance["validation_certificate"]
+            generation = provenance["generation"]
+            encoded = (json.dumps(certificate, indent=2, ensure_ascii=False, allow_nan=False) + "\n").encode()
+            if (certificate.get("pass") is not True or not certificate.get("complete_suite")
+                    or len(certificate["cases"]) != 427 or not all(certificate["cases"].values())
+                    or certificate["build"] != generation["build"]
+                    or hashlib.sha256(encoded).hexdigest() != generation["validation_certificate_sha256"]):
+                raise ValueError("Missing or inconsistent full v8 validation certificate")
+            reviewed = json.loads((root / "docs/validation/v8-inputs.json").read_text())
+            native = {p.name: digest(p) for p in (root / "Vensim").glob("*.vdfx")}
+            if native != reviewed["native_inputs"] or native != provenance["native_inputs"]:
+                raise ValueError("Native inputs differ from the reviewed v8 source")
+            sample_hash = digest(root / "precomputed/exploratory/uncertainty_samples.parquet")
+            if sample_hash != generation["sample_sha256"] or sample_hash != reviewed["uncertainty_samples_sha256"]:
+                raise ValueError("The v8 uncertainty draws changed")
+            sections = provenance["section_validation"]
+            if (sections.get("pass") is not True or sections["scenarios"] != 1771
+                    or sections["configurations"] != 1779
+                    or sections["model_revision"] != actual["model_revision"]
+                    or len(sections["sections"]) != 6
+                    or any(s["python_julia"]["cells_beyond_tolerance"] for s in sections["sections"].values())):
+                raise ValueError("Incomplete v8 section equivalence audit")
+            curves = provenance["calibration_curves"]
+            if (curves["model_sources"] != actual["sources"]
+                    or curves["validated_julia_comparison_pass"] is not True
+                    or curves["csv_sha256"] != digest(root / "content/system_dynamics/plots_data/calibration_sim_adoptions_v8.csv")):
+                raise ValueError("Calibration plots and dataset have different model identities")
     import pandas as pd
     from pv_batteries.exploratory import validate_kpi_store
     from pv_batteries.exploratory_config import validate_samples

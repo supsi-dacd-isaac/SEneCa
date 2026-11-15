@@ -163,14 +163,15 @@ render_echarts_line_composite(df, meta, chart_key='nonresidential')
         self.assertNotEqual(series["Simulato"][-1], series["Osservato"][-1])
 
     def test_calibration_plot_belongs_to_the_current_model_and_calibration(self):
-        from sure_julia.common import MODEL_REVISION, model_sources
+        from sure_julia.common import NATIVE_REVISION, model_directory
         audit = json.loads(SIM_ADOPTIONS_CSV.with_suffix('.json').read_text())
-        self.assertEqual(audit['model_revision'], MODEL_REVISION)
-        self.assertEqual(audit['model_sources'], model_sources())
+        # Curves from the native build that serves the app, checked against Vensim's base run
+        build = json.loads((model_directory() / 'build.json').read_text())
+        self.assertEqual(audit['model_revision'], NATIVE_REVISION)
+        self.assertEqual(audit['model_sources'], build['sources'])
         self.assertEqual(audit['csv_sha256'], hashlib.sha256(SIM_ADOPTIONS_CSV.read_bytes()).hexdigest())
-        from sure_julia.catalog import outputs
-        self.assertEqual(audit['validated_python_outputs_exact'], len(outputs()))
-        self.assertIs(audit['validated_julia_comparison_pass'], True)
+        self.assertIs(audit['validated_vensim_comparison']['pass'], True)
+        self.assertLessEqual(audit['validated_vensim_comparison']['max_relative_error'], 5e-5)
         frame = pd.read_csv(SIM_ADOPTIONS_CSV, index_col=0)
         self.assertEqual(list(frame.index), list(range(2011, 2026)))
         for tech, years in audit['observation_years'].items():

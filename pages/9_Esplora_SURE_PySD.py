@@ -182,7 +182,8 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         tr(label), options=labels, format_func={value: tr(value) for value in labels}.get, index=None if key in st.session_state else idx,
                         help=tr(help_txt), key=key,
                     )
-                    ui[inp.name] = float(inv[chosen])
+                    # widget senza valore (stato di sessione non valido): scenario base
+                    ui[inp.name] = float(inv.get(chosen, inp.default))
                 elif inp.binary:
                     choice = st.radio(
                         tr(label), ("No", "Sì"),
@@ -191,7 +192,7 @@ def render_sidebar() -> tuple[dict[str, float], bool, str]:
                         horizontal=True,
                         help=tr(help_txt), key=key,
                     )
-                    ui[inp.name] = 1.0 if choice == "Sì" else 0.0
+                    ui[inp.name] = float(inp.default) if choice is None else (1.0 if choice == "Sì" else 0.0)
                 else:
                     scale = inp.scale
                     ui[inp.name] = float(st.select_slider(

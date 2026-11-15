@@ -1,6 +1,10 @@
-FROM python:3.11.8-slim-bookworm@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b AS runtime
+FROM python:3.11.8-slim-bookworm@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
+# The model is the native translation of Vensim/SURE.mdl in sure_native/generated,
+# validated against Vensim and committed with its checksums. The build does not
+# translate the model again: it only checks that the pinned dataset was generated
+# by exactly this build (scripts/verify_julia_release.py).
 ARG TARGETARCH
-RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY sure_julia/python.lock /opt/sure/python.lock
 RUN pip install --no-cache-dir -r /opt/sure/python.lock
 RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
@@ -11,36 +15,21 @@ RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
     echo "$checksum  /tmp/julia.tar.gz" | sha256sum -c - && \
     tar xzf /tmp/julia.tar.gz -C /opt && rm /tmp/julia.tar.gz && \
     ln -s /opt/julia-1.10.12/bin/julia /usr/local/bin/julia
-RUN git clone https://github.com/SDXorg/pysd.git /opt/pysd && \
-    git -C /opt/pysd checkout 8991d119e139029d4dec712d257cf5fcc3549b8f && \
-    git -C /opt/pysd -c submodule.pysd/builders/julia/PySD.jl.url=https://github.com/rogersamso/PySD.jl.git submodule update --init pysd/builders/julia/PySD.jl && \
-    test "$(git -C /opt/pysd/pysd/builders/julia/PySD.jl rev-parse HEAD)" = abe4251fe91734f83776a9c782088d3a2f09dc57 && \
-    python -m venv --system-site-packages /opt/translator && /opt/translator/bin/pip install --no-deps -e /opt/pysd
-ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 SURE_VARIANT=v8 JULIA_DEPOT_PATH=/runtime/julia-depot
+ENV JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+    PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1 \
+    JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic \
+    PYTHONPATH=/app SURE_VARIANT=v8 SURE_BACKEND=julia SURE_JULIA_MODEL=/app/sure_native/generated \
+    STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
 WORKDIR /app
-
-FROM runtime AS model-builder
-ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic
-COPY sure_julia/julia/Project.toml sure_julia/julia/Manifest.toml /opt/julia-env/
-RUN julia --startup-file=no --project=/opt/julia-env -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-# Only model-generation inputs invalidate translation. Page, asset and workflow
-# edits belong to the application layer below.
-COPY sure_julia /app/sure_julia
-COPY Vensim /app/Vensim
-COPY pv_batteries/__init__.py pv_batteries/*_config.py pv_batteries/policy_labels.py /app/pv_batteries/
-# Policy metadata imports presentation helpers, even when building headlessly.
-COPY pv_batteries/i18n.py pv_batteries/display_labels.py /app/pv_batteries/
-COPY constants_ref_v8.pkl pysd_explore_config.py sure_pysd.py sure_paths.py fix_selfref_sure.py fix_allocate_sure.py fix_functions_sure.py /app/
-RUN python -m sure_julia.pv_budget --check && /opt/translator/bin/python -m sure_julia.build /app/sure_julia/generated
-
-FROM runtime AS application
+# Julia packages of the native worker (versions pinned in sure_native/Manifest.toml)
+COPY sure_native/Project.toml sure_native/Manifest.toml /app/sure_native/
+# Project.toml is the SureNative package: Pkg.precompile also needs its sources
+COPY sure_native/src /app/sure_native/src
+RUN julia --startup-file=no --project=/app/sure_native -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
 ARG CODE_VERSION=dev
 ARG DATA_RELEASE_TAG=unknown
-ENV JULIA_DEPOT_PATH=/opt/julia-depot JULIA_CPU_TARGET=generic PYTHONPATH=/app SURE_BACKEND=julia STREAMLIT_SERVER_PORT=8501 STREAMLIT_SERVER_ADDRESS=0.0.0.0
-COPY --from=model-builder /opt/julia-depot /opt/julia-depot
 COPY . /app
-COPY --from=model-builder /app/sure_julia/generated /app/sure_julia/generated
-RUN rm -rf /opt/pysd /opt/translator && python scripts/data_release.py verify && python scripts/verify_julia_release.py
+RUN python scripts/data_release.py verify && python scripts/verify_julia_release.py
 LABEL org.opencontainers.image.source="https://github.com/supsi-dacd-isaac/SEneCa" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${CODE_VERSION}" \

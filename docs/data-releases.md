@@ -16,6 +16,11 @@ Dalla release `data-v2.0.0` il vecchio `SURE.vpmx` è escluso e i sei VDFX
 sono ricostruiti dai CSV correnti della v7. La riesportazione nativa è
 verificata su tutte le serie e gli anni; sorgenti e checksum sono registrati
 in `provenance/build.json`. Gli archivi v1 restano immutabili e leggibili.
+Dalla release `data-v4.0.0` gli scenari sono generati dalla traduzione nativa
+di `Vensim/SURE.mdl` (`sure_native/generated`, revisione `sure-native-20261111`)
+e i sei VDFX sono quelli usati per validarla contro Vensim DSS. Le griglie
+seguono il foglio "Input" di `Input and Output Streamlit.xlsx` dell'11 novembre
+2026; i parametri effettivi per scenario sono 39.
 
 La linea v3 dei dati usa SURE v8: nove Parquet rigenerati con Julia, inclusi
 i 12.800 risultati esplorativi, e i sei VDFX ricevuti con gli input v8.
